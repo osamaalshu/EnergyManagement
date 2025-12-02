@@ -2,19 +2,27 @@ import type { FC } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { microgridSeries } from '../../data/mockDashboardData';
 
+const tooltipStyles = {
+  background: 'var(--card-bg)',
+  border: '1px solid var(--tooltip-border)',
+  borderRadius: '0.75rem',
+};
+
+const tickStyle = { fill: 'var(--muted-text)', fontSize: 12 } as const;
+
 const MicrogridWidget: FC = () => {
   return (
     <div className="flex h-full flex-col gap-4 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Microgrid</p>
-          <h3 className="text-lg font-semibold text-white">Self-sufficiency</h3>
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Microgrid</p>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Self-sufficiency</h3>
         </div>
-        <span className="text-sm text-slate-500">Today</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400">Today</span>
       </div>
-      <div className="h-60 flex-1">
+      <div className="flex-1 min-h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={microgridSeries} margin={{ top: 10, left: -20, right: 0 }}>
+          <AreaChart data={microgridSeries} margin={{ top: 10, left: 12, right: 24, bottom: 10 }}>
             <defs>
               <linearGradient id="consumption" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.6} />
@@ -25,12 +33,16 @@ const MicrogridWidget: FC = () => {
                 <stop offset="95%" stopColor="#34d399" stopOpacity={0.1} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-            <XAxis dataKey="label" stroke="#94a3b8" />
-            <YAxis stroke="#94a3b8" unit=" kWh" />
-            <Tooltip
-              contentStyle={{ background: '#15223c', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem' }}
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+            <XAxis dataKey="label" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+            <YAxis
+              width={56}
+              tick={tickStyle}
+              tickLine={false}
+              axisLine={{ stroke: 'var(--grid-stroke)' }}
+              label={{ value: 'kWh', angle: -90, position: 'insideLeft', fill: 'var(--muted-text)', style: { textTransform: 'uppercase' } }}
             />
+            <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
             <Area type="monotone" dataKey="consumption" stroke="#38bdf8" fillOpacity={1} fill="url(#consumption)" name="Consumption" />
             <Area type="monotone" dataKey="self" stroke="#34d399" fillOpacity={1} fill="url(#self)" name="Self-sufficiency" />
           </AreaChart>
