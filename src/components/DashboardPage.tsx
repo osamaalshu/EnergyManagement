@@ -174,6 +174,24 @@ const DashboardPage = ({ isEditMode }: DashboardPageProps) => {
     setLayouts(newLayouts);
   };
 
+  const scaleWidgets = (factor: number) => {
+    setLayouts((prev: Layouts) => {
+      const nextLayouts: Layouts = {};
+      (Object.keys(BREAKPOINTS) as Array<keyof typeof BREAKPOINTS>).forEach((breakpoint) => {
+        const existing = (prev[breakpoint] ?? []) as Layout[];
+        nextLayouts[breakpoint] = existing.map((item: Layout) => {
+          const newW = Math.max(item.minW || 3, Math.min(COLUMNS[breakpoint], Math.round(item.w * factor)));
+          const newH = Math.max(item.minH || 2, Math.round(item.h * factor));
+          return { ...item, w: newW, h: newH };
+        });
+      });
+      return nextLayouts;
+    });
+  };
+
+  const minimizeWidgets = () => scaleWidgets(0.75);
+  const enlargeWidgets = () => scaleWidgets(1.33);
+
   const availableWidgets: Array<{ type: WidgetType; label: string }> = [
     { type: 'todayBill', label: "Today's Energy Bill" },
     { type: 'outdoorTemp', label: 'Outdoor Temperature' },
@@ -212,6 +230,26 @@ const DashboardPage = ({ isEditMode }: DashboardPageProps) => {
         </div>
         {isEditMode && (
           <div className="relative z-50 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={minimizeWidgets}
+              className="rounded-full border border-slate-300 bg-transparent px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 dark:border-white/20 dark:text-slate-300 dark:hover:bg-white/5"
+              title="Shrink widgets by 25%"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={enlargeWidgets}
+              className="rounded-full border border-slate-300 bg-transparent px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 dark:border-white/20 dark:text-slate-300 dark:hover:bg-white/5"
+              title="Enlarge widgets by 33%"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
             <button
               type="button"
               onClick={organizeWidgets}
