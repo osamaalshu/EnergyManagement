@@ -132,7 +132,6 @@ const DashboardPage = ({ isEditMode }: DashboardPageProps) => {
     (Object.keys(BREAKPOINTS) as Array<keyof typeof BREAKPOINTS>).forEach((breakpoint) => {
       const cols = COLUMNS[breakpoint];
       const layoutItems: Layout[] = [];
-      const rows: number[] = [];
 
       sorted.forEach((widget) => {
         const size = defaultSize[widget.type] ?? { w: 3, h: 2 };
