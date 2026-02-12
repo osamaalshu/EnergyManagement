@@ -109,7 +109,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={buildingConsumptionBreakdown}
+                  data={buildingConsumptionBreakdown as unknown as Record<string, unknown>[]}
                   cx="50%"
                   cy="50%"
                   innerRadius={40}
@@ -271,9 +271,9 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
                 <Tooltip content={<ScatterTooltipContent />} />
                 <Scatter
                   data={scatterData}
-                  shape={(props: CustomDotProps) => (
-                    <ClickableScatterDot {...props} onNavigateToBuilding={onNavigateToBuilding} />
-                  )}
+                  shape={((props: unknown) => (
+                    <ClickableScatterDot {...(props as CustomDotProps)} onNavigateToBuilding={onNavigateToBuilding} />
+                  )) as (props: unknown) => React.JSX.Element}
                 />
               </ScatterChart>
             </ResponsiveContainer>
