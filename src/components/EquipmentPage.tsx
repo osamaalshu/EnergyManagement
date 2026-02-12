@@ -1,0 +1,224 @@
+import type { FC } from 'react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+  Area,
+  ComposedChart,
+} from 'recharts';
+import { equipmentDetails, buildingDetails } from '../data/mockPortfolioData';
+import AnomalyPanel from './AnomalyPanel';
+
+const tooltipStyles = {
+  background: 'var(--card-bg)',
+  border: '1px solid var(--tooltip-border)',
+  borderRadius: '0.75rem',
+};
+const tickStyle = { fill: 'var(--muted-text)', fontSize: 12 } as const;
+
+interface EquipmentPageProps {
+  buildingId: string;
+  equipmentId: string;
+  onBack: () => void;
+}
+
+const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack }) => {
+  const detail = equipmentDetails[equipmentId];
+  const buildingDetail = buildingDetails[buildingId];
+  const buildingName = buildingDetail?.building.name ?? buildingId;
+
+  if (!detail) {
+    return (
+      <section className="flex h-64 items-center justify-center">
+        <p className="text-slate-500 dark:text-slate-400">Equipment not found.</p>
+      </section>
+    );
+  }
+
+  const { equipment, chillerKPIs, coolingTowerKPIs, pumpKPIs, efficiencySeries, temperatureLoopSeries, powerCoolingSeries, anomaly } = detail;
+  const isChiller = equipment.type === 'chiller';
+  const isTower = equipment.type === 'coolingTower';
+
+  const statusColor: Record<string, string> = {
+    running: 'bg-emerald-400',
+    off: 'bg-slate-400',
+    warning: 'bg-red-400',
+  };
+
+  const statusTextColor: Record<string, string> = {
+    running: 'text-emerald-400',
+    off: 'text-slate-400',
+    warning: 'text-red-400',
+  };
+
+  return (
+    <section className="space-y-8">
+      {/* ── Header ────────────────────────────────────────────── */}
+      <div>
+        <p className="mb-1 text-xs text-accent">
+          <button type="button" onClick={onBack} className="hover:underline">Portfolio</button>
+          <span className="mx-1 text-slate-500">&gt;</span>
+          <button type="button" onClick={onBack} className="hover:underline text-accent">{buildingName}</button>
+          <span className="mx-1 text-slate-500">&gt;</span>
+          <span className="text-slate-500 dark:text-slate-400">{equipment.name}</span>
+        </p>
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/70 text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5"
+            aria-label="Back to building"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">{equipment.name}</h2>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="rounded-full bg-accent/20 px-3 py-0.5 text-xs font-medium text-accent capitalize">
+                {equipment.type === 'coolingTower' ? 'Cooling Tower' : equipment.type}
+              </span>
+              <span className={`flex items-center gap-1 text-xs font-medium ${statusTextColor[equipment.status]}`}>
+                <span className={`inline-block h-2 w-2 rounded-full ${statusColor[equipment.status]}`} />
+                {equipment.status === 'running' ? 'Running' : equipment.status === 'off' ? 'Off' : 'Warning'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── KPI Cards ─────────────────────────────────────────── */}
+      {isChiller && chillerKPIs && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <KpiCard label="Delta T" value={chillerKPIs.deltaT} unit="°C" sub={`Return ${chillerKPIs.chilledWaterReturnTemp}°C − Supply ${chillerKPIs.chilledWaterSupplyTemp}°C`} />
+          <KpiCard label="Chilled Water Flow" value={chillerKPIs.chilledWaterFlowRate} unit="L/s" />
+          <KpiCard label="Condenser Water Flow" value={chillerKPIs.condenserWaterFlowRate} unit="L/s" />
+          <KpiCard label="Cooling Output" value={chillerKPIs.coolingTons} unit="tons" />
+          <KpiCard
+            label="Efficiency"
+            value={chillerKPIs.efficiency}
+            unit="kW/ton"
+            accent={chillerKPIs.efficiency <= 0.5 ? 'text-emerald-400' : chillerKPIs.efficiency <= 0.7 ? 'text-yellow-400' : 'text-red-400'}
+            sub="Target: < 0.70"
+          />
+          <KpiCard label="Power Draw" value={chillerKPIs.powerDraw} unit="kW" />
+        </div>
+      )}
+
+      {isTower && coolingTowerKPIs && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <KpiCard
+            label="Condenser Water Supply Temp"
+            value={coolingTowerKPIs.condenserWaterSupplyTemp}
+            unit="°C"
+            accent={coolingTowerKPIs.condenserWaterSupplyTemp > 50 ? 'text-red-400' : undefined}
+          />
+        </div>
+      )}
+
+      {!isChiller && !isTower && pumpKPIs && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <KpiCard label="Power Draw" value={pumpKPIs.powerDraw} unit="kW" />
+        </div>
+      )}
+
+      {/* ── Time Series Charts (chiller only) ─────────────────── */}
+      {isChiller && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Efficiency Over Time */}
+          {efficiencySeries && efficiencySeries.length > 0 && (
+            <div className="card-surface p-5">
+              <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Efficiency Over Time</h4>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={efficiencySeries} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                    <XAxis dataKey="label" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+                    <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'kW/ton', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)' }} />
+                    <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                    <ReferenceLine y={0.7} stroke="#f87171" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: '0.70 Threshold', position: 'right', fill: '#f87171', fontSize: 11 }} />
+                    <Line type="monotone" dataKey="value" name="Efficiency" stroke="#38bdf8" strokeWidth={2} dot={{ r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* Temperature Loop */}
+          {temperatureLoopSeries && temperatureLoopSeries.length > 0 && (
+            <div className="card-surface p-5">
+              <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Temperature Loop</h4>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={temperatureLoopSeries} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                    <XAxis dataKey="label" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+                    <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={40} label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 6, fill: 'var(--muted-text)' }} />
+                    <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                    <Legend wrapperStyle={{ color: 'var(--muted-text)', fontSize: 11 }} />
+                    <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.15} stroke="none" />
+                    <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#38bdf8" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                    <Line type="monotone" dataKey="condenserSupply" name="Condenser Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="condenserReturn" name="Condenser Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Power Draw vs Cooling Output (full width, chiller only) */}
+      {isChiller && powerCoolingSeries && powerCoolingSeries.length > 0 && (
+        <div className="card-surface p-5">
+          <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Power Draw vs Cooling Output</h4>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={powerCoolingSeries} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                <XAxis dataKey="label" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+                <YAxis yAxisId="left" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'kW', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)' }} />
+                <YAxis yAxisId="right" orientation="right" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'Tons', angle: 90, position: 'insideRight', offset: 10, fill: 'var(--muted-text)' }} />
+                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                <Legend wrapperStyle={{ color: 'var(--muted-text)' }} />
+                <Line yAxisId="left" type="monotone" dataKey="power" name="Power (kW)" stroke="#38bdf8" strokeWidth={2} dot={{ r: 3 }} />
+                <Line yAxisId="right" type="monotone" dataKey="coolingTons" name="Cooling (Tons)" stroke="#34d399" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* ── Anomaly Panel ─────────────────────────────────────── */}
+      <AnomalyPanel data={anomaly} title="Equipment Anomaly Detection" />
+    </section>
+  );
+};
+
+// ── Small KPI card component ────────────────────────────────────
+const KpiCard: FC<{
+  label: string;
+  value: number;
+  unit: string;
+  sub?: string;
+  accent?: string;
+}> = ({ label, value, unit, sub, accent }) => (
+  <div className="card-surface p-5">
+    <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">{label}</p>
+    <p className={`mt-3 text-3xl font-semibold ${accent ?? 'text-slate-900 dark:text-white'}`}>
+      {typeof value === 'number' ? (Number.isInteger(value) ? value : value.toFixed(2)) : value}
+      <span className="ml-1 text-base font-normal text-slate-500">{unit}</span>
+    </p>
+    {sub && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
+  </div>
+);
+
+export default EquipmentPage;

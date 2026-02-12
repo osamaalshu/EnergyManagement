@@ -1,10 +1,12 @@
 import type { FC, ReactNode, SVGProps } from 'react';
 
+import type { ActivePage } from './Sidebar';
+
 interface TopBarProps {
   onToggleSidebar: () => void;
   isEditMode: boolean;
   onEditModeChange: (value: boolean) => void;
-  activePage: 'dashboard' | 'savings';
+  activePage: ActivePage;
   theme: 'light' | 'dark';
   onThemeToggle: () => void;
 }
@@ -67,7 +69,12 @@ const TopBar: FC<TopBarProps> = ({
           <IconButton>{theme === 'dark' ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}</IconButton>
         </button>
         <div className="rounded-full border border-slate-200/60 px-4 py-2 text-sm text-slate-600 dark:border-white/10 dark:text-slate-200">
-          {activePage === 'dashboard' ? 'Dashboard' : 'Savings'}
+          {activePage === 'dashboard' ? 'Dashboard'
+            : activePage === 'savings' ? 'Savings'
+            : activePage === 'portfolio' ? 'Portfolio'
+            : activePage === 'building' ? 'Building'
+            : activePage === 'equipment' ? 'Equipment'
+            : 'Dashboard'}
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-slate-500 dark:text-slate-400">Edit mode</span>

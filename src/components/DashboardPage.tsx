@@ -8,6 +8,12 @@ import EnergyBySystemWidget from './widgets/EnergyBySystemWidget';
 import MicrogridWidget from './widgets/MicrogridWidget';
 import PlaceholderWidget from './widgets/PlaceholderWidget';
 import TariffWidget from './widgets/TariffWidget';
+import {
+  portfolioWarnings,
+  portfolioNotifications,
+  todaysProduction,
+  todaysConsumption,
+} from '../data/mockPortfolioData';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -72,9 +78,10 @@ const cloneLayouts = (layoutItems: Layout[]): Layouts => {
 
 interface DashboardPageProps {
   isEditMode: boolean;
+  onNavigateToPortfolio?: () => void;
 }
 
-const DashboardPage = ({ isEditMode }: DashboardPageProps) => {
+const DashboardPage = ({ isEditMode, onNavigateToPortfolio }: DashboardPageProps) => {
   const [widgets, setWidgets] = useState<WidgetInstance[]>(() => seedWidgets.map(({ instance }) => instance));
   const [layouts, setLayouts] = useState<Layouts>(() => cloneLayouts(seedWidgets.map(({ layout }) => layout)));
   const [addMenuOpen, setAddMenuOpen] = useState(false);
@@ -221,7 +228,95 @@ const DashboardPage = ({ isEditMode }: DashboardPageProps) => {
     }
   };
 
+  const severityIcon: Record<string, string> = { critical: 'text-red-400', warning: 'text-amber-400', info: 'text-accent' };
+  const unreadCount = portfolioNotifications.filter((n) => !n.read).length;
+
   return (
+    <>
+      {/* ── Portfolio Overview Strip (static, outside grid) ───── */}
+      <section className="mb-6">
+        <p className="mb-3 text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Portfolio Overview</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Warnings */}
+          <div className="card-surface flex items-start gap-3 p-4">
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-400/15">
+              <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 002.54 20h18.92a1 1 0 00.85-1.28l-8.6-14.86a1 1 0 00-1.72 0z" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Warnings</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{portfolioWarnings.length} <span className="text-sm font-normal text-slate-500">Active</span></p>
+              {portfolioWarnings[0] && (
+                <p className={`mt-1 truncate text-xs ${severityIcon[portfolioWarnings[0].severity]}`}>
+                  {portfolioWarnings[0].message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Notifications */}
+          <div className="card-surface flex items-start gap-3 p-4">
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
+              <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Notifications</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{portfolioNotifications.length} <span className="text-sm font-normal text-slate-500">Outstanding</span></p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{unreadCount} unread</p>
+            </div>
+          </div>
+
+          {/* Today's Production */}
+          <div className="card-surface flex items-start gap-3 p-4">
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
+              <svg className="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Today&apos;s Production</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
+                {todaysProduction.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
+                <span className="mx-1 text-slate-400">/</span>
+                {todaysProduction.omr} <span className="text-sm font-normal text-slate-500">OMR</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Today's Consumption */}
+          <div className="card-surface flex items-start gap-3 p-4">
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
+              <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Today&apos;s Consumption</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
+                {todaysConsumption.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
+                <span className="mx-1 text-slate-400">/</span>
+                {todaysConsumption.omr} <span className="text-sm font-normal text-slate-500">OMR</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        {onNavigateToPortfolio && (
+          <div className="mt-3 text-right">
+            <button
+              type="button"
+              onClick={onNavigateToPortfolio}
+              className="text-sm font-medium text-accent transition hover:underline"
+            >
+              View Portfolio &rarr;
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* ── Existing Dashboard ────────────────────────────────── */}
     <section className="relative">
       <div className="mb-4 flex items-center justify-between">
         <div>
@@ -330,6 +425,7 @@ const DashboardPage = ({ isEditMode }: DashboardPageProps) => {
         ))}
       </ResponsiveGridLayout>
     </section>
+    </>
   );
 };
 
