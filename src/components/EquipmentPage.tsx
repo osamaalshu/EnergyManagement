@@ -9,8 +9,6 @@ import {
   Tooltip,
   Legend,
   ReferenceLine,
-  Area,
-  ComposedChart,
 } from 'recharts';
 import {
   equipmentDetails,
@@ -217,56 +215,54 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
               </div>
             )}
 
-            {/* Temperature Loop — fixed: no duplicate chilledReturn in legend/tooltip */}
-            {temperatureLoopSeries && temperatureLoopSeries.length > 0 && (
-              <div className="card-surface p-5">
-                <h4 className="mb-3 text-center text-sm font-semibold text-slate-900 dark:text-white">Temperature Loop</h4>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={temperatureLoopSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
-                      <XAxis
-                        dataKey="label"
-                        tick={tickStyle}
-                        tickLine={false}
-                        axisLine={{ stroke: 'var(--grid-stroke)' }}
-                        {...getXAxisProps(temperatureLoopSeries.length)}
-                      />
-                      <YAxis
-                        tick={tickStyle}
-                        tickLine={false}
-                        axisLine={{ stroke: 'var(--grid-stroke)' }}
-                        width={44}
-                        domain={['auto', 'auto']}
-                        label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
-                      />
-                      <Tooltip
-                        contentStyle={tooltipStyles}
-                        labelStyle={{ color: 'var(--muted-text)' }}
-                        formatter={(value: number, name: string) => {
-                          // Hide the Area's "chilledReturn" from tooltip (shown via the Line entry)
-                          if (name === 'chilledReturn') return [undefined, ''];
-                          return [value, name];
-                        }}
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        itemSorter={() => 0 as any}
-                      />
-                      <Legend
-                        wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
-                        iconSize={10}
-                      />
-                      {/* Shaded area between chilled supply/return — hidden from legend & tooltip */}
-                      <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.1} stroke="none" legendType="none" name="chilledReturn" />
-                      <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#38bdf8" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 3" dot={false} />
-                      <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
-                      <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
-                    </ComposedChart>
-                  </ResponsiveContainer>
+            {/* Temperature Loop */}
+            {temperatureLoopSeries && temperatureLoopSeries.length > 0 && (() => {
+              // Compute tight Y-axis bounds with 2°C padding
+              const allTemps = temperatureLoopSeries.flatMap(d => [
+                d.chilledSupply, d.chilledReturn,
+                d.condenserSupply, d.condenserReturn,
+                ...(d.ambientTemp != null ? [d.ambientTemp] : []),
+              ].filter(v => v > 0));
+              const tempMin = Math.floor(Math.min(...allTemps) - 2);
+              const tempMax = Math.ceil(Math.max(...allTemps) + 2);
+              return (
+                <div className="card-surface p-5">
+                  <h4 className="mb-3 text-center text-sm font-semibold text-slate-900 dark:text-white">Temperature Loop</h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={temperatureLoopSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                        <XAxis
+                          dataKey="label"
+                          tick={tickStyle}
+                          tickLine={false}
+                          axisLine={{ stroke: 'var(--grid-stroke)' }}
+                          {...getXAxisProps(temperatureLoopSeries.length)}
+                        />
+                        <YAxis
+                          tick={tickStyle}
+                          tickLine={false}
+                          axisLine={{ stroke: 'var(--grid-stroke)' }}
+                          width={44}
+                          domain={[tempMin, tempMax]}
+                          label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                        />
+                        <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                        <Legend
+                          wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
+                          iconSize={10}
+                        />
+                        <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#38bdf8" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                        <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
+                        <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </>
       )}
