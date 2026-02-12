@@ -41,23 +41,28 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
       />
       <aside
         aria-hidden={!open}
-        className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-slate-200/70 bg-white/90 backdrop-blur-md p-6 text-slate-900 shadow-card transition-transform duration-300 dark:border-white/5 dark:bg-surface dark:text-white ${translateClass} ${desktopTranslate}`}
+        className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-slate-200/70 bg-white/90 backdrop-blur-md text-slate-900 shadow-card transition-transform duration-300 dark:border-white/5 dark:bg-surface dark:text-white ${translateClass} ${desktopTranslate}`}
       >
-        <div className="mb-8 flex flex-col items-center">
-          {/* Light mode logo */}
-          <img 
-            src="/logo-light.png" 
-            alt="Enerlytics" 
-            className="h-20 w-auto object-contain dark:hidden" 
-          />
-          {/* Dark mode logo — use mix-blend-mode to blend the navy background into the sidebar */}
-          <img 
-            src="/logo-dark.png" 
-            alt="Enerlytics" 
-            className="hidden h-20 w-auto object-contain rounded-lg mix-blend-lighten dark:block" 
-          />
+        {/* ── Brand header ─────────────────────────────────────── */}
+        <div className="px-4 pt-5 pb-4">
+          <div className="overflow-hidden rounded-2xl bg-[#F8FAFC] dark:bg-[#1A365D]">
+            {/* Light mode logo */}
+            <img 
+              src="/logo-light.png" 
+              alt="Enerlytics" 
+              className="mx-auto h-24 w-auto object-contain dark:hidden" 
+            />
+            {/* Dark mode logo */}
+            <img 
+              src="/logo-dark.png" 
+              alt="Enerlytics" 
+              className="mx-auto hidden h-24 w-auto object-contain dark:block" 
+            />
+          </div>
+          <div className="mt-3 border-b border-slate-200/60 dark:border-white/5" />
         </div>
-        <nav className="space-y-2">
+
+        <nav className="space-y-1 px-4 pb-6">
           {navItems.map((item) => {
             const isActive =
               (item.key === 'dashboard' && activePage === 'dashboard') ||
