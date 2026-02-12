@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, useState, useRef } from 'react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -47,9 +47,34 @@ const DashboardPage: FC<DashboardPageProps> = ({
   onNavigateToBuilding,
   onNavigateToEquipment,
 }) => {
-  const unreadCount = portfolioNotifications.filter((n) => !n.read).length;
+  // Local read state for notifications (survives within session)
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    for (const n of portfolioNotifications) { if (n.read) initial.add(n.id); }
+    return initial;
+  });
+
+  const isRead = (id: string) => readIds.has(id);
+  const unreadCount = portfolioNotifications.filter((n) => !isRead(n.id)).length;
+
+  // Real warnings = severity !== 'info'
+  const realWarnings = portfolioWarnings.filter((w) => w.severity !== 'info');
+  const warningCount = realWarnings.length;
+  const hasWarnings = warningCount > 0;
+
   const hasChartData = hourlyProductionConsumption.length > 0 &&
     hourlyProductionConsumption.some((d) => d.production > 0 || d.consumption > 0);
+
+  // Scroll-to refs
+  const warningsRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  const scrollToWarnings = () => {
+    warningsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const scrollToNotifications = () => {
+    notificationsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const handleWarningClick = (warning: typeof portfolioWarnings[0]) => {
     if (warning.buildingId && warning.equipmentId) {
@@ -62,6 +87,9 @@ const DashboardPage: FC<DashboardPageProps> = ({
   };
 
   const handleNotificationClick = (notification: typeof portfolioNotifications[0]) => {
+    // Mark as read
+    setReadIds((prev) => new Set(prev).add(notification.id));
+
     // External links open in new tab
     if (notification.externalUrl) {
       window.open(notification.externalUrl, '_blank', 'noopener,noreferrer');
@@ -90,37 +118,43 @@ const DashboardPage: FC<DashboardPageProps> = ({
 
       {/* ── KPI Strip ─────────────────────────────────────────── */}
       <div className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Warnings summary */}
+        {/* Warnings summary — scrolls to warnings section */}
         <button
           type="button"
-          onClick={onNavigateToPortfolio}
-          className="card-surface flex items-start gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+          onClick={scrollToWarnings}
+          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-400/15">
-            <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 002.54 20h18.92a1 1 0 00.85-1.28l-8.6-14.86a1 1 0 00-1.72 0z" />
-            </svg>
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${hasWarnings ? 'bg-red-400/15' : 'bg-emerald-400/15'}`}>
+            {hasWarnings ? (
+              <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 002.54 20h18.92a1 1 0 00.85-1.28l-8.6-14.86a1 1 0 00-1.72 0z" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
           </div>
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Warnings</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {portfolioWarnings.length} <span className="text-sm font-normal text-slate-500">Active</span>
+              {warningCount} <span className="text-sm font-normal text-slate-500">{hasWarnings ? 'Active' : 'All Clear'}</span>
             </p>
           </div>
         </button>
 
-        {/* Notifications summary */}
+        {/* Notifications summary — scrolls to notifications section */}
         <button
           type="button"
-          onClick={onNavigateToPortfolio}
-          className="card-surface flex items-start gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+          onClick={scrollToNotifications}
+          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
             <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Notifications</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {portfolioNotifications.length} <span className="text-sm font-normal text-slate-500">Outstanding</span>
@@ -130,8 +164,8 @@ const DashboardPage: FC<DashboardPageProps> = ({
         </button>
 
         {/* Today's Production */}
-        <div className="card-surface flex items-start gap-3 p-4">
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
+        <div className="card-surface flex items-center gap-3 p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
             <svg className="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
@@ -148,8 +182,8 @@ const DashboardPage: FC<DashboardPageProps> = ({
         </div>
 
         {/* Today's Consumption */}
-        <div className="card-surface flex items-start gap-3 p-4">
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
+        <div className="card-surface flex items-center gap-3 p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
             <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
@@ -207,72 +241,89 @@ const DashboardPage: FC<DashboardPageProps> = ({
         )}
       </div>
 
-      {/* ── Warnings List (clickable) ─────────────────────────── */}
-      <div>
+      {/* ── Warnings Section ──────────────────────────────────── */}
+      <div ref={warningsRef} className="scroll-mt-24">
         <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Active Warnings</h3>
-        <div className="space-y-2">
-          {portfolioWarnings.map((w) => (
-            <button
-              key={w.id}
-              type="button"
-              onClick={() => handleWarningClick(w)}
-              className="card-surface flex w-full items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
-            >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${severityBg[w.severity]}`}>
-                <svg className={`h-4 w-4 ${severityColor[w.severity]}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 002.54 20h18.92a1 1 0 00.85-1.28l-8.6-14.86a1 1 0 00-1.72 0z" />
+        {realWarnings.length > 0 ? (
+          <div className="space-y-2">
+            {realWarnings.map((w) => (
+              <button
+                key={w.id}
+                type="button"
+                onClick={() => handleWarningClick(w)}
+                className="card-surface flex w-full items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+              >
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${severityBg[w.severity]}`}>
+                  <svg className={`h-4 w-4 ${severityColor[w.severity]}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 002.54 20h18.92a1 1 0 00.85-1.28l-8.6-14.86a1 1 0 00-1.72 0z" />
+                  </svg>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-slate-900 dark:text-white">{w.message}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    {new Date(w.timestamp).toLocaleString()} &middot; <span className={`font-medium capitalize ${severityColor[w.severity]}`}>{w.severity}</span>
+                  </p>
+                </div>
+                <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-900 dark:text-white">{w.message}</p>
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                  {new Date(w.timestamp).toLocaleString()} &middot; <span className={`font-medium capitalize ${severityColor[w.severity]}`}>{w.severity}</span>
-                </p>
-              </div>
-              <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="card-surface flex items-center gap-3 p-4">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
+              <svg className="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-            </button>
-          ))}
-        </div>
+            </div>
+            <p className="text-sm text-emerald-600 dark:text-emerald-400">All systems operating within normal parameters</p>
+          </div>
+        )}
       </div>
 
-      {/* ── Notifications List (clickable) ────────────────────── */}
-      <div>
+      {/* ── Notifications Section ─────────────────────────────── */}
+      <div ref={notificationsRef} className="scroll-mt-24">
         <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Notifications</h3>
         <div className="space-y-2">
-          {portfolioNotifications.map((n) => (
-            <button
-              key={n.id}
-              type="button"
-              onClick={() => handleNotificationClick(n)}
-              className={`card-surface flex w-full items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl ${n.read ? 'opacity-60' : ''}`}
-            >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${n.read ? 'bg-slate-400/15' : n.externalUrl ? 'bg-emerald-400/15' : 'bg-accent/15'}`}>
-                {n.externalUrl ? (
-                  <svg className="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
+          {portfolioNotifications.map((n) => {
+            const read = isRead(n.id);
+            return (
+              <button
+                key={n.id}
+                type="button"
+                onClick={() => handleNotificationClick(n)}
+                className={`card-surface flex w-full items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl ${read ? 'opacity-60' : ''}`}
+              >
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${read ? 'bg-slate-400/15' : n.externalUrl ? 'bg-emerald-400/15' : 'bg-accent/15'}`}>
+                  {n.externalUrl ? (
+                    <svg className={`h-4 w-4 ${read ? 'text-slate-400' : 'text-emerald-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  ) : (
+                    <svg className={`h-4 w-4 ${read ? 'text-slate-400' : 'text-accent'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-sm ${read ? 'text-slate-500 dark:text-slate-400' : 'font-medium text-slate-900 dark:text-white'}`}>
+                    {n.title}
+                    {n.externalUrl && (
+                      <span className="ml-1.5 text-xs text-emerald-500 dark:text-emerald-400">(external link)</span>
+                    )}
+                  </p>
+                </div>
+                {!read ? (
+                  <span className="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-accent">New</span>
                 ) : (
-                  <svg className={`h-4 w-4 ${n.read ? 'text-slate-400' : 'text-accent'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className={`text-sm ${n.read ? 'text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>
-                  {n.title}
-                  {n.externalUrl && (
-                    <span className="ml-1.5 text-xs text-emerald-500 dark:text-emerald-400">(external link)</span>
-                  )}
-                </p>
-                {!n.read && <span className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-accent" />}
-              </div>
-              <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 
