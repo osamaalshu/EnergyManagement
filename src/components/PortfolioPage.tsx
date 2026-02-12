@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, useState } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -76,6 +76,8 @@ const ScatterTooltipContent: FC<any> = ({ active, payload }) => {
 };
 
 const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
+  const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
+
   const scatterData = buildings.map((b) => ({
     ...b,
     x: b.surfaceArea,
@@ -85,10 +87,43 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
 
   return (
     <section className="space-y-8">
-      {/* Page header */}
-      <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Portfolio</p>
-        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">{portfolioMeta.name}</h2>
+      {/* Page header with building quick-nav */}
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Portfolio</p>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">{portfolioMeta.name}</h2>
+        </div>
+        {/* Building quick-nav dropdown */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setBuildingDropdownOpen((p) => !p)}
+            className="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-accent/50 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"
+          >
+            <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            Go to Building
+            <svg className={`h-4 w-4 text-slate-400 transition ${buildingDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {buildingDropdownOpen && (
+            <div className="card-surface absolute right-0 z-50 mt-2 w-64 space-y-1 p-2 shadow-2xl">
+              {buildings.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => { onNavigateToBuilding(b.id); setBuildingDropdownOpen(false); }}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5"
+                >
+                  <span>{b.name}</span>
+                  <span className="text-xs text-slate-400">{b.sector}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ═══════════════ SECTION A: Summary Cards ═══════════════ */}

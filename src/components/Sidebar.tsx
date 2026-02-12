@@ -2,7 +2,6 @@ import type { FC } from 'react';
 
 export type NavigationKey =
   | 'dashboard'
-  | 'savings'
   | 'portfolio'
   | 'detect'
   | 'analyse'
@@ -10,7 +9,7 @@ export type NavigationKey =
   | 'account'
   | 'apps';
 
-export type ActivePage = 'dashboard' | 'savings' | 'portfolio' | 'building' | 'equipment';
+export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'equipment';
 
 interface SidebarProps {
   open: boolean;
@@ -20,9 +19,8 @@ interface SidebarProps {
 }
 
 const navItems: Array<{ key: NavigationKey; label: string; actionable?: boolean }> = [
-  { key: 'dashboard', label: 'Dashboards', actionable: true },
+  { key: 'dashboard', label: 'Overview', actionable: true },
   { key: 'portfolio', label: 'Portfolio', actionable: true },
-  { key: 'savings', label: 'Savings', actionable: true },
   { key: 'detect', label: 'Detect' },
   { key: 'analyse', label: 'Analyse' },
   { key: 'optimise', label: 'Optimise' },
@@ -53,7 +51,6 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
           {navItems.map((item) => {
             const isActive =
               (item.key === 'dashboard' && activePage === 'dashboard') ||
-              (item.key === 'savings' && activePage === 'savings') ||
               (item.key === 'portfolio' && (activePage === 'portfolio' || activePage === 'building' || activePage === 'equipment'));
             const actionable = Boolean(item.actionable);
 

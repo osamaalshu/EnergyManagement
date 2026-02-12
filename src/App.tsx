@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Sidebar, { type NavigationKey, type ActivePage } from './components/Sidebar';
 import TopBar from './components/TopBar';
 import DashboardPage from './components/DashboardPage';
-import SavingsPage from './components/SavingsPage';
 import PortfolioPage from './components/PortfolioPage';
 import BuildingPage from './components/BuildingPage';
 import EquipmentPage from './components/EquipmentPage';
@@ -10,27 +9,20 @@ import EquipmentPage from './components/EquipmentPage';
 type ThemeMode = 'light' | 'dark';
 
 const getPreferredTheme = (): ThemeMode => {
-  if (typeof window === 'undefined') {
-    return 'dark';
-  }
+  if (typeof window === 'undefined') return 'dark';
   const stored = window.localStorage.getItem('theme');
-  if (stored === 'light' || stored === 'dark') {
-    return stored;
-  }
+  if (stored === 'light' || stored === 'dark') return stored;
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
 const getDefaultSidebarState = () => {
-  if (typeof window === 'undefined') {
-    return true;
-  }
+  if (typeof window === 'undefined') return true;
   return window.innerWidth >= 1024;
 };
 
 function App() {
   const [activePage, setActivePage] = useState<ActivePage>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => getDefaultSidebarState());
-  const [isEditMode, setIsEditMode] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>(() => getPreferredTheme());
 
   // Drill-down state
@@ -42,22 +34,21 @@ function App() {
     window.localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // ── Navigation handlers ────────────────────────────────────────
+
   const handleNavigate = (key: NavigationKey) => {
-    if (key === 'dashboard' || key === 'savings' || key === 'portfolio') {
+    if (key === 'dashboard' || key === 'portfolio') {
       setActivePage(key);
-      // Clear drill-down state when navigating to top-level pages
-      if (key !== 'portfolio') {
-        setSelectedBuildingId(null);
-        setSelectedEquipmentId(null);
-      }
+      setSelectedBuildingId(null);
+      setSelectedEquipmentId(null);
     }
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
+    if (window.innerWidth < 1024) setSidebarOpen(false);
   };
 
   const handleNavigateToPortfolio = () => {
     setActivePage('portfolio');
+    setSelectedBuildingId(null);
+    setSelectedEquipmentId(null);
   };
 
   const handleNavigateToBuilding = (buildingId: string) => {
@@ -67,6 +58,13 @@ function App() {
   };
 
   const handleNavigateToEquipment = (equipmentId: string) => {
+    setSelectedEquipmentId(equipmentId);
+    setActivePage('equipment');
+  };
+
+  /** Navigate directly to equipment from dashboard (warning/notification click) */
+  const handleNavigateToEquipmentDirect = (buildingId: string, equipmentId: string) => {
+    setSelectedBuildingId(buildingId);
     setSelectedEquipmentId(equipmentId);
     setActivePage('equipment');
   };
@@ -84,17 +82,18 @@ function App() {
 
   const toggleTheme = () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
 
+  // ── Page renderer ──────────────────────────────────────────────
+
   const renderPage = () => {
     switch (activePage) {
       case 'dashboard':
         return (
           <DashboardPage
-            isEditMode={isEditMode}
             onNavigateToPortfolio={handleNavigateToPortfolio}
+            onNavigateToBuilding={handleNavigateToBuilding}
+            onNavigateToEquipment={handleNavigateToEquipmentDirect}
           />
         );
-      case 'savings':
-        return <SavingsPage isEditMode={isEditMode} />;
       case 'portfolio':
         return <PortfolioPage onNavigateToBuilding={handleNavigateToBuilding} />;
       case 'building':
@@ -103,6 +102,7 @@ function App() {
             buildingId={selectedBuildingId}
             onBack={handleBackFromBuilding}
             onNavigateToEquipment={handleNavigateToEquipment}
+            onNavigateToBuilding={handleNavigateToBuilding}
           />
         ) : null;
       case 'equipment':
@@ -129,8 +129,6 @@ function App() {
       <div className={`flex min-h-screen flex-col transition-[padding] duration-300 ${sidebarOpen ? 'lg:pl-72' : 'lg:pl-0'}`}>
         <TopBar
           onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-          isEditMode={isEditMode}
-          onEditModeChange={setIsEditMode}
           activePage={activePage}
           theme={theme}
           onThemeToggle={toggleTheme}

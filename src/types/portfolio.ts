@@ -7,12 +7,20 @@ export interface PortfolioWarning {
   severity: 'critical' | 'warning' | 'info';
   message: string;
   timestamp: string;
+  /** Optional: clicking navigates to this building */
+  buildingId?: string;
+  /** Optional: clicking navigates to this equipment within the building */
+  equipmentId?: string;
 }
 
 export interface PortfolioNotification {
   id: string;
   title: string;
   read: boolean;
+  /** Optional: clicking navigates to this building */
+  buildingId?: string;
+  /** Optional: clicking navigates to this equipment within the building */
+  equipmentId?: string;
 }
 
 export interface PortfolioMeta {

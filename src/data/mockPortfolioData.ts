@@ -28,26 +28,31 @@ export const portfolioWarnings: PortfolioWarning[] = [
     severity: 'critical',
     message: 'Chiller 3 efficiency degraded — kW/ton at 0.85 (threshold: 0.70)',
     timestamp: '2026-02-12T08:14:00',
+    buildingId: 'A1',
+    equipmentId: 'A1-chiller-3',
   },
   {
     id: 'w2',
     severity: 'warning',
     message: 'Cooling Tower 9 condenser supply temp 56.7°C (above 50°C limit)',
     timestamp: '2026-02-12T07:45:00',
+    buildingId: 'A1',
+    equipmentId: 'A1-tower-9',
   },
   {
     id: 'w3',
     severity: 'info',
     message: 'System OFF detected for 6.5 hrs on Building A3 — scheduled maintenance?',
     timestamp: '2026-02-11T22:30:00',
+    buildingId: 'A3',
   },
 ];
 
 export const portfolioNotifications: PortfolioNotification[] = [
   { id: 'n1', title: 'Monthly report ready for January 2026', read: false },
   { id: 'n2', title: 'New tariff schedule effective March 1', read: false },
-  { id: 'n3', title: 'Building C1 maintenance window confirmed', read: true },
-  { id: 'n4', title: 'Anomaly detected in Building A1 Chiller 3', read: false },
+  { id: 'n3', title: 'Building C1 maintenance window confirmed', read: true, buildingId: 'C1' },
+  { id: 'n4', title: 'Anomaly detected in Building A1 Chiller 3', read: false, buildingId: 'A1', equipmentId: 'A1-chiller-3' },
 ];
 
 export const portfolioMeta: PortfolioMeta = {
