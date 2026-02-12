@@ -60,11 +60,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
     <section className="space-y-8">
       {/* ── Header ────────────────────────────────────────────── */}
       <div>
-        <p className="mb-1 text-xs text-accent">
-          <button type="button" onClick={onBack} className="hover:underline">Portfolio</button>
-          <span className="mx-1 text-slate-500">&gt;</span>
-          <span className="text-slate-500 dark:text-slate-400">{building.name}</span>
-        </p>
+        {/* Breadcrumb hidden — navigation via back button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button

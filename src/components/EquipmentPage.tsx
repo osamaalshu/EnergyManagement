@@ -14,7 +14,6 @@ import {
 } from 'recharts';
 import {
   equipmentDetails,
-  buildingDetails,
   getChillerTimeSeries,
   getChillerAnomaly,
   getTowerTempSeries,
@@ -38,10 +37,8 @@ interface EquipmentPageProps {
   onNavigateToPortfolio: () => void;
 }
 
-const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack, onNavigateToPortfolio }) => {
+const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
   const detail = equipmentDetails[equipmentId];
-  const buildingDetail = buildingDetails[buildingId];
-  const buildingName = buildingDetail?.building.name ?? buildingId;
 
   const [chartResolution, setChartResolution] = useState<TimeResolution>('weekly');
   const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
@@ -117,13 +114,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
     <section className="space-y-8">
       {/* ── Header ────────────────────────────────────────────── */}
       <div>
-        <p className="mb-1 text-xs text-accent">
-          <button type="button" onClick={onNavigateToPortfolio} className="hover:underline">Portfolio</button>
-          <span className="mx-1 text-slate-500">&gt;</span>
-          <button type="button" onClick={onBack} className="hover:underline text-accent">{buildingName}</button>
-          <span className="mx-1 text-slate-500">&gt;</span>
-          <span className="text-slate-500 dark:text-slate-400">{equipment.name}</span>
-        </p>
+        {/* Breadcrumb hidden — navigation via back button */}
         <div className="flex items-center gap-4">
           <button
             type="button"
