@@ -12,7 +12,14 @@ import {
   Area,
   ComposedChart,
 } from 'recharts';
-import { equipmentDetails, buildingDetails, getChillerTimeSeries, getChillerAnomaly } from '../data/mockPortfolioData';
+import {
+  equipmentDetails,
+  buildingDetails,
+  getChillerTimeSeries,
+  getChillerAnomaly,
+  getTowerTempSeries,
+  getPumpTimeSeries,
+} from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import type { TimeResolution } from '../types/portfolio';
@@ -68,6 +75,20 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
     return getChillerAnomaly(chillerNum, anomalyResolution);
   }, [isChiller, chillerNum, anomalyResolution, detail.anomaly]);
 
+  // Cooling tower temperature series
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const towerTempSeries = useMemo(() => {
+    if (!isTower) return [];
+    return getTowerTempSeries(chartResolution);
+  }, [isTower, chartResolution]);
+
+  // Pump flow rate & power series
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const pumpSeries = useMemo(() => {
+    if (!isPump) return [];
+    return getPumpTimeSeries(chartResolution);
+  }, [isPump, chartResolution]);
+
   const efficiencySeries = chartData?.efficiencySeries ?? detail.efficiencySeries;
   const temperatureLoopSeries = chartData?.temperatureLoopSeries ?? detail.temperatureLoopSeries;
   const powerCoolingSeries = chartData?.powerCoolingSeries ?? detail.powerCoolingSeries;
@@ -84,7 +105,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
     warning: 'text-red-400',
   };
 
-  // Determine tick props based on data length — adjusted for better spacing
+  // Determine tick props based on data length
   const getXAxisProps = (dataLength: number) => ({
     interval: dataLength > 30 ? Math.floor(dataLength / 8) : (dataLength > 15 ? Math.floor(dataLength / 6) : 0),
     angle: dataLength > 12 ? -45 : 0,
@@ -165,12 +186,11 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
         </div>
       )}
 
-      {/* ── Time Series Charts (chiller only) ─────────────────── */}
+      {/* ── Time Series Charts (chiller) ───────────────────────── */}
       {isChiller && (
         <>
-          {/* Resolution selector for all charts */}
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Time Series</h3>
+            <h3 className="text-center text-lg font-semibold text-slate-900 dark:text-white">Time Series</h3>
             <TimeResolutionSelector value={chartResolution} onChange={setChartResolution} />
           </div>
 
@@ -178,7 +198,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
             {/* Efficiency Over Time */}
             {efficiencySeries && efficiencySeries.length > 0 && (
               <div className="card-surface p-5">
-                <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Efficiency Over Time</h4>
+                <h4 className="mb-3 text-center text-sm font-semibold text-slate-900 dark:text-white">Efficiency Over Time</h4>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={efficiencySeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
@@ -206,10 +226,10 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
               </div>
             )}
 
-            {/* Temperature Loop with Ambient Temperature */}
+            {/* Temperature Loop — fixed: no duplicate chilledReturn in legend/tooltip */}
             {temperatureLoopSeries && temperatureLoopSeries.length > 0 && (
               <div className="card-surface p-5">
-                <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Temperature Loop</h4>
+                <h4 className="mb-3 text-center text-sm font-semibold text-slate-900 dark:text-white">Temperature Loop</h4>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={temperatureLoopSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
@@ -226,14 +246,26 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
                         tickLine={false}
                         axisLine={{ stroke: 'var(--grid-stroke)' }}
                         width={44}
+                        domain={['auto', 'auto']}
                         label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
                       />
-                      <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                      <Tooltip
+                        contentStyle={tooltipStyles}
+                        labelStyle={{ color: 'var(--muted-text)' }}
+                        formatter={(value: number, name: string) => {
+                          // Hide the Area's "chilledReturn" from tooltip (shown via the Line entry)
+                          if (name === 'chilledReturn') return [undefined, ''];
+                          return [value, name];
+                        }}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        itemSorter={() => 0 as any}
+                      />
                       <Legend
                         wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
                         iconSize={10}
                       />
-                      <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.1} stroke="none" legendType="none" />
+                      {/* Shaded area between chilled supply/return — hidden from legend & tooltip */}
+                      <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.1} stroke="none" legendType="none" name="chilledReturn" />
                       <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#38bdf8" strokeWidth={2} dot={false} />
                       <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 3" dot={false} />
                       <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
@@ -251,7 +283,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
       {/* Power Draw vs Cooling Output (full width, chiller only) */}
       {isChiller && powerCoolingSeries && powerCoolingSeries.length > 0 && (
         <div className="card-surface p-5">
-          <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Power Draw vs Cooling Output</h4>
+          <h4 className="mb-3 text-center text-sm font-semibold text-slate-900 dark:text-white">Power Draw vs Cooling Output</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={powerCoolingSeries} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
@@ -293,13 +325,123 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
         </div>
       )}
 
-      {/* ── Anomaly Panel ─────────────────────────────────────── */}
-      <AnomalyPanel
-        data={anomalyData}
-        title="Equipment Anomaly Detection"
-        resolution={isChiller ? anomalyResolution : undefined}
-        onResolutionChange={isChiller ? setAnomalyResolution : undefined}
-      />
+      {/* ── Cooling Tower: Temperature Graph ───────────────────── */}
+      {isTower && (
+        <>
+          <div className="flex items-center justify-between">
+            <h3 className="text-center text-lg font-semibold text-slate-900 dark:text-white">Condenser Water Temperature</h3>
+            <TimeResolutionSelector value={chartResolution} onChange={setChartResolution} />
+          </div>
+
+          {towerTempSeries.length > 0 ? (
+            <div className="card-surface p-5">
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={towerTempSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                    <XAxis
+                      dataKey="label"
+                      tick={tickStyle}
+                      tickLine={false}
+                      axisLine={{ stroke: 'var(--grid-stroke)' }}
+                      {...getXAxisProps(towerTempSeries.length)}
+                    />
+                    <YAxis
+                      tick={tickStyle}
+                      tickLine={false}
+                      axisLine={{ stroke: 'var(--grid-stroke)' }}
+                      width={44}
+                      domain={['auto', 'auto']}
+                      label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                    />
+                    <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                    <Legend
+                      wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
+                      iconSize={10}
+                    />
+                    <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                    {towerTempSeries.some(p => p.ambientTemp != null) && (
+                      <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
+                    )}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          ) : (
+            <div className="card-surface flex h-48 items-center justify-center">
+              <p className="text-sm text-slate-500 dark:text-slate-400">No temperature data available</p>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Pump: Flow Rate & Power Graph ──────────────────────── */}
+      {isPump && (
+        <>
+          <div className="flex items-center justify-between">
+            <h3 className="text-center text-lg font-semibold text-slate-900 dark:text-white">Flow Rate & Power</h3>
+            <TimeResolutionSelector value={chartResolution} onChange={setChartResolution} />
+          </div>
+
+          {pumpSeries.length > 0 ? (
+            <div className="card-surface p-5">
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={pumpSeries} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                    <XAxis
+                      dataKey="label"
+                      tick={tickStyle}
+                      tickLine={false}
+                      axisLine={{ stroke: 'var(--grid-stroke)' }}
+                      {...getXAxisProps(pumpSeries.length)}
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      tick={tickStyle}
+                      tickLine={false}
+                      axisLine={{ stroke: 'var(--grid-stroke)' }}
+                      width={52}
+                      label={{ value: 'm³/s', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      tick={tickStyle}
+                      tickLine={false}
+                      axisLine={{ stroke: 'var(--grid-stroke)' }}
+                      width={52}
+                      label={{ value: 'kW', angle: 90, position: 'insideRight', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                    />
+                    <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                    <Legend
+                      wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
+                      iconSize={12}
+                    />
+                    <Line yAxisId="left" type="monotone" dataKey="flowRate" name="Flow Rate (m³/s)" stroke="#38bdf8" strokeWidth={2} dot={pumpSeries.length <= 30 ? { r: 3 } : false} />
+                    <Line yAxisId="right" type="monotone" dataKey="power" name="Power (kW)" stroke="#34d399" strokeWidth={2} dot={pumpSeries.length <= 30 ? { r: 3 } : false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          ) : (
+            <div className="card-surface flex h-48 items-center justify-center">
+              <p className="text-sm text-slate-500 dark:text-slate-400">No pump time series data available</p>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Anomaly Panel (chiller only) ───────────────────────── */}
+      {isChiller && (
+        <AnomalyPanel
+          data={anomalyData}
+          title="Equipment Anomaly Detection"
+          resolution={anomalyResolution}
+          onResolutionChange={setAnomalyResolution}
+        />
+      )}
     </section>
   );
 };

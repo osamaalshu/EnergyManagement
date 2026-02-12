@@ -192,7 +192,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
 
       {/* ── Equipment List ────────────────────────────────────── */}
       <div>
-        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Chiller Plant Equipment</h3>
+        <h3 className="mb-4 text-center text-lg font-semibold text-slate-900 dark:text-white">Chiller Plant Equipment</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {equipment.map((equip) => {
             const isWarning = equip.status === 'warning';

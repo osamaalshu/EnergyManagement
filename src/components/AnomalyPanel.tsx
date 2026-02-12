@@ -39,7 +39,7 @@ const AnomalyPanel: FC<AnomalyPanelProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+        <h3 className="text-center text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
         {resolution != null && onResolutionChange && (
           <TimeResolutionSelector value={resolution} onChange={onResolutionChange} />
         )}
@@ -68,7 +68,7 @@ const AnomalyPanel: FC<AnomalyPanelProps> = ({
       {/* Baseline vs Actual chart */}
       {hasData ? (
         <div className="card-surface p-4">
-          <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+          <p className="mb-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
             Baseline vs Actual
           </p>
           <div className="h-52">

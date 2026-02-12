@@ -19,7 +19,6 @@ import {
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  ReferenceLine,
 } from 'recharts';
 import {
   portfolioMeta,
@@ -42,7 +41,7 @@ const tickStyle = { fill: 'var(--muted-text)', fontSize: 12 } as const;
 
 /** Consistent section heading used across all widget cards */
 const SectionTitle: FC<{ children: React.ReactNode }> = ({ children }) => (
-  <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">
+  <h3 className="text-center text-sm font-semibold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">
     {children}
   </h3>
 );
@@ -118,14 +117,25 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
     z: 200,
   }));
 
-  /* Compute a sector-average baseline for the scatter chart Y-axis.
-     We derive it from the yearly comparison data (sector avg kWh / building area). */
-  const sectorBaselineKwh = useMemo(() => {
+  /* Compute a sector-average slope for the scatter chart diagonal baseline.
+     slope = sector avg kWh / typical surface area → gives kWh per m². */
+  const sectorSlopeKwhPerM2 = useMemo(() => {
     const yearly = comparisonsByResolution.yearly;
-    if (yearly.length === 0) return undefined;
+    if (yearly.length === 0 || buildings.length === 0) return undefined;
     const avgSector = yearly.reduce((sum, d) => sum + d.sectorValue, 0) / yearly.length;
-    return Math.round(avgSector);
+    const avgArea = buildings.reduce((sum, b) => sum + b.surfaceArea, 0) / buildings.length;
+    return avgArea > 0 ? avgSector / avgArea : undefined;
   }, []);
+
+  /* Diagonal baseline data: two points from origin to max X */
+  const baselineDiagonal = useMemo(() => {
+    if (sectorSlopeKwhPerM2 === undefined) return [];
+    const maxX = Math.max(...buildings.map(b => b.surfaceArea), 6000);
+    return [
+      { x: 0, y: 0, z: 0 },
+      { x: maxX, y: Math.round(sectorSlopeKwhPerM2 * maxX), z: 0 },
+    ];
+  }, [sectorSlopeKwhPerM2]);
 
   /* ── Radar data (dynamic per building count) ───────────────── */
   const radarData = useMemo(() => {
@@ -359,18 +369,14 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
                   label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 11 }}
                 />
                 <ZAxis type="number" dataKey="z" range={[120, 120]} />
-                {sectorBaselineKwh !== undefined && (
-                  <ReferenceLine
-                    y={sectorBaselineKwh}
-                    stroke="#64748b"
-                    strokeDasharray="6 4"
-                    strokeWidth={1.5}
-                    label={{
-                      value: `Sector avg ${sectorBaselineKwh} kWh`,
-                      position: 'right',
-                      fill: 'var(--muted-text)',
-                      fontSize: 11,
-                    }}
+                {/* Diagonal sector-average baseline */}
+                {baselineDiagonal.length > 0 && (
+                  <Scatter
+                    data={baselineDiagonal}
+                    line={{ stroke: '#64748b', strokeWidth: 1.5, strokeDasharray: '6 4' }}
+                    shape={(() => <circle r={0} />) as unknown as (props: unknown) => React.JSX.Element}
+                    legendType="none"
+                    isAnimationActive={false}
                   />
                 )}
                 <Tooltip content={<ScatterTooltipContent />} />

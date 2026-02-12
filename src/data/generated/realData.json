@@ -12,12 +12,12 @@
     "savingsPotentialPercent": 13
   },
   "todaysProduction": {
-    "kWh": 34285,
-    "omr": 411.4
-  },
-  "todaysConsumption": {
     "kWh": 4631,
     "omr": 55.6
+  },
+  "todaysConsumption": {
+    "kWh": 34285,
+    "omr": 411.4
   },
   "hourlyProductionConsumption": [
     {
@@ -154,7 +154,7 @@
     },
     {
       "id": "n3",
-      "title": "9 efficiency anomalies detected in system data",
+      "title": "1 efficiency anomalies detected in system data",
       "read": false,
       "buildingId": "CP1"
     }
@@ -8601,420 +8601,420 @@
     }
   },
   "buildingAnomaly": {
-    "anomalyCount": 9,
-    "inefficiencyCost": 208.6,
+    "anomalyCount": 1,
+    "inefficiencyCost": 2506.7,
     "series": [
       {
         "label": "2014-W00",
-        "baseline": 0.547,
+        "baseline": 0.519,
         "actual": 0.595
       },
       {
         "label": "2014-W01",
-        "baseline": 0.54,
+        "baseline": 0.529,
         "actual": 0.501
       },
       {
         "label": "2014-W02",
-        "baseline": 0.537,
+        "baseline": 0.533,
         "actual": 0.503
       },
       {
         "label": "2014-W03",
-        "baseline": 0.527,
+        "baseline": 0.532,
         "actual": 0.504
       },
       {
         "label": "2014-W04",
-        "baseline": 0.516,
+        "baseline": 0.531,
         "actual": 0.476
       },
       {
         "label": "2014-W05",
-        "baseline": 0.491,
+        "baseline": 0.523,
         "actual": 0.47
       },
       {
         "label": "2014-W06",
-        "baseline": 0.494,
+        "baseline": 0.517,
         "actual": 0.519
       },
       {
         "label": "2014-W07",
-        "baseline": 0.497,
+        "baseline": 0.512,
         "actual": 0.514
       },
       {
         "label": "2014-W08",
-        "baseline": 0.499,
+        "baseline": 0.51,
         "actual": 0.516
       },
       {
         "label": "2014-W09",
-        "baseline": 0.512,
+        "baseline": 0.5,
         "actual": 0.54
       },
       {
         "label": "2014-W10",
-        "baseline": 0.522,
+        "baseline": 0.505,
         "actual": 0.523
       },
       {
         "label": "2014-W11",
-        "baseline": 0.522,
+        "baseline": 0.508,
         "actual": 0.517
       },
       {
         "label": "2014-W12",
-        "baseline": 0.523,
+        "baseline": 0.509,
         "actual": 0.517
       },
       {
         "label": "2014-W13",
-        "baseline": 0.521,
+        "baseline": 0.515,
         "actual": 0.51
       },
       {
         "label": "2014-W14",
-        "baseline": 0.518,
+        "baseline": 0.52,
         "actual": 0.524
       },
       {
         "label": "2014-W15",
-        "baseline": 0.512,
+        "baseline": 0.52,
         "actual": 0.492
       }
     ]
   },
   "portfolioAnomaly": {
-    "anomalyCount": 9,
-    "inefficiencyCost": 208.6,
+    "anomalyCount": 1,
+    "inefficiencyCost": 2506.7,
     "series": [
       {
         "label": "2014-W00",
-        "baseline": 0.547,
+        "baseline": 0.519,
         "actual": 0.595
       },
       {
         "label": "2014-W01",
-        "baseline": 0.54,
+        "baseline": 0.529,
         "actual": 0.501
       },
       {
         "label": "2014-W02",
-        "baseline": 0.537,
+        "baseline": 0.533,
         "actual": 0.503
       },
       {
         "label": "2014-W03",
-        "baseline": 0.527,
+        "baseline": 0.532,
         "actual": 0.504
       },
       {
         "label": "2014-W04",
-        "baseline": 0.516,
+        "baseline": 0.531,
         "actual": 0.476
       },
       {
         "label": "2014-W05",
-        "baseline": 0.491,
+        "baseline": 0.523,
         "actual": 0.47
       },
       {
         "label": "2014-W06",
-        "baseline": 0.494,
+        "baseline": 0.517,
         "actual": 0.519
       },
       {
         "label": "2014-W07",
-        "baseline": 0.497,
+        "baseline": 0.512,
         "actual": 0.514
       },
       {
         "label": "2014-W08",
-        "baseline": 0.499,
+        "baseline": 0.51,
         "actual": 0.516
       },
       {
         "label": "2014-W09",
-        "baseline": 0.512,
+        "baseline": 0.5,
         "actual": 0.54
       },
       {
         "label": "2014-W10",
-        "baseline": 0.522,
+        "baseline": 0.505,
         "actual": 0.523
       },
       {
         "label": "2014-W11",
-        "baseline": 0.522,
+        "baseline": 0.508,
         "actual": 0.517
       },
       {
         "label": "2014-W12",
-        "baseline": 0.523,
+        "baseline": 0.509,
         "actual": 0.517
       },
       {
         "label": "2014-W13",
-        "baseline": 0.521,
+        "baseline": 0.515,
         "actual": 0.51
       },
       {
         "label": "2014-W14",
-        "baseline": 0.518,
+        "baseline": 0.52,
         "actual": 0.524
       },
       {
         "label": "2014-W15",
-        "baseline": 0.512,
+        "baseline": 0.52,
         "actual": 0.492
       }
     ]
   },
   "buildingAnomalyByResolution": {
     "daily": {
-      "anomalyCount": 99,
-      "inefficiencyCost": 1113.5,
+      "anomalyCount": 2,
+      "inefficiencyCost": 1129.4,
       "series": [
         {
           "label": "2014-01-01",
-          "baseline": 0.571,
+          "baseline": 0.552,
           "actual": 0.586
         },
         {
           "label": "2014-01-02",
-          "baseline": 0.554,
+          "baseline": 0.559,
           "actual": 0.498
         },
         {
           "label": "2014-01-03",
-          "baseline": 0.525,
+          "baseline": 0.551,
           "actual": 0.48
         },
         {
           "label": "2014-01-04",
-          "baseline": 0.53,
+          "baseline": 0.545,
           "actual": 0.553
         },
         {
           "label": "2014-01-05",
-          "baseline": 0.533,
+          "baseline": 0.548,
           "actual": 0.548
         },
         {
           "label": "2014-01-06",
-          "baseline": 0.504,
+          "baseline": 0.544,
           "actual": 0.439
         },
         {
           "label": "2014-01-07",
-          "baseline": 0.495,
+          "baseline": 0.521,
           "actual": 0.453
         },
         {
           "label": "2014-01-08",
-          "baseline": 0.49,
+          "baseline": 0.511,
           "actual": 0.457
         },
         {
           "label": "2014-01-09",
-          "baseline": 0.475,
+          "baseline": 0.502,
           "actual": 0.479
         },
         {
           "label": "2014-01-10",
-          "baseline": 0.462,
+          "baseline": 0.488,
           "actual": 0.482
         },
         {
           "label": "2014-01-11",
-          "baseline": 0.493,
+          "baseline": 0.486,
           "actual": 0.595
         },
         {
           "label": "2014-01-12",
-          "baseline": 0.518,
+          "baseline": 0.501,
           "actual": 0.577
         },
         {
           "label": "2014-01-13",
-          "baseline": 0.521,
+          "baseline": 0.504,
           "actual": 0.471
         },
         {
           "label": "2014-01-14",
-          "baseline": 0.521,
+          "baseline": 0.494,
           "actual": 0.479
         },
         {
           "label": "2014-01-15",
-          "baseline": 0.521,
+          "baseline": 0.499,
           "actual": 0.481
         },
         {
           "label": "2014-01-16",
-          "baseline": 0.504,
+          "baseline": 0.503,
           "actual": 0.512
         },
         {
           "label": "2014-01-17",
-          "baseline": 0.486,
+          "baseline": 0.51,
           "actual": 0.489
         },
         {
           "label": "2014-01-18",
-          "baseline": 0.508,
+          "baseline": 0.511,
           "actual": 0.581
         },
         {
           "label": "2014-01-19",
-          "baseline": 0.521,
+          "baseline": 0.523,
           "actual": 0.544
         },
         {
           "label": "2014-01-20",
-          "baseline": 0.516,
+          "baseline": 0.517,
           "actual": 0.456
         },
         {
           "label": "2014-01-21",
-          "baseline": 0.513,
+          "baseline": 0.502,
           "actual": 0.493
         },
         {
           "label": "2014-01-22",
-          "baseline": 0.505,
+          "baseline": 0.504,
           "actual": 0.453
         },
         {
           "label": "2014-01-23",
-          "baseline": 0.481,
+          "baseline": 0.501,
           "actual": 0.459
         },
         {
           "label": "2014-01-24",
-          "baseline": 0.476,
+          "baseline": 0.498,
           "actual": 0.519
         },
         {
           "label": "2014-01-25",
-          "baseline": 0.49,
+          "baseline": 0.499,
           "actual": 0.527
         },
         {
           "label": "2014-01-26",
-          "baseline": 0.482,
+          "baseline": 0.504,
           "actual": 0.45
         },
         {
           "label": "2014-01-27",
-          "baseline": 0.482,
+          "baseline": 0.488,
           "actual": 0.455
         },
         {
           "label": "2014-01-28",
-          "baseline": 0.485,
+          "baseline": 0.477,
           "actual": 0.474
         },
         {
           "label": "2014-01-29",
-          "baseline": 0.473,
+          "baseline": 0.479,
           "actual": 0.457
         },
         {
           "label": "2014-01-30",
-          "baseline": 0.456,
+          "baseline": 0.474,
           "actual": 0.442
         },
         {
           "label": "2014-01-31",
-          "baseline": 0.476,
+          "baseline": 0.473,
           "actual": 0.55
         },
         {
           "label": "2014-02-01",
-          "baseline": 0.492,
+          "baseline": 0.484,
           "actual": 0.537
         },
         {
           "label": "2014-02-02",
-          "baseline": 0.502,
+          "baseline": 0.487,
           "actual": 0.525
         },
         {
           "label": "2014-02-03",
-          "baseline": 0.502,
+          "baseline": 0.486,
           "actual": 0.457
         },
         {
           "label": "2014-02-04",
-          "baseline": 0.499,
+          "baseline": 0.487,
           "actual": 0.426
         },
         {
           "label": "2014-02-05",
-          "baseline": 0.491,
+          "baseline": 0.484,
           "actual": 0.511
         },
         {
           "label": "2014-02-06",
-          "baseline": 0.484,
+          "baseline": 0.488,
           "actual": 0.502
         },
         {
           "label": "2014-02-07",
-          "baseline": 0.482,
+          "baseline": 0.494,
           "actual": 0.512
         },
         {
           "label": "2014-02-08",
-          "baseline": 0.504,
+          "baseline": 0.502,
           "actual": 0.568
         },
         {
           "label": "2014-02-09",
-          "baseline": 0.528,
+          "baseline": 0.505,
           "actual": 0.546
         },
         {
           "label": "2014-02-10",
-          "baseline": 0.526,
+          "baseline": 0.506,
           "actual": 0.502
         },
         {
           "label": "2014-02-11",
-          "baseline": 0.526,
+          "baseline": 0.503,
           "actual": 0.502
         },
         {
           "label": "2014-02-12",
-          "baseline": 0.527,
+          "baseline": 0.509,
           "actual": 0.515
         },
         {
           "label": "2014-02-13",
-          "baseline": 0.518,
+          "baseline": 0.52,
           "actual": 0.525
         },
         {
           "label": "2014-02-14",
-          "baseline": 0.508,
+          "baseline": 0.522,
           "actual": 0.497
         },
         {
           "label": "2014-02-15",
-          "baseline": 0.515,
+          "baseline": 0.521,
           "actual": 0.537
         },
         {
           "label": "2014-02-16",
-          "baseline": 0.523,
+          "baseline": 0.524,
           "actual": 0.541
         },
         {
           "label": "2014-02-17",
-          "baseline": 0.52,
+          "baseline": 0.521,
           "actual": 0.498
         },
         {
@@ -9024,27 +9024,27 @@
         },
         {
           "label": "2014-02-19",
-          "baseline": 0.518,
+          "baseline": 0.514,
           "actual": 0.516
         },
         {
           "label": "2014-02-20",
-          "baseline": 0.511,
+          "baseline": 0.516,
           "actual": 0.502
         },
         {
           "label": "2014-02-21",
-          "baseline": 0.503,
+          "baseline": 0.515,
           "actual": 0.499
         },
         {
           "label": "2014-02-22",
-          "baseline": 0.508,
+          "baseline": 0.511,
           "actual": 0.522
         },
         {
           "label": "2014-02-23",
-          "baseline": 0.52,
+          "baseline": 0.514,
           "actual": 0.563
         },
         {
@@ -9054,310 +9054,310 @@
         },
         {
           "label": "2014-02-25",
-          "baseline": 0.521,
+          "baseline": 0.513,
           "actual": 0.516
         },
         {
           "label": "2014-02-26",
-          "baseline": 0.528,
+          "baseline": 0.516,
           "actual": 0.533
         },
         {
           "label": "2014-02-27",
-          "baseline": 0.528,
+          "baseline": 0.52,
           "actual": 0.521
         },
         {
           "label": "2014-02-28",
-          "baseline": 0.515,
+          "baseline": 0.52,
           "actual": 0.497
         },
         {
           "label": "2014-03-01",
-          "baseline": 0.523,
+          "baseline": 0.52,
           "actual": 0.547
         },
         {
           "label": "2014-03-02",
-          "baseline": 0.549,
+          "baseline": 0.526,
           "actual": 0.648
         },
         {
           "label": "2014-03-03",
-          "baseline": 0.548,
+          "baseline": 0.541,
           "actual": 0.529
         },
         {
           "label": "2014-03-05",
-          "baseline": 0.552,
+          "baseline": 0.537,
           "actual": 0.538
         },
         {
           "label": "2014-03-06",
-          "baseline": 0.56,
+          "baseline": 0.541,
           "actual": 0.539
         },
         {
           "label": "2014-03-07",
-          "baseline": 0.554,
+          "baseline": 0.544,
           "actual": 0.516
         },
         {
           "label": "2014-03-08",
-          "baseline": 0.535,
+          "baseline": 0.542,
           "actual": 0.554
         },
         {
           "label": "2014-03-09",
-          "baseline": 0.539,
+          "baseline": 0.546,
           "actual": 0.55
         },
         {
           "label": "2014-03-10",
-          "baseline": 0.531,
+          "baseline": 0.553,
           "actual": 0.495
         },
         {
           "label": "2014-03-11",
-          "baseline": 0.52,
+          "baseline": 0.546,
           "actual": 0.487
         },
         {
           "label": "2014-03-12",
-          "baseline": 0.518,
+          "baseline": 0.526,
           "actual": 0.502
         },
         {
           "label": "2014-03-13",
-          "baseline": 0.507,
+          "baseline": 0.523,
           "actual": 0.501
         },
         {
           "label": "2014-03-14",
-          "baseline": 0.497,
+          "baseline": 0.518,
           "actual": 0.498
         },
         {
           "label": "2014-03-15",
-          "baseline": 0.507,
+          "baseline": 0.513,
           "actual": 0.548
         },
         {
           "label": "2014-03-16",
-          "baseline": 0.522,
+          "baseline": 0.517,
           "actual": 0.562
         },
         {
           "label": "2014-03-17",
-          "baseline": 0.522,
+          "baseline": 0.518,
           "actual": 0.503
         },
         {
           "label": "2014-03-18",
-          "baseline": 0.524,
+          "baseline": 0.512,
           "actual": 0.508
         },
         {
           "label": "2014-03-19",
-          "baseline": 0.53,
+          "baseline": 0.514,
           "actual": 0.528
         },
         {
           "label": "2014-03-20",
-          "baseline": 0.535,
+          "baseline": 0.519,
           "actual": 0.575
         },
         {
           "label": "2014-03-21",
-          "baseline": 0.523,
+          "baseline": 0.528,
           "actual": 0.5
         },
         {
           "label": "2014-03-22",
-          "baseline": 0.519,
+          "baseline": 0.528,
           "actual": 0.483
         },
         {
           "label": "2014-03-23",
-          "baseline": 0.53,
+          "baseline": 0.526,
           "actual": 0.563
         },
         {
           "label": "2014-03-24",
-          "baseline": 0.522,
+          "baseline": 0.528,
           "actual": 0.489
         },
         {
           "label": "2014-03-25",
-          "baseline": 0.505,
+          "baseline": 0.519,
           "actual": 0.49
         },
         {
           "label": "2014-03-26",
-          "baseline": 0.502,
+          "baseline": 0.517,
           "actual": 0.487
         },
         {
           "label": "2014-03-27",
-          "baseline": 0.504,
+          "baseline": 0.514,
           "actual": 0.489
         },
         {
           "label": "2014-03-28",
-          "baseline": 0.491,
+          "baseline": 0.509,
           "actual": 0.499
         },
         {
           "label": "2014-03-29",
-          "baseline": 0.502,
+          "baseline": 0.5,
           "actual": 0.545
         },
         {
           "label": "2014-03-30",
-          "baseline": 0.517,
+          "baseline": 0.506,
           "actual": 0.564
         },
         {
           "label": "2014-03-31",
-          "baseline": 0.521,
+          "baseline": 0.516,
           "actual": 0.51
         },
         {
           "label": "2014-04-01",
-          "baseline": 0.523,
+          "baseline": 0.509,
           "actual": 0.498
         },
         {
           "label": "2014-04-02",
-          "baseline": 0.53,
+          "baseline": 0.51,
           "actual": 0.533
         },
         {
           "label": "2014-04-03",
-          "baseline": 0.518,
+          "baseline": 0.516,
           "actual": 0.483
         },
         {
           "label": "2014-04-04",
-          "baseline": 0.508,
+          "baseline": 0.515,
           "actual": 0.518
         },
         {
           "label": "2014-04-05",
-          "baseline": 0.517,
+          "baseline": 0.519,
           "actual": 0.553
         },
         {
           "label": "2014-04-06",
-          "baseline": 0.538,
+          "baseline": 0.526,
           "actual": 0.605
         },
         {
           "label": "2014-04-07",
-          "baseline": 0.532,
+          "baseline": 0.533,
           "actual": 0.499
         },
         {
           "label": "2014-04-08",
-          "baseline": 0.537,
+          "baseline": 0.525,
           "actual": 0.512
         },
         {
           "label": "2014-04-09",
-          "baseline": 0.533,
+          "baseline": 0.525,
           "actual": 0.496
         }
       ]
     },
     "weekly": {
-      "anomalyCount": 9,
-      "inefficiencyCost": 208.6,
+      "anomalyCount": 1,
+      "inefficiencyCost": 2506.7,
       "series": [
         {
           "label": "2014-W00",
-          "baseline": 0.547,
+          "baseline": 0.519,
           "actual": 0.595
         },
         {
           "label": "2014-W01",
-          "baseline": 0.54,
+          "baseline": 0.529,
           "actual": 0.501
         },
         {
           "label": "2014-W02",
-          "baseline": 0.537,
+          "baseline": 0.533,
           "actual": 0.503
         },
         {
           "label": "2014-W03",
-          "baseline": 0.527,
+          "baseline": 0.532,
           "actual": 0.504
         },
         {
           "label": "2014-W04",
-          "baseline": 0.516,
+          "baseline": 0.531,
           "actual": 0.476
         },
         {
           "label": "2014-W05",
-          "baseline": 0.491,
+          "baseline": 0.523,
           "actual": 0.47
         },
         {
           "label": "2014-W06",
-          "baseline": 0.494,
+          "baseline": 0.517,
           "actual": 0.519
         },
         {
           "label": "2014-W07",
-          "baseline": 0.497,
+          "baseline": 0.512,
           "actual": 0.514
         },
         {
           "label": "2014-W08",
-          "baseline": 0.499,
+          "baseline": 0.51,
           "actual": 0.516
         },
         {
           "label": "2014-W09",
-          "baseline": 0.512,
+          "baseline": 0.5,
           "actual": 0.54
         },
         {
           "label": "2014-W10",
-          "baseline": 0.522,
+          "baseline": 0.505,
           "actual": 0.523
         },
         {
           "label": "2014-W11",
-          "baseline": 0.522,
+          "baseline": 0.508,
           "actual": 0.517
         },
         {
           "label": "2014-W12",
-          "baseline": 0.523,
+          "baseline": 0.509,
           "actual": 0.517
         },
         {
           "label": "2014-W13",
-          "baseline": 0.521,
+          "baseline": 0.515,
           "actual": 0.51
         },
         {
           "label": "2014-W14",
-          "baseline": 0.518,
+          "baseline": 0.52,
           "actual": 0.524
         },
         {
           "label": "2014-W15",
-          "baseline": 0.512,
+          "baseline": 0.52,
           "actual": 0.492
         }
       ]
     },
     "monthly": {
-      "anomalyCount": 3,
-      "inefficiencyCost": 53.9,
+      "anomalyCount": 4,
+      "inefficiencyCost": 2685.3,
       "series": [
         {
           "label": "Jun 2011",
@@ -9366,127 +9366,127 @@
         },
         {
           "label": "Jul 2011",
-          "baseline": 0.633,
+          "baseline": 0.679,
           "actual": 0.587
         },
         {
           "label": "Aug 2011",
-          "baseline": 0.575,
+          "baseline": 0.633,
           "actual": 0.46
         },
         {
           "label": "Oct 2011",
-          "baseline": 0.589,
+          "baseline": 0.575,
           "actual": 0.629
         },
         {
           "label": "Nov 2011",
-          "baseline": 0.594,
+          "baseline": 0.589,
           "actual": 0.617
         },
         {
           "label": "Dec 2011",
-          "baseline": 0.612,
+          "baseline": 0.573,
           "actual": 0.768
         },
         {
           "label": "Feb 2012",
-          "baseline": 0.609,
+          "baseline": 0.619,
           "actual": 0.573
         },
         {
           "label": "Mar 2012",
-          "baseline": 0.622,
+          "baseline": 0.647,
           "actual": 0.522
         },
         {
           "label": "Apr 2012",
-          "baseline": 0.603,
+          "baseline": 0.62,
           "actual": 0.537
         },
         {
           "label": "May 2012",
-          "baseline": 0.581,
+          "baseline": 0.6,
           "actual": 0.503
         },
         {
           "label": "Jun 2012",
-          "baseline": 0.558,
+          "baseline": 0.534,
           "actual": 0.655
         },
         {
           "label": "Jul 2012",
-          "baseline": 0.626,
+          "baseline": 0.554,
           "actual": 0.912
         },
         {
           "label": "Aug 2012",
-          "baseline": 0.624,
+          "baseline": 0.652,
           "actual": 0.511
         },
         {
           "label": "Sep 2012",
-          "baseline": 0.618,
+          "baseline": 0.645,
           "actual": 0.508
         },
         {
           "label": "Oct 2012",
-          "baseline": 0.62,
+          "baseline": 0.647,
           "actual": 0.516
         },
         {
           "label": "Nov 2012",
-          "baseline": 0.589,
+          "baseline": 0.612,
           "actual": 0.5
         },
         {
           "label": "Dec 2012",
-          "baseline": 0.51,
+          "baseline": 0.509,
           "actual": 0.516
         },
         {
           "label": "Jan 2013",
-          "baseline": 0.507,
+          "baseline": 0.51,
           "actual": 0.494
         },
         {
           "label": "Feb 2013",
-          "baseline": 0.507,
+          "baseline": 0.506,
           "actual": 0.509
         },
         {
           "label": "Mar 2013",
-          "baseline": 0.503,
+          "baseline": 0.505,
           "actual": 0.498
         },
         {
           "label": "Apr 2013",
-          "baseline": 0.499,
+          "baseline": 0.504,
           "actual": 0.478
         },
         {
           "label": "May 2013",
-          "baseline": 0.49,
+          "baseline": 0.495,
           "actual": 0.473
         },
         {
           "label": "Jun 2013",
-          "baseline": 0.488,
+          "baseline": 0.49,
           "actual": 0.483
         },
         {
           "label": "Jul 2013",
-          "baseline": 0.486,
+          "baseline": 0.483,
           "actual": 0.497
         },
         {
           "label": "Aug 2013",
-          "baseline": 0.49,
+          "baseline": 0.483,
           "actual": 0.52
         },
         {
           "label": "Sep 2013",
-          "baseline": 0.498,
+          "baseline": 0.493,
           "actual": 0.517
         },
         {
@@ -9496,17 +9496,17 @@
         },
         {
           "label": "Nov 2013",
-          "baseline": 0.508,
+          "baseline": 0.509,
           "actual": 0.505
         },
         {
           "label": "Dec 2013",
-          "baseline": 0.515,
+          "baseline": 0.511,
           "actual": 0.53
         },
         {
           "label": "Jan 2014",
-          "baseline": 0.51,
+          "baseline": 0.514,
           "actual": 0.494
         },
         {
@@ -9516,12 +9516,12 @@
         },
         {
           "label": "Mar 2014",
-          "baseline": 0.512,
+          "baseline": 0.51,
           "actual": 0.521
         },
         {
           "label": "Apr 2014",
-          "baseline": 0.515,
+          "baseline": 0.514,
           "actual": 0.518
         }
       ]
@@ -9534,247 +9534,247 @@
   },
   "portfolioAnomalyByResolution": {
     "daily": {
-      "anomalyCount": 99,
-      "inefficiencyCost": 1113.5,
+      "anomalyCount": 2,
+      "inefficiencyCost": 1129.4,
       "series": [
         {
           "label": "2014-01-01",
-          "baseline": 0.571,
+          "baseline": 0.552,
           "actual": 0.586
         },
         {
           "label": "2014-01-02",
-          "baseline": 0.554,
+          "baseline": 0.559,
           "actual": 0.498
         },
         {
           "label": "2014-01-03",
-          "baseline": 0.525,
+          "baseline": 0.551,
           "actual": 0.48
         },
         {
           "label": "2014-01-04",
-          "baseline": 0.53,
+          "baseline": 0.545,
           "actual": 0.553
         },
         {
           "label": "2014-01-05",
-          "baseline": 0.533,
+          "baseline": 0.548,
           "actual": 0.548
         },
         {
           "label": "2014-01-06",
-          "baseline": 0.504,
+          "baseline": 0.544,
           "actual": 0.439
         },
         {
           "label": "2014-01-07",
-          "baseline": 0.495,
+          "baseline": 0.521,
           "actual": 0.453
         },
         {
           "label": "2014-01-08",
-          "baseline": 0.49,
+          "baseline": 0.511,
           "actual": 0.457
         },
         {
           "label": "2014-01-09",
-          "baseline": 0.475,
+          "baseline": 0.502,
           "actual": 0.479
         },
         {
           "label": "2014-01-10",
-          "baseline": 0.462,
+          "baseline": 0.488,
           "actual": 0.482
         },
         {
           "label": "2014-01-11",
-          "baseline": 0.493,
+          "baseline": 0.486,
           "actual": 0.595
         },
         {
           "label": "2014-01-12",
-          "baseline": 0.518,
+          "baseline": 0.501,
           "actual": 0.577
         },
         {
           "label": "2014-01-13",
-          "baseline": 0.521,
+          "baseline": 0.504,
           "actual": 0.471
         },
         {
           "label": "2014-01-14",
-          "baseline": 0.521,
+          "baseline": 0.494,
           "actual": 0.479
         },
         {
           "label": "2014-01-15",
-          "baseline": 0.521,
+          "baseline": 0.499,
           "actual": 0.481
         },
         {
           "label": "2014-01-16",
-          "baseline": 0.504,
+          "baseline": 0.503,
           "actual": 0.512
         },
         {
           "label": "2014-01-17",
-          "baseline": 0.486,
+          "baseline": 0.51,
           "actual": 0.489
         },
         {
           "label": "2014-01-18",
-          "baseline": 0.508,
+          "baseline": 0.511,
           "actual": 0.581
         },
         {
           "label": "2014-01-19",
-          "baseline": 0.521,
+          "baseline": 0.523,
           "actual": 0.544
         },
         {
           "label": "2014-01-20",
-          "baseline": 0.516,
+          "baseline": 0.517,
           "actual": 0.456
         },
         {
           "label": "2014-01-21",
-          "baseline": 0.513,
+          "baseline": 0.502,
           "actual": 0.493
         },
         {
           "label": "2014-01-22",
-          "baseline": 0.505,
+          "baseline": 0.504,
           "actual": 0.453
         },
         {
           "label": "2014-01-23",
-          "baseline": 0.481,
+          "baseline": 0.501,
           "actual": 0.459
         },
         {
           "label": "2014-01-24",
-          "baseline": 0.476,
+          "baseline": 0.498,
           "actual": 0.519
         },
         {
           "label": "2014-01-25",
-          "baseline": 0.49,
+          "baseline": 0.499,
           "actual": 0.527
         },
         {
           "label": "2014-01-26",
-          "baseline": 0.482,
+          "baseline": 0.504,
           "actual": 0.45
         },
         {
           "label": "2014-01-27",
-          "baseline": 0.482,
+          "baseline": 0.488,
           "actual": 0.455
         },
         {
           "label": "2014-01-28",
-          "baseline": 0.485,
+          "baseline": 0.477,
           "actual": 0.474
         },
         {
           "label": "2014-01-29",
-          "baseline": 0.473,
+          "baseline": 0.479,
           "actual": 0.457
         },
         {
           "label": "2014-01-30",
-          "baseline": 0.456,
+          "baseline": 0.474,
           "actual": 0.442
         },
         {
           "label": "2014-01-31",
-          "baseline": 0.476,
+          "baseline": 0.473,
           "actual": 0.55
         },
         {
           "label": "2014-02-01",
-          "baseline": 0.492,
+          "baseline": 0.484,
           "actual": 0.537
         },
         {
           "label": "2014-02-02",
-          "baseline": 0.502,
+          "baseline": 0.487,
           "actual": 0.525
         },
         {
           "label": "2014-02-03",
-          "baseline": 0.502,
+          "baseline": 0.486,
           "actual": 0.457
         },
         {
           "label": "2014-02-04",
-          "baseline": 0.499,
+          "baseline": 0.487,
           "actual": 0.426
         },
         {
           "label": "2014-02-05",
-          "baseline": 0.491,
+          "baseline": 0.484,
           "actual": 0.511
         },
         {
           "label": "2014-02-06",
-          "baseline": 0.484,
+          "baseline": 0.488,
           "actual": 0.502
         },
         {
           "label": "2014-02-07",
-          "baseline": 0.482,
+          "baseline": 0.494,
           "actual": 0.512
         },
         {
           "label": "2014-02-08",
-          "baseline": 0.504,
+          "baseline": 0.502,
           "actual": 0.568
         },
         {
           "label": "2014-02-09",
-          "baseline": 0.528,
+          "baseline": 0.505,
           "actual": 0.546
         },
         {
           "label": "2014-02-10",
-          "baseline": 0.526,
+          "baseline": 0.506,
           "actual": 0.502
         },
         {
           "label": "2014-02-11",
-          "baseline": 0.526,
+          "baseline": 0.503,
           "actual": 0.502
         },
         {
           "label": "2014-02-12",
-          "baseline": 0.527,
+          "baseline": 0.509,
           "actual": 0.515
         },
         {
           "label": "2014-02-13",
-          "baseline": 0.518,
+          "baseline": 0.52,
           "actual": 0.525
         },
         {
           "label": "2014-02-14",
-          "baseline": 0.508,
+          "baseline": 0.522,
           "actual": 0.497
         },
         {
           "label": "2014-02-15",
-          "baseline": 0.515,
+          "baseline": 0.521,
           "actual": 0.537
         },
         {
           "label": "2014-02-16",
-          "baseline": 0.523,
+          "baseline": 0.524,
           "actual": 0.541
         },
         {
           "label": "2014-02-17",
-          "baseline": 0.52,
+          "baseline": 0.521,
           "actual": 0.498
         },
         {
@@ -9784,27 +9784,27 @@
         },
         {
           "label": "2014-02-19",
-          "baseline": 0.518,
+          "baseline": 0.514,
           "actual": 0.516
         },
         {
           "label": "2014-02-20",
-          "baseline": 0.511,
+          "baseline": 0.516,
           "actual": 0.502
         },
         {
           "label": "2014-02-21",
-          "baseline": 0.503,
+          "baseline": 0.515,
           "actual": 0.499
         },
         {
           "label": "2014-02-22",
-          "baseline": 0.508,
+          "baseline": 0.511,
           "actual": 0.522
         },
         {
           "label": "2014-02-23",
-          "baseline": 0.52,
+          "baseline": 0.514,
           "actual": 0.563
         },
         {
@@ -9814,310 +9814,310 @@
         },
         {
           "label": "2014-02-25",
-          "baseline": 0.521,
+          "baseline": 0.513,
           "actual": 0.516
         },
         {
           "label": "2014-02-26",
-          "baseline": 0.528,
+          "baseline": 0.516,
           "actual": 0.533
         },
         {
           "label": "2014-02-27",
-          "baseline": 0.528,
+          "baseline": 0.52,
           "actual": 0.521
         },
         {
           "label": "2014-02-28",
-          "baseline": 0.515,
+          "baseline": 0.52,
           "actual": 0.497
         },
         {
           "label": "2014-03-01",
-          "baseline": 0.523,
+          "baseline": 0.52,
           "actual": 0.547
         },
         {
           "label": "2014-03-02",
-          "baseline": 0.549,
+          "baseline": 0.526,
           "actual": 0.648
         },
         {
           "label": "2014-03-03",
-          "baseline": 0.548,
+          "baseline": 0.541,
           "actual": 0.529
         },
         {
           "label": "2014-03-05",
-          "baseline": 0.552,
+          "baseline": 0.537,
           "actual": 0.538
         },
         {
           "label": "2014-03-06",
-          "baseline": 0.56,
+          "baseline": 0.541,
           "actual": 0.539
         },
         {
           "label": "2014-03-07",
-          "baseline": 0.554,
+          "baseline": 0.544,
           "actual": 0.516
         },
         {
           "label": "2014-03-08",
-          "baseline": 0.535,
+          "baseline": 0.542,
           "actual": 0.554
         },
         {
           "label": "2014-03-09",
-          "baseline": 0.539,
+          "baseline": 0.546,
           "actual": 0.55
         },
         {
           "label": "2014-03-10",
-          "baseline": 0.531,
+          "baseline": 0.553,
           "actual": 0.495
         },
         {
           "label": "2014-03-11",
-          "baseline": 0.52,
+          "baseline": 0.546,
           "actual": 0.487
         },
         {
           "label": "2014-03-12",
-          "baseline": 0.518,
+          "baseline": 0.526,
           "actual": 0.502
         },
         {
           "label": "2014-03-13",
-          "baseline": 0.507,
+          "baseline": 0.523,
           "actual": 0.501
         },
         {
           "label": "2014-03-14",
-          "baseline": 0.497,
+          "baseline": 0.518,
           "actual": 0.498
         },
         {
           "label": "2014-03-15",
-          "baseline": 0.507,
+          "baseline": 0.513,
           "actual": 0.548
         },
         {
           "label": "2014-03-16",
-          "baseline": 0.522,
+          "baseline": 0.517,
           "actual": 0.562
         },
         {
           "label": "2014-03-17",
-          "baseline": 0.522,
+          "baseline": 0.518,
           "actual": 0.503
         },
         {
           "label": "2014-03-18",
-          "baseline": 0.524,
+          "baseline": 0.512,
           "actual": 0.508
         },
         {
           "label": "2014-03-19",
-          "baseline": 0.53,
+          "baseline": 0.514,
           "actual": 0.528
         },
         {
           "label": "2014-03-20",
-          "baseline": 0.535,
+          "baseline": 0.519,
           "actual": 0.575
         },
         {
           "label": "2014-03-21",
-          "baseline": 0.523,
+          "baseline": 0.528,
           "actual": 0.5
         },
         {
           "label": "2014-03-22",
-          "baseline": 0.519,
+          "baseline": 0.528,
           "actual": 0.483
         },
         {
           "label": "2014-03-23",
-          "baseline": 0.53,
+          "baseline": 0.526,
           "actual": 0.563
         },
         {
           "label": "2014-03-24",
-          "baseline": 0.522,
+          "baseline": 0.528,
           "actual": 0.489
         },
         {
           "label": "2014-03-25",
-          "baseline": 0.505,
+          "baseline": 0.519,
           "actual": 0.49
         },
         {
           "label": "2014-03-26",
-          "baseline": 0.502,
+          "baseline": 0.517,
           "actual": 0.487
         },
         {
           "label": "2014-03-27",
-          "baseline": 0.504,
+          "baseline": 0.514,
           "actual": 0.489
         },
         {
           "label": "2014-03-28",
-          "baseline": 0.491,
+          "baseline": 0.509,
           "actual": 0.499
         },
         {
           "label": "2014-03-29",
-          "baseline": 0.502,
+          "baseline": 0.5,
           "actual": 0.545
         },
         {
           "label": "2014-03-30",
-          "baseline": 0.517,
+          "baseline": 0.506,
           "actual": 0.564
         },
         {
           "label": "2014-03-31",
-          "baseline": 0.521,
+          "baseline": 0.516,
           "actual": 0.51
         },
         {
           "label": "2014-04-01",
-          "baseline": 0.523,
+          "baseline": 0.509,
           "actual": 0.498
         },
         {
           "label": "2014-04-02",
-          "baseline": 0.53,
+          "baseline": 0.51,
           "actual": 0.533
         },
         {
           "label": "2014-04-03",
-          "baseline": 0.518,
+          "baseline": 0.516,
           "actual": 0.483
         },
         {
           "label": "2014-04-04",
-          "baseline": 0.508,
+          "baseline": 0.515,
           "actual": 0.518
         },
         {
           "label": "2014-04-05",
-          "baseline": 0.517,
+          "baseline": 0.519,
           "actual": 0.553
         },
         {
           "label": "2014-04-06",
-          "baseline": 0.538,
+          "baseline": 0.526,
           "actual": 0.605
         },
         {
           "label": "2014-04-07",
-          "baseline": 0.532,
+          "baseline": 0.533,
           "actual": 0.499
         },
         {
           "label": "2014-04-08",
-          "baseline": 0.537,
+          "baseline": 0.525,
           "actual": 0.512
         },
         {
           "label": "2014-04-09",
-          "baseline": 0.533,
+          "baseline": 0.525,
           "actual": 0.496
         }
       ]
     },
     "weekly": {
-      "anomalyCount": 9,
-      "inefficiencyCost": 208.6,
+      "anomalyCount": 1,
+      "inefficiencyCost": 2506.7,
       "series": [
         {
           "label": "2014-W00",
-          "baseline": 0.547,
+          "baseline": 0.519,
           "actual": 0.595
         },
         {
           "label": "2014-W01",
-          "baseline": 0.54,
+          "baseline": 0.529,
           "actual": 0.501
         },
         {
           "label": "2014-W02",
-          "baseline": 0.537,
+          "baseline": 0.533,
           "actual": 0.503
         },
         {
           "label": "2014-W03",
-          "baseline": 0.527,
+          "baseline": 0.532,
           "actual": 0.504
         },
         {
           "label": "2014-W04",
-          "baseline": 0.516,
+          "baseline": 0.531,
           "actual": 0.476
         },
         {
           "label": "2014-W05",
-          "baseline": 0.491,
+          "baseline": 0.523,
           "actual": 0.47
         },
         {
           "label": "2014-W06",
-          "baseline": 0.494,
+          "baseline": 0.517,
           "actual": 0.519
         },
         {
           "label": "2014-W07",
-          "baseline": 0.497,
+          "baseline": 0.512,
           "actual": 0.514
         },
         {
           "label": "2014-W08",
-          "baseline": 0.499,
+          "baseline": 0.51,
           "actual": 0.516
         },
         {
           "label": "2014-W09",
-          "baseline": 0.512,
+          "baseline": 0.5,
           "actual": 0.54
         },
         {
           "label": "2014-W10",
-          "baseline": 0.522,
+          "baseline": 0.505,
           "actual": 0.523
         },
         {
           "label": "2014-W11",
-          "baseline": 0.522,
+          "baseline": 0.508,
           "actual": 0.517
         },
         {
           "label": "2014-W12",
-          "baseline": 0.523,
+          "baseline": 0.509,
           "actual": 0.517
         },
         {
           "label": "2014-W13",
-          "baseline": 0.521,
+          "baseline": 0.515,
           "actual": 0.51
         },
         {
           "label": "2014-W14",
-          "baseline": 0.518,
+          "baseline": 0.52,
           "actual": 0.524
         },
         {
           "label": "2014-W15",
-          "baseline": 0.512,
+          "baseline": 0.52,
           "actual": 0.492
         }
       ]
     },
     "monthly": {
-      "anomalyCount": 3,
-      "inefficiencyCost": 53.9,
+      "anomalyCount": 4,
+      "inefficiencyCost": 2685.3,
       "series": [
         {
           "label": "Jun 2011",
@@ -10126,127 +10126,127 @@
         },
         {
           "label": "Jul 2011",
-          "baseline": 0.633,
+          "baseline": 0.679,
           "actual": 0.587
         },
         {
           "label": "Aug 2011",
-          "baseline": 0.575,
+          "baseline": 0.633,
           "actual": 0.46
         },
         {
           "label": "Oct 2011",
-          "baseline": 0.589,
+          "baseline": 0.575,
           "actual": 0.629
         },
         {
           "label": "Nov 2011",
-          "baseline": 0.594,
+          "baseline": 0.589,
           "actual": 0.617
         },
         {
           "label": "Dec 2011",
-          "baseline": 0.612,
+          "baseline": 0.573,
           "actual": 0.768
         },
         {
           "label": "Feb 2012",
-          "baseline": 0.609,
+          "baseline": 0.619,
           "actual": 0.573
         },
         {
           "label": "Mar 2012",
-          "baseline": 0.622,
+          "baseline": 0.647,
           "actual": 0.522
         },
         {
           "label": "Apr 2012",
-          "baseline": 0.603,
+          "baseline": 0.62,
           "actual": 0.537
         },
         {
           "label": "May 2012",
-          "baseline": 0.581,
+          "baseline": 0.6,
           "actual": 0.503
         },
         {
           "label": "Jun 2012",
-          "baseline": 0.558,
+          "baseline": 0.534,
           "actual": 0.655
         },
         {
           "label": "Jul 2012",
-          "baseline": 0.626,
+          "baseline": 0.554,
           "actual": 0.912
         },
         {
           "label": "Aug 2012",
-          "baseline": 0.624,
+          "baseline": 0.652,
           "actual": 0.511
         },
         {
           "label": "Sep 2012",
-          "baseline": 0.618,
+          "baseline": 0.645,
           "actual": 0.508
         },
         {
           "label": "Oct 2012",
-          "baseline": 0.62,
+          "baseline": 0.647,
           "actual": 0.516
         },
         {
           "label": "Nov 2012",
-          "baseline": 0.589,
+          "baseline": 0.612,
           "actual": 0.5
         },
         {
           "label": "Dec 2012",
-          "baseline": 0.51,
+          "baseline": 0.509,
           "actual": 0.516
         },
         {
           "label": "Jan 2013",
-          "baseline": 0.507,
+          "baseline": 0.51,
           "actual": 0.494
         },
         {
           "label": "Feb 2013",
-          "baseline": 0.507,
+          "baseline": 0.506,
           "actual": 0.509
         },
         {
           "label": "Mar 2013",
-          "baseline": 0.503,
+          "baseline": 0.505,
           "actual": 0.498
         },
         {
           "label": "Apr 2013",
-          "baseline": 0.499,
+          "baseline": 0.504,
           "actual": 0.478
         },
         {
           "label": "May 2013",
-          "baseline": 0.49,
+          "baseline": 0.495,
           "actual": 0.473
         },
         {
           "label": "Jun 2013",
-          "baseline": 0.488,
+          "baseline": 0.49,
           "actual": 0.483
         },
         {
           "label": "Jul 2013",
-          "baseline": 0.486,
+          "baseline": 0.483,
           "actual": 0.497
         },
         {
           "label": "Aug 2013",
-          "baseline": 0.49,
+          "baseline": 0.483,
           "actual": 0.52
         },
         {
           "label": "Sep 2013",
-          "baseline": 0.498,
+          "baseline": 0.493,
           "actual": 0.517
         },
         {
@@ -10256,17 +10256,17 @@
         },
         {
           "label": "Nov 2013",
-          "baseline": 0.508,
+          "baseline": 0.509,
           "actual": 0.505
         },
         {
           "label": "Dec 2013",
-          "baseline": 0.515,
+          "baseline": 0.511,
           "actual": 0.53
         },
         {
           "label": "Jan 2014",
-          "baseline": 0.51,
+          "baseline": 0.514,
           "actual": 0.494
         },
         {
@@ -10276,12 +10276,12 @@
         },
         {
           "label": "Mar 2014",
-          "baseline": 0.512,
+          "baseline": 0.51,
           "actual": 0.521
         },
         {
           "label": "Apr 2014",
-          "baseline": 0.515,
+          "baseline": 0.514,
           "actual": 0.518
         }
       ]
@@ -10294,8 +10294,8 @@
   },
   "chillerAnomalies": {
     "1": {
-      "anomalyCount": 14,
-      "inefficiencyCost": 128.3,
+      "anomalyCount": 0,
+      "inefficiencyCost": 1097,
       "series": [
         {
           "label": "2014-W01",
@@ -10304,239 +10304,239 @@
         },
         {
           "label": "2014-W02",
-          "baseline": 0.419,
+          "baseline": 0.434,
           "actual": 0.389
         },
         {
           "label": "2014-W03",
-          "baseline": 0.406,
+          "baseline": 0.427,
           "actual": 0.349
         },
         {
           "label": "2014-W04",
-          "baseline": 0.391,
+          "baseline": 0.414,
           "actual": 0.38
         },
         {
           "label": "2014-W05",
-          "baseline": 0.375,
+          "baseline": 0.41,
           "actual": 0.347
         },
         {
           "label": "2014-W06",
-          "baseline": 0.376,
+          "baseline": 0.396,
           "actual": 0.414
         },
         {
           "label": "2014-W07",
-          "baseline": 0.388,
+          "baseline": 0.396,
           "actual": 0.448
         },
         {
           "label": "2014-W08",
-          "baseline": 0.404,
+          "baseline": 0.396,
           "actual": 0.432
         },
         {
           "label": "2014-W09",
-          "baseline": 0.419,
+          "baseline": 0.396,
           "actual": 0.452
         },
         {
           "label": "2014-W10",
-          "baseline": 0.44,
+          "baseline": 0.401,
           "actual": 0.456
         },
         {
           "label": "2014-W11",
-          "baseline": 0.447,
+          "baseline": 0.41,
           "actual": 0.448
         },
         {
           "label": "2014-W12",
-          "baseline": 0.449,
+          "baseline": 0.422,
           "actual": 0.459
         },
         {
           "label": "2014-W13",
-          "baseline": 0.458,
+          "baseline": 0.432,
           "actual": 0.475
         },
         {
           "label": "2014-W14",
-          "baseline": 0.446,
+          "baseline": 0.448,
           "actual": 0.394
         },
         {
           "label": "2014-W15",
-          "baseline": 0.41,
+          "baseline": 0.446,
           "actual": 0.272
         }
       ]
     },
     "2": {
-      "anomalyCount": 7,
-      "inefficiencyCost": 61.4,
+      "anomalyCount": 0,
+      "inefficiencyCost": 762.2,
       "series": [
         {
           "label": "2014-W01",
-          "baseline": 0.423,
+          "baseline": 0.437,
           "actual": 0.427
         },
         {
           "label": "2014-W02",
-          "baseline": 0.423,
+          "baseline": 0.435,
           "actual": 0.455
         },
         {
           "label": "2014-W03",
-          "baseline": 0.42,
+          "baseline": 0.434,
           "actual": 0.439
         },
         {
           "label": "2014-W04",
-          "baseline": 0.413,
+          "baseline": 0.432,
           "actual": 0.427
         },
         {
           "label": "2014-W05",
-          "baseline": 0.433,
+          "baseline": 0.43,
           "actual": 0.415
         },
         {
           "label": "2014-W06",
-          "baseline": 0.438,
+          "baseline": 0.425,
           "actual": 0.452
         },
         {
           "label": "2014-W07",
-          "baseline": 0.442,
+          "baseline": 0.424,
           "actual": 0.475
         },
         {
           "label": "2014-W08",
-          "baseline": 0.439,
+          "baseline": 0.426,
           "actual": 0.427
         },
         {
           "label": "2014-W09",
-          "baseline": 0.444,
+          "baseline": 0.44,
           "actual": 0.45
         },
         {
           "label": "2014-W10",
-          "baseline": 0.448,
+          "baseline": 0.443,
           "actual": 0.436
         },
         {
           "label": "2014-W11",
-          "baseline": 0.451,
+          "baseline": 0.44,
           "actual": 0.469
         },
         {
           "label": "2014-W12",
-          "baseline": 0.449,
+          "baseline": 0.444,
           "actual": 0.462
         },
         {
           "label": "2014-W13",
-          "baseline": 0.454,
+          "baseline": 0.448,
           "actual": 0.455
         },
         {
           "label": "2014-W14",
-          "baseline": 0.455,
+          "baseline": 0.453,
           "actual": 0.453
         },
         {
           "label": "2014-W15",
-          "baseline": 0.462,
+          "baseline": 0.453,
           "actual": 0.472
         }
       ]
     },
     "3": {
-      "anomalyCount": 17,
-      "inefficiencyCost": 218.9,
+      "anomalyCount": 1,
+      "inefficiencyCost": 1017.7,
       "series": [
         {
           "label": "2014-W00",
-          "baseline": 0.308,
+          "baseline": 0.354,
           "actual": 0.119
         },
         {
           "label": "2014-W01",
-          "baseline": 0.299,
+          "baseline": 0.318,
           "actual": 0.318
         },
         {
           "label": "2014-W02",
-          "baseline": 0.301,
+          "baseline": 0.314,
           "actual": 0.348
         },
         {
           "label": "2014-W03",
-          "baseline": 0.295,
+          "baseline": 0.319,
           "actual": 0.329
         },
         {
           "label": "2014-W04",
-          "baseline": 0.283,
+          "baseline": 0.317,
           "actual": 0.299
         },
         {
           "label": "2014-W05",
-          "baseline": 0.315,
+          "baseline": 0.309,
           "actual": 0.281
         },
         {
           "label": "2014-W06",
-          "baseline": 0.314,
+          "baseline": 0.302,
           "actual": 0.313
         },
         {
           "label": "2014-W07",
-          "baseline": 0.305,
+          "baseline": 0.296,
           "actual": 0.303
         },
         {
           "label": "2014-W08",
-          "baseline": 0.308,
+          "baseline": 0.289,
           "actual": 0.345
         },
         {
           "label": "2014-W09",
-          "baseline": 0.319,
+          "baseline": 0.317,
           "actual": 0.354
         },
         {
           "label": "2014-W10",
-          "baseline": 0.331,
+          "baseline": 0.322,
           "actual": 0.342
         },
         {
           "label": "2014-W11",
-          "baseline": 0.337,
+          "baseline": 0.321,
           "actual": 0.343
         },
         {
           "label": "2014-W12",
-          "baseline": 0.35,
+          "baseline": 0.323,
           "actual": 0.366
         },
         {
           "label": "2014-W13",
-          "baseline": 0.345,
+          "baseline": 0.331,
           "actual": 0.322
         },
         {
           "label": "2014-W14",
-          "baseline": 0.345,
+          "baseline": 0.336,
           "actual": 0.352
         },
         {
           "label": "2014-W15",
-          "baseline": 0.358,
+          "baseline": 0.341,
           "actual": 0.409
         }
       ]
@@ -10545,62 +10545,62 @@
   "chillerAnomaliesByResolution": {
     "1": {
       "daily": {
-        "anomalyCount": 133,
-        "inefficiencyCost": 1193.2,
+        "anomalyCount": 3,
+        "inefficiencyCost": 685.1,
         "series": [
           {
             "label": "2014-01-01",
-            "baseline": 0.43,
+            "baseline": 0.405,
             "actual": 0.365
           },
           {
             "label": "2014-01-02",
-            "baseline": 0.422,
+            "baseline": 0.395,
             "actual": 0.401
           },
           {
             "label": "2014-01-06",
-            "baseline": 0.422,
+            "baseline": 0.389,
             "actual": 0.452
           },
           {
             "label": "2014-01-07",
-            "baseline": 0.407,
+            "baseline": 0.432,
             "actual": 0.387
           },
           {
             "label": "2014-01-08",
-            "baseline": 0.387,
+            "baseline": 0.424,
             "actual": 0.329
           },
           {
             "label": "2014-01-09",
-            "baseline": 0.379,
+            "baseline": 0.41,
             "actual": 0.328
           },
           {
             "label": "2014-01-10",
-            "baseline": 0.384,
+            "baseline": 0.394,
             "actual": 0.424
           },
           {
             "label": "2014-01-13",
-            "baseline": 0.383,
+            "baseline": 0.39,
             "actual": 0.448
           },
           {
             "label": "2014-01-14",
-            "baseline": 0.378,
+            "baseline": 0.392,
             "actual": 0.359
           },
           {
             "label": "2014-01-15",
-            "baseline": 0.381,
+            "baseline": 0.391,
             "actual": 0.347
           },
           {
             "label": "2014-01-16",
-            "baseline": 0.385,
+            "baseline": 0.384,
             "actual": 0.347
           },
           {
@@ -10610,112 +10610,112 @@
           },
           {
             "label": "2014-01-20",
-            "baseline": 0.352,
+            "baseline": 0.367,
             "actual": 0.353
           },
           {
             "label": "2014-01-21",
-            "baseline": 0.35,
+            "baseline": 0.37,
             "actual": 0.348
           },
           {
             "label": "2014-01-22",
-            "baseline": 0.354,
+            "baseline": 0.373,
             "actual": 0.366
           },
           {
             "label": "2014-01-23",
-            "baseline": 0.365,
+            "baseline": 0.366,
             "actual": 0.402
           },
           {
             "label": "2014-01-24",
-            "baseline": 0.368,
+            "baseline": 0.36,
             "actual": 0.372
           },
           {
             "label": "2014-02-03",
-            "baseline": 0.354,
+            "baseline": 0.361,
             "actual": 0.281
           },
           {
             "label": "2014-02-04",
-            "baseline": 0.36,
+            "baseline": 0.353,
             "actual": 0.377
           },
           {
             "label": "2014-02-05",
-            "baseline": 0.379,
+            "baseline": 0.357,
             "actual": 0.464
           },
           {
             "label": "2014-02-06",
-            "baseline": 0.381,
+            "baseline": 0.37,
             "actual": 0.411
           },
           {
             "label": "2014-02-07",
-            "baseline": 0.396,
+            "baseline": 0.378,
             "actual": 0.449
           },
           {
             "label": "2014-02-08",
-            "baseline": 0.372,
+            "baseline": 0.39,
             "actual": 0.159
           },
           {
             "label": "2014-02-09",
-            "baseline": 0.318,
+            "baseline": 0.364,
             "actual": 0.109
           },
           {
             "label": "2014-02-10",
-            "baseline": 0.318,
+            "baseline": 0.328,
             "actual": 0.463
           },
           {
             "label": "2014-02-11",
-            "baseline": 0.321,
+            "baseline": 0.339,
             "actual": 0.425
           },
           {
             "label": "2014-02-12",
-            "baseline": 0.322,
+            "baseline": 0.357,
             "actual": 0.454
           },
           {
             "label": "2014-02-13",
-            "baseline": 0.383,
+            "baseline": 0.367,
             "actual": 0.464
           },
           {
             "label": "2014-02-14",
-            "baseline": 0.454,
+            "baseline": 0.367,
             "actual": 0.462
           },
           {
             "label": "2014-02-15",
-            "baseline": 0.414,
+            "baseline": 0.373,
             "actual": 0.265
           },
           {
             "label": "2014-02-16",
-            "baseline": 0.371,
+            "baseline": 0.35,
             "actual": 0.211
           },
           {
             "label": "2014-02-17",
-            "baseline": 0.372,
+            "baseline": 0.357,
             "actual": 0.46
           },
           {
             "label": "2014-02-18",
-            "baseline": 0.369,
+            "baseline": 0.401,
             "actual": 0.447
           },
           {
             "label": "2014-02-19",
-            "baseline": 0.36,
+            "baseline": 0.398,
             "actual": 0.419
           },
           {
@@ -10725,62 +10725,62 @@
           },
           {
             "label": "2014-02-21",
-            "baseline": 0.444,
+            "baseline": 0.398,
             "actual": 0.442
           },
           {
             "label": "2014-02-22",
-            "baseline": 0.426,
+            "baseline": 0.395,
             "actual": 0.366
           },
           {
             "label": "2014-02-23",
-            "baseline": 0.386,
+            "baseline": 0.383,
             "actual": 0.25
           },
           {
             "label": "2014-02-24",
-            "baseline": 0.394,
+            "baseline": 0.381,
             "actual": 0.46
           },
           {
             "label": "2014-02-25",
-            "baseline": 0.393,
+            "baseline": 0.412,
             "actual": 0.446
           },
           {
             "label": "2014-02-26",
-            "baseline": 0.396,
+            "baseline": 0.411,
             "actual": 0.46
           },
           {
             "label": "2014-02-27",
-            "baseline": 0.417,
+            "baseline": 0.412,
             "actual": 0.469
           },
           {
             "label": "2014-02-28",
-            "baseline": 0.451,
+            "baseline": 0.418,
             "actual": 0.42
           },
           {
             "label": "2014-03-01",
-            "baseline": 0.434,
+            "baseline": 0.414,
             "actual": 0.375
           },
           {
             "label": "2014-03-03",
-            "baseline": 0.436,
+            "baseline": 0.406,
             "actual": 0.458
           },
           {
             "label": "2014-03-05",
-            "baseline": 0.441,
+            "baseline": 0.417,
             "actual": 0.482
           },
           {
             "label": "2014-03-06",
-            "baseline": 0.438,
+            "baseline": 0.446,
             "actual": 0.457
           },
           {
@@ -10790,22 +10790,22 @@
           },
           {
             "label": "2014-03-10",
-            "baseline": 0.463,
+            "baseline": 0.448,
             "actual": 0.459
           },
           {
             "label": "2014-03-11",
-            "baseline": 0.459,
+            "baseline": 0.447,
             "actual": 0.437
           },
           {
             "label": "2014-03-12",
-            "baseline": 0.456,
+            "baseline": 0.443,
             "actual": 0.467
           },
           {
             "label": "2014-03-13",
-            "baseline": 0.461,
+            "baseline": 0.449,
             "actual": 0.48
           },
           {
@@ -10815,104 +10815,104 @@
           },
           {
             "label": "2014-03-15",
-            "baseline": 0.45,
+            "baseline": 0.463,
             "actual": 0.403
           },
           {
             "label": "2014-03-16",
-            "baseline": 0.436,
+            "baseline": 0.454,
             "actual": 0.365
           },
           {
             "label": "2014-03-17",
-            "baseline": 0.413,
+            "baseline": 0.442,
             "actual": 0.35
           },
           {
             "label": "2014-03-18",
-            "baseline": 0.412,
+            "baseline": 0.428,
             "actual": 0.479
           },
           {
             "label": "2014-03-19",
-            "baseline": 0.407,
+            "baseline": 0.431,
             "actual": 0.44
           },
           {
             "label": "2014-03-20",
-            "baseline": 0.416,
+            "baseline": 0.431,
             "actual": 0.448
           },
           {
             "label": "2014-03-21",
-            "baseline": 0.438,
+            "baseline": 0.429,
             "actual": 0.473
           },
           {
             "label": "2014-03-24",
-            "baseline": 0.459,
+            "baseline": 0.428,
             "actual": 0.456
           },
           {
             "label": "2014-03-25",
-            "baseline": 0.46,
+            "baseline": 0.427,
             "actual": 0.482
           },
           {
             "label": "2014-03-26",
-            "baseline": 0.468,
+            "baseline": 0.437,
             "actual": 0.479
           },
           {
             "label": "2014-03-27",
-            "baseline": 0.474,
+            "baseline": 0.451,
             "actual": 0.481
           },
           {
             "label": "2014-03-28",
-            "baseline": 0.473,
+            "baseline": 0.467,
             "actual": 0.466
           },
           {
             "label": "2014-03-31",
-            "baseline": 0.474,
+            "baseline": 0.466,
             "actual": 0.463
           },
           {
             "label": "2014-04-01",
-            "baseline": 0.47,
+            "baseline": 0.469,
             "actual": 0.459
           },
           {
             "label": "2014-04-02",
-            "baseline": 0.454,
+            "baseline": 0.47,
             "actual": 0.4
           },
           {
             "label": "2014-04-03",
-            "baseline": 0.451,
+            "baseline": 0.461,
             "actual": 0.465
           },
           {
             "label": "2014-04-07",
-            "baseline": 0.405,
+            "baseline": 0.462,
             "actual": 0.236
           },
           {
             "label": "2014-04-08",
-            "baseline": 0.395,
+            "baseline": 0.431,
             "actual": 0.414
           },
           {
             "label": "2014-04-09",
-            "baseline": 0.357,
+            "baseline": 0.423,
             "actual": 0.272
           }
         ]
       },
       "weekly": {
-        "anomalyCount": 14,
-        "inefficiencyCost": 128.3,
+        "anomalyCount": 0,
+        "inefficiencyCost": 1097,
         "series": [
           {
             "label": "2014-W01",
@@ -10921,79 +10921,79 @@
           },
           {
             "label": "2014-W02",
-            "baseline": 0.419,
+            "baseline": 0.434,
             "actual": 0.389
           },
           {
             "label": "2014-W03",
-            "baseline": 0.406,
+            "baseline": 0.427,
             "actual": 0.349
           },
           {
             "label": "2014-W04",
-            "baseline": 0.391,
+            "baseline": 0.414,
             "actual": 0.38
           },
           {
             "label": "2014-W05",
-            "baseline": 0.375,
+            "baseline": 0.41,
             "actual": 0.347
           },
           {
             "label": "2014-W06",
-            "baseline": 0.376,
+            "baseline": 0.396,
             "actual": 0.414
           },
           {
             "label": "2014-W07",
-            "baseline": 0.388,
+            "baseline": 0.396,
             "actual": 0.448
           },
           {
             "label": "2014-W08",
-            "baseline": 0.404,
+            "baseline": 0.396,
             "actual": 0.432
           },
           {
             "label": "2014-W09",
-            "baseline": 0.419,
+            "baseline": 0.396,
             "actual": 0.452
           },
           {
             "label": "2014-W10",
-            "baseline": 0.44,
+            "baseline": 0.401,
             "actual": 0.456
           },
           {
             "label": "2014-W11",
-            "baseline": 0.447,
+            "baseline": 0.41,
             "actual": 0.448
           },
           {
             "label": "2014-W12",
-            "baseline": 0.449,
+            "baseline": 0.422,
             "actual": 0.459
           },
           {
             "label": "2014-W13",
-            "baseline": 0.458,
+            "baseline": 0.432,
             "actual": 0.475
           },
           {
             "label": "2014-W14",
-            "baseline": 0.446,
+            "baseline": 0.448,
             "actual": 0.394
           },
           {
             "label": "2014-W15",
-            "baseline": 0.41,
+            "baseline": 0.446,
             "actual": 0.272
           }
         ]
       },
       "monthly": {
         "anomalyCount": 1,
-        "inefficiencyCost": 12.4,
+        "inefficiencyCost": 972.1,
         "series": [
           {
             "label": "Jun 2011",
@@ -11002,67 +11002,67 @@
           },
           {
             "label": "Jul 2011",
-            "baseline": 0.552,
+            "baseline": 0.427,
             "actual": 0.676
           },
           {
             "label": "Aug 2011",
-            "baseline": 0.516,
+            "baseline": 0.552,
             "actual": 0.444
           },
           {
             "label": "Oct 2011",
-            "baseline": 0.477,
+            "baseline": 0.516,
             "actual": 0.36
           },
           {
             "label": "Nov 2011",
-            "baseline": 0.468,
+            "baseline": 0.477,
             "actual": 0.431
           },
           {
             "label": "Dec 2011",
-            "baseline": 0.468,
+            "baseline": 0.478,
             "actual": 0.431
           },
           {
             "label": "Feb 2012",
-            "baseline": 0.42,
+            "baseline": 0.417,
             "actual": 0.436
           },
           {
             "label": "Mar 2012",
-            "baseline": 0.418,
+            "baseline": 0.415,
             "actual": 0.434
           },
           {
             "label": "Apr 2012",
-            "baseline": 0.435,
+            "baseline": 0.433,
             "actual": 0.441
           },
           {
             "label": "May 2012",
-            "baseline": 0.439,
+            "baseline": 0.436,
             "actual": 0.455
           },
           {
             "label": "Jun 2012",
-            "baseline": 0.441,
+            "baseline": 0.442,
             "actual": 0.439
           },
           {
             "label": "Jul 2012",
-            "baseline": 0.434,
+            "baseline": 0.442,
             "actual": 0.401
           },
           {
             "label": "Aug 2012",
-            "baseline": 0.431,
+            "baseline": 0.434,
             "actual": 0.421
           },
           {
             "label": "Sep 2012",
-            "baseline": 0.428,
+            "baseline": 0.429,
             "actual": 0.422
           },
           {
@@ -11072,12 +11072,12 @@
           },
           {
             "label": "Nov 2012",
-            "baseline": 0.414,
+            "baseline": 0.417,
             "actual": 0.402
           },
           {
             "label": "Dec 2012",
-            "baseline": 0.42,
+            "baseline": 0.417,
             "actual": 0.431
           },
           {
@@ -11087,62 +11087,62 @@
           },
           {
             "label": "Feb 2013",
-            "baseline": 0.418,
+            "baseline": 0.419,
             "actual": 0.416
           },
           {
             "label": "Mar 2013",
-            "baseline": 0.421,
+            "baseline": 0.417,
             "actual": 0.438
           },
           {
             "label": "Apr 2013",
-            "baseline": 0.431,
+            "baseline": 0.426,
             "actual": 0.45
           },
           {
             "label": "May 2013",
-            "baseline": 0.432,
+            "baseline": 0.431,
             "actual": 0.436
           },
           {
             "label": "Jun 2013",
-            "baseline": 0.43,
+            "baseline": 0.435,
             "actual": 0.409
           },
           {
             "label": "Jul 2013",
-            "baseline": 0.425,
+            "baseline": 0.433,
             "actual": 0.393
           },
           {
             "label": "Aug 2013",
-            "baseline": 0.423,
+            "baseline": 0.422,
             "actual": 0.426
           },
           {
             "label": "Sep 2013",
-            "baseline": 0.424,
+            "baseline": 0.416,
             "actual": 0.458
           },
           {
             "label": "Oct 2013",
-            "baseline": 0.426,
+            "baseline": 0.422,
             "actual": 0.442
           },
           {
             "label": "Nov 2013",
-            "baseline": 0.432,
+            "baseline": 0.43,
             "actual": 0.441
           },
           {
             "label": "Dec 2013",
-            "baseline": 0.44,
+            "baseline": 0.442,
             "actual": 0.435
           },
           {
             "label": "Jan 2014",
-            "baseline": 0.433,
+            "baseline": 0.444,
             "actual": 0.388
           },
           {
@@ -11152,12 +11152,12 @@
           },
           {
             "label": "Mar 2014",
-            "baseline": 0.429,
+            "baseline": 0.423,
             "actual": 0.456
           },
           {
             "label": "Apr 2014",
-            "baseline": 0.419,
+            "baseline": 0.427,
             "actual": 0.39
           }
         ]
@@ -11170,187 +11170,187 @@
     },
     "2": {
       "daily": {
-        "anomalyCount": 92,
-        "inefficiencyCost": 789.8,
+        "anomalyCount": 0,
+        "inefficiencyCost": 503.2,
         "series": [
           {
             "label": "2014-01-02",
-            "baseline": 0.434,
+            "baseline": 0.443,
             "actual": 0.444
           },
           {
             "label": "2014-01-03",
-            "baseline": 0.432,
+            "baseline": 0.438,
             "actual": 0.464
           },
           {
             "label": "2014-01-06",
-            "baseline": 0.417,
+            "baseline": 0.437,
             "actual": 0.412
           },
           {
             "label": "2014-01-07",
-            "baseline": 0.409,
+            "baseline": 0.435,
             "actual": 0.409
           },
           {
             "label": "2014-01-08",
-            "baseline": 0.436,
+            "baseline": 0.432,
             "actual": 0.45
           },
           {
             "label": "2014-01-09",
-            "baseline": 0.439,
+            "baseline": 0.429,
             "actual": 0.461
           },
           {
             "label": "2014-01-10",
-            "baseline": 0.439,
+            "baseline": 0.426,
             "actual": 0.463
           },
           {
             "label": "2014-01-13",
-            "baseline": 0.446,
+            "baseline": 0.428,
             "actual": 0.447
           },
           {
             "label": "2014-01-14",
-            "baseline": 0.455,
+            "baseline": 0.444,
             "actual": 0.456
           },
           {
             "label": "2014-01-15",
-            "baseline": 0.457,
+            "baseline": 0.445,
             "actual": 0.459
           },
           {
             "label": "2014-01-16",
-            "baseline": 0.448,
+            "baseline": 0.445,
             "actual": 0.415
           },
           {
             "label": "2014-01-17",
-            "baseline": 0.447,
+            "baseline": 0.445,
             "actual": 0.456
           },
           {
             "label": "2014-01-18",
-            "baseline": 0.398,
+            "baseline": 0.451,
             "actual": 0.203
           },
           {
             "label": "2014-01-20",
-            "baseline": 0.394,
+            "baseline": 0.42,
             "actual": 0.438
           },
           {
             "label": "2014-01-21",
-            "baseline": 0.395,
+            "baseline": 0.417,
             "actual": 0.465
           },
           {
             "label": "2014-01-22",
-            "baseline": 0.401,
+            "baseline": 0.417,
             "actual": 0.445
           },
           {
             "label": "2014-01-23",
-            "baseline": 0.401,
+            "baseline": 0.417,
             "actual": 0.453
           },
           {
             "label": "2014-01-24",
-            "baseline": 0.448,
+            "baseline": 0.417,
             "actual": 0.441
           },
           {
             "label": "2014-01-25",
-            "baseline": 0.427,
+            "baseline": 0.415,
             "actual": 0.331
           },
           {
             "label": "2014-01-26",
-            "baseline": 0.361,
+            "baseline": 0.404,
             "actual": 0.136
           },
           {
             "label": "2014-01-27",
-            "baseline": 0.361,
+            "baseline": 0.364,
             "actual": 0.446
           },
           {
             "label": "2014-01-28",
-            "baseline": 0.364,
+            "baseline": 0.394,
             "actual": 0.468
           },
           {
             "label": "2014-01-29",
-            "baseline": 0.355,
+            "baseline": 0.398,
             "actual": 0.394
           },
           {
             "label": "2014-01-30",
-            "baseline": 0.363,
+            "baseline": 0.389,
             "actual": 0.369
           },
           {
             "label": "2014-02-03",
-            "baseline": 0.426,
+            "baseline": 0.38,
             "actual": 0.454
           },
           {
             "label": "2014-02-04",
-            "baseline": 0.423,
+            "baseline": 0.38,
             "actual": 0.431
           },
           {
             "label": "2014-02-05",
-            "baseline": 0.406,
+            "baseline": 0.379,
             "actual": 0.38
           },
           {
             "label": "2014-02-06",
-            "baseline": 0.397,
+            "baseline": 0.385,
             "actual": 0.352
           },
           {
             "label": "2014-02-07",
-            "baseline": 0.415,
+            "baseline": 0.412,
             "actual": 0.457
           },
           {
             "label": "2014-02-10",
-            "baseline": 0.418,
+            "baseline": 0.413,
             "actual": 0.469
           },
           {
             "label": "2014-02-11",
-            "baseline": 0.425,
+            "baseline": 0.413,
             "actual": 0.468
           },
           {
             "label": "2014-02-12",
-            "baseline": 0.445,
+            "baseline": 0.422,
             "actual": 0.48
           },
           {
             "label": "2014-02-13",
-            "baseline": 0.472,
+            "baseline": 0.436,
             "actual": 0.488
           },
           {
             "label": "2014-02-14",
-            "baseline": 0.476,
+            "baseline": 0.441,
             "actual": 0.473
           },
           {
             "label": "2014-02-17",
-            "baseline": 0.476,
+            "baseline": 0.446,
             "actual": 0.469
           },
           {
             "label": "2014-02-18",
-            "baseline": 0.476,
+            "baseline": 0.457,
             "actual": 0.468
           },
           {
@@ -11360,42 +11360,42 @@
           },
           {
             "label": "2014-02-20",
-            "baseline": 0.464,
+            "baseline": 0.472,
             "actual": 0.449
           },
           {
             "label": "2014-02-21",
-            "baseline": 0.458,
+            "baseline": 0.469,
             "actual": 0.443
           },
           {
             "label": "2014-02-24",
-            "baseline": 0.435,
+            "baseline": 0.466,
             "actual": 0.356
           },
           {
             "label": "2014-02-25",
-            "baseline": 0.416,
+            "baseline": 0.451,
             "actual": 0.371
           },
           {
             "label": "2014-02-26",
-            "baseline": 0.397,
+            "baseline": 0.436,
             "actual": 0.367
           },
           {
             "label": "2014-02-27",
-            "baseline": 0.396,
+            "baseline": 0.423,
             "actual": 0.443
           },
           {
             "label": "2014-02-28",
-            "baseline": 0.396,
+            "baseline": 0.42,
             "actual": 0.441
           },
           {
             "label": "2014-03-03",
-            "baseline": 0.423,
+            "baseline": 0.416,
             "actual": 0.493
           },
           {
@@ -11405,122 +11405,122 @@
           },
           {
             "label": "2014-03-07",
-            "baseline": 0.434,
+            "baseline": 0.409,
             "actual": 0.437
           },
           {
             "label": "2014-03-10",
-            "baseline": 0.439,
+            "baseline": 0.408,
             "actual": 0.467
           },
           {
             "label": "2014-03-11",
-            "baseline": 0.435,
+            "baseline": 0.422,
             "actual": 0.42
           },
           {
             "label": "2014-03-12",
-            "baseline": 0.431,
+            "baseline": 0.428,
             "actual": 0.472
           },
           {
             "label": "2014-03-13",
-            "baseline": 0.454,
+            "baseline": 0.441,
             "actual": 0.474
           },
           {
             "label": "2014-03-14",
-            "baseline": 0.461,
+            "baseline": 0.445,
             "actual": 0.474
           },
           {
             "label": "2014-03-17",
-            "baseline": 0.46,
+            "baseline": 0.449,
             "actual": 0.46
           },
           {
             "label": "2014-03-18",
-            "baseline": 0.469,
+            "baseline": 0.445,
             "actual": 0.465
           },
           {
             "label": "2014-03-19",
-            "baseline": 0.469,
+            "baseline": 0.459,
             "actual": 0.473
           },
           {
             "label": "2014-03-20",
-            "baseline": 0.473,
+            "baseline": 0.463,
             "actual": 0.492
           },
           {
             "label": "2014-03-21",
-            "baseline": 0.468,
+            "baseline": 0.466,
             "actual": 0.449
           },
           {
             "label": "2014-03-22",
-            "baseline": 0.465,
+            "baseline": 0.47,
             "actual": 0.448
           },
           {
             "label": "2014-03-24",
-            "baseline": 0.466,
+            "baseline": 0.467,
             "actual": 0.466
           },
           {
             "label": "2014-03-25",
-            "baseline": 0.462,
+            "baseline": 0.466,
             "actual": 0.456
           },
           {
             "label": "2014-03-26",
-            "baseline": 0.456,
+            "baseline": 0.464,
             "actual": 0.461
           },
           {
             "label": "2014-03-27",
-            "baseline": 0.459,
+            "baseline": 0.464,
             "actual": 0.465
           },
           {
             "label": "2014-03-28",
-            "baseline": 0.462,
+            "baseline": 0.464,
             "actual": 0.463
           },
           {
             "label": "2014-03-29",
-            "baseline": 0.43,
+            "baseline": 0.462,
             "actual": 0.303
           },
           {
             "label": "2014-03-31",
-            "baseline": 0.43,
+            "baseline": 0.439,
             "actual": 0.456
           },
           {
             "label": "2014-04-01",
-            "baseline": 0.429,
+            "baseline": 0.44,
             "actual": 0.458
           },
           {
             "label": "2014-04-02",
-            "baseline": 0.426,
+            "baseline": 0.441,
             "actual": 0.452
           },
           {
             "label": "2014-04-03",
-            "baseline": 0.423,
+            "baseline": 0.439,
             "actual": 0.444
           },
           {
             "label": "2014-04-04",
-            "baseline": 0.456,
+            "baseline": 0.438,
             "actual": 0.471
           },
           {
             "label": "2014-04-05",
-            "baseline": 0.416,
+            "baseline": 0.439,
             "actual": 0.253
           },
           {
@@ -11530,100 +11530,100 @@
           },
           {
             "label": "2014-04-08",
-            "baseline": 0.418,
+            "baseline": 0.41,
             "actual": 0.475
           },
           {
             "label": "2014-04-09",
-            "baseline": 0.423,
+            "baseline": 0.432,
             "actual": 0.472
           }
         ]
       },
       "weekly": {
-        "anomalyCount": 7,
-        "inefficiencyCost": 61.4,
+        "anomalyCount": 0,
+        "inefficiencyCost": 762.2,
         "series": [
           {
             "label": "2014-W01",
-            "baseline": 0.423,
+            "baseline": 0.437,
             "actual": 0.427
           },
           {
             "label": "2014-W02",
-            "baseline": 0.423,
+            "baseline": 0.435,
             "actual": 0.455
           },
           {
             "label": "2014-W03",
-            "baseline": 0.42,
+            "baseline": 0.434,
             "actual": 0.439
           },
           {
             "label": "2014-W04",
-            "baseline": 0.413,
+            "baseline": 0.432,
             "actual": 0.427
           },
           {
             "label": "2014-W05",
-            "baseline": 0.433,
+            "baseline": 0.43,
             "actual": 0.415
           },
           {
             "label": "2014-W06",
-            "baseline": 0.438,
+            "baseline": 0.425,
             "actual": 0.452
           },
           {
             "label": "2014-W07",
-            "baseline": 0.442,
+            "baseline": 0.424,
             "actual": 0.475
           },
           {
             "label": "2014-W08",
-            "baseline": 0.439,
+            "baseline": 0.426,
             "actual": 0.427
           },
           {
             "label": "2014-W09",
-            "baseline": 0.444,
+            "baseline": 0.44,
             "actual": 0.45
           },
           {
             "label": "2014-W10",
-            "baseline": 0.448,
+            "baseline": 0.443,
             "actual": 0.436
           },
           {
             "label": "2014-W11",
-            "baseline": 0.451,
+            "baseline": 0.44,
             "actual": 0.469
           },
           {
             "label": "2014-W12",
-            "baseline": 0.449,
+            "baseline": 0.444,
             "actual": 0.462
           },
           {
             "label": "2014-W13",
-            "baseline": 0.454,
+            "baseline": 0.448,
             "actual": 0.455
           },
           {
             "label": "2014-W14",
-            "baseline": 0.455,
+            "baseline": 0.453,
             "actual": 0.453
           },
           {
             "label": "2014-W15",
-            "baseline": 0.462,
+            "baseline": 0.453,
             "actual": 0.472
           }
         ]
       },
       "monthly": {
         "anomalyCount": 1,
-        "inefficiencyCost": 5.7,
+        "inefficiencyCost": 578.8,
         "series": [
           {
             "label": "Jun 2011",
@@ -11632,12 +11632,12 @@
           },
           {
             "label": "Jul 2011",
-            "baseline": 0.531,
+            "baseline": 0.473,
             "actual": 0.588
           },
           {
             "label": "Aug 2011",
-            "baseline": 0.5,
+            "baseline": 0.531,
             "actual": 0.44
           },
           {
@@ -11647,22 +11647,22 @@
           },
           {
             "label": "Nov 2011",
-            "baseline": 0.485,
+            "baseline": 0.5,
             "actual": 0.428
           },
           {
             "label": "Dec 2011",
-            "baseline": 0.474,
+            "baseline": 0.489,
             "actual": 0.415
           },
           {
             "label": "Feb 2012",
-            "baseline": 0.442,
+            "baseline": 0.445,
             "actual": 0.427
           },
           {
             "label": "Mar 2012",
-            "baseline": 0.44,
+            "baseline": 0.442,
             "actual": 0.434
           },
           {
@@ -11677,37 +11677,37 @@
           },
           {
             "label": "Jun 2012",
-            "baseline": 0.437,
+            "baseline": 0.429,
             "actual": 0.469
           },
           {
             "label": "Jul 2012",
-            "baseline": 0.446,
+            "baseline": 0.44,
             "actual": 0.472
           },
           {
             "label": "Aug 2012",
-            "baseline": 0.448,
+            "baseline": 0.449,
             "actual": 0.444
           },
           {
             "label": "Sep 2012",
-            "baseline": 0.454,
+            "baseline": 0.453,
             "actual": 0.455
           },
           {
             "label": "Oct 2012",
-            "baseline": 0.455,
+            "baseline": 0.46,
             "actual": 0.433
           },
           {
             "label": "Nov 2012",
-            "baseline": 0.448,
+            "baseline": 0.451,
             "actual": 0.435
           },
           {
             "label": "Dec 2012",
-            "baseline": 0.445,
+            "baseline": 0.442,
             "actual": 0.457
           },
           {
@@ -11717,32 +11717,32 @@
           },
           {
             "label": "Feb 2013",
-            "baseline": 0.446,
+            "baseline": 0.442,
             "actual": 0.461
           },
           {
             "label": "Mar 2013",
-            "baseline": 0.447,
+            "baseline": 0.449,
             "actual": 0.438
           },
           {
             "label": "Apr 2013",
-            "baseline": 0.447,
+            "baseline": 0.45,
             "actual": 0.438
           },
           {
             "label": "May 2013",
-            "baseline": 0.443,
+            "baseline": 0.445,
             "actual": 0.435
           },
           {
             "label": "Jun 2013",
-            "baseline": 0.438,
+            "baseline": 0.443,
             "actual": 0.42
           },
           {
             "label": "Jul 2013",
-            "baseline": 0.435,
+            "baseline": 0.433,
             "actual": 0.442
           },
           {
@@ -11757,37 +11757,37 @@
           },
           {
             "label": "Oct 2013",
-            "baseline": 0.431,
+            "baseline": 0.433,
             "actual": 0.427
           },
           {
             "label": "Nov 2013",
-            "baseline": 0.438,
+            "baseline": 0.434,
             "actual": 0.454
           },
           {
             "label": "Dec 2013",
-            "baseline": 0.441,
+            "baseline": 0.437,
             "actual": 0.455
           },
           {
             "label": "Jan 2014",
-            "baseline": 0.441,
+            "baseline": 0.442,
             "actual": 0.434
           },
           {
             "label": "Feb 2014",
-            "baseline": 0.444,
+            "baseline": 0.443,
             "actual": 0.452
           },
           {
             "label": "Mar 2014",
-            "baseline": 0.451,
+            "baseline": 0.449,
             "actual": 0.46
           },
           {
             "label": "Apr 2014",
-            "baseline": 0.452,
+            "baseline": 0.45,
             "actual": 0.457
           }
         ]
@@ -11800,142 +11800,142 @@
     },
     "3": {
       "daily": {
-        "anomalyCount": 121,
-        "inefficiencyCost": 1178.8,
+        "anomalyCount": 6,
+        "inefficiencyCost": 394.5,
         "series": [
           {
             "label": "2014-01-01",
-            "baseline": 0.359,
+            "baseline": 0.364,
             "actual": 0.334
           },
           {
             "label": "2014-01-02",
-            "baseline": 0.356,
+            "baseline": 0.36,
             "actual": 0.357
           },
           {
             "label": "2014-01-03",
-            "baseline": 0.37,
+            "baseline": 0.367,
             "actual": 0.375
           },
           {
             "label": "2014-01-04",
-            "baseline": 0.352,
+            "baseline": 0.363,
             "actual": 0.319
           },
           {
             "label": "2014-01-05",
-            "baseline": 0.337,
+            "baseline": 0.356,
             "actual": 0.301
           },
           {
             "label": "2014-01-06",
-            "baseline": 0.318,
+            "baseline": 0.347,
             "actual": 0.24
           },
           {
             "label": "2014-01-07",
-            "baseline": 0.3,
+            "baseline": 0.339,
             "actual": 0.267
           },
           {
             "label": "2014-01-08",
-            "baseline": 0.294,
+            "baseline": 0.321,
             "actual": 0.344
           },
           {
             "label": "2014-01-09",
-            "baseline": 0.3,
+            "baseline": 0.317,
             "actual": 0.346
           },
           {
             "label": "2014-01-10",
-            "baseline": 0.301,
+            "baseline": 0.319,
             "actual": 0.309
           },
           {
             "label": "2014-01-11",
-            "baseline": 0.341,
+            "baseline": 0.313,
             "actual": 0.439
           },
           {
             "label": "2014-01-12",
-            "baseline": 0.349,
+            "baseline": 0.321,
             "actual": 0.306
           },
           {
             "label": "2014-01-13",
-            "baseline": 0.329,
+            "baseline": 0.319,
             "actual": 0.247
           },
           {
             "label": "2014-01-14",
-            "baseline": 0.341,
+            "baseline": 0.312,
             "actual": 0.402
           },
           {
             "label": "2014-01-15",
-            "baseline": 0.354,
+            "baseline": 0.333,
             "actual": 0.374
           },
           {
             "label": "2014-01-16",
-            "baseline": 0.336,
+            "baseline": 0.346,
             "actual": 0.349
           },
           {
             "label": "2014-01-17",
-            "baseline": 0.339,
+            "baseline": 0.347,
             "actual": 0.321
           },
           {
             "label": "2014-01-18",
-            "baseline": 0.342,
+            "baseline": 0.343,
             "actual": 0.266
           },
           {
             "label": "2014-01-19",
-            "baseline": 0.328,
+            "baseline": 0.338,
             "actual": 0.332
           },
           {
             "label": "2014-01-20",
-            "baseline": 0.313,
+            "baseline": 0.325,
             "actual": 0.297
           },
           {
             "label": "2014-01-21",
-            "baseline": 0.313,
+            "baseline": 0.324,
             "actual": 0.35
           },
           {
             "label": "2014-01-22",
-            "baseline": 0.309,
+            "baseline": 0.336,
             "actual": 0.298
           },
           {
             "label": "2014-01-23",
-            "baseline": 0.319,
+            "baseline": 0.323,
             "actual": 0.319
           },
           {
             "label": "2014-01-24",
-            "baseline": 0.312,
+            "baseline": 0.317,
             "actual": 0.296
           },
           {
             "label": "2014-01-25",
-            "baseline": 0.306,
+            "baseline": 0.31,
             "actual": 0.267
           },
           {
             "label": "2014-01-26",
-            "baseline": 0.29,
+            "baseline": 0.303,
             "actual": 0.271
           },
           {
             "label": "2014-01-27",
-            "baseline": 0.296,
+            "baseline": 0.304,
             "actual": 0.325
           },
           {
@@ -11945,445 +11945,445 @@
           },
           {
             "label": "2014-01-29",
-            "baseline": 0.295,
+            "baseline": 0.31,
             "actual": 0.258
           },
           {
             "label": "2014-01-30",
-            "baseline": 0.286,
+            "baseline": 0.299,
             "actual": 0.224
           },
           {
             "label": "2014-01-31",
-            "baseline": 0.281,
+            "baseline": 0.289,
             "actual": 0.243
           },
           {
             "label": "2014-02-01",
-            "baseline": 0.266,
+            "baseline": 0.28,
             "actual": 0.253
           },
           {
             "label": "2014-02-02",
-            "baseline": 0.251,
+            "baseline": 0.274,
             "actual": 0.279
           },
           {
             "label": "2014-02-03",
-            "baseline": 0.267,
+            "baseline": 0.276,
             "actual": 0.338
           },
           {
             "label": "2014-02-04",
-            "baseline": 0.288,
+            "baseline": 0.284,
             "actual": 0.327
           },
           {
             "label": "2014-02-05",
-            "baseline": 0.312,
+            "baseline": 0.285,
             "actual": 0.363
           },
           {
             "label": "2014-02-06",
-            "baseline": 0.329,
+            "baseline": 0.286,
             "actual": 0.338
           },
           {
             "label": "2014-02-07",
-            "baseline": 0.348,
+            "baseline": 0.296,
             "actual": 0.374
           },
           {
             "label": "2014-02-08",
-            "baseline": 0.332,
+            "baseline": 0.314,
             "actual": 0.258
           },
           {
             "label": "2014-02-09",
-            "baseline": 0.328,
+            "baseline": 0.316,
             "actual": 0.305
           },
           {
             "label": "2014-02-10",
-            "baseline": 0.311,
+            "baseline": 0.323,
             "actual": 0.281
           },
           {
             "label": "2014-02-11",
-            "baseline": 0.292,
+            "baseline": 0.323,
             "actual": 0.241
           },
           {
             "label": "2014-02-12",
-            "baseline": 0.281,
+            "baseline": 0.311,
             "actual": 0.32
           },
           {
             "label": "2014-02-13",
-            "baseline": 0.286,
+            "baseline": 0.31,
             "actual": 0.282
           },
           {
             "label": "2014-02-14",
-            "baseline": 0.293,
+            "baseline": 0.3,
             "actual": 0.339
           },
           {
             "label": "2014-02-15",
-            "baseline": 0.296,
+            "baseline": 0.3,
             "actual": 0.297
           },
           {
             "label": "2014-02-16",
-            "baseline": 0.307,
+            "baseline": 0.29,
             "actual": 0.295
           },
           {
             "label": "2014-02-17",
-            "baseline": 0.305,
+            "baseline": 0.295,
             "actual": 0.31
           },
           {
             "label": "2014-02-18",
-            "baseline": 0.303,
+            "baseline": 0.296,
             "actual": 0.275
           },
           {
             "label": "2014-02-19",
-            "baseline": 0.297,
+            "baseline": 0.295,
             "actual": 0.307
           },
           {
             "label": "2014-02-20",
-            "baseline": 0.304,
+            "baseline": 0.303,
             "actual": 0.333
           },
           {
             "label": "2014-02-21",
-            "baseline": 0.313,
+            "baseline": 0.305,
             "actual": 0.342
           },
           {
             "label": "2014-02-22",
-            "baseline": 0.294,
+            "baseline": 0.312,
             "actual": 0.215
           },
           {
             "label": "2014-02-23",
-            "baseline": 0.323,
+            "baseline": 0.297,
             "actual": 0.416
           },
           {
             "label": "2014-02-24",
-            "baseline": 0.336,
+            "baseline": 0.312,
             "actual": 0.373
           },
           {
             "label": "2014-02-25",
-            "baseline": 0.35,
+            "baseline": 0.321,
             "actual": 0.404
           },
           {
             "label": "2014-02-26",
-            "baseline": 0.354,
+            "baseline": 0.333,
             "actual": 0.362
           },
           {
             "label": "2014-02-27",
-            "baseline": 0.372,
+            "baseline": 0.344,
             "actual": 0.306
           },
           {
             "label": "2014-02-28",
-            "baseline": 0.35,
+            "baseline": 0.344,
             "actual": 0.306
           },
           {
             "label": "2014-03-01",
-            "baseline": 0.34,
+            "baseline": 0.341,
             "actual": 0.324
           },
           {
             "label": "2014-03-02",
-            "baseline": 0.358,
+            "baseline": 0.338,
             "actual": 0.491
           },
           {
             "label": "2014-03-03",
-            "baseline": 0.333,
+            "baseline": 0.373,
             "actual": 0.239
           },
           {
             "label": "2014-03-05",
-            "baseline": 0.358,
+            "baseline": 0.351,
             "actual": 0.432
           },
           {
             "label": "2014-03-06",
-            "baseline": 0.367,
+            "baseline": 0.358,
             "actual": 0.349
           },
           {
             "label": "2014-03-07",
-            "baseline": 0.372,
+            "baseline": 0.351,
             "actual": 0.35
           },
           {
             "label": "2014-03-08",
-            "baseline": 0.347,
+            "baseline": 0.35,
             "actual": 0.363
           },
           {
             "label": "2014-03-09",
-            "baseline": 0.35,
+            "baseline": 0.357,
             "actual": 0.254
           },
           {
             "label": "2014-03-10",
-            "baseline": 0.319,
+            "baseline": 0.35,
             "actual": 0.277
           },
           {
             "label": "2014-03-11",
-            "baseline": 0.323,
+            "baseline": 0.344,
             "actual": 0.37
           },
           {
             "label": "2014-03-12",
-            "baseline": 0.32,
+            "baseline": 0.329,
             "actual": 0.338
           },
           {
             "label": "2014-03-13",
-            "baseline": 0.303,
+            "baseline": 0.342,
             "actual": 0.278
           },
           {
             "label": "2014-03-14",
-            "baseline": 0.314,
+            "baseline": 0.322,
             "actual": 0.308
           },
           {
             "label": "2014-03-15",
-            "baseline": 0.33,
+            "baseline": 0.317,
             "actual": 0.355
           },
           {
             "label": "2014-03-16",
-            "baseline": 0.331,
+            "baseline": 0.318,
             "actual": 0.377
           },
           {
             "label": "2014-03-17",
-            "baseline": 0.337,
+            "baseline": 0.32,
             "actual": 0.369
           },
           {
             "label": "2014-03-18",
-            "baseline": 0.348,
+            "baseline": 0.334,
             "actual": 0.333
           },
           {
             "label": "2014-03-19",
-            "baseline": 0.377,
+            "baseline": 0.341,
             "actual": 0.452
           },
           {
             "label": "2014-03-20",
-            "baseline": 0.405,
+            "baseline": 0.351,
             "actual": 0.494
           },
           {
             "label": "2014-03-21",
-            "baseline": 0.391,
+            "baseline": 0.371,
             "actual": 0.305
           },
           {
             "label": "2014-03-22",
-            "baseline": 0.388,
+            "baseline": 0.374,
             "actual": 0.357
           },
           {
             "label": "2014-03-23",
-            "baseline": 0.373,
+            "baseline": 0.38,
             "actual": 0.255
           },
           {
             "label": "2014-03-24",
-            "baseline": 0.352,
+            "baseline": 0.368,
             "actual": 0.35
           },
           {
             "label": "2014-03-25",
-            "baseline": 0.318,
+            "baseline": 0.364,
             "actual": 0.322
           },
           {
             "label": "2014-03-26",
-            "baseline": 0.316,
+            "baseline": 0.359,
             "actual": 0.297
           },
           {
             "label": "2014-03-27",
-            "baseline": 0.302,
+            "baseline": 0.354,
             "actual": 0.288
           },
           {
             "label": "2014-03-28",
-            "baseline": 0.309,
+            "baseline": 0.334,
             "actual": 0.289
           },
           {
             "label": "2014-03-29",
-            "baseline": 0.302,
+            "baseline": 0.308,
             "actual": 0.315
           },
           {
             "label": "2014-03-30",
-            "baseline": 0.308,
+            "baseline": 0.309,
             "actual": 0.351
           },
           {
             "label": "2014-03-31",
-            "baseline": 0.321,
+            "baseline": 0.308,
             "actual": 0.362
           },
           {
             "label": "2014-04-01",
-            "baseline": 0.327,
+            "baseline": 0.322,
             "actual": 0.319
           },
           {
             "label": "2014-04-02",
-            "baseline": 0.329,
+            "baseline": 0.318,
             "actual": 0.3
           },
           {
             "label": "2014-04-03",
-            "baseline": 0.327,
+            "baseline": 0.315,
             "actual": 0.305
           },
           {
             "label": "2014-04-04",
-            "baseline": 0.345,
+            "baseline": 0.316,
             "actual": 0.44
           },
           {
             "label": "2014-04-05",
-            "baseline": 0.341,
+            "baseline": 0.335,
             "actual": 0.341
           },
           {
             "label": "2014-04-06",
-            "baseline": 0.34,
+            "baseline": 0.342,
             "actual": 0.313
           },
           {
             "label": "2014-04-07",
-            "baseline": 0.344,
+            "baseline": 0.341,
             "actual": 0.323
           },
           {
             "label": "2014-04-08",
-            "baseline": 0.361,
+            "baseline": 0.338,
             "actual": 0.388
           },
           {
             "label": "2014-04-09",
-            "baseline": 0.355,
+            "baseline": 0.341,
             "actual": 0.408
           }
         ]
       },
       "weekly": {
-        "anomalyCount": 17,
-        "inefficiencyCost": 218.9,
+        "anomalyCount": 1,
+        "inefficiencyCost": 1017.7,
         "series": [
           {
             "label": "2014-W00",
-            "baseline": 0.308,
+            "baseline": 0.354,
             "actual": 0.119
           },
           {
             "label": "2014-W01",
-            "baseline": 0.299,
+            "baseline": 0.318,
             "actual": 0.318
           },
           {
             "label": "2014-W02",
-            "baseline": 0.301,
+            "baseline": 0.314,
             "actual": 0.348
           },
           {
             "label": "2014-W03",
-            "baseline": 0.295,
+            "baseline": 0.319,
             "actual": 0.329
           },
           {
             "label": "2014-W04",
-            "baseline": 0.283,
+            "baseline": 0.317,
             "actual": 0.299
           },
           {
             "label": "2014-W05",
-            "baseline": 0.315,
+            "baseline": 0.309,
             "actual": 0.281
           },
           {
             "label": "2014-W06",
-            "baseline": 0.314,
+            "baseline": 0.302,
             "actual": 0.313
           },
           {
             "label": "2014-W07",
-            "baseline": 0.305,
+            "baseline": 0.296,
             "actual": 0.303
           },
           {
             "label": "2014-W08",
-            "baseline": 0.308,
+            "baseline": 0.289,
             "actual": 0.345
           },
           {
             "label": "2014-W09",
-            "baseline": 0.319,
+            "baseline": 0.317,
             "actual": 0.354
           },
           {
             "label": "2014-W10",
-            "baseline": 0.331,
+            "baseline": 0.322,
             "actual": 0.342
           },
           {
             "label": "2014-W11",
-            "baseline": 0.337,
+            "baseline": 0.321,
             "actual": 0.343
           },
           {
             "label": "2014-W12",
-            "baseline": 0.35,
+            "baseline": 0.323,
             "actual": 0.366
           },
           {
             "label": "2014-W13",
-            "baseline": 0.345,
+            "baseline": 0.331,
             "actual": 0.322
           },
           {
             "label": "2014-W14",
-            "baseline": 0.345,
+            "baseline": 0.336,
             "actual": 0.352
           },
           {
             "label": "2014-W15",
-            "baseline": 0.358,
+            "baseline": 0.341,
             "actual": 0.409
           }
         ]
       },
       "monthly": {
         "anomalyCount": 3,
-        "inefficiencyCost": 24.6,
+        "inefficiencyCost": 366.7,
         "series": [
           {
             "label": "Jun 2011",
@@ -12392,122 +12392,122 @@
           },
           {
             "label": "Jul 2011",
-            "baseline": 0.605,
+            "baseline": 0.676,
             "actual": 0.533
           },
           {
             "label": "Oct 2011",
-            "baseline": 0.617,
+            "baseline": 0.605,
             "actual": 0.643
           },
           {
             "label": "Nov 2011",
-            "baseline": 0.624,
+            "baseline": 0.617,
             "actual": 0.645
           },
           {
             "label": "Dec 2011",
-            "baseline": 0.654,
+            "baseline": 0.624,
             "actual": 0.772
           },
           {
             "label": "Feb 2012",
-            "baseline": 0.615,
+            "baseline": 0.648,
             "actual": 0.484
           },
           {
             "label": "Mar 2012",
-            "baseline": 0.58,
+            "baseline": 0.636,
             "actual": 0.354
           },
           {
             "label": "Apr 2012",
-            "baseline": 0.528,
+            "baseline": 0.564,
             "actual": 0.384
           },
           {
             "label": "May 2012",
-            "baseline": 0.465,
+            "baseline": 0.498,
             "actual": 0.332
           },
           {
             "label": "Jun 2012",
-            "baseline": 0.39,
+            "baseline": 0.389,
             "actual": 0.395
           },
           {
             "label": "Jul 2012",
-            "baseline": 0.384,
+            "baseline": 0.366,
             "actual": 0.453
           },
           {
             "label": "Aug 2012",
-            "baseline": 0.379,
+            "baseline": 0.391,
             "actual": 0.333
           },
           {
             "label": "Sep 2012",
-            "baseline": 0.365,
+            "baseline": 0.378,
             "actual": 0.31
           },
           {
             "label": "Oct 2012",
-            "baseline": 0.361,
+            "baseline": 0.373,
             "actual": 0.315
           },
           {
             "label": "Nov 2012",
-            "baseline": 0.343,
+            "baseline": 0.353,
             "actual": 0.305
           },
           {
             "label": "Dec 2012",
-            "baseline": 0.317,
+            "baseline": 0.316,
             "actual": 0.321
           },
           {
             "label": "Jan 2013",
-            "baseline": 0.311,
+            "baseline": 0.313,
             "actual": 0.304
           },
           {
             "label": "Feb 2013",
-            "baseline": 0.305,
+            "baseline": 0.311,
             "actual": 0.28
           },
           {
             "label": "Mar 2013",
-            "baseline": 0.301,
+            "baseline": 0.303,
             "actual": 0.293
           },
           {
             "label": "Apr 2013",
-            "baseline": 0.309,
+            "baseline": 0.3,
             "actual": 0.347
           },
           {
             "label": "May 2013",
-            "baseline": 0.307,
+            "baseline": 0.306,
             "actual": 0.312
           },
           {
             "label": "Jun 2013",
-            "baseline": 0.311,
+            "baseline": 0.308,
             "actual": 0.323
           },
           {
             "label": "Jul 2013",
-            "baseline": 0.334,
+            "baseline": 0.319,
             "actual": 0.393
           },
           {
             "label": "Aug 2013",
-            "baseline": 0.339,
+            "baseline": 0.344,
             "actual": 0.32
           },
           {
             "label": "Sep 2013",
-            "baseline": 0.333,
+            "baseline": 0.337,
             "actual": 0.317
           },
           {
@@ -12517,32 +12517,32 @@
           },
           {
             "label": "Nov 2013",
-            "baseline": 0.345,
+            "baseline": 0.342,
             "actual": 0.361
           },
           {
             "label": "Dec 2013",
-            "baseline": 0.336,
+            "baseline": 0.334,
             "actual": 0.347
           },
           {
             "label": "Jan 2014",
-            "baseline": 0.336,
+            "baseline": 0.34,
             "actual": 0.318
           },
           {
             "label": "Feb 2014",
-            "baseline": 0.337,
+            "baseline": 0.341,
             "actual": 0.322
           },
           {
             "label": "Mar 2014",
-            "baseline": 0.339,
+            "baseline": 0.337,
             "actual": 0.345
           },
           {
             "label": "Apr 2014",
-            "baseline": 0.338,
+            "baseline": 0.333,
             "actual": 0.356
           }
         ]

@@ -25,6 +25,8 @@ export {
   equipmentDetails,
   getChillerTimeSeries,
   getChillerAnomaly,
+  getTowerTempSeries,
+  getPumpTimeSeries,
 } from './realPortfolioData.ts';
 
-export type { ChillerTimeSeriesBundle } from './realPortfolioData.ts';
+export type { ChillerTimeSeriesBundle, TowerTempPoint, PumpTimePoint } from './realPortfolioData.ts';

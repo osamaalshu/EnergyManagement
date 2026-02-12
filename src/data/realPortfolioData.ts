@@ -321,3 +321,56 @@ export function getChillerAnomaly(chillerNum: number, resolution: TimeResolution
     series: a.series as AnomalyPoint[],
   };
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  COOLING TOWER & PUMP TIME SERIES (derived from chiller data)
+// ═══════════════════════════════════════════════════════════════════
+
+export interface TowerTempPoint {
+  label: string;
+  condenserSupply: number;
+  condenserReturn: number;
+  ambientTemp?: number;
+}
+
+/**
+ * Get condenser water temperature time series for a cooling tower.
+ * Derived from chiller 1 temperature loop series (towers serve all chillers).
+ */
+export function getTowerTempSeries(resolution: TimeResolution): TowerTempPoint[] {
+  const ts = rawChillerTS['1']?.[resolution];
+  if (!ts) return [];
+  return ts.temperatureLoopSeries.map((p) => ({
+    label: p.label,
+    condenserSupply: (p as unknown as Record<string, number>).condenserSupply ?? 0,
+    condenserReturn: (p as unknown as Record<string, number>).condenserReturn ?? 0,
+    ambientTemp: (p as unknown as Record<string, number>).ambientTemp,
+  }));
+}
+
+export interface PumpTimePoint {
+  label: string;
+  power: number;
+  flowRate: number;
+}
+
+/**
+ * Get pump flow rate and power time series.
+ * Derived from chiller 1 power/cooling series (pump power ≈ fraction of total system).
+ * Flow rate scaled from snapshot ratio.
+ */
+export function getPumpTimeSeries(resolution: TimeResolution): PumpTimePoint[] {
+  const ts = rawChillerTS['1']?.[resolution];
+  if (!ts) return [];
+  // Use pump snapshot ratio to scale: pump kW / chiller kW at snapshot time
+  const pumpKw = raw.pumpSnapshot.kW;
+  const snapshotChillerKw = raw.chillerSnapshots[0]?.kW ?? 1;
+  const pumpRatio = pumpKw / snapshotChillerKw;
+  const pumpFlowSnapshot = (raw.pumpSnapshot as unknown as { flowRate: number }).flowRate ?? 0;
+
+  return ts.powerCoolingSeries.map((p) => ({
+    label: p.label,
+    power: Math.round(p.power * pumpRatio * 100) / 100,
+    flowRate: Math.round(pumpFlowSnapshot * (p.power / snapshotChillerKw) * 1000) / 1000,
+  }));
+}

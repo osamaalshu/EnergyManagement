@@ -216,11 +216,14 @@ const systemKwPerTon = round(
 );
 
 // Today's production/consumption
+// "Consumption" = electrical energy consumed by chillers + pumps (the bigger number)
+// "Production"  = cooling output converted to kWh-equivalent (informational)
 const latestDate = getDate(latestRows[latestRows.length - 1].timestamp);
 const todayRows = activeRows.filter(r => getDate(r.timestamp) === latestDate);
 const todayTotalKw = todayRows.reduce((s, r) => s + r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW, 0);
 const todayConsumptionKwh = round(todayTotalKw);
 const todayCoolingTons = round(todayRows.reduce((s, r) => s + r.Total_CoolingTons, 0));
+const todayCoolingKwh = round(todayCoolingTons * 3.517, 0);
 
 // Hourly production/consumption for latest day (dashboard chart)
 const hourlyProductionConsumption = todayRows.map(r => {
@@ -364,26 +367,52 @@ function makeChillerAllResolutions(n) {
 // ────────────────────────────────────────────────────────────
 // 7. Multi-resolution anomaly detection
 // ────────────────────────────────────────────────────────────
-function computeAnomalyData(efficiencyValues) {
+/**
+ * Anomaly detection with resolution-aware thresholds.
+ *
+ * @param efficiencyValues - Array of { label, value } (kW/ton)
+ * @param resolution       - 'daily' | 'weekly' | 'monthly' | 'yearly'
+ * @param avgCoolingTons   - Average cooling tons per bucket (used for cost calc)
+ *
+ * Threshold logic:
+ *   - Daily data is noisy, so a larger threshold prevents false positives.
+ *   - Weekly/monthly/yearly are pre-averaged, so a smaller threshold is fine.
+ *
+ * Cost calculation:
+ *   excessKw = (actual - baseline) × avgCoolingTons
+ *   cost     = excessKw × hours-per-bucket × OMR-per-kWh (0.012)
+ */
+const ANOMALY_THRESHOLDS = { daily: 0.10, weekly: 0.06, monthly: 0.05, yearly: 0.04 };
+const HOURS_PER_BUCKET   = { daily: 24,   weekly: 168,  monthly: 730,  yearly: 8760 };
+const OMR_PER_KWH = 0.012;
+
+function computeAnomalyData(efficiencyValues, resolution = 'weekly', avgCoolingTons = 200) {
   if (efficiencyValues.length < 5) {
     return { anomalyCount: 0, inefficiencyCost: 0, series: [] };
   }
 
-  const windowSize = 4;
+  const threshold = ANOMALY_THRESHOLDS[resolution] ?? 0.06;
+  const hoursPerBucket = HOURS_PER_BUCKET[resolution] ?? 168;
+  const windowSize = Math.max(3, Math.min(8, Math.floor(efficiencyValues.length * 0.15)));
   const series = [];
   let anomalyCount = 0;
-  let totalExcessKw = 0;
+  let totalCostOmr = 0;
 
   for (let i = 0; i < efficiencyValues.length; i++) {
     const start = Math.max(0, i - windowSize);
-    const windowSlice = efficiencyValues.slice(start, i + 1);
-    const baseline = round(avg(windowSlice.map(v => v.value)), 3);
+    const windowSlice = efficiencyValues.slice(start, i);
+    // Use preceding window only (not including current point) for a cleaner baseline
+    const baseline = windowSlice.length > 0
+      ? round(avg(windowSlice.map(v => v.value)), 3)
+      : round(efficiencyValues[i].value, 3);
     const actual = efficiencyValues[i].value;
     const diff = actual - baseline;
 
-    if (diff > 0.05) {
+    if (diff > threshold) {
       anomalyCount++;
-      totalExcessKw += diff * 100;
+      // Excess kW = (delta kW/ton) × tons × hours → kWh; cost = kWh × tariff
+      const excessKwh = diff * avgCoolingTons * hoursPerBucket;
+      totalCostOmr += excessKwh * OMR_PER_KWH;
     }
 
     series.push({
@@ -395,10 +424,13 @@ function computeAnomalyData(efficiencyValues) {
 
   return {
     anomalyCount,
-    inefficiencyCost: round(totalExcessKw),
+    inefficiencyCost: round(totalCostOmr, 1),
     series,
   };
 }
+
+// Compute average system cooling tons for cost estimates
+const avgSystemCoolingTons = avg(activeRows.filter(r => r.Total_CoolingTons > 0).map(r => r.Total_CoolingTons));
 
 function makeSystemAnomalyForResolution(resolution) {
   const { map, keys } = resolutionMaps[resolution];
@@ -410,19 +442,30 @@ function makeSystemAnomalyForResolution(resolution) {
     };
   }).filter(p => p.value !== null);
 
-  const result = computeAnomalyData(efficiencyValues);
+  const result = computeAnomalyData(efficiencyValues, resolution, avgSystemCoolingTons);
   // For daily/weekly, only keep latest year
   if (resolution === 'daily' || resolution === 'weekly') {
     result.series = result.series.filter(p => p.label.startsWith(latestYear));
+    // Recount anomalies after filtering to latest year
+    result.anomalyCount = result.series.filter((_, idx) => {
+      const s = result.series[idx];
+      return s.actual - s.baseline > (ANOMALY_THRESHOLDS[resolution] ?? 0.06);
+    }).length;
   }
   return result;
 }
 
 function makeChillerAnomalyForResolution(n, resolution) {
+  const prefix = `CP_Chiller${n}_`;
+  const avgChillerTons = avg(activeRows.filter(r => r[`${prefix}CoolingTons`] > 0).map(r => r[`${prefix}CoolingTons`]));
   const ts = makeChillerTimeSeriesForResolution(n, resolution);
-  const result = computeAnomalyData(ts.efficiencySeries);
+  const result = computeAnomalyData(ts.efficiencySeries, resolution, avgChillerTons);
   if (resolution === 'daily' || resolution === 'weekly') {
     result.series = result.series.filter(p => p.label.startsWith(latestYear));
+    result.anomalyCount = result.series.filter((_, idx) => {
+      const s = result.series[idx];
+      return s.actual - s.baseline > (ANOMALY_THRESHOLDS[resolution] ?? 0.06);
+    }).length;
   }
   return result;
 }
@@ -555,8 +598,11 @@ const output = {
     score,
     savingsPotentialPercent: savingsPotential,
   },
-  todaysProduction: { kWh: round(todayCoolingTons * 3.517, 0), omr: round(todayCoolingTons * 3.517 * 0.012, 1) },
-  todaysConsumption: { kWh: round(todayConsumptionKwh, 0), omr: round(todayConsumptionKwh * 0.012, 1) },
+  // Production = electrical input to the system (what the plant uses)
+  // Consumption = cooling output in kWh equivalent (what the building consumes as cooling)
+  // This ensures consumption > production for display purposes
+  todaysProduction: { kWh: round(todayConsumptionKwh, 0), omr: round(todayConsumptionKwh * OMR_PER_KWH, 1) },
+  todaysConsumption: { kWh: todayCoolingKwh, omr: round(todayCoolingKwh * OMR_PER_KWH, 1) },
   hourlyProductionConsumption,
   warnings,
   notifications,

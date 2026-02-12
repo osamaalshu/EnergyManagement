@@ -202,7 +202,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
 
       {/* ── Hourly Production vs Consumption Chart ─────────────── */}
       <div className="card-surface p-6">
-        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+        <h3 className="mb-4 text-center text-lg font-semibold text-slate-900 dark:text-white">
           Today&apos;s Hourly Production vs Consumption
         </h3>
         {hasChartData ? (
@@ -243,7 +243,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
 
       {/* ── Warnings Section ──────────────────────────────────── */}
       <div ref={warningsRef} className="scroll-mt-24">
-        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Active Warnings</h3>
+        <h3 className="mb-3 text-center text-lg font-semibold text-slate-900 dark:text-white">Active Warnings</h3>
         {realWarnings.length > 0 ? (
           <div className="space-y-2">
             {realWarnings.map((w) => (
@@ -284,7 +284,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
 
       {/* ── Notifications Section ─────────────────────────────── */}
       <div ref={notificationsRef} className="scroll-mt-24">
-        <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Notifications</h3>
+        <h3 className="mb-3 text-center text-lg font-semibold text-slate-900 dark:text-white">Notifications</h3>
         <div className="space-y-2">
           {portfolioNotifications.map((n) => {
             const read = isRead(n.id);
