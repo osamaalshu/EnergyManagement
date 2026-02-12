@@ -1263,22 +1263,22 @@
     {
       "name": "Chiller 1",
       "value": 33,
-      "color": "#38bdf8"
+      "color": "#1A365D"
     },
     {
       "name": "Chiller 2",
       "value": 37,
-      "color": "#818cf8"
+      "color": "#82C91E"
     },
     {
       "name": "Chiller 3",
       "value": 28,
-      "color": "#f472b6"
+      "color": "#FAB005"
     },
     {
       "name": "Pumps",
       "value": 3,
-      "color": "#34d399"
+      "color": "#64748B"
     }
   ],
   "chillerTimeSeries": {

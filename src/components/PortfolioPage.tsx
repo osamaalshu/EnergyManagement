@@ -41,7 +41,7 @@ const tickStyle = { fill: 'var(--muted-text)', fontSize: 12 } as const;
 
 /** Consistent section heading used across all widget cards */
 const SectionTitle: FC<{ children: React.ReactNode }> = ({ children }) => (
-  <h3 className="text-center text-sm font-semibold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">
+  <h3 className="text-center text-sm font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
     {children}
   </h3>
 );
@@ -169,7 +169,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
     });
   }, []);
 
-  const radarColors = ['#38bdf8', '#818cf8', '#f472b6', '#34d399', '#facc15', '#f97316'];
+  const radarColors = ['#1A365D', '#82C91E', '#FAB005', '#64748B', '#334155', '#94a3b8'];
 
   return (
     <section className="space-y-8">
@@ -278,7 +278,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
                 cy="60"
                 r="52"
                 fill="none"
-                stroke="#34d399"
+                stroke="#82C91E"
                 strokeWidth="10"
                 strokeLinecap="round"
                 strokeDasharray={`${(portfolioMeta.score / 100) * 2 * Math.PI * 52} ${2 * Math.PI * 52}`}
@@ -317,7 +317,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
                 <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={56} label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }} />
                 <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconType="square" iconSize={10} />
-                <Bar dataKey="portfolioValue" name="Portfolio" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="portfolioValue" name="Portfolio" fill="#1A365D" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="sectorValue" name="Sector Average" fill="#64748b" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

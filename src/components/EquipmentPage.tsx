@@ -208,7 +208,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
                       />
                       <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
                       <ReferenceLine y={0.7} stroke="#f87171" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: '0.70', position: 'right', fill: '#f87171', fontSize: 10 }} />
-                      <Line type="monotone" dataKey="value" name="Efficiency" stroke="#38bdf8" strokeWidth={2} dot={efficiencySeries.length <= 30 ? { r: 3 } : false} />
+                      <Line type="monotone" dataKey="value" name="Efficiency" stroke="#1A365D" strokeWidth={2} dot={efficiencySeries.length <= 30 ? { r: 3 } : false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -252,11 +252,11 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
                           wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
                           iconSize={10}
                         />
-                        <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#38bdf8" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                        <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#1A365D" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#1A365D" strokeWidth={2} strokeDasharray="5 3" dot={false} />
                         <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
-                        <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                        <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#FAB005" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#FAB005" strokeWidth={2} strokeDasharray="5 3" dot={false} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -304,8 +304,8 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
                   wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
                   iconSize={12}
                 />
-                <Line yAxisId="left" type="monotone" dataKey="power" name="Power (kW)" stroke="#38bdf8" strokeWidth={2} dot={powerCoolingSeries.length <= 30 ? { r: 3 } : false} />
-                <Line yAxisId="right" type="monotone" dataKey="coolingTons" name="Cooling (Tons)" stroke="#34d399" strokeWidth={2} dot={powerCoolingSeries.length <= 30 ? { r: 3 } : false} />
+                <Line yAxisId="left" type="monotone" dataKey="power" name="Power (kW)" stroke="#1A365D" strokeWidth={2} dot={powerCoolingSeries.length <= 30 ? { r: 3 } : false} />
+                <Line yAxisId="right" type="monotone" dataKey="coolingTons" name="Cooling (Tons)" stroke="#82C91E" strokeWidth={2} dot={powerCoolingSeries.length <= 30 ? { r: 3 } : false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -346,8 +346,8 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
                       wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
                       iconSize={10}
                     />
-                    <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                    <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#FAB005" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#FAB005" strokeWidth={2} strokeDasharray="5 3" dot={false} />
                     {towerTempSeries.some(p => p.ambientTemp != null) && (
                       <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
                     )}
@@ -406,8 +406,8 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
                       wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
                       iconSize={12}
                     />
-                    <Line yAxisId="left" type="monotone" dataKey="flowRate" name="Flow Rate (m³/s)" stroke="#38bdf8" strokeWidth={2} dot={pumpSeries.length <= 30 ? { r: 3 } : false} />
-                    <Line yAxisId="right" type="monotone" dataKey="power" name="Power (kW)" stroke="#34d399" strokeWidth={2} dot={pumpSeries.length <= 30 ? { r: 3 } : false} />
+                    <Line yAxisId="left" type="monotone" dataKey="flowRate" name="Flow Rate (m³/s)" stroke="#1A365D" strokeWidth={2} dot={pumpSeries.length <= 30 ? { r: 3 } : false} />
+                    <Line yAxisId="right" type="monotone" dataKey="power" name="Power (kW)" stroke="#82C91E" strokeWidth={2} dot={pumpSeries.length <= 30 ? { r: 3 } : false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

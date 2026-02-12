@@ -43,23 +43,19 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
         aria-hidden={!open}
         className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-slate-200/70 bg-white/90 backdrop-blur-md p-6 text-slate-900 shadow-card transition-transform duration-300 dark:border-white/5 dark:bg-surface dark:text-white ${translateClass} ${desktopTranslate}`}
       >
-        <div className="mb-8 flex items-center gap-3">
+        <div className="mb-8 flex flex-col items-center">
           {/* Light mode logo */}
           <img 
             src="/logo-light.png" 
-            alt="Enerlytics Logo" 
-            className="h-12 w-auto dark:hidden" 
+            alt="Enerlytics" 
+            className="h-20 w-auto object-contain dark:hidden" 
           />
-          {/* Dark mode logo */}
+          {/* Dark mode logo — use mix-blend-mode to blend the navy background into the sidebar */}
           <img 
             src="/logo-dark.png" 
-            alt="Enerlytics Logo" 
-            className="hidden h-12 w-auto dark:block" 
+            alt="Enerlytics" 
+            className="hidden h-20 w-auto object-contain rounded-lg mix-blend-lighten dark:block" 
           />
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Enerlytics</p>
-            <p className="text-lg font-semibold text-primary dark:text-white">Control Center</p>
-          </div>
         </div>
         <nav className="space-y-2">
           {navItems.map((item) => {
@@ -77,7 +73,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
                   aria-disabled="true"
                 >
                   <span>{item.label}</span>
-                  <span className="text-[0.65rem] uppercase tracking-wider text-slate-400">Soon</span>
+                  <span className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">Soon</span>
                 </div>
               );
             }

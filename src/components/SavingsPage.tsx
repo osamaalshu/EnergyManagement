@@ -112,8 +112,8 @@ const SavingsPage: FC<SavingsPageProps> = ({ isEditMode }) => {
                 />
                 <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)' }} />
-                <Bar dataKey="baseline" name="Baseline" fill="#1d4ed8" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="actual" name="Actual" fill="#34d399" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="baseline" name="Baseline" fill="#1A365D" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="actual" name="Actual" fill="#82C91E" radius={[6, 6, 0, 0]} />
               </BarChart>
               </ResponsiveContainer>
             </div>
@@ -139,7 +139,7 @@ const SavingsPage: FC<SavingsPageProps> = ({ isEditMode }) => {
                   label={{ value: '%', angle: -90, position: 'insideLeft', offset: 14, fill: 'var(--muted-text)', style: { textTransform: 'uppercase' } }}
                 />
                 <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-                <Line type="monotone" dataKey="percent" stroke="#f472b6" strokeWidth={3} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="percent" stroke="#FAB005" strokeWidth={3} dot={{ r: 4 }} />
               </LineChart>
               </ResponsiveContainer>
             </div>

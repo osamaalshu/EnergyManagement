@@ -136,7 +136,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Warnings</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Warnings</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {warningCount} <span className="text-sm font-normal text-slate-500">{hasWarnings ? 'Active' : 'All Clear'}</span>
             </p>
@@ -155,7 +155,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Notifications</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Notifications</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {portfolioNotifications.length} <span className="text-sm font-normal text-slate-500">Outstanding</span>
             </p>
@@ -171,7 +171,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Today&apos;s Production</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Production</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysProduction.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
@@ -189,7 +189,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Today&apos;s Consumption</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Consumption</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysConsumption.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
@@ -229,8 +229,8 @@ const DashboardPage: FC<DashboardPageProps> = ({
                   wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
                   iconType="square"
                 />
-                <Bar dataKey="production" name="Production (kWh)" fill="#34d399" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="consumption" name="Consumption (kWh)" fill="#38bdf8" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="production" name="Production (kWh)" fill="#82C91E" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="consumption" name="Consumption (kWh)" fill="#1A365D" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -315,7 +315,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
                   </p>
                 </div>
                 {!read ? (
-                  <span className="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-accent">New</span>
+                  <span className="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-accent">New</span>
                 ) : (
                   <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
