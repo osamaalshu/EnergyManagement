@@ -28,9 +28,10 @@ interface EquipmentPageProps {
   buildingId: string;
   equipmentId: string;
   onBack: () => void;
+  onNavigateToPortfolio: () => void;
 }
 
-const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack }) => {
+const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack, onNavigateToPortfolio }) => {
   const detail = equipmentDetails[equipmentId];
   const buildingDetail = buildingDetails[buildingId];
   const buildingName = buildingDetail?.building.name ?? buildingId;
@@ -96,7 +97,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
       {/* ── Header ────────────────────────────────────────────── */}
       <div>
         <p className="mb-1 text-xs text-accent">
-          <button type="button" onClick={onBack} className="hover:underline">Portfolio</button>
+          <button type="button" onClick={onNavigateToPortfolio} className="hover:underline">Portfolio</button>
           <span className="mx-1 text-slate-500">&gt;</span>
           <button type="button" onClick={onBack} className="hover:underline text-accent">{buildingName}</button>
           <span className="mx-1 text-slate-500">&gt;</span>
@@ -232,7 +233,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
                         wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
                         iconSize={10}
                       />
-                      <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.1} stroke="none" />
+                      <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.1} stroke="none" legendType="none" />
                       <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#38bdf8" strokeWidth={2} dot={false} />
                       <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 3" dot={false} />
                       <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
@@ -276,7 +277,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  width={56}
+                  width={60}
                   label={{ value: 'Tons', angle: 90, position: 'insideRight', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
                 />
                 <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />

@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import { type FC, useState, useEffect, useRef, useCallback } from 'react';
 import { buildingDetails, buildings, buildingAnomalyByResolution } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import type { TimeResolution } from '../types/portfolio';
@@ -14,6 +14,24 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [equipmentDropdownOpen, setEquipmentDropdownOpen] = useState(false);
   const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
+  const buildingDdRef = useRef<HTMLDivElement>(null);
+  const equipmentDdRef = useRef<HTMLDivElement>(null);
+
+  const closeAll = useCallback(() => { setBuildingDropdownOpen(false); setEquipmentDropdownOpen(false); }, []);
+
+  useEffect(() => {
+    if (!buildingDropdownOpen && !equipmentDropdownOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (buildingDropdownOpen && buildingDdRef.current && !buildingDdRef.current.contains(target)) setBuildingDropdownOpen(false);
+      if (equipmentDropdownOpen && equipmentDdRef.current && !equipmentDdRef.current.contains(target)) setEquipmentDropdownOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeAll(); };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => { document.removeEventListener('mousedown', handleClick); document.removeEventListener('keydown', handleKey); };
+  }, [buildingDropdownOpen, equipmentDropdownOpen, closeAll]);
+
   const detail = buildingDetails[buildingId];
 
   if (!detail) {
@@ -75,7 +93,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
           {/* Quick-nav dropdowns */}
           <div className="flex items-center gap-2">
             {/* Switch building */}
-            <div className="relative">
+            <div className="relative" ref={buildingDdRef}>
               <button
                 type="button"
                 onClick={() => { setBuildingDropdownOpen((p) => !p); setEquipmentDropdownOpen(false); }}
@@ -107,7 +125,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
             </div>
 
             {/* Go to equipment */}
-            <div className="relative">
+            <div className="relative" ref={equipmentDdRef}>
               <button
                 type="button"
                 onClick={() => { setEquipmentDropdownOpen((p) => !p); setBuildingDropdownOpen(false); }}

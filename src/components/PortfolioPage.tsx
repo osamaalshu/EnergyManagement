@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import { type FC, useState, useEffect, useRef, useCallback } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -83,6 +83,20 @@ const ScatterTooltipContent: FC<any> = ({ active, payload }) => {
 const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [comparisonResolution, setComparisonResolution] = useState<TimeResolution>('monthly');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const closeDropdown = useCallback(() => setBuildingDropdownOpen(false), []);
+
+  useEffect(() => {
+    if (!buildingDropdownOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) closeDropdown();
+    };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeDropdown(); };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => { document.removeEventListener('mousedown', handleClick); document.removeEventListener('keydown', handleKey); };
+  }, [buildingDropdownOpen, closeDropdown]);
 
   const comparisonData = comparisonsByResolution[comparisonResolution];
 
@@ -102,7 +116,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">{portfolioMeta.name}</h2>
         </div>
         {/* Building quick-nav dropdown */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
             type="button"
             onClick={() => setBuildingDropdownOpen((p) => !p)}
@@ -237,19 +251,6 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
 
         {comparisonData.length > 0 ? (
           <>
-            {/* Status dots — hide when too many (daily) */}
-            {comparisonData.length <= 30 && (
-              <div className="mb-2 flex justify-between px-8">
-                {comparisonData.map((mc, i) => (
-                  <span
-                    key={`${mc.month}-${i}`}
-                    className="inline-block h-3 w-3 rounded-full"
-                    style={{ background: getBandColor(mc.status) }}
-                    title={mc.status}
-                  />
-                ))}
-              </div>
-            )}
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={comparisonData} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
@@ -319,8 +320,8 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  width={56}
-                  label={{ value: 'kWh/m²', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)' }}
+                  width={72}
+                  label={{ value: 'kWh/m²', angle: -90, position: 'insideLeft', offset: 16, fill: 'var(--muted-text)' }}
                 />
                 <ZAxis type="number" dataKey="z" range={[120, 120]} />
                 <Tooltip content={<ScatterTooltipContent />} />

@@ -48,6 +48,8 @@ const DashboardPage: FC<DashboardPageProps> = ({
   onNavigateToEquipment,
 }) => {
   const unreadCount = portfolioNotifications.filter((n) => !n.read).length;
+  const hasChartData = hourlyProductionConsumption.length > 0 &&
+    hourlyProductionConsumption.some((d) => d.production > 0 || d.consumption > 0);
 
   const handleWarningClick = (warning: typeof portfolioWarnings[0]) => {
     if (warning.buildingId && warning.equipmentId) {
@@ -87,7 +89,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
       </div>
 
       {/* ── KPI Strip ─────────────────────────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Warnings summary */}
         <button
           type="button"
@@ -134,12 +136,13 @@ const DashboardPage: FC<DashboardPageProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Today&apos;s Production</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysProduction.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
-              <span className="mx-1 text-slate-400">/</span>
-              {todaysProduction.omr} <span className="text-sm font-normal text-slate-500">OMR</span>
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-white">
+              {todaysProduction.omr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
         </div>
@@ -151,23 +154,24 @@ const DashboardPage: FC<DashboardPageProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Today&apos;s Consumption</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysConsumption.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
-              <span className="mx-1 text-slate-400">/</span>
-              {todaysConsumption.omr} <span className="text-sm font-normal text-slate-500">OMR</span>
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-white">
+              {todaysConsumption.omr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* ── Hourly Production vs Consumption Chart ─────────────── */}
-      {hourlyProductionConsumption.length > 0 && (
-        <div className="card-surface p-6">
-          <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
-            Today&apos;s Hourly Production vs Consumption
-          </h3>
+      <div className="card-surface p-6">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+          Today&apos;s Hourly Production vs Consumption
+        </h3>
+        {hasChartData ? (
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourlyProductionConsumption} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
@@ -196,8 +200,12 @@ const DashboardPage: FC<DashboardPageProps> = ({
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-sm text-slate-500 dark:text-slate-400">No data available yet</p>
+          </div>
+        )}
+      </div>
 
       {/* ── Warnings List (clickable) ─────────────────────────── */}
       <div>
@@ -273,7 +281,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
         <button
           type="button"
           onClick={onNavigateToPortfolio}
-          className="rounded-xl bg-accent/10 px-6 py-3 text-sm font-semibold text-accent transition hover:bg-accent/20"
+          className="rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90"
         >
           View Full Portfolio &rarr;
         </button>

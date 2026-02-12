@@ -53,23 +53,33 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
               (item.key === 'dashboard' && activePage === 'dashboard') ||
               (item.key === 'portfolio' && (activePage === 'portfolio' || activePage === 'building' || activePage === 'equipment'));
             const actionable = Boolean(item.actionable);
+            const sharedClass = `flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition`;
+
+            if (!actionable) {
+              return (
+                <div
+                  key={item.key}
+                  className={`${sharedClass} cursor-default text-slate-400`}
+                  aria-disabled="true"
+                >
+                  <span>{item.label}</span>
+                  <span className="text-[0.65rem] uppercase tracking-wider text-slate-400">Soon</span>
+                </div>
+              );
+            }
 
             return (
               <button
                 key={item.key}
                 type="button"
-                onClick={() => (actionable ? onNavigate(item.key) : undefined)}
-                className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition ${
+                onClick={() => onNavigate(item.key)}
+                className={`${sharedClass} ${
                   isActive
                     ? 'bg-accent/20 text-slate-900 dark:text-white'
-                    : actionable
-                      ? 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'
-                      : 'cursor-default text-slate-400'
+                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'
                 }`}
-                disabled={!actionable}
               >
                 <span>{item.label}</span>
-                {!actionable && <span className="text-[0.65rem] uppercase tracking-wider text-slate-400">Soon</span>}
               </button>
             );
           })}

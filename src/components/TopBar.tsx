@@ -69,7 +69,7 @@ const TopBar: FC<TopBarProps> = ({
         >
           <IconButton>{theme === 'dark' ? <MoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />}</IconButton>
         </button>
-        <div className="rounded-full border border-slate-200/60 px-4 py-2 text-sm text-slate-600 dark:border-white/10 dark:text-slate-200">
+        <div className="rounded-full border border-slate-200/60 bg-white px-4 py-2 text-sm text-slate-600 dark:border-white/10 dark:bg-card-dark dark:text-slate-200">
           {pageLabel[activePage]}
         </div>
       </div>

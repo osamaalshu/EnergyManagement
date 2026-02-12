@@ -116,6 +116,7 @@ function App() {
             buildingId={selectedBuildingId}
             equipmentId={selectedEquipmentId}
             onBack={handleBackFromEquipment}
+            onNavigateToPortfolio={handleNavigateToPortfolio}
           />
         ) : null;
       default:
@@ -141,6 +142,19 @@ function App() {
         <main className="flex-1 px-6 pb-16 pt-8">
           {renderPage()}
         </main>
+      </div>
+
+      {/* Mobile blocker — desktop-only app */}
+      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-surface-light/90 backdrop-blur-md dark:bg-surface-dark/90 lg:hidden">
+        <svg className="h-12 w-12 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <p className="max-w-xs text-center text-lg font-semibold text-slate-900 dark:text-white">
+          Please open this application on a larger screen
+        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Minimum width: 1024px
+        </p>
       </div>
     </div>
   );

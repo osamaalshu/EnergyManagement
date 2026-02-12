@@ -13,7 +13,7 @@
   --card-bg: #15223c;
   --tooltip-border: rgba(255, 255, 255, 0.08);
   --muted-text: #94a3b8;
-  --grid-stroke: #1f2937;
+  --grid-stroke: #334155;
 }
 
 @layer base {
@@ -28,4 +28,11 @@
 
 .card-surface {
   @apply rounded-xl border border-slate-200/70 bg-card-light shadow-card backdrop-blur transition-colors duration-200 dark:border-white/5 dark:bg-card-dark/80;
+}
+
+/* Focus-visible ring for interactive card elements */
+button.card-surface,
+a.card-surface,
+[role="button"].card-surface {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-light dark:focus-visible:ring-offset-surface-dark;
 }
