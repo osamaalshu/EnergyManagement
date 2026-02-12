@@ -1,73 +1,222 @@
-# React + TypeScript + Vite
+# Energy Management Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modular energy analytics dashboard built with React, TypeScript, and Vite. The application provides interactive visualization of energy consumption, cost trends, and savings analysis through configurable widgets and a responsive layout system.
 
-Currently, two official plugins are available:
+The project is structured for maintainability, deployment stability, and future expansion toward real data integration.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Overview
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This dashboard is designed to support:
 
-## Expanding the ESLint configuration
+* Visualization of energy consumption metrics
+* Savings and cost trend analysis
+* Editable and responsive widget layouts
+* Dark and light theme support
+* Deployment on Netlify as a Single Page Application
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The current implementation uses mock data and is structured to support future API integration.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Technology Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+* React 19
+* TypeScript
+* Vite
+* Tailwind CSS
+* Recharts
+* react-grid-layout
+* ESLint
+
+Vite documentation:
+[https://vite.dev/guide/](https://vite.dev/guide/)
+
+Recharts documentation:
+[https://recharts.org/en-US](https://recharts.org/en-US)
+
+react-grid-layout documentation:
+[https://github.com/react-grid-layout/react-grid-layout](https://github.com/react-grid-layout/react-grid-layout)
+
+---
+
+## Project Structure
+
+```
+src/
+  components/      Reusable UI components
+  pages/           Route-level views (Dashboard, Savings)
+  data/            Mock data sources
+  lib/             Shared utilities and helpers
+  App.tsx
+  main.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Architectural Principles
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+* Pages compose reusable components rather than containing heavy logic.
+* Widgets remain modular and isolated.
+* Mock data is centralized under `src/data/`.
+* Styling follows consistent Tailwind patterns.
+* Dark mode is implemented using theme-aware styling.
+* The application is prepared for route-based navigation if expanded.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## Core Features
+
+### Dashboard
+
+* Draggable and resizable widgets
+* Edit mode toggle
+* Layout organization functionality
+* Chart-based energy visualizations
+
+### Savings View
+
+* Summary metric cards
+* Cost trend and savings analysis charts
+* Responsive grid layout
+
+### Theme System
+
+* Light and dark mode support
+* Consistent styling patterns
+* Chart theming aligned with application theme
+
+---
+
+## Running Locally
+
+### Install dependencies
+
+```bash
+npm install
 ```
+
+### Start development server
+
+```bash
+npm run dev
+```
+
+### Type checking
+
+```bash
+npm run typecheck
+```
+
+If `typecheck` is not defined, add the following script to `package.json`:
+
+```json
+{
+  "scripts": {
+    "typecheck": "tsc -b --pretty false"
+  }
+}
+```
+
+### Production build
+
+```bash
+npm run build
+```
+
+The production output is generated in the `dist/` directory.
+
+---
+
+## Netlify Deployment
+
+This application is deployed on Netlify as a Single Page Application.
+
+### Required Settings
+
+Build command:
+
+```
+npm run build
+```
+
+Publish directory:
+
+```
+dist
+```
+
+Node version:
+
+```
+20
+```
+
+### netlify.toml Configuration
+
+A `netlify.toml` file should exist at the root of the repository:
+
+```toml
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+```
+
+Netlify documentation:
+[https://docs.netlify.com/frameworks/vite/](https://docs.netlify.com/frameworks/vite/)
+
+---
+
+## Development Guardrails
+
+To maintain stability and prevent regressions:
+
+* The application must build successfully before merging changes.
+* No TypeScript or ESLint errors should be introduced.
+* The build output directory must remain `dist/`.
+* Layout changes must not cause widgets to overlap or disappear.
+* Dark mode must remain readable and consistent.
+
+Recommended scripts:
+
+```json
+{
+  "scripts": {
+    "check": "npm run lint && npm run typecheck && npm run build"
+  }
+}
+```
+
+---
+
+## Future Enhancements
+
+Planned improvements may include:
+
+* Persistent layout storage
+* API-based data integration
+* Advanced filtering (date range, site, tariff)
+* Alerting and anomaly detection
+* Authentication and user preferences
+* CI/CD enforcement via GitHub Actions
+
+---
+
+## License
+
+This project is intended for internal development and experimentation unless otherwise specified.

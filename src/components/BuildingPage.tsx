@@ -1,6 +1,7 @@
 import { type FC, useState } from 'react';
-import { buildingDetails, buildings } from '../data/mockPortfolioData';
+import { buildingDetails, buildings, buildingAnomalyByResolution } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
+import type { TimeResolution } from '../types/portfolio';
 
 interface BuildingPageProps {
   buildingId: string;
@@ -12,6 +13,7 @@ interface BuildingPageProps {
 const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToEquipment, onNavigateToBuilding }) => {
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [equipmentDropdownOpen, setEquipmentDropdownOpen] = useState(false);
+  const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
   const detail = buildingDetails[buildingId];
 
   if (!detail) {
@@ -22,7 +24,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
     );
   }
 
-  const { building, aggregateKPIs, equipment, anomaly } = detail;
+  const { building, aggregateKPIs, equipment } = detail;
 
   const statusColor: Record<string, string> = {
     running: 'bg-emerald-400',
@@ -227,7 +229,12 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
       </div>
 
       {/* ── Anomaly Panel ─────────────────────────────────────── */}
-      <AnomalyPanel data={anomaly} title="Building Anomaly Detection" />
+      <AnomalyPanel
+        data={buildingAnomalyByResolution[anomalyResolution]}
+        title="Building Anomaly Detection"
+        resolution={anomalyResolution}
+        onResolutionChange={setAnomalyResolution}
+      />
     </section>
   );
 };

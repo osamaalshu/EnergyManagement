@@ -1,3 +1,9 @@
+// ── Time resolution ──────────────────────────────────────────────
+export type TimeResolution = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+/** A record keyed by time resolution containing data of type T */
+export type ByResolution<T> = Record<TimeResolution, T>;
+
 // ── Performance band ──────────────────────────────────────────────
 export type PerformanceBand = 'Exceeded' | 'Average' | 'Lower';
 

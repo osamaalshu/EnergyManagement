@@ -18,13 +18,14 @@ import {
 import {
   portfolioMeta,
   buildings,
-  monthComparisons,
+  comparisonsByResolution,
   buildingConsumptionBreakdown,
-  portfolioAnomaly,
+  portfolioAnomalyByResolution,
 } from '../data/mockPortfolioData';
 import { BAND_COLORS, getBandColor, BAND_BG_CLASS, BAND_TEXT_CLASS } from '../lib/performanceBands';
 import AnomalyPanel from './AnomalyPanel';
-import type { PerformanceBand } from '../types/portfolio';
+import TimeResolutionSelector from './TimeResolutionSelector';
+import type { PerformanceBand, TimeResolution } from '../types/portfolio';
 
 const tooltipStyles = {
   background: 'var(--card-bg)',
@@ -77,6 +78,11 @@ const ScatterTooltipContent: FC<any> = ({ active, payload }) => {
 
 const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
+  const [comparisonResolution, setComparisonResolution] = useState<TimeResolution>('monthly');
+  const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
+
+  const comparisonData = comparisonsByResolution[comparisonResolution];
+  const anomalyData = portfolioAnomalyByResolution[anomalyResolution];
 
   const scatterData = buildings.map((b) => ({
     ...b,
@@ -210,13 +216,14 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
         </div>
       </div>
 
-      {/* ═══════════════ SECTION B: 12-Month Comparison ═══════════════ */}
+      {/* ═══════════════ SECTION B: Performance Comparison ═══════════════ */}
       <div className="card-surface p-6">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
             Performance vs Sector Average
           </h3>
           <div className="flex items-center gap-4">
+            <TimeResolutionSelector value={comparisonResolution} onChange={setComparisonResolution} />
             {(['Exceeded', 'Average', 'Lower'] as PerformanceBand[]).map((band) => (
               <span key={band} className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                 <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: BAND_COLORS[band] }} />
@@ -226,24 +233,35 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
           </div>
         </div>
 
-        {monthComparisons.length > 0 ? (
+        {comparisonData.length > 0 ? (
           <>
-            {/* Status dots */}
-            <div className="mb-2 flex justify-between px-8">
-              {monthComparisons.map((mc) => (
-                <span
-                  key={mc.month}
-                  className="inline-block h-3 w-3 rounded-full"
-                  style={{ background: getBandColor(mc.status) }}
-                  title={mc.status}
-                />
-              ))}
-            </div>
+            {/* Status dots — hide when too many (daily) */}
+            {comparisonData.length <= 30 && (
+              <div className="mb-2 flex justify-between px-8">
+                {comparisonData.map((mc, i) => (
+                  <span
+                    key={`${mc.month}-${i}`}
+                    className="inline-block h-3 w-3 rounded-full"
+                    style={{ background: getBandColor(mc.status) }}
+                    title={mc.status}
+                  />
+                ))}
+              </div>
+            )}
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthComparisons} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+                <BarChart data={comparisonData} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
-                  <XAxis dataKey="month" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+                  <XAxis
+                    dataKey="month"
+                    tick={tickStyle}
+                    tickLine={false}
+                    axisLine={{ stroke: 'var(--grid-stroke)' }}
+                    interval={comparisonData.length > 30 ? Math.floor(comparisonData.length / 15) : 0}
+                    angle={comparisonData.length > 20 ? -45 : 0}
+                    textAnchor={comparisonData.length > 20 ? 'end' : 'middle'}
+                    height={comparisonData.length > 20 ? 60 : 30}
+                  />
                   <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)' }} />
                   <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
                   <Legend wrapperStyle={{ color: 'var(--muted-text)' }} />
@@ -335,7 +353,12 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
       </div>
 
       {/* ═══════════════ SECTION D: Anomaly Detection ═══════════════ */}
-      <AnomalyPanel data={portfolioAnomaly} title="Portfolio Anomaly Detection" />
+      <AnomalyPanel
+        data={anomalyData}
+        title="Portfolio Anomaly Detection"
+        resolution={anomalyResolution}
+        onResolutionChange={setAnomalyResolution}
+      />
     </section>
   );
 };

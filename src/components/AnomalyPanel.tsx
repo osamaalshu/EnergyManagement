@@ -9,7 +9,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
-import type { AnomalyData } from '../types/portfolio';
+import type { AnomalyData, TimeResolution } from '../types/portfolio';
+import TimeResolutionSelector from './TimeResolutionSelector';
 
 const tooltipStyles = {
   background: 'var(--card-bg)',
@@ -22,20 +23,33 @@ interface AnomalyPanelProps {
   data: AnomalyData;
   /** Optional title override (default: "Anomaly Detection") */
   title?: string;
+  /** When provided, shows a time-resolution toggle */
+  resolution?: TimeResolution;
+  onResolutionChange?: (resolution: TimeResolution) => void;
 }
 
-const AnomalyPanel: FC<AnomalyPanelProps> = ({ data, title = 'Anomaly Detection' }) => {
+const AnomalyPanel: FC<AnomalyPanelProps> = ({
+  data,
+  title = 'Anomaly Detection',
+  resolution,
+  onResolutionChange,
+}) => {
   const hasData = data.series.length > 0;
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+        {resolution != null && onResolutionChange && (
+          <TimeResolutionSelector value={resolution} onChange={onResolutionChange} />
+        )}
+      </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="card-surface p-4">
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-            Anomalies Last Month
+            Anomalies Detected
           </p>
           <p className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
             {data.anomalyCount}
@@ -55,7 +69,7 @@ const AnomalyPanel: FC<AnomalyPanelProps> = ({ data, title = 'Anomaly Detection'
       {hasData ? (
         <div className="card-surface p-4">
           <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Baseline vs Actual (Last Month)
+            Baseline vs Actual
           </p>
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
@@ -66,7 +80,10 @@ const AnomalyPanel: FC<AnomalyPanelProps> = ({ data, title = 'Anomaly Detection'
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  interval="preserveStartEnd"
+                  interval={data.series.length > 30 ? Math.floor(data.series.length / 10) : 'preserveStartEnd'}
+                  angle={data.series.length > 20 ? -45 : 0}
+                  textAnchor={data.series.length > 20 ? 'end' : 'middle'}
+                  height={data.series.length > 20 ? 50 : 30}
                 />
                 <YAxis
                   tick={tickStyle}
