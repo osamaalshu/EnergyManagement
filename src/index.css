@@ -26,8 +26,10 @@
   }
 }
 
-.card-surface {
-  @apply rounded-xl border border-slate-200/70 bg-card-light shadow-card backdrop-blur transition-colors duration-200 dark:border-white/5 dark:bg-card-dark/80;
+@layer components {
+  .card-surface {
+    @apply rounded-xl border border-slate-200/70 bg-white/70 shadow-glass backdrop-blur-md transition-colors duration-200 dark:border-white/5 dark:bg-card-dark/80;
+  }
 }
 
 /* Focus-visible ring for interactive card elements */

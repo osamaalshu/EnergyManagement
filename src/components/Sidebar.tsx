@@ -41,11 +41,25 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
       />
       <aside
         aria-hidden={!open}
-        className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-slate-200/70 bg-white/90 p-6 text-slate-900 shadow-card transition-transform duration-300 dark:border-white/5 dark:bg-surface dark:text-white ${translateClass} ${desktopTranslate}`}
+        className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-slate-200/70 bg-white/90 backdrop-blur-md p-6 text-slate-900 shadow-card transition-transform duration-300 dark:border-white/5 dark:bg-surface dark:text-white ${translateClass} ${desktopTranslate}`}
       >
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Energy</p>
-          <p className="text-lg font-semibold">Control Center</p>
+        <div className="mb-8 flex items-center gap-3">
+          {/* Light mode logo */}
+          <img 
+            src="/logo-light.png" 
+            alt="Enerlytics Logo" 
+            className="h-12 w-auto dark:hidden" 
+          />
+          {/* Dark mode logo */}
+          <img 
+            src="/logo-dark.png" 
+            alt="Enerlytics Logo" 
+            className="hidden h-12 w-auto dark:block" 
+          />
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Enerlytics</p>
+            <p className="text-lg font-semibold text-primary dark:text-white">Control Center</p>
+          </div>
         </div>
         <nav className="space-y-2">
           {navItems.map((item) => {
@@ -53,7 +67,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
               (item.key === 'dashboard' && activePage === 'dashboard') ||
               (item.key === 'portfolio' && (activePage === 'portfolio' || activePage === 'building' || activePage === 'equipment'));
             const actionable = Boolean(item.actionable);
-            const sharedClass = `flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition`;
+            const sharedClass = `flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition font-medium`;
 
             if (!actionable) {
               return (
@@ -75,7 +89,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
                 onClick={() => onNavigate(item.key)}
                 className={`${sharedClass} ${
                   isActive
-                    ? 'bg-accent/20 text-slate-900 dark:text-white'
+                    ? 'bg-primary/10 text-primary dark:bg-white/10 dark:text-white'
                     : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5'
                 }`}
               >

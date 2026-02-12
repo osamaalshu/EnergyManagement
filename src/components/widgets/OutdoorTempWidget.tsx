@@ -25,8 +25,8 @@ const OutdoorTempWidget: FC = () => {
           <LineChart data={outdoorTempSeries} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#38bdf8" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="#1A365D" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#1A365D" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
@@ -45,7 +45,7 @@ const OutdoorTempWidget: FC = () => {
               labelStyle={{ color: 'var(--muted-text)' }}
               itemStyle={{ color: '#0f172a' }}
             />
-            <Line type="monotone" dataKey="temp" stroke="#38bdf8" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+            <Line type="monotone" dataKey="temp" stroke="#1A365D" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

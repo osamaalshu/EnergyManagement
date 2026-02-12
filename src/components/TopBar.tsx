@@ -55,8 +55,8 @@ const TopBar: FC<TopBarProps> = ({
           </span>
         </button>
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">OQAE</p>
-          <h1 className="text-xl font-semibold">Energy Management</h1>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">ENERLYTICS</p>
+          <h1 className="text-xl font-semibold text-primary dark:text-white">Energy Management</h1>
         </div>
       </div>
 

@@ -25,8 +25,8 @@ const TariffWidget: FC = () => {
           <AreaChart data={tariffSeries} margin={{ top: 10, left: 8, right: 24, bottom: 10 }}>
             <defs>
               <linearGradient id="tariffGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="#FAB005" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#FAB005" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
@@ -48,11 +48,11 @@ const TariffWidget: FC = () => {
             <Area
               type="monotone"
               dataKey="tariff"
-              stroke="#f59e0b"
+              stroke="#FAB005"
               strokeWidth={3}
               fillOpacity={1}
               fill="url(#tariffGradient)"
-              dot={{ r: 4, fill: '#f59e0b' }}
+              dot={{ r: 4, fill: '#FAB005' }}
               activeDot={{ r: 6 }}
             />
           </AreaChart>

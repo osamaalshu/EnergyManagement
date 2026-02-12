@@ -25,12 +25,12 @@ const MicrogridWidget: FC = () => {
           <AreaChart data={microgridSeries} margin={{ top: 10, left: 12, right: 24, bottom: 10 }}>
             <defs>
               <linearGradient id="consumption" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.6} />
-                <stop offset="95%" stopColor="#38bdf8" stopOpacity={0.05} />
+                <stop offset="5%" stopColor="#1A365D" stopOpacity={0.6} />
+                <stop offset="95%" stopColor="#1A365D" stopOpacity={0.05} />
               </linearGradient>
               <linearGradient id="self" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#34d399" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#34d399" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="#82C91E" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#82C91E" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
@@ -43,8 +43,8 @@ const MicrogridWidget: FC = () => {
               label={{ value: 'kWh', angle: -90, position: 'insideLeft', fill: 'var(--muted-text)', style: { textTransform: 'uppercase' } }}
             />
             <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-            <Area type="monotone" dataKey="consumption" stroke="#38bdf8" fillOpacity={1} fill="url(#consumption)" name="Consumption" />
-            <Area type="monotone" dataKey="self" stroke="#34d399" fillOpacity={1} fill="url(#self)" name="Self-sufficiency" />
+            <Area type="monotone" dataKey="consumption" stroke="#1A365D" fillOpacity={1} fill="url(#consumption)" name="Consumption" />
+            <Area type="monotone" dataKey="self" stroke="#82C91E" fillOpacity={1} fill="url(#self)" name="Self-sufficiency" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

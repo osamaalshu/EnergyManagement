@@ -34,9 +34,9 @@ const EnergyBySystemWidget: FC = () => {
             />
             <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
             <Legend wrapperStyle={{ color: 'var(--muted-text)' }} />
-            <Bar dataKey="hvac" name="HVAC" stackId="a" fill="#38bdf8" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="lighting" name="Lighting" stackId="a" fill="#f472b6" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="equipment" name="Equipment" stackId="a" fill="#34d399" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="hvac" name="HVAC" stackId="a" fill="#1A365D" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="lighting" name="Lighting" stackId="a" fill="#FAB005" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="equipment" name="Equipment" stackId="a" fill="#82C91E" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

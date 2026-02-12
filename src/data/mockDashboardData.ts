@@ -16,10 +16,10 @@ export const outdoorTempSeries = [
 ];
 
 export const energyBreakdown = [
-  { name: 'HVAC', value: 44, color: '#38bdf8' },
-  { name: 'Equipment', value: 22, color: '#818cf8' },
-  { name: 'Lighting', value: 18, color: '#f472b6' },
-  { name: 'Pumps', value: 16, color: '#34d399' },
+  { name: 'HVAC', value: 44, color: '#1A365D' },
+  { name: 'Equipment', value: 22, color: '#82C91E' },
+  { name: 'Lighting', value: 18, color: '#FAB005' },
+  { name: 'Pumps', value: 16, color: '#64748B' },
 ];
 
 export const energyBySystemData = [
