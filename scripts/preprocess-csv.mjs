@@ -538,7 +538,7 @@ if (offHours > 4) {
 notifications.push(
   { id: 'n1', title: `Data available through ${lastTimestamp.substring(0, 10)}`, read: false },
   { id: 'n2', title: `${activeRows.length.toLocaleString()} active hourly readings processed`, read: false },
-  { id: 'n-tariff', title: 'New electricity tariff update — ASPR Oman', read: false, externalUrl: 'https://www.aspr.om' },
+  { id: 'n-tariff', title: 'New electricity tariff update — APSR Oman', read: false, externalUrl: 'https://apsr.om/pages/electricity-lb' },
 );
 
 if (buildingAnomaly.anomalyCount > 0) {
