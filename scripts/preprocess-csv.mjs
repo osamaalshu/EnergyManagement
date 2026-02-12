@@ -186,9 +186,13 @@ function towerSnapshot(n) {
 
 function pumpSnapshot() {
   const recent = latestRows.filter(r => r.CP_TotalChilledWaterPump_kW > 0);
-  if (recent.length === 0) return { status: 'off', kW: 0 };
+  if (recent.length === 0) return { status: 'off', kW: 0, flowRate: 0 };
   const kW = round(avg(recent.map(r => r.CP_TotalChilledWaterPump_kW)));
-  return { status: 'running', kW };
+  // Total flow = sum of all chiller chilled water flow rates, converted from L/s to m³/s (÷1000)
+  const flowRate = round(avg(recent.map(r =>
+    (r.CP_Chiller1_ChilledWaterFlowrate + r.CP_Chiller2_ChilledWaterFlowrate + r.CP_Chiller3_ChilledWaterFlowrate) / 1000
+  )), 3);
+  return { status: 'running', kW, flowRate };
 }
 
 const chillerSnapshots = [1, 2, 3].map(n => ({ n, ...chillerSnapshot(n) }));
@@ -217,6 +221,14 @@ const todayRows = activeRows.filter(r => getDate(r.timestamp) === latestDate);
 const todayTotalKw = todayRows.reduce((s, r) => s + r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW, 0);
 const todayConsumptionKwh = round(todayTotalKw);
 const todayCoolingTons = round(todayRows.reduce((s, r) => s + r.Total_CoolingTons, 0));
+
+// Hourly production/consumption for latest day (dashboard chart)
+const hourlyProductionConsumption = todayRows.map(r => {
+  const hour = r.timestamp.substring(11, 16); // "HH:MM"
+  const consumption = round(r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW);
+  const production = round(r.Total_CoolingTons * 3.517);
+  return { hour, production, consumption };
+});
 
 // ────────────────────────────────────────────────────────────
 // 4. Multi-resolution month comparisons (performance vs sector)
@@ -247,10 +259,13 @@ function makeComparisonSeries(resolution) {
   });
 }
 
-// Keep last N for daily to avoid hundreds of labels
+// Determine latest year for daily/weekly filtering
+const latestYear = sortedYears[sortedYears.length - 1];
+
+// Keep daily/weekly to latest year only; monthly/yearly show all
 const allComparisons = {
-  daily:   makeComparisonSeries('daily').slice(-90),  // last 90 days
-  weekly:  makeComparisonSeries('weekly'),
+  daily:   makeComparisonSeries('daily').filter(c => c.month.startsWith(latestYear)),
+  weekly:  makeComparisonSeries('weekly').filter(c => c.month.startsWith(latestYear)),
   monthly: makeComparisonSeries('monthly'),
   yearly:  makeComparisonSeries('yearly'),
 };
@@ -305,12 +320,15 @@ function makeChillerTimeSeriesForResolution(n, resolution) {
   const temperatureLoopSeries = keys.map(key => {
     const rows = map.get(key).filter(r => r[`${prefix}ChilledWaterSupplyTemp`] > 0);
     if (rows.length === 0) return null;
+    const cdwSupply = avg(rows.map(r => r[`${prefix}CondenserWaterSupplyTemp`]));
+    const cdwReturn = avg(rows.map(r => r[`${prefix}CondenserWaterReturnTemp`]));
     return {
       label: formatLabel(key, resolution),
       chilledSupply:   round(avg(rows.map(r => r[`${prefix}ChilledWaterSupplyTemp`])), 1),
       chilledReturn:   round(avg(rows.map(r => r[`${prefix}ChilledWaterReturnTemp`])), 1),
-      condenserSupply: round(avg(rows.map(r => r[`${prefix}CondenserWaterSupplyTemp`])), 1),
-      condenserReturn: round(avg(rows.map(r => r[`${prefix}CondenserWaterReturnTemp`])), 1),
+      condenserSupply: round(cdwSupply, 1),
+      condenserReturn: round(cdwReturn, 1),
+      ambientTemp:     round((cdwSupply + cdwReturn) / 2, 1), // approx ambient
     };
   }).filter(Boolean);
 
@@ -331,11 +349,12 @@ function makeChillerAllResolutions(n) {
   const result = {};
   for (const res of ['daily', 'weekly', 'monthly', 'yearly']) {
     const ts = makeChillerTimeSeriesForResolution(n, res);
-    // For daily, limit to last 90 to keep JSON manageable
-    if (res === 'daily') {
-      ts.efficiencySeries = ts.efficiencySeries.slice(-90);
-      ts.temperatureLoopSeries = ts.temperatureLoopSeries.slice(-90);
-      ts.powerCoolingSeries = ts.powerCoolingSeries.slice(-90);
+    // For daily/weekly, only keep latest year
+    if (res === 'daily' || res === 'weekly') {
+      const filterLatest = (arr) => arr.filter(p => p.label.startsWith(latestYear));
+      ts.efficiencySeries = filterLatest(ts.efficiencySeries);
+      ts.temperatureLoopSeries = filterLatest(ts.temperatureLoopSeries);
+      ts.powerCoolingSeries = filterLatest(ts.powerCoolingSeries);
     }
     result[res] = ts;
   }
@@ -392,9 +411,9 @@ function makeSystemAnomalyForResolution(resolution) {
   }).filter(p => p.value !== null);
 
   const result = computeAnomalyData(efficiencyValues);
-  // Limit daily to last 90
-  if (resolution === 'daily') {
-    result.series = result.series.slice(-90);
+  // For daily/weekly, only keep latest year
+  if (resolution === 'daily' || resolution === 'weekly') {
+    result.series = result.series.filter(p => p.label.startsWith(latestYear));
   }
   return result;
 }
@@ -402,8 +421,8 @@ function makeSystemAnomalyForResolution(resolution) {
 function makeChillerAnomalyForResolution(n, resolution) {
   const ts = makeChillerTimeSeriesForResolution(n, resolution);
   const result = computeAnomalyData(ts.efficiencySeries);
-  if (resolution === 'daily') {
-    result.series = result.series.slice(-90);
+  if (resolution === 'daily' || resolution === 'weekly') {
+    result.series = result.series.filter(p => p.label.startsWith(latestYear));
   }
   return result;
 }
@@ -476,6 +495,7 @@ if (offHours > 4) {
 notifications.push(
   { id: 'n1', title: `Data available through ${lastTimestamp.substring(0, 10)}`, read: false },
   { id: 'n2', title: `${activeRows.length.toLocaleString()} active hourly readings processed`, read: false },
+  { id: 'n-tariff', title: 'New electricity tariff update — ASPR Oman', read: false, externalUrl: 'https://www.aspr.om' },
 );
 
 if (buildingAnomaly.anomalyCount > 0) {
@@ -537,6 +557,7 @@ const output = {
   },
   todaysProduction: { kWh: round(todayCoolingTons * 3.517, 0), omr: round(todayCoolingTons * 3.517 * 0.012, 1) },
   todaysConsumption: { kWh: round(todayConsumptionKwh, 0), omr: round(todayConsumptionKwh * 0.012, 1) },
+  hourlyProductionConsumption,
   warnings,
   notifications,
 

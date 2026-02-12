@@ -14,16 +14,20 @@ import {
   ScatterChart,
   Scatter,
   ZAxis,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
 } from 'recharts';
 import {
   portfolioMeta,
   buildings,
   comparisonsByResolution,
   buildingConsumptionBreakdown,
-  portfolioAnomalyByResolution,
+  buildingDetails,
 } from '../data/mockPortfolioData';
 import { BAND_COLORS, getBandColor, BAND_BG_CLASS, BAND_TEXT_CLASS } from '../lib/performanceBands';
-import AnomalyPanel from './AnomalyPanel';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import type { PerformanceBand, TimeResolution } from '../types/portfolio';
 
@@ -79,10 +83,8 @@ const ScatterTooltipContent: FC<any> = ({ active, payload }) => {
 const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [comparisonResolution, setComparisonResolution] = useState<TimeResolution>('monthly');
-  const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
 
   const comparisonData = comparisonsByResolution[comparisonResolution];
-  const anomalyData = portfolioAnomalyByResolution[anomalyResolution];
 
   const scatterData = buildings.map((b) => ({
     ...b,
@@ -250,21 +252,21 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
             )}
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={comparisonData} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+                <BarChart data={comparisonData} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                   <XAxis
                     dataKey="month"
                     tick={tickStyle}
                     tickLine={false}
                     axisLine={{ stroke: 'var(--grid-stroke)' }}
-                    interval={comparisonData.length > 30 ? Math.floor(comparisonData.length / 15) : 0}
-                    angle={comparisonData.length > 20 ? -45 : 0}
-                    textAnchor={comparisonData.length > 20 ? 'end' : 'middle'}
-                    height={comparisonData.length > 20 ? 60 : 30}
+                    interval={comparisonData.length > 30 ? Math.floor(comparisonData.length / 10) : 0}
+                    angle={comparisonData.length > 15 ? -45 : 0}
+                    textAnchor={comparisonData.length > 15 ? 'end' : 'middle'}
+                    height={comparisonData.length > 15 ? 65 : 30}
                   />
-                  <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)' }} />
+                  <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={56} label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }} />
                   <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-                  <Legend wrapperStyle={{ color: 'var(--muted-text)' }} />
+                  <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconSize={12} />
                   <Bar dataKey="portfolioValue" name="Portfolio" fill="#38bdf8" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="sectorValue" name="Sector Average" fill="#64748b" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -352,13 +354,135 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
         </div>
       </div>
 
-      {/* ═══════════════ SECTION D: Anomaly Detection ═══════════════ */}
-      <AnomalyPanel
-        data={anomalyData}
-        title="Portfolio Anomaly Detection"
-        resolution={anomalyResolution}
-        onResolutionChange={setAnomalyResolution}
-      />
+      {/* ═══════════════ SECTION D: Building-Level Performance ═══════════════ */}
+      <div className="card-surface p-6">
+        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+          Overall Building Performance
+        </h3>
+
+        {/* KPI summary cards for each building */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {buildings.map((b) => {
+            const detail = buildingDetails[b.id];
+            if (!detail) return null;
+            const { aggregateKPIs } = detail;
+            const effColor = aggregateKPIs.systemKwPerTon <= 0.5
+              ? 'text-emerald-400'
+              : aggregateKPIs.systemKwPerTon <= 0.7
+                ? 'text-yellow-400'
+                : 'text-red-400';
+            return (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => onNavigateToBuilding(b.id)}
+                className="card-surface flex flex-col gap-3 p-5 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-900 dark:text-white">{b.name}</span>
+                  <span className={`rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium ${BAND_BG_CLASS[b.performanceBand]} ${BAND_TEXT_CLASS[b.performanceBand]}`}>
+                    {b.performanceBand}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Delta T</p>
+                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{aggregateKPIs.systemDeltaT}<span className="text-xs font-normal text-slate-500">°C</span></p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Flow</p>
+                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{aggregateKPIs.totalFlowRate}<span className="text-xs font-normal text-slate-500"> L/s</span></p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">kW/ton</p>
+                    <p className={`text-lg font-semibold ${effColor}`}>{aggregateKPIs.systemKwPerTon}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <span>{b.surfaceArea.toLocaleString()} m² · {b.sector}</span>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Radar chart for building comparison (shows when > 0 buildings) */}
+        {buildings.length > 0 && (() => {
+          const radarData = [
+            { metric: 'Efficiency\n(inv kW/ton)', fullMark: 100 },
+            { metric: 'Delta T (°C)', fullMark: 100 },
+            { metric: 'Flow Rate', fullMark: 100 },
+            { metric: 'Score', fullMark: 100 },
+          ].map(d => {
+            const result: Record<string, unknown> = { ...d };
+            for (const b of buildings) {
+              const detail = buildingDetails[b.id];
+              if (!detail) continue;
+              const kpis = detail.aggregateKPIs;
+              switch (d.metric) {
+                case 'Efficiency\n(inv kW/ton)':
+                  // Inverse: lower kW/ton = better → map 0.3-1.0 to 100-0
+                  result[b.name] = Math.max(0, Math.min(100, Math.round((1 - (kpis.systemKwPerTon - 0.3) / 0.7) * 100)));
+                  break;
+                case 'Delta T (°C)':
+                  result[b.name] = Math.min(100, Math.round((kpis.systemDeltaT / 12) * 100));
+                  break;
+                case 'Flow Rate':
+                  result[b.name] = Math.min(100, Math.round((kpis.totalFlowRate / 200) * 100));
+                  break;
+                case 'Score':
+                  result[b.name] = portfolioMeta.score;
+                  break;
+              }
+            }
+            return result;
+          });
+
+          const radarColors = ['#38bdf8', '#818cf8', '#f472b6', '#34d399'];
+
+          return (
+            <div className="mt-6">
+              <h4 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Performance Radar
+              </h4>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                    <PolarGrid stroke="var(--grid-stroke)" />
+                    <PolarAngleAxis
+                      dataKey="metric"
+                      tick={{ fill: 'var(--muted-text)', fontSize: 11 }}
+                    />
+                    <PolarRadiusAxis
+                      angle={90}
+                      domain={[0, 100]}
+                      tick={{ fill: 'var(--muted-text)', fontSize: 10 }}
+                    />
+                    {buildings.map((b, i) => (
+                      <Radar
+                        key={b.id}
+                        name={b.name}
+                        dataKey={b.name}
+                        stroke={radarColors[i % radarColors.length]}
+                        fill={radarColors[i % radarColors.length]}
+                        fillOpacity={0.15}
+                        strokeWidth={2}
+                      />
+                    ))}
+                    <Legend
+                      wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 12 }}
+                    />
+                    <Tooltip contentStyle={tooltipStyles} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
     </section>
   );
 };

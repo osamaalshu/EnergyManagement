@@ -73,29 +73,30 @@ const AnomalyPanel: FC<AnomalyPanelProps> = ({
           </p>
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data.series} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+              <LineChart data={data.series} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                 <XAxis
                   dataKey="label"
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  interval={data.series.length > 30 ? Math.floor(data.series.length / 10) : 'preserveStartEnd'}
-                  angle={data.series.length > 20 ? -45 : 0}
-                  textAnchor={data.series.length > 20 ? 'end' : 'middle'}
-                  height={data.series.length > 20 ? 50 : 30}
+                  interval={data.series.length > 30 ? Math.floor(data.series.length / 8) : 'preserveStartEnd'}
+                  angle={data.series.length > 15 ? -45 : 0}
+                  textAnchor={data.series.length > 15 ? 'end' : 'middle'}
+                  height={data.series.length > 15 ? 60 : 30}
                 />
                 <YAxis
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  width={48}
+                  width={52}
+                  label={{ value: 'kW/ton', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
                 />
                 <Tooltip
                   contentStyle={tooltipStyles}
                   labelStyle={{ color: 'var(--muted-text)' }}
                 />
-                <Legend wrapperStyle={{ color: 'var(--muted-text)' }} />
+                <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconSize={12} />
                 <Line
                   type="monotone"
                   dataKey="baseline"

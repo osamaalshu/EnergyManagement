@@ -1,10 +1,28 @@
 import type { FC } from 'react';
 import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
+import {
   portfolioWarnings,
   portfolioNotifications,
   todaysProduction,
   todaysConsumption,
+  hourlyProductionConsumption,
 } from '../data/mockPortfolioData';
+
+const tooltipStyles = {
+  background: 'var(--card-bg)',
+  border: '1px solid var(--tooltip-border)',
+  borderRadius: '0.75rem',
+};
+const tickStyle = { fill: 'var(--muted-text)', fontSize: 12 } as const;
 
 const severityColor: Record<string, string> = {
   critical: 'text-red-400',
@@ -42,6 +60,11 @@ const DashboardPage: FC<DashboardPageProps> = ({
   };
 
   const handleNotificationClick = (notification: typeof portfolioNotifications[0]) => {
+    // External links open in new tab
+    if (notification.externalUrl) {
+      window.open(notification.externalUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
     if (notification.buildingId && notification.equipmentId) {
       onNavigateToEquipment(notification.buildingId, notification.equipmentId);
     } else if (notification.buildingId) {
@@ -139,6 +162,43 @@ const DashboardPage: FC<DashboardPageProps> = ({
         </div>
       </div>
 
+      {/* ── Hourly Production vs Consumption Chart ─────────────── */}
+      {hourlyProductionConsumption.length > 0 && (
+        <div className="card-surface p-6">
+          <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+            Today&apos;s Hourly Production vs Consumption
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={hourlyProductionConsumption} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                <XAxis
+                  dataKey="hour"
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  interval={hourlyProductionConsumption.length > 12 ? 1 : 0}
+                />
+                <YAxis
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  width={56}
+                  label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
+                />
+                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                <Legend
+                  wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
+                  iconType="square"
+                />
+                <Bar dataKey="production" name="Production (kWh)" fill="#34d399" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="consumption" name="Consumption (kWh)" fill="#38bdf8" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
       {/* ── Warnings List (clickable) ─────────────────────────── */}
       <div>
         <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Active Warnings</h3>
@@ -180,13 +240,24 @@ const DashboardPage: FC<DashboardPageProps> = ({
               onClick={() => handleNotificationClick(n)}
               className={`card-surface flex w-full items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl ${n.read ? 'opacity-60' : ''}`}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${n.read ? 'bg-slate-400/15' : 'bg-accent/15'}`}>
-                <svg className={`h-4 w-4 ${n.read ? 'text-slate-400' : 'text-accent'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${n.read ? 'bg-slate-400/15' : n.externalUrl ? 'bg-emerald-400/15' : 'bg-accent/15'}`}>
+                {n.externalUrl ? (
+                  <svg className="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                ) : (
+                  <svg className={`h-4 w-4 ${n.read ? 'text-slate-400' : 'text-accent'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className={`text-sm ${n.read ? 'text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>{n.title}</p>
+                <p className={`text-sm ${n.read ? 'text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-white'}`}>
+                  {n.title}
+                  {n.externalUrl && (
+                    <span className="ml-1.5 text-xs text-emerald-500 dark:text-emerald-400">(external link)</span>
+                  )}
+                </p>
                 {!n.read && <span className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-accent" />}
               </div>
               <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

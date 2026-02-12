@@ -12,6 +12,7 @@ import type {
   PortfolioNotification,
   PortfolioMeta,
   KpiValue,
+  HourlyProductionConsumptionPoint,
   Building,
   MonthComparison,
   ConsumptionBreakdownEntry,
@@ -53,6 +54,7 @@ export const portfolioNotifications: PortfolioNotification[] = raw.notifications
   read: n.read,
   buildingId: (n as Record<string, unknown>).buildingId as string | undefined,
   equipmentId: (n as Record<string, unknown>).equipmentId as string | undefined,
+  externalUrl: (n as Record<string, unknown>).externalUrl as string | undefined,
 }));
 
 export const portfolioMeta: PortfolioMeta = {
@@ -64,6 +66,9 @@ export const portfolioMeta: PortfolioMeta = {
 
 export const todaysProduction: KpiValue = raw.todaysProduction;
 export const todaysConsumption: KpiValue = raw.todaysConsumption;
+
+export const hourlyProductionConsumption: HourlyProductionConsumptionPoint[] =
+  (raw as unknown as { hourlyProductionConsumption: HourlyProductionConsumptionPoint[] }).hourlyProductionConsumption;
 
 // ═══════════════════════════════════════════════════════════════════
 //  BUILDING-LEVEL
@@ -262,7 +267,10 @@ for (const ts of raw.towerSnapshots) {
 const pumpDetails: Record<string, EquipmentDetail> = {
   [`${bid}-pump-1`]: {
     equipment: pumpEquipment[0],
-    pumpKPIs: { powerDraw: raw.pumpSnapshot.kW } as PumpKPIs,
+    pumpKPIs: {
+      powerDraw: raw.pumpSnapshot.kW,
+      flowRate: (raw.pumpSnapshot as unknown as { flowRate: number }).flowRate ?? 0,
+    } as PumpKPIs,
     anomaly: { anomalyCount: 0, inefficiencyCost: 0, series: [] },
   },
 };

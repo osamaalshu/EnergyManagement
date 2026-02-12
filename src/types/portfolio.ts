@@ -27,6 +27,14 @@ export interface PortfolioNotification {
   buildingId?: string;
   /** Optional: clicking navigates to this equipment within the building */
   equipmentId?: string;
+  /** Optional: external link (opens in new tab) */
+  externalUrl?: string;
+}
+
+export interface HourlyProductionConsumptionPoint {
+  hour: string;
+  production: number;
+  consumption: number;
 }
 
 export interface PortfolioMeta {
@@ -115,6 +123,7 @@ export interface CoolingTowerKPIs {
 
 export interface PumpKPIs {
   powerDraw: number;                 // kW
+  flowRate: number;                  // m³/s
 }
 
 export interface TimeSeriesPoint {
@@ -128,6 +137,7 @@ export interface TemperatureLoopPoint {
   chilledReturn: number;
   condenserSupply: number;
   condenserReturn: number;
+  ambientTemp?: number;
 }
 
 export interface PowerCoolingPoint {

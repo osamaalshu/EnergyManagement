@@ -13,6 +13,7 @@ export {
   portfolioMeta,
   todaysProduction,
   todaysConsumption,
+  hourlyProductionConsumption,
   buildings,
   monthComparisons,
   comparisonsByResolution,

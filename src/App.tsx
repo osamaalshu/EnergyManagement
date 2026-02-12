@@ -34,6 +34,11 @@ function App() {
     window.localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Scroll to top whenever the active page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activePage]);
+
   // ── Navigation handlers ────────────────────────────────────────
 
   const handleNavigate = (key: NavigationKey) => {

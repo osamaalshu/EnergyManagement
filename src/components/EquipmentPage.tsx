@@ -22,7 +22,7 @@ const tooltipStyles = {
   border: '1px solid var(--tooltip-border)',
   borderRadius: '0.75rem',
 };
-const tickStyle = { fill: 'var(--muted-text)', fontSize: 12 } as const;
+const tickStyle = { fill: 'var(--muted-text)', fontSize: 11 } as const;
 
 interface EquipmentPageProps {
   buildingId: string;
@@ -49,6 +49,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
   const { equipment, chillerKPIs, coolingTowerKPIs, pumpKPIs } = detail;
   const isChiller = equipment.type === 'chiller';
   const isTower = equipment.type === 'coolingTower';
+  const isPump = equipment.type === 'pump';
 
   // Extract chiller number from equipment ID (e.g., "CP1-chiller-2" → 2)
   const chillerNum = isChiller ? parseInt(equipmentId.split('-').pop() ?? '0', 10) : 0;
@@ -82,12 +83,12 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
     warning: 'text-red-400',
   };
 
-  // Determine tick props based on data length
+  // Determine tick props based on data length — adjusted for better spacing
   const getXAxisProps = (dataLength: number) => ({
-    interval: dataLength > 30 ? Math.floor(dataLength / 10) : (dataLength > 15 ? Math.floor(dataLength / 8) : 0),
-    angle: dataLength > 15 ? -45 : 0,
-    textAnchor: (dataLength > 15 ? 'end' : 'middle') as 'end' | 'middle',
-    height: dataLength > 15 ? 55 : 30,
+    interval: dataLength > 30 ? Math.floor(dataLength / 8) : (dataLength > 15 ? Math.floor(dataLength / 6) : 0),
+    angle: dataLength > 12 ? -45 : 0,
+    textAnchor: (dataLength > 12 ? 'end' : 'middle') as 'end' | 'middle',
+    height: dataLength > 12 ? 60 : 30,
   });
 
   return (
@@ -156,9 +157,10 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
         </div>
       )}
 
-      {!isChiller && !isTower && pumpKPIs && (
+      {isPump && pumpKPIs && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <KpiCard label="Power Draw" value={pumpKPIs.powerDraw} unit="kW" />
+          <KpiCard label="Flow Rate" value={pumpKPIs.flowRate} unit="m³/s" />
+          <KpiCard label="Pump Head Power" value={pumpKPIs.powerDraw} unit="kW" />
         </div>
       )}
 
@@ -176,9 +178,9 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
             {efficiencySeries && efficiencySeries.length > 0 && (
               <div className="card-surface p-5">
                 <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Efficiency Over Time</h4>
-                <div className="h-56">
+                <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={efficiencySeries} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+                    <LineChart data={efficiencySeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                       <XAxis
                         dataKey="label"
@@ -187,9 +189,15 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
                         axisLine={{ stroke: 'var(--grid-stroke)' }}
                         {...getXAxisProps(efficiencySeries.length)}
                       />
-                      <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'kW/ton', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)' }} />
+                      <YAxis
+                        tick={tickStyle}
+                        tickLine={false}
+                        axisLine={{ stroke: 'var(--grid-stroke)' }}
+                        width={52}
+                        label={{ value: 'kW/ton', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                      />
                       <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-                      <ReferenceLine y={0.7} stroke="#f87171" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: '0.70 Threshold', position: 'right', fill: '#f87171', fontSize: 11 }} />
+                      <ReferenceLine y={0.7} stroke="#f87171" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: '0.70', position: 'right', fill: '#f87171', fontSize: 10 }} />
                       <Line type="monotone" dataKey="value" name="Efficiency" stroke="#38bdf8" strokeWidth={2} dot={efficiencySeries.length <= 30 ? { r: 3 } : false} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -197,13 +205,13 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
               </div>
             )}
 
-            {/* Temperature Loop */}
+            {/* Temperature Loop with Ambient Temperature */}
             {temperatureLoopSeries && temperatureLoopSeries.length > 0 && (
               <div className="card-surface p-5">
                 <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Temperature Loop</h4>
-                <div className="h-56">
+                <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={temperatureLoopSeries} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+                    <ComposedChart data={temperatureLoopSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                       <XAxis
                         dataKey="label"
@@ -212,14 +220,24 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
                         axisLine={{ stroke: 'var(--grid-stroke)' }}
                         {...getXAxisProps(temperatureLoopSeries.length)}
                       />
-                      <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={40} label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 6, fill: 'var(--muted-text)' }} />
+                      <YAxis
+                        tick={tickStyle}
+                        tickLine={false}
+                        axisLine={{ stroke: 'var(--grid-stroke)' }}
+                        width={44}
+                        label={{ value: '°C', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                      />
                       <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-                      <Legend wrapperStyle={{ color: 'var(--muted-text)', fontSize: 11 }} />
-                      <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.15} stroke="none" />
+                      <Legend
+                        wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }}
+                        iconSize={10}
+                      />
+                      <Area type="monotone" dataKey="chilledReturn" stackId="delta" fill="#38bdf8" fillOpacity={0.1} stroke="none" />
                       <Line type="monotone" dataKey="chilledSupply" name="Chilled Supply" stroke="#38bdf8" strokeWidth={2} dot={false} />
                       <Line type="monotone" dataKey="chilledReturn" name="Chilled Return" stroke="#38bdf8" strokeWidth={2} strokeDasharray="5 3" dot={false} />
-                      <Line type="monotone" dataKey="condenserSupply" name="Condenser Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="condenserReturn" name="Condenser Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                      <Line type="monotone" dataKey="ambientTemp" name="Ambient Temp" stroke="#ef4444" strokeWidth={2} strokeDasharray="3 3" dot={false} />
+                      <Line type="monotone" dataKey="condenserSupply" name="Cond. Supply" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="condenserReturn" name="Cond. Return" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 3" dot={false} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </div>
@@ -233,9 +251,9 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
       {isChiller && powerCoolingSeries && powerCoolingSeries.length > 0 && (
         <div className="card-surface p-5">
           <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Power Draw vs Cooling Output</h4>
-          <div className="h-56">
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={powerCoolingSeries} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
+              <LineChart data={powerCoolingSeries} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                 <XAxis
                   dataKey="label"
@@ -244,10 +262,28 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ buildingId, equipmentId, onBack
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
                   {...getXAxisProps(powerCoolingSeries.length)}
                 />
-                <YAxis yAxisId="left" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'kW', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)' }} />
-                <YAxis yAxisId="right" orientation="right" tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={48} label={{ value: 'Tons', angle: 90, position: 'insideRight', offset: 10, fill: 'var(--muted-text)' }} />
+                <YAxis
+                  yAxisId="left"
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  width={56}
+                  label={{ value: 'kW', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  width={56}
+                  label={{ value: 'Tons', angle: 90, position: 'insideRight', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                />
                 <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-                <Legend wrapperStyle={{ color: 'var(--muted-text)' }} />
+                <Legend
+                  wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
+                  iconSize={12}
+                />
                 <Line yAxisId="left" type="monotone" dataKey="power" name="Power (kW)" stroke="#38bdf8" strokeWidth={2} dot={powerCoolingSeries.length <= 30 ? { r: 3 } : false} />
                 <Line yAxisId="right" type="monotone" dataKey="coolingTons" name="Cooling (Tons)" stroke="#34d399" strokeWidth={2} dot={powerCoolingSeries.length <= 30 ? { r: 3 } : false} />
               </LineChart>
