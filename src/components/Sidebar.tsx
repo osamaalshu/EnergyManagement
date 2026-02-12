@@ -43,20 +43,19 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
         aria-hidden={!open}
         className={`fixed inset-y-0 left-0 z-40 w-72 transform border-r border-slate-200/70 bg-white/90 backdrop-blur-md p-6 text-slate-900 shadow-card transition-transform duration-300 dark:border-white/5 dark:bg-surface dark:text-white ${translateClass} ${desktopTranslate}`}
       >
-        <div className="mb-6 flex flex-col items-center">
-          {/* Light mode logo — transparent background, shown large */}
+        <div className="mb-8 flex flex-col items-center">
+          {/* Light mode logo */}
           <img 
             src="/logo-light.png" 
             alt="Enerlytics" 
-            className="h-28 w-auto object-contain dark:hidden" 
+            className="h-20 w-auto object-contain dark:hidden" 
           />
-          {/* Dark mode logo */}
+          {/* Dark mode logo — use mix-blend-mode to blend the navy background into the sidebar */}
           <img 
             src="/logo-dark.png" 
             alt="Enerlytics" 
-            className="hidden h-28 w-auto object-contain rounded-lg mix-blend-lighten dark:block" 
+            className="hidden h-20 w-auto object-contain rounded-lg mix-blend-lighten dark:block" 
           />
-          <div className="mt-3 w-full border-b border-slate-200/60 dark:border-white/5" />
         </div>
         <nav className="space-y-2">
           {navItems.map((item) => {
