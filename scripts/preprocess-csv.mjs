@@ -162,7 +162,7 @@ function formatLabel(key, resolution) {
 }
 
 // ────────────────────────────────────────────────────────────
-// 3. Latest snapshot (from most recent rows)
+// 3. Equipment/building overview: last 24 hours (rolling 24h window)
 // ────────────────────────────────────────────────────────────
 const latestRows = allRows.slice(-24);
 

@@ -139,9 +139,11 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
         </div>
       </div>
 
-      {/* ── KPI Cards ─────────────────────────────────────────── */}
+      {/* ── KPI Cards (last 24 hours) ─────────────────────────── */}
       {isChiller && chillerKPIs && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <>
+          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (avg when running)</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard label="Delta T" value={chillerKPIs.deltaT} unit="°C" sub={`Return ${chillerKPIs.chilledWaterReturnTemp}°C − Supply ${chillerKPIs.chilledWaterSupplyTemp}°C`} />
           <KpiCard label="Chilled Water Flow" value={chillerKPIs.chilledWaterFlowRate} unit="L/s" />
           <KpiCard label="Condenser Water Flow" value={chillerKPIs.condenserWaterFlowRate} unit="L/s" />
@@ -154,25 +156,32 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
             sub="Target: < 0.70"
           />
           <KpiCard label="Power Draw" value={chillerKPIs.powerDraw} unit="kW" />
-        </div>
+          </div>
+        </>
       )}
 
       {isTower && coolingTowerKPIs && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <>
+          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (avg when running)</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard
             label="Condenser Water Supply Temp"
             value={coolingTowerKPIs.condenserWaterSupplyTemp}
             unit="°C"
             accent={coolingTowerKPIs.condenserWaterSupplyTemp > 50 ? 'text-red-400' : undefined}
           />
-        </div>
+          </div>
+        </>
       )}
 
       {isPump && pumpKPIs && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <>
+          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (avg when running)</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard label="Flow Rate" value={pumpKPIs.flowRate} unit="m³/s" />
           <KpiCard label="Pump Head Power" value={pumpKPIs.powerDraw} unit="kW" />
-        </div>
+          </div>
+        </>
       )}
 
       {/* ── Time Series Charts (chiller) ───────────────────────── */}
