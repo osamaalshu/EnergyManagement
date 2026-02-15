@@ -1,4 +1,4 @@
-import { type FC, useState, useRef } from 'react';
+import { type FC, useState, useRef, useMemo } from 'react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -15,7 +15,9 @@ import {
   todaysProduction,
   todaysConsumption,
   hourlyProductionConsumption,
+  tariffHourlyData,
 } from '../data/mockPortfolioData';
+import { effectiveRateOmrPerKwh } from '../lib/tariffEngine';
 
 const tooltipStyles = {
   background: 'var(--card-bg)',
@@ -66,6 +68,36 @@ const DashboardPage: FC<DashboardPageProps> = ({
 
   const hasChartData = hourlyProductionConsumption.length > 0 &&
     hourlyProductionConsumption.some((d) => d.production > 0 || d.consumption > 0);
+
+  // Compute tariff-based OMR for the overview cards using the CRT tariff engine
+  const tariffCosts = useMemo(() => {
+    if (!tariffHourlyData || tariffHourlyData.length === 0) {
+      return { productionOmr: todaysProduction.omr, consumptionOmr: todaysConsumption.omr };
+    }
+    // Get last day's timestamps from the tariff data
+    const lastTs = tariffHourlyData[tariffHourlyData.length - 1].timestamp;
+    const lastDay = lastTs.substring(0, 10);
+    const todayRows = tariffHourlyData.filter((d) => d.timestamp.startsWith(lastDay));
+
+    // Production OMR = cooling output kWh × avg effective rate
+    // Consumption OMR = electrical consumption kWh × per-hour effective rate
+    let consumptionOmr = 0;
+    for (const r of todayRows) {
+      const ts = new Date(r.timestamp);
+      consumptionOmr += r.kwh * effectiveRateOmrPerKwh(ts, '11kV');
+    }
+
+    // For cooling output: use the production kWh with the average rate
+    const avgRate = todayRows.length > 0
+      ? todayRows.reduce((s, r) => s + effectiveRateOmrPerKwh(new Date(r.timestamp), '11kV'), 0) / todayRows.length
+      : 0.012;
+    const productionOmr = todaysProduction.kWh * avgRate;
+
+    return {
+      productionOmr: Math.round(productionOmr * 10) / 10,
+      consumptionOmr: Math.round(consumptionOmr * 10) / 10,
+    };
+  }, []);
 
   // Scroll-to refs
   const warningsRef = useRef<HTMLDivElement>(null);
@@ -165,7 +197,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
           </div>
         </button>
 
-        {/* Today's Cooling Output — navigates to Tariff page */}
+        {/* Today's Cooling Output — navigates to Tariff page (cooling cost) */}
         <button
           type="button"
           onClick={onNavigateToTariff}
@@ -181,8 +213,8 @@ const DashboardPage: FC<DashboardPageProps> = ({
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysProduction.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-white">
-              {todaysProduction.omr} <span className="text-xs font-normal text-slate-500">OMR</span>
+            <p className="mt-0.5 text-sm font-semibold text-emerald-500">
+              {tariffCosts.productionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
           <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +222,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
           </svg>
         </button>
 
-        {/* Today's Consumption — navigates to Tariff page */}
+        {/* Today's Consumption — navigates to Tariff page (energy consumption cost) */}
         <button
           type="button"
           onClick={onNavigateToTariff}
@@ -206,8 +238,8 @@ const DashboardPage: FC<DashboardPageProps> = ({
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysConsumption.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-white">
-              {todaysConsumption.omr} <span className="text-xs font-normal text-slate-500">OMR</span>
+            <p className="mt-0.5 text-sm font-semibold text-accent">
+              {tariffCosts.consumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
           <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

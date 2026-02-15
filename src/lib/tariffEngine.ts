@@ -344,6 +344,12 @@ export interface AggregatedTariffPoint {
   label: string;
   kwh: number;
   omr: number;
+  /** Effective rate: OMR per kWh for the period */
+  rateOmrPerKwh: number;
+}
+
+function computeRate(kwh: number, omr: number): number {
+  return kwh > 0 ? Math.round((omr / kwh) * 10000) / 10000 : 0;
 }
 
 export function aggregateToDaily(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
@@ -358,7 +364,7 @@ export function aggregateToDaily(hourlyData: HourlyDataPoint[], voltageLevel: st
   }
   return Array.from(dayMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([label, v]) => ({ label, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100 }));
+    .map(([label, v]) => ({ label, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100, rateOmrPerKwh: computeRate(v.kwh, v.omr) }));
 }
 
 export function aggregateToWeekly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
@@ -378,7 +384,7 @@ export function aggregateToWeekly(hourlyData: HourlyDataPoint[], voltageLevel: s
   }
   return Array.from(weekMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([label, v]) => ({ label: `W ${label}`, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100 }));
+    .map(([label, v]) => ({ label: `W ${label}`, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100, rateOmrPerKwh: computeRate(v.kwh, v.omr) }));
 }
 
 export function aggregateToMonthly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
@@ -393,7 +399,7 @@ export function aggregateToMonthly(hourlyData: HourlyDataPoint[], voltageLevel: 
   }
   return Array.from(monthMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([label, v]) => ({ label, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100 }));
+    .map(([label, v]) => ({ label, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100, rateOmrPerKwh: computeRate(v.kwh, v.omr) }));
 }
 
 export function aggregateToYearly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
@@ -408,7 +414,7 @@ export function aggregateToYearly(hourlyData: HourlyDataPoint[], voltageLevel: s
   }
   return Array.from(yearMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([label, v]) => ({ label, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100 }));
+    .map(([label, v]) => ({ label, kwh: Math.round(v.kwh * 100) / 100, omr: Math.round(v.omr * 100) / 100, rateOmrPerKwh: computeRate(v.kwh, v.omr) }));
 }
 
 export function aggregateToHourly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
@@ -416,10 +422,13 @@ export function aggregateToHourly(hourlyData: HourlyDataPoint[], voltageLevel: s
   const lastWeek = hourlyData.slice(-168);
   return lastWeek.map(d => {
     const ts = new Date(d.timestamp);
+    const rate = effectiveRateOmrPerKwh(ts, voltageLevel);
+    const omr = d.kwh * rate;
     return {
       label: d.timestamp.substring(5, 16).replace('T', ' '),
       kwh: Math.round(d.kwh * 100) / 100,
-      omr: Math.round(d.kwh * effectiveRateOmrPerKwh(ts, voltageLevel) * 100) / 100,
+      omr: Math.round(omr * 100) / 100,
+      rateOmrPerKwh: Math.round(rate * 10000) / 10000,
     };
   });
 }

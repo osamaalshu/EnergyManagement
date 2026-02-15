@@ -1,7 +1,7 @@
 import { type FC, useState, useMemo } from 'react';
 import {
   ResponsiveContainer,
-  ComposedChart,
+  LineChart,
   Line,
   Bar,
   BarChart,
@@ -10,7 +10,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  Cell,
   LabelList,
 } from 'recharts';
 import { tariffHourlyData } from '../data/mockPortfolioData';
@@ -157,16 +156,19 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         </div>
       )}
 
-      {/* Chart 1: kWh / OMR Line Chart */}
+      {/* Chart 1: Effective Tariff Rate (OMR/kWh) over time */}
       <div className="card-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Energy Consumption & Cost</h3>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Effective Tariff Rate</h3>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">How much you pay per kWh over time (OMR/kWh)</p>
+          </div>
           <TimeResolutionSelector value={resolution} onChange={setResolution} />
         </div>
         {lineChartData.length > 0 ? (
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={lineChartData} margin={{ top: 8, right: 48, left: 8, bottom: 4 }}>
+              <LineChart data={lineChartData} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                 <XAxis
                   dataKey="label"
@@ -179,38 +181,30 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                   height={lineChartData.length > 15 ? 60 : 30}
                 />
                 <YAxis
-                  yAxisId="kwh"
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  width={64}
-                  label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
-                  tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
-                />
-                <YAxis
-                  yAxisId="omr"
-                  orientation="right"
-                  tick={tickStyle}
-                  tickLine={false}
-                  axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  width={64}
-                  label={{ value: 'OMR', angle: 90, position: 'insideRight', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
-                  tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(Math.round(v))}
+                  width={72}
+                  label={{ value: 'OMR / kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
+                  tickFormatter={(v: number) => v.toFixed(4)}
+                  domain={['auto', 'auto']}
                 />
                 <Tooltip
                   contentStyle={tooltipStyles}
                   labelStyle={{ color: 'var(--muted-text)' }}
-                  formatter={(value: number, name: string) => [
-                    name === 'kwh'
-                      ? `${formatKwh(value)} kWh`
-                      : `${formatOmr(value)} OMR`,
-                    name === 'kwh' ? 'Energy' : 'Cost',
-                  ]}
+                  formatter={(value: number) => [`${value.toFixed(4)} OMR/kWh`, 'Rate']}
                 />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} />
-                <Bar yAxisId="kwh" dataKey="kwh" name="Energy (kWh)" fill="#82C91E" opacity={0.7} radius={[3, 3, 0, 0]} />
-                <Line yAxisId="omr" dataKey="omr" name="Cost (OMR)" stroke="#FAB005" strokeWidth={2} dot={lineChartData.length <= 50} />
-              </ComposedChart>
+                <Line
+                  type="monotone"
+                  dataKey="rateOmrPerKwh"
+                  name="Effective Rate (OMR/kWh)"
+                  stroke="#FAB005"
+                  strokeWidth={2}
+                  dot={lineChartData.length <= 50}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         ) : (
@@ -256,15 +250,8 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                   }}
                 />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} />
-                <Bar dataKey="dcKw" name="Coincident Peak" stackId="peak" radius={[0, 0, 0, 0]}>
-                  {peakDemandData.map((_, i) => (
-                    <Cell key={`dc-${i}`} fill={CAPACITY_COLORS.cpr} />
-                  ))}
-                </Bar>
-                <Bar dataKey="dncKw" name="Non-Coincident Peak" stackId="peak" radius={[3, 3, 0, 0]}>
-                  {peakDemandData.map((_, i) => (
-                    <Cell key={`dnc-${i}`} fill={CAPACITY_COLORS.ncpr} />
-                  ))}
+                <Bar dataKey="dcKw" name="Coincident Peak" stackId="peak" fill={CAPACITY_COLORS.cpr} radius={[0, 0, 0, 0]} />
+                <Bar dataKey="dncKw" name="Non-Coincident Peak" stackId="peak" fill={CAPACITY_COLORS.ncpr} radius={[3, 3, 0, 0]}>
                   <LabelList
                     dataKey="capacityOmr"
                     position="top"
