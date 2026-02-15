@@ -38,7 +38,7 @@ interface EquipmentPageProps {
 const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
   const detail = equipmentDetails[equipmentId];
 
-  const [chartResolution, setChartResolution] = useState<TimeResolution>('weekly');
+  const [chartResolution, setChartResolution] = useState<TimeResolution>('hourly');
   const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
 
   if (!detail) {

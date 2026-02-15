@@ -58,9 +58,8 @@ allRows.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).g
 
 console.log(`Total rows: ${allRows.length}`);
 
-// Filter out rows where the system is completely off
-const activeRows = allRows.filter(r => r.Total_CoolingTons > 0 || r.Total_Chiller_kW > 0);
-console.log(`Active rows (system ON): ${activeRows.length}`);
+// Keep ALL rows including system-off hours (important for understanding duty cycles)
+console.log(`Using all ${allRows.length} rows (including system OFF hours)`);
 
 // ────────────────────────────────────────────────────────────
 // 2. Helpers
@@ -96,18 +95,23 @@ function getWeek(ts) {
 }
 
 // ────────────────────────────────────────────────────────────
-// 2b. Group active rows by all resolutions
+// 2b. Group rows by all resolutions
 // ────────────────────────────────────────────────────────────
+const hourlyMap = new Map();
 const dailyMap = new Map();
 const weeklyMap = new Map();
 const monthlyMap = new Map();
 const yearlyMap = new Map();
 
-for (const r of activeRows) {
+for (const r of allRows) {
+  const h = r.timestamp; // each row IS one hour, keyed by full timestamp
   const d = getDate(r.timestamp);
   const w = getWeek(r.timestamp);
   const m = getMonth(r.timestamp);
   const y = getYear(r.timestamp);
+
+  // Hourly: each row is its own bucket (keyed by timestamp)
+  hourlyMap.set(h, [r]);
 
   if (!dailyMap.has(d)) dailyMap.set(d, []);
   dailyMap.get(d).push(r);
@@ -122,12 +126,14 @@ for (const r of activeRows) {
   yearlyMap.get(y).push(r);
 }
 
+const sortedHours = [...hourlyMap.keys()].sort();
 const sortedDays = [...dailyMap.keys()].sort();
 const sortedWeeks = [...weeklyMap.keys()].sort();
 const sortedMonths = [...monthlyMap.keys()].sort();
 const sortedYears = [...yearlyMap.keys()].sort();
 
 const resolutionMaps = {
+  hourly:  { map: hourlyMap,  keys: sortedHours },
   daily:   { map: dailyMap,   keys: sortedDays },
   weekly:  { map: weeklyMap,  keys: sortedWeeks },
   monthly: { map: monthlyMap, keys: sortedMonths },
@@ -139,6 +145,11 @@ const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 /** Format a bucket key into a human-readable label */
 function formatLabel(key, resolution) {
   switch (resolution) {
+    case 'hourly': {
+      // key = "2014-04-09 14:00:00" → "Apr 9 14:00"
+      const dt = new Date(key);
+      return `${monthShortNames[dt.getMonth()]} ${dt.getDate()} ${key.substring(11, 16)}`;
+    }
     case 'daily':   return key; // "2012-03-15"
     case 'weekly':  return key; // "2012-W12"
     case 'monthly': {
@@ -151,9 +162,9 @@ function formatLabel(key, resolution) {
 }
 
 // ────────────────────────────────────────────────────────────
-// 3. Latest snapshot (from most recent active rows)
+// 3. Latest snapshot (from most recent rows)
 // ────────────────────────────────────────────────────────────
-const latestRows = activeRows.slice(-24);
+const latestRows = allRows.slice(-24);
 
 function chillerSnapshot(n) {
   const prefix = `CP_Chiller${n}_`;
@@ -219,7 +230,7 @@ const systemKwPerTon = round(
 // "Consumption" = electrical energy consumed by chillers + pumps (the bigger number)
 // "Production"  = cooling output converted to kWh-equivalent (informational)
 const latestDate = getDate(latestRows[latestRows.length - 1].timestamp);
-const todayRows = activeRows.filter(r => getDate(r.timestamp) === latestDate);
+const todayRows = allRows.filter(r => getDate(r.timestamp) === latestDate);
 const todayTotalKw = todayRows.reduce((s, r) => s + r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW, 0);
 const todayConsumptionKwh = round(todayTotalKw);
 const todayCoolingTons = round(todayRows.reduce((s, r) => s + r.Total_CoolingTons, 0));
@@ -265,8 +276,17 @@ function makeComparisonSeries(resolution) {
 // Determine latest year for daily/weekly filtering
 const latestYear = sortedYears[sortedYears.length - 1];
 
-// Keep daily/weekly to latest year only; monthly/yearly show all
+// Determine the latest 7-day window for hourly data
+const HOURLY_WINDOW_DAYS = 7;
+const latestTimestamp = sortedHours[sortedHours.length - 1];
+const latestDt = new Date(latestTimestamp);
+const hourlyWindowStart = new Date(latestDt.getTime() - HOURLY_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+const hourlyWindowStartStr = hourlyWindowStart.toISOString().substring(0, 10); // "YYYY-MM-DD"
+
+// Keep hourly to latest 7 days, daily/weekly to latest year only; monthly/yearly show all
+const hourlyComparisons = makeComparisonSeries('hourly');
 const allComparisons = {
+  hourly:  hourlyComparisons.slice(-HOURLY_WINDOW_DAYS * 24),
   daily:   makeComparisonSeries('daily').filter(c => c.month.startsWith(latestYear)),
   weekly:  makeComparisonSeries('weekly').filter(c => c.month.startsWith(latestYear)),
   monthly: makeComparisonSeries('monthly'),
@@ -281,14 +301,14 @@ const monthComparisons = allComparisons.monthly.slice(-12);
 // ────────────────────────────────────────────────────────────
 let totalChillerKw = 0;
 let totalPumpKw = 0;
-for (const r of activeRows) {
+for (const r of allRows) {
   totalChillerKw += r.Total_Chiller_kW;
   totalPumpKw += r.CP_TotalChilledWaterPump_kW;
 }
 const totalSystemKw = totalChillerKw + totalPumpKw;
 
 let ch1Kw = 0, ch2Kw = 0, ch3Kw = 0;
-for (const r of activeRows) {
+for (const r of allRows) {
   ch1Kw += r.CP_Chiller1_kW;
   ch2Kw += r.CP_Chiller2_kW;
   ch3Kw += r.CP_Chiller3_kW;
@@ -312,17 +332,20 @@ function makeChillerTimeSeriesForResolution(n, resolution) {
   const prefix = `CP_Chiller${n}_`;
   const { map, keys } = resolutionMaps[resolution];
 
+  // Include every bucket; use 0 when off/no reading so off/broken times are visible
   const efficiencySeries = keys.map(key => {
     const rows = map.get(key).filter(r => r[`${prefix}Efficiency`] > 0 && r[`${prefix}Efficiency`] < 5);
     return {
       label: formatLabel(key, resolution),
-      value: rows.length > 0 ? round(avg(rows.map(r => r[`${prefix}Efficiency`])), 3) : null,
+      value: rows.length > 0 ? round(avg(rows.map(r => r[`${prefix}Efficiency`])), 3) : 0,
     };
-  }).filter(p => p.value !== null);
+  });
 
   const temperatureLoopSeries = keys.map(key => {
     const rows = map.get(key).filter(r => r[`${prefix}ChilledWaterSupplyTemp`] > 0);
-    if (rows.length === 0) return null;
+    if (rows.length === 0) {
+      return { label: formatLabel(key, resolution), chilledSupply: 0, chilledReturn: 0, condenserSupply: 0, condenserReturn: 0, ambientTemp: 0 };
+    }
     const cdwSupply = avg(rows.map(r => r[`${prefix}CondenserWaterSupplyTemp`]));
     const cdwReturn = avg(rows.map(r => r[`${prefix}CondenserWaterReturnTemp`]));
     return {
@@ -331,27 +354,39 @@ function makeChillerTimeSeriesForResolution(n, resolution) {
       chilledReturn:   round(avg(rows.map(r => r[`${prefix}ChilledWaterReturnTemp`])), 1),
       condenserSupply: round(cdwSupply, 1),
       condenserReturn: round(cdwReturn, 1),
-      ambientTemp:     round((cdwSupply + cdwReturn) / 2, 1), // approx ambient
+      ambientTemp:     round((cdwSupply + cdwReturn) / 2, 1),
     };
-  }).filter(Boolean);
+  });
 
   const powerCoolingSeries = keys.map(key => {
     const rows = map.get(key).filter(r => r[`${prefix}kW`] > 0);
-    if (rows.length === 0) return null;
     return {
       label: formatLabel(key, resolution),
-      power:       round(avg(rows.map(r => r[`${prefix}kW`]))),
-      coolingTons: round(avg(rows.map(r => r[`${prefix}CoolingTons`]))),
+      power:       rows.length > 0 ? round(avg(rows.map(r => r[`${prefix}kW`]))) : 0,
+      coolingTons: rows.length > 0 ? round(avg(rows.map(r => r[`${prefix}CoolingTons`]))) : 0,
     };
-  }).filter(Boolean);
+  });
 
   return { efficiencySeries, temperatureLoopSeries, powerCoolingSeries };
 }
 
 function makeChillerAllResolutions(n) {
   const result = {};
-  for (const res of ['daily', 'weekly', 'monthly', 'yearly']) {
+  for (const res of ['hourly', 'daily', 'weekly', 'monthly', 'yearly']) {
     const ts = makeChillerTimeSeriesForResolution(n, res);
+    // For hourly, only keep latest 7 days
+    if (res === 'hourly') {
+      const filterWindow = (arr) => arr.filter(p => {
+        // label = "Apr 9 14:00" — need to match against original keys
+        // Instead, filter by index: hourly keys are sorted timestamps
+        return true; // will be filtered below by key
+      });
+      // Re-build hourly with only the latest 7 days of keys
+      const hourlyKeys7d = sortedHours.filter(k => k >= hourlyWindowStartStr);
+      const ts7d = makeChillerTimeSeriesFromKeys(n, 'hourly', hourlyKeys7d);
+      result[res] = ts7d;
+      continue;
+    }
     // For daily/weekly, only keep latest year
     if (res === 'daily' || res === 'weekly') {
       const filterLatest = (arr) => arr.filter(p => p.label.startsWith(latestYear));
@@ -362,6 +397,49 @@ function makeChillerAllResolutions(n) {
     result[res] = ts;
   }
   return result;
+}
+
+/** Build chiller time-series from a specific subset of keys (used for hourly 7-day window) */
+function makeChillerTimeSeriesFromKeys(n, resolution, keys) {
+  const prefix = `CP_Chiller${n}_`;
+  const { map } = resolutionMaps[resolution];
+
+  // Include every bucket; use 0 when off/no reading so off/broken times are visible
+  const efficiencySeries = keys.map(key => {
+    const rows = map.get(key).filter(r => r[`${prefix}Efficiency`] > 0 && r[`${prefix}Efficiency`] < 5);
+    return {
+      label: formatLabel(key, resolution),
+      value: rows.length > 0 ? round(avg(rows.map(r => r[`${prefix}Efficiency`])), 3) : 0,
+    };
+  });
+
+  const temperatureLoopSeries = keys.map(key => {
+    const rows = map.get(key).filter(r => r[`${prefix}ChilledWaterSupplyTemp`] > 0);
+    if (rows.length === 0) {
+      return { label: formatLabel(key, resolution), chilledSupply: 0, chilledReturn: 0, condenserSupply: 0, condenserReturn: 0, ambientTemp: 0 };
+    }
+    const cdwSupply = avg(rows.map(r => r[`${prefix}CondenserWaterSupplyTemp`]));
+    const cdwReturn = avg(rows.map(r => r[`${prefix}CondenserWaterReturnTemp`]));
+    return {
+      label: formatLabel(key, resolution),
+      chilledSupply:   round(avg(rows.map(r => r[`${prefix}ChilledWaterSupplyTemp`])), 1),
+      chilledReturn:   round(avg(rows.map(r => r[`${prefix}ChilledWaterReturnTemp`])), 1),
+      condenserSupply: round(cdwSupply, 1),
+      condenserReturn: round(cdwReturn, 1),
+      ambientTemp:     round((cdwSupply + cdwReturn) / 2, 1),
+    };
+  });
+
+  const powerCoolingSeries = keys.map(key => {
+    const rows = map.get(key).filter(r => r[`${prefix}kW`] > 0);
+    return {
+      label: formatLabel(key, resolution),
+      power:       rows.length > 0 ? round(avg(rows.map(r => r[`${prefix}kW`]))) : 0,
+      coolingTons: rows.length > 0 ? round(avg(rows.map(r => r[`${prefix}CoolingTons`]))) : 0,
+    };
+  });
+
+  return { efficiencySeries, temperatureLoopSeries, powerCoolingSeries };
 }
 
 // ────────────────────────────────────────────────────────────
@@ -382,8 +460,8 @@ function makeChillerAllResolutions(n) {
  *   excessKw = (actual - baseline) × avgCoolingTons
  *   cost     = excessKw × hours-per-bucket × OMR-per-kWh (0.012)
  */
-const ANOMALY_THRESHOLDS = { daily: 0.10, weekly: 0.06, monthly: 0.05, yearly: 0.04 };
-const HOURS_PER_BUCKET   = { daily: 24,   weekly: 168,  monthly: 730,  yearly: 8760 };
+const ANOMALY_THRESHOLDS = { hourly: 0.15, daily: 0.10, weekly: 0.06, monthly: 0.05, yearly: 0.04 };
+const HOURS_PER_BUCKET   = { hourly: 1,   daily: 24,   weekly: 168,  monthly: 730,  yearly: 8760 };
 const OMR_PER_KWH = 0.012;
 
 function computeAnomalyData(efficiencyValues, resolution = 'weekly', avgCoolingTons = 200) {
@@ -429,11 +507,16 @@ function computeAnomalyData(efficiencyValues, resolution = 'weekly', avgCoolingT
   };
 }
 
-// Compute average system cooling tons for cost estimates
-const avgSystemCoolingTons = avg(activeRows.filter(r => r.Total_CoolingTons > 0).map(r => r.Total_CoolingTons));
+// Compute average system cooling tons for cost estimates (only hours with actual cooling)
+const avgSystemCoolingTons = avg(allRows.filter(r => r.Total_CoolingTons > 0).map(r => r.Total_CoolingTons));
 
 function makeSystemAnomalyForResolution(resolution) {
-  const { map, keys } = resolutionMaps[resolution];
+  const { map } = resolutionMaps[resolution];
+  // For hourly, only use latest 7 days of keys
+  const keys = resolution === 'hourly'
+    ? sortedHours.filter(k => k >= hourlyWindowStartStr)
+    : resolutionMaps[resolution].keys;
+
   const efficiencyValues = keys.map(key => {
     const rows = map.get(key).filter(r => r.System_Efficiency_kW_per_Ton > 0 && r.System_Efficiency_kW_per_Ton < 5);
     return {
@@ -457,8 +540,15 @@ function makeSystemAnomalyForResolution(resolution) {
 
 function makeChillerAnomalyForResolution(n, resolution) {
   const prefix = `CP_Chiller${n}_`;
-  const avgChillerTons = avg(activeRows.filter(r => r[`${prefix}CoolingTons`] > 0).map(r => r[`${prefix}CoolingTons`]));
-  const ts = makeChillerTimeSeriesForResolution(n, resolution);
+  const avgChillerTons = avg(allRows.filter(r => r[`${prefix}CoolingTons`] > 0).map(r => r[`${prefix}CoolingTons`]));
+  // For hourly, use the 7-day windowed keys
+  let ts;
+  if (resolution === 'hourly') {
+    const hourlyKeys7d = sortedHours.filter(k => k >= hourlyWindowStartStr);
+    ts = makeChillerTimeSeriesFromKeys(n, resolution, hourlyKeys7d);
+  } else {
+    ts = makeChillerTimeSeriesForResolution(n, resolution);
+  }
   const result = computeAnomalyData(ts.efficiencySeries, resolution, avgChillerTons);
   if (resolution === 'daily' || resolution === 'weekly') {
     result.series = result.series.filter(p => p.label.startsWith(latestYear));
@@ -471,9 +561,10 @@ function makeChillerAnomalyForResolution(n, resolution) {
 }
 
 // Build all anomaly resolutions
+const ALL_RESOLUTIONS = ['hourly', 'daily', 'weekly', 'monthly', 'yearly'];
 const buildingAnomalyByResolution = {};
 const portfolioAnomalyByResolution = {};
-for (const res of ['daily', 'weekly', 'monthly', 'yearly']) {
+for (const res of ALL_RESOLUTIONS) {
   buildingAnomalyByResolution[res] = makeSystemAnomalyForResolution(res);
   portfolioAnomalyByResolution[res] = { ...buildingAnomalyByResolution[res] };
 }
@@ -481,7 +572,7 @@ for (const res of ['daily', 'weekly', 'monthly', 'yearly']) {
 const chillerAnomaliesByResolution = {};
 for (const n of [1, 2, 3]) {
   chillerAnomaliesByResolution[n] = {};
-  for (const res of ['daily', 'weekly', 'monthly', 'yearly']) {
+  for (const res of ALL_RESOLUTIONS) {
     chillerAnomaliesByResolution[n][res] = makeChillerAnomalyForResolution(n, res);
   }
 }
@@ -537,7 +628,7 @@ if (offHours > 4) {
 
 notifications.push(
   { id: 'n1', title: `Data available through ${lastTimestamp.substring(0, 10)}`, read: false },
-  { id: 'n2', title: `${activeRows.length.toLocaleString()} active hourly readings processed`, read: false },
+  { id: 'n2', title: `${allRows.length.toLocaleString()} hourly readings processed`, read: false },
   { id: 'n-tariff', title: 'New electricity tariff update — APSR Oman', read: false, externalUrl: 'https://apsr.om/pages/electricity-lb' },
 );
 
@@ -563,7 +654,7 @@ if (warnings.length === 0) {
 // ────────────────────────────────────────────────────────────
 // 9. Portfolio score
 // ────────────────────────────────────────────────────────────
-const effForScore = avg(activeRows.filter(r => r.System_Efficiency_kW_per_Ton > 0 && r.System_Efficiency_kW_per_Ton < 5).map(r => r.System_Efficiency_kW_per_Ton));
+const effForScore = avg(allRows.filter(r => r.System_Efficiency_kW_per_Ton > 0 && r.System_Efficiency_kW_per_Ton < 5).map(r => r.System_Efficiency_kW_per_Ton));
 const score = Math.max(0, Math.min(100, round(100 - (effForScore - 0.3) * 120)));
 
 const last12Months = sortedMonths.slice(-12);
@@ -588,7 +679,6 @@ const output = {
     from: allRows[0].timestamp,
     to: allRows[allRows.length - 1].timestamp,
     totalRows: allRows.length,
-    activeRows: activeRows.length,
   },
 
   // Portfolio level
@@ -613,7 +703,7 @@ const output = {
     name: 'Chiller Plant 1',
     sector: 'Commercial',
     surfaceArea: 5000,
-    normalizedConsumption: round(totalSystemKw / activeRows.length / 5000 * 8760, 0),
+    normalizedConsumption: round(totalSystemKw / allRows.length / 5000 * 8760, 0),
     performanceBand: score >= 70 ? 'Exceeded' : score >= 40 ? 'Average' : 'Lower',
     category: 'Chiller Plant',
   },
@@ -653,11 +743,11 @@ const fileSizeKb = round(readFileSync(OUT_FILE).length / 1024, 1);
 console.log(`\nWrote ${OUT_FILE}`);
 console.log(`Output size: ${fileSizeKb} KB`);
 console.log(`\nData range: ${output.dataRange.from} → ${output.dataRange.to}`);
-console.log(`Active hours: ${output.dataRange.activeRows}`);
+console.log(`Total hours: ${output.dataRange.totalRows}`);
 console.log(`System efficiency (avg): ${round(effForScore, 3)} kW/ton`);
 console.log(`Score: ${score}/100, Savings potential: ${savingsPotential}%`);
 console.log(`Warnings: ${warnings.length}, Anomalies: ${buildingAnomaly.anomalyCount}`);
 console.log(`\nResolution sizes:`);
-for (const res of ['daily', 'weekly', 'monthly', 'yearly']) {
+for (const res of ALL_RESOLUTIONS) {
   console.log(`  ${res}: comparisons=${allComparisons[res].length}, anomaly=${buildingAnomalyByResolution[res].series.length}`);
 }

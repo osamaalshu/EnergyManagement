@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { TimeResolution } from '../types/portfolio';
 
 const OPTIONS: { value: TimeResolution; label: string }[] = [
+  { value: 'hourly',  label: 'Hourly' },
   { value: 'daily',   label: 'Daily' },
   { value: 'weekly',  label: 'Weekly' },
   { value: 'monthly', label: 'Monthly' },

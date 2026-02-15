@@ -98,11 +98,13 @@ export const monthComparisons: MonthComparison[] = raw.monthComparisons.map((mc)
 
 // Multi-resolution comparisons
 const rawComparisons = raw.comparisonsByResolution as Record<string, typeof raw.monthComparisons>;
+const mapComparison = (mc: (typeof raw.monthComparisons)[number]) => ({ month: mc.month, status: mc.status as MonthComparison['status'], portfolioValue: mc.portfolioValue, sectorValue: mc.sectorValue });
 export const comparisonsByResolution: ByResolution<MonthComparison[]> = {
-  daily:   rawComparisons.daily.map((mc) => ({ month: mc.month, status: mc.status as MonthComparison['status'], portfolioValue: mc.portfolioValue, sectorValue: mc.sectorValue })),
-  weekly:  rawComparisons.weekly.map((mc) => ({ month: mc.month, status: mc.status as MonthComparison['status'], portfolioValue: mc.portfolioValue, sectorValue: mc.sectorValue })),
-  monthly: rawComparisons.monthly.map((mc) => ({ month: mc.month, status: mc.status as MonthComparison['status'], portfolioValue: mc.portfolioValue, sectorValue: mc.sectorValue })),
-  yearly:  rawComparisons.yearly.map((mc) => ({ month: mc.month, status: mc.status as MonthComparison['status'], portfolioValue: mc.portfolioValue, sectorValue: mc.sectorValue })),
+  hourly:  rawComparisons.hourly.map(mapComparison),
+  daily:   rawComparisons.daily.map(mapComparison),
+  weekly:  rawComparisons.weekly.map(mapComparison),
+  monthly: rawComparisons.monthly.map(mapComparison),
+  yearly:  rawComparisons.yearly.map(mapComparison),
 };
 
 export const buildingConsumptionBreakdown: ConsumptionBreakdownEntry[] = raw.consumptionBreakdown;
@@ -120,7 +122,7 @@ const rawPortfolioAnom = raw.portfolioAnomalyByResolution as Record<string, RawA
 const rawBuildingAnom = raw.buildingAnomalyByResolution as Record<string, RawAnomalyData>;
 
 function mapAnomalyResolutions(source: Record<string, RawAnomalyData>): ByResolution<AnomalyData> {
-  const resolutions: TimeResolution[] = ['daily', 'weekly', 'monthly', 'yearly'];
+  const resolutions: TimeResolution[] = ['hourly', 'daily', 'weekly', 'monthly', 'yearly'];
   const result = {} as ByResolution<AnomalyData>;
   for (const res of resolutions) {
     const a = source[res];
@@ -215,12 +217,12 @@ const rawChillerTS = raw.chillerTimeSeries as Record<string, RawChillerAllResolu
 const rawChillerAnomalies = raw.chillerAnomalies as Record<string, RawAnomalyData>;
 const rawChillerAnomByRes = raw.chillerAnomaliesByResolution as Record<string, Record<string, RawAnomalyData>>;
 
-// Build equipment details with default weekly series (backward compat)
+// Build equipment details with default hourly series (shows latest 7 days of real variation)
 const chillerDetails: Record<string, EquipmentDetail> = {};
 for (const cs of raw.chillerSnapshots) {
   const eqId = `${bid}-chiller-${cs.n}`;
   const equip = chillerEquipment.find((e) => e.id === eqId)!;
-  const ts = rawChillerTS[String(cs.n)].weekly; // default resolution
+  const ts = rawChillerTS[String(cs.n)].hourly; // default resolution — hourly for real variations
   const anom = rawChillerAnomalies[String(cs.n)];
 
   const kpis: ChillerKPIs = {
@@ -275,7 +277,7 @@ const pumpDetails: Record<string, EquipmentDetail> = {
   },
 };
 
-/** All equipment details indexed by equipment ID (default: weekly resolution) */
+/** All equipment details indexed by equipment ID (default: hourly resolution) */
 export const equipmentDetails: Record<string, EquipmentDetail> = {
   ...chillerDetails,
   ...towerDetails,

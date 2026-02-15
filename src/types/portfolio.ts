@@ -1,5 +1,5 @@
 // ── Time resolution ──────────────────────────────────────────────
-export type TimeResolution = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type TimeResolution = 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
 /** A record keyed by time resolution containing data of type T */
 export type ByResolution<T> = Record<TimeResolution, T>;
