@@ -5,6 +5,8 @@ import DashboardPage from './components/DashboardPage';
 import PortfolioPage from './components/PortfolioPage';
 import BuildingPage from './components/BuildingPage';
 import EquipmentPage from './components/EquipmentPage';
+import TariffPage from './components/TariffPage';
+import SystemSummaryModal from './components/SystemSummaryModal';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -28,6 +30,7 @@ function App() {
   // Drill-down state
   const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
+  const [systemSummaryOpen, setSystemSummaryOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -74,6 +77,14 @@ function App() {
     setActivePage('equipment');
   };
 
+  const handleNavigateToTariff = () => {
+    setActivePage('tariff');
+  };
+
+  const handleBackFromTariff = () => {
+    setActivePage('dashboard');
+  };
+
   const handleBackFromBuilding = () => {
     setSelectedBuildingId(null);
     setSelectedEquipmentId(null);
@@ -97,8 +108,11 @@ function App() {
             onNavigateToPortfolio={handleNavigateToPortfolio}
             onNavigateToBuilding={handleNavigateToBuilding}
             onNavigateToEquipment={handleNavigateToEquipmentDirect}
+            onNavigateToTariff={handleNavigateToTariff}
           />
         );
+      case 'tariff':
+        return <TariffPage onBack={handleBackFromTariff} />;
       case 'portfolio':
         return <PortfolioPage onNavigateToBuilding={handleNavigateToBuilding} />;
       case 'building':
@@ -108,6 +122,7 @@ function App() {
             onBack={handleBackFromBuilding}
             onNavigateToEquipment={handleNavigateToEquipment}
             onNavigateToBuilding={handleNavigateToBuilding}
+            onOpenSystemSummary={() => setSystemSummaryOpen(true)}
           />
         ) : null;
       case 'equipment':
@@ -143,6 +158,11 @@ function App() {
           {renderPage()}
         </main>
       </div>
+
+      {/* System Summary Modal */}
+      {systemSummaryOpen && (
+        <SystemSummaryModal onClose={() => setSystemSummaryOpen(false)} />
+      )}
 
       {/* Mobile blocker — desktop-only app */}
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-surface-light/90 backdrop-blur-md dark:bg-surface-dark/90 lg:hidden">

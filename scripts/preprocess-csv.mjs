@@ -676,7 +676,116 @@ const bestMonthEff = Math.min(...monthEfficiencies);
 const savingsPotential = round(((effForScore - bestMonthEff) / effForScore) * 100, 0);
 
 // ────────────────────────────────────────────────────────────
-// 10. Assemble output
+// 10. Tariff-ready hourly data (total plant kW per hour)
+// ────────────────────────────────────────────────────────────
+// Export hourly {timestamp, kw, kwh} for total plant consumption
+// (all chillers + pump). This feeds the client-side CRT tariff engine.
+// We export all years but in a compact format.
+const tariffHourlyData = allRows.map(r => ({
+  timestamp: r.timestamp,
+  kw: round(r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW, 2),
+  kwh: round(r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW, 2), // hourly => kWh = kW
+}));
+
+console.log(`\nTariff hourly data: ${tariffHourlyData.length} rows`);
+
+// ────────────────────────────────────────────────────────────
+// 11. COP (Coefficient of Performance) by resolution
+// ────────────────────────────────────────────────────────────
+// COP = CoolingTons × 3.517 / kW (dimensionless)
+// Only compute when kW > 0 and CoolingTons > 0
+
+function computeCopForResolution(resolution) {
+  const { map, keys } = resolutionMaps[resolution];
+  
+  // For hourly, only use latest 7 days
+  const resKeys = resolution === 'hourly'
+    ? sortedHours.filter(k => k >= hourlyWindowStartStr)
+    : keys;
+
+  return resKeys.map(key => {
+    const rows = map.get(key).filter(r => r.Total_Chiller_kW > 0 && r.Total_CoolingTons > 0);
+    if (rows.length === 0) {
+      return { label: formatLabel(key, resolution), value: 0 };
+    }
+    const avgCop = avg(rows.map(r => (r.Total_CoolingTons * 3.517) / r.Total_Chiller_kW));
+    return { label: formatLabel(key, resolution), value: round(avgCop, 2) };
+  });
+}
+
+// Also compute a "seasonal" COP (4-month rolling windows)
+function computeSeasonalCop() {
+  // Group months into 4-month seasons
+  const seasons = [];
+  for (let i = 0; i <= sortedMonths.length - 4; i += 4) {
+    const seasonMonths = sortedMonths.slice(i, i + 4);
+    const seasonRows = seasonMonths.flatMap(m => monthlyMap.get(m));
+    const validRows = seasonRows.filter(r => r.Total_Chiller_kW > 0 && r.Total_CoolingTons > 0);
+    if (validRows.length === 0) continue;
+    const avgCop = avg(validRows.map(r => (r.Total_CoolingTons * 3.517) / r.Total_Chiller_kW));
+    seasons.push({
+      label: `${formatLabel(seasonMonths[0], 'monthly')} - ${formatLabel(seasonMonths[seasonMonths.length - 1], 'monthly')}`,
+      value: round(avgCop, 2),
+    });
+  }
+  return seasons;
+}
+
+const copByResolution = {};
+for (const res of ALL_RESOLUTIONS) {
+  copByResolution[res] = computeCopForResolution(res);
+}
+copByResolution.seasonal = computeSeasonalCop();
+
+// Overall COP
+const overallCopRows = allRows.filter(r => r.Total_Chiller_kW > 0 && r.Total_CoolingTons > 0);
+const overallCop = overallCopRows.length > 0
+  ? round(avg(overallCopRows.map(r => (r.Total_CoolingTons * 3.517) / r.Total_Chiller_kW)), 2)
+  : 0;
+
+console.log(`COP (overall): ${overallCop}`);
+
+// ────────────────────────────────────────────────────────────
+// 12. Baseline deviation (2013 as baseline year)
+// ────────────────────────────────────────────────────────────
+// Compute monthly kW/Ton baseline from 2013, then compare other years/months
+
+const baseline2013Months = sortedMonths.filter(m => m.startsWith('2013'));
+const baselineByMonth = {}; // keyed by month number "01"-"12"
+
+for (const m of baseline2013Months) {
+  const monthNum = m.substring(5, 7); // "01", "02", etc.
+  const rows = monthlyMap.get(m).filter(r => r.System_Efficiency_kW_per_Ton > 0 && r.System_Efficiency_kW_per_Ton < 5);
+  if (rows.length > 0) {
+    baselineByMonth[monthNum] = round(avg(rows.map(r => r.System_Efficiency_kW_per_Ton)), 4);
+  }
+}
+
+// Compute deviation for each month across all years
+const baselineDeviationSeries = sortedMonths.map(m => {
+  const monthNum = m.substring(5, 7);
+  const baseline = baselineByMonth[monthNum];
+  if (!baseline) return null;
+  
+  const rows = monthlyMap.get(m).filter(r => r.System_Efficiency_kW_per_Ton > 0 && r.System_Efficiency_kW_per_Ton < 5);
+  if (rows.length === 0) return null;
+  
+  const actual = avg(rows.map(r => r.System_Efficiency_kW_per_Ton));
+  const deviation = (actual - baseline) / baseline;
+  
+  return {
+    label: formatLabel(m, 'monthly'),
+    month: m,
+    actual: round(actual, 4),
+    baseline: round(baseline, 4),
+    deviationPercent: round(deviation * 100, 1),
+  };
+}).filter(Boolean);
+
+console.log(`Baseline deviation series: ${baselineDeviationSeries.length} months`);
+
+// ────────────────────────────────────────────────────────────
+// 13. Assemble output
 // ────────────────────────────────────────────────────────────
 const chillerTimeSeries = {};
 for (const n of [1, 2, 3]) {
@@ -745,6 +854,17 @@ const output = {
     3: chillerAnomaliesByResolution[3].weekly,
   },
   chillerAnomaliesByResolution,
+
+  // Tariff engine data
+  tariffHourlyData,
+
+  // COP data
+  copByResolution,
+  overallCop,
+
+  // Baseline deviation
+  baselineByMonth,
+  baselineDeviationSeries,
 };
 
 writeFileSync(OUT_FILE, JSON.stringify(output, null, 2), 'utf-8');

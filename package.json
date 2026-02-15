@@ -12,6 +12,8 @@
     "preprocess": "node scripts/preprocess-csv.mjs"
   },
   "dependencies": {
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-grid-layout": "^1.5.2",

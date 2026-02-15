@@ -1,19 +1,41 @@
 import { type FC, useState, useEffect, useRef, useCallback } from 'react';
-import { buildingDetails, buildings, buildingAnomalyByResolution } from '../data/mockPortfolioData';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine,
+  Cell,
+} from 'recharts';
+import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, overallCop, baselineDeviationSeries } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import type { TimeResolution } from '../types/portfolio';
+
+const tooltipStyles = {
+  background: 'var(--card-bg)',
+  border: '1px solid var(--tooltip-border)',
+  borderRadius: '0.75rem',
+};
+const tickStyle = { fill: 'var(--muted-text)', fontSize: 11 } as const;
 
 interface BuildingPageProps {
   buildingId: string;
   onBack: () => void;
   onNavigateToEquipment: (equipmentId: string) => void;
   onNavigateToBuilding: (buildingId: string) => void;
+  onOpenSystemSummary?: () => void;
 }
 
-const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToEquipment, onNavigateToBuilding }) => {
+const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToEquipment, onNavigateToBuilding, onOpenSystemSummary }) => {
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [equipmentDropdownOpen, setEquipmentDropdownOpen] = useState(false);
   const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
+  const [copResolution, setCopResolution] = useState<'daily' | 'monthly' | 'seasonal' | 'yearly'>('monthly');
   const buildingDdRef = useRef<HTMLDivElement>(null);
   const equipmentDdRef = useRef<HTMLDivElement>(null);
 
@@ -243,6 +265,134 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
         </div>
       </div>
 
+      {/* ── COP (Coefficient of Performance) ───────────────────── */}
+      <div className="card-surface p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Coefficient of Performance (COP)
+            </h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              COP = (Cooling Tons × 3.517) / kW &nbsp;&middot;&nbsp; Overall: <span className="font-semibold text-accent">{overallCop}</span>
+            </p>
+          </div>
+          <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="COP resolution">
+            {(['daily', 'monthly', 'seasonal', 'yearly'] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                role="radio"
+                aria-checked={copResolution === r}
+                onClick={() => setCopResolution(r)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+                  copResolution === r
+                    ? 'bg-accent text-white shadow-sm'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
+                }`}
+              >
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+        {(() => {
+          const data = copByResolution[copResolution] ?? [];
+          if (data.length === 0) {
+            return <p className="text-sm text-slate-500 dark:text-slate-400">No COP data available</p>;
+          }
+          return (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                  <XAxis
+                    dataKey="label"
+                    tick={tickStyle}
+                    tickLine={false}
+                    axisLine={{ stroke: 'var(--grid-stroke)' }}
+                    interval={data.length > 20 ? Math.floor(data.length / 15) : 0}
+                    angle={data.length > 10 ? -45 : 0}
+                    textAnchor={data.length > 10 ? 'end' : 'middle'}
+                    height={data.length > 10 ? 60 : 30}
+                  />
+                  <YAxis
+                    tick={tickStyle}
+                    tickLine={false}
+                    axisLine={{ stroke: 'var(--grid-stroke)' }}
+                    width={48}
+                    label={{ value: 'COP', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
+                  />
+                  <Tooltip
+                    contentStyle={tooltipStyles}
+                    labelStyle={{ color: 'var(--muted-text)' }}
+                    formatter={(v: number) => [`${v.toFixed(2)}`, 'COP']}
+                  />
+                  <ReferenceLine y={overallCop} stroke="#FAB005" strokeDasharray="4 4" label={{ value: `Avg ${overallCop}`, fill: '#FAB005', fontSize: 11, position: 'right' }} />
+                  <Line type="monotone" dataKey="value" name="COP" stroke="#82C91E" strokeWidth={2} dot={data.length <= 40} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
+      </div>
+
+      {/* ── Baseline Deviation ─────────────────────────────────── */}
+      <div className="card-surface p-6">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+            Baseline Deviation (vs 2013)
+          </h3>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            (Actual − Baseline) / Baseline &nbsp;&middot;&nbsp; Positive = worse than baseline, Negative = better
+          </p>
+        </div>
+        {baselineDeviationSeries.length > 0 ? (
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={baselineDeviationSeries} margin={{ top: 8, right: 24, left: 0, bottom: 48 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                <XAxis
+                  dataKey="label"
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  width={56}
+                  label={{ value: 'Deviation %', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 11 }}
+                  tickFormatter={(v: number) => `${v}%`}
+                />
+                <Tooltip
+                  contentStyle={tooltipStyles}
+                  labelStyle={{ color: 'var(--muted-text)' }}
+                  formatter={(v: number, name: string) => {
+                    if (name === 'Deviation') return [`${v}%`, name];
+                    return [`${v}`, name];
+                  }}
+                />
+                <ReferenceLine y={0} stroke="var(--muted-text)" strokeWidth={1} />
+                <Bar dataKey="deviationPercent" name="Deviation" radius={[3, 3, 0, 0]}>
+                  {baselineDeviationSeries.map((entry, i) => (
+                    <Cell
+                      key={`bd-${i}`}
+                      fill={entry.deviationPercent > 5 ? '#f87171' : entry.deviationPercent < -5 ? '#82C91E' : '#FAB005'}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500 dark:text-slate-400">No baseline data available</p>
+        )}
+      </div>
+
       {/* ── Anomaly Panel ─────────────────────────────────────── */}
       <AnomalyPanel
         data={buildingAnomalyByResolution[anomalyResolution]}
@@ -250,6 +400,22 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
         resolution={anomalyResolution}
         onResolutionChange={setAnomalyResolution}
       />
+
+      {/* ── System Summary Button ─────────────────────────────── */}
+      {onOpenSystemSummary && (
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={onOpenSystemSummary}
+            className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            System Summary Report
+          </button>
+        </div>
+      )}
     </section>
   );
 };

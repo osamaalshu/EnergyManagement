@@ -40,12 +40,14 @@ interface DashboardPageProps {
   onNavigateToPortfolio: () => void;
   onNavigateToBuilding: (buildingId: string) => void;
   onNavigateToEquipment: (buildingId: string, equipmentId: string) => void;
+  onNavigateToTariff: () => void;
 }
 
 const DashboardPage: FC<DashboardPageProps> = ({
   onNavigateToPortfolio,
   onNavigateToBuilding,
   onNavigateToEquipment,
+  onNavigateToTariff,
 }) => {
   // Local read state for notifications (survives within session)
   const [readIds, setReadIds] = useState<Set<string>>(() => {
@@ -163,15 +165,19 @@ const DashboardPage: FC<DashboardPageProps> = ({
           </div>
         </button>
 
-        {/* Today's Production */}
-        <div className="card-surface flex items-center gap-3 p-4">
+        {/* Today's Cooling Output — navigates to Tariff page */}
+        <button
+          type="button"
+          onClick={onNavigateToTariff}
+          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+        >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
             <svg className="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Production</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Cooling Output</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysProduction.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
@@ -179,10 +185,17 @@ const DashboardPage: FC<DashboardPageProps> = ({
               {todaysProduction.omr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
-        </div>
+          <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
 
-        {/* Today's Consumption */}
-        <div className="card-surface flex items-center gap-3 p-4">
+        {/* Today's Consumption — navigates to Tariff page */}
+        <button
+          type="button"
+          onClick={onNavigateToTariff}
+          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+        >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
             <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -197,13 +210,16 @@ const DashboardPage: FC<DashboardPageProps> = ({
               {todaysConsumption.omr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
-        </div>
+          <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
 
-      {/* ── Hourly Production vs Consumption Chart ─────────────── */}
+      {/* ── Hourly Consumption vs Cooling Output Chart ─────────────── */}
       <div className="card-surface p-6">
         <h3 className="mb-4 text-center text-lg font-semibold text-slate-900 dark:text-white">
-          Today&apos;s Hourly Production vs Consumption
+          Today&apos;s Hourly Consumption vs Cooling Output
         </h3>
         {hasChartData ? (
           <div className="h-64">
@@ -229,7 +245,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
                   wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
                   iconType="square"
                 />
-                <Bar dataKey="production" name="Production (kWh)" fill="#82C91E" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="production" name="Cooling Output (kWh)" fill="#82C91E" radius={[3, 3, 0, 0]} />
                 <Bar dataKey="consumption" name="Consumption (kWh)" fill="#1A365D" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

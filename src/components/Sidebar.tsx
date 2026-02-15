@@ -9,7 +9,7 @@ export type NavigationKey =
   | 'account'
   | 'apps';
 
-export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'equipment';
+export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'equipment' | 'tariff';
 
 interface SidebarProps {
   open: boolean;

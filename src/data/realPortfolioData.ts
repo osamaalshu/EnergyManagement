@@ -31,6 +31,9 @@ import type {
   EquipmentStatus,
   TimeResolution,
   ByResolution,
+  TariffHourlyDataPoint,
+  CopDataPoint,
+  BaselineDeviationPoint,
 } from '../types/portfolio';
 
 import raw from './generated/realData.json';
@@ -449,3 +452,38 @@ export function getPumpKPIsForResolution(resolution: TimeResolution): PumpKPIs {
   const flowRate = running.length ? round3(running.reduce((s, p) => s + p.flowRate, 0) / running.length) : 0;
   return { powerDraw, flowRate };
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  TARIFF ENGINE DATA
+// ═══════════════════════════════════════════════════════════════════
+
+export const tariffHourlyData: TariffHourlyDataPoint[] =
+  (raw as unknown as { tariffHourlyData: TariffHourlyDataPoint[] }).tariffHourlyData;
+
+// ═══════════════════════════════════════════════════════════════════
+//  COP (COEFFICIENT OF PERFORMANCE) DATA
+// ═══════════════════════════════════════════════════════════════════
+
+type RawCopData = { label: string; value: number }[];
+const rawCopByRes = (raw as unknown as { copByResolution: Record<string, RawCopData> }).copByResolution;
+
+export const copByResolution: ByResolution<CopDataPoint[]> & { seasonal: CopDataPoint[] } = {
+  hourly: rawCopByRes.hourly as CopDataPoint[],
+  daily: rawCopByRes.daily as CopDataPoint[],
+  weekly: rawCopByRes.weekly as CopDataPoint[],
+  monthly: rawCopByRes.monthly as CopDataPoint[],
+  yearly: rawCopByRes.yearly as CopDataPoint[],
+  seasonal: rawCopByRes.seasonal as CopDataPoint[],
+};
+
+export const overallCop: number = (raw as unknown as { overallCop: number }).overallCop;
+
+// ═══════════════════════════════════════════════════════════════════
+//  BASELINE DEVIATION DATA
+// ═══════════════════════════════════════════════════════════════════
+
+export const baselineByMonth: Record<string, number> =
+  (raw as unknown as { baselineByMonth: Record<string, number> }).baselineByMonth;
+
+export const baselineDeviationSeries: BaselineDeviationPoint[] =
+  (raw as unknown as { baselineDeviationSeries: BaselineDeviationPoint[] }).baselineDeviationSeries;

@@ -31,6 +31,7 @@ const pageLabel: Record<ActivePage, string> = {
   portfolio: 'Portfolio',
   building: 'Building',
   equipment: 'Equipment',
+  tariff: 'Tariff Structure',
 };
 
 const TopBar: FC<TopBarProps> = ({

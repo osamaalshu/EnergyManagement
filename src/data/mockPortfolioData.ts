@@ -30,6 +30,11 @@ export {
   getChillerKPIsForResolution,
   getCoolingTowerKPIsForResolution,
   getPumpKPIsForResolution,
+  tariffHourlyData,
+  copByResolution,
+  overallCop,
+  baselineByMonth,
+  baselineDeviationSeries,
 } from './realPortfolioData.ts';
 
 export type { ChillerTimeSeriesBundle, TowerTempPoint, PumpTimePoint } from './realPortfolioData.ts';

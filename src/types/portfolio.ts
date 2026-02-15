@@ -157,6 +157,26 @@ export interface EquipmentDetail {
   anomaly: AnomalyData;
 }
 
+// ── Tariff / COP / Baseline ──────────────────────────────────────
+export interface TariffHourlyDataPoint {
+  timestamp: string;
+  kw: number;
+  kwh: number;
+}
+
+export interface CopDataPoint {
+  label: string;
+  value: number;
+}
+
+export interface BaselineDeviationPoint {
+  label: string;
+  month: string;
+  actual: number;
+  baseline: number;
+  deviationPercent: number;
+}
+
 // ── Building detail ──────────────────────────────────────────────
 export interface BuildingAggregateKPIs {
   systemDeltaT: number;       // °C
