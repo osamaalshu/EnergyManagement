@@ -170,50 +170,50 @@
   "aggregateKPIs": {
     "systemDeltaT": 0.7,
     "totalFlowRate": 964.47,
-    "systemKwPerTon": 0.505
+    "systemKwPerTon": 0.4
   },
   "chillerSnapshots": [
     {
       "n": 1,
       "status": "running",
-      "kW": 122.31,
-      "efficiency": 0.272,
-      "coolingTons": 248.1,
-      "cwFlow": 502.82,
-      "cdwFlow": 799.96,
-      "cwSupply": 11.5,
-      "cwReturn": 15,
-      "cdwSupply": 28.2,
-      "cdwReturn": 30.7,
-      "deltaT": 3.5
+      "kW": 5.1,
+      "efficiency": 0.011,
+      "coolingTons": 10.34,
+      "cwFlow": 20.95,
+      "cdwFlow": 33.33,
+      "cwSupply": 15.5,
+      "cwReturn": 12.9,
+      "cdwSupply": 26.7,
+      "cdwReturn": 27.3,
+      "deltaT": -2.6
     },
     {
       "n": 2,
       "status": "running",
-      "kW": 223.29,
-      "efficiency": 0.472,
-      "coolingTons": 553.57,
-      "cwFlow": 800.03,
-      "cdwFlow": 1273.34,
-      "cwSupply": 8.5,
-      "cwReturn": 14.9,
-      "cdwSupply": 28.9,
-      "cdwReturn": 33.7,
-      "deltaT": 6.4
+      "kW": 93.04,
+      "efficiency": 0.197,
+      "coolingTons": 230.65,
+      "cwFlow": 333.34,
+      "cdwFlow": 530.56,
+      "cwSupply": 12.1,
+      "cwReturn": 13,
+      "cdwSupply": 28.2,
+      "cdwReturn": 30.5,
+      "deltaT": 0.9
     },
     {
       "n": 3,
       "status": "running",
-      "kW": 123.26,
-      "efficiency": 0.397,
-      "coolingTons": 222.36,
-      "cwFlow": 593.98,
-      "cdwFlow": 702.49,
-      "cwSupply": 8.6,
-      "cwReturn": 13.2,
-      "cdwSupply": 28.6,
-      "cdwReturn": 32.3,
-      "deltaT": 4.6
+      "kW": 97.58,
+      "efficiency": 0.314,
+      "coolingTons": 176.3,
+      "cwFlow": 610.17,
+      "cdwFlow": 556.14,
+      "cwSupply": 9,
+      "cwReturn": 12.7,
+      "cdwSupply": 28.5,
+      "cdwReturn": 31.6,
+      "deltaT": 3.6
     }
   ],
   "towerSnapshots": [
