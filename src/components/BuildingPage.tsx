@@ -159,7 +159,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
       </div>
 
       {/* ── Aggregate KPI Cards (last 24 hours) ────────────────── */}
-      <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (avg when running)</p>
+      <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (hourly average)</p>
       <div className="grid gap-4 md:grid-cols-3">
         <div className="card-surface p-5">
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">System Delta T</p>

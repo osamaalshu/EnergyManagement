@@ -166,44 +166,51 @@ function formatLabel(key, resolution) {
 // ────────────────────────────────────────────────────────────
 const latestRows = allRows.slice(-24);
 
+// Last-24h snapshot: average over all 24 hours; use 0 when off so the value is true 24h average
 function chillerSnapshot(n) {
   const prefix = `CP_Chiller${n}_`;
-  const recent = latestRows.filter(r => r[`${prefix}kW`] > 0);
-  if (recent.length === 0) {
-    return { status: 'off', kW: 0, efficiency: 0, coolingTons: 0, cwFlow: 0, cdwFlow: 0, cwSupply: 0, cwReturn: 0, cdwSupply: 0, cdwReturn: 0, deltaT: 0 };
-  }
-  const kW = round(avg(recent.map(r => r[`${prefix}kW`])));
-  const eff = round(avg(recent.map(r => r[`${prefix}Efficiency`])), 3);
-  const tons = round(avg(recent.map(r => r[`${prefix}CoolingTons`])));
-  const cwFlow = round(avg(recent.map(r => r[`${prefix}ChilledWaterFlowrate`])));
-  const cdwFlow = round(avg(recent.map(r => r[`${prefix}CondenserWaterFlowrate`])));
-  const cwSupply = round(avg(recent.map(r => r[`${prefix}ChilledWaterSupplyTemp`])), 1);
-  const cwReturn = round(avg(recent.map(r => r[`${prefix}ChilledWaterReturnTemp`])), 1);
-  const cdwSupply = round(avg(recent.map(r => r[`${prefix}CondenserWaterSupplyTemp`])), 1);
-  const cdwReturn = round(avg(recent.map(r => r[`${prefix}CondenserWaterReturnTemp`])), 1);
-  const deltaT = round(cwReturn - cwSupply, 1);
+  const vals = (key, filterValid = false) => {
+    const raw = latestRows.map(r => {
+      const v = r[`${prefix}${key}`];
+      if (filterValid && (v == null || v <= 0 || (key === 'Efficiency' && v >= 5))) return 0;
+      return Number(v) || 0;
+    });
+    return raw;
+  };
+  const kW = round(avg(vals('kW')));
+  const eff = round(avg(vals('Efficiency', true)), 3);
+  const tons = round(avg(vals('CoolingTons')));
+  const cwFlow = round(avg(vals('ChilledWaterFlowrate')));
+  const cdwFlow = round(avg(vals('CondenserWaterFlowrate')));
+  const cwSupply = round(avg(vals('ChilledWaterSupplyTemp')), 1);
+  const cwReturn = round(avg(vals('ChilledWaterReturnTemp')), 1);
+  const cdwSupply = round(avg(vals('CondenserWaterSupplyTemp')), 1);
+  const cdwReturn = round(avg(vals('CondenserWaterReturnTemp')), 1);
+  const deltaT = round(avg(latestRows.map(r => {
+    const ret = r[`${prefix}ChilledWaterReturnTemp`];
+    const sup = r[`${prefix}ChilledWaterSupplyTemp`];
+    if (ret > 0 && sup >= 0) return ret - sup;
+    return 0;
+  })), 1);
   const status = eff > 0.7 ? 'warning' : kW > 0 ? 'running' : 'off';
   return { status, kW, efficiency: eff, coolingTons: tons, cwFlow, cdwFlow, cwSupply, cwReturn, cdwSupply, cdwReturn, deltaT };
 }
 
 function towerSnapshot(n) {
   const col = `CP_CoolingTower${n}_CondenserWaterSupplyTemp`;
-  const recent = latestRows.filter(r => r[col] > 0);
-  if (recent.length === 0) return { status: 'off', temp: 0 };
-  const temp = round(avg(recent.map(r => r[col])), 1);
-  const status = temp > 35 ? 'warning' : 'running';
+  const temps = latestRows.map(r => Number(r[col]) || 0);
+  const temp = round(avg(temps), 1);
+  const status = temp > 35 ? 'warning' : temp > 0 ? 'running' : 'off';
   return { status, temp };
 }
 
 function pumpSnapshot() {
-  const recent = latestRows.filter(r => r.CP_TotalChilledWaterPump_kW > 0);
-  if (recent.length === 0) return { status: 'off', kW: 0, flowRate: 0 };
-  const kW = round(avg(recent.map(r => r.CP_TotalChilledWaterPump_kW)));
-  // Total flow = sum of all chiller chilled water flow rates, converted from L/s to m³/s (÷1000)
-  const flowRate = round(avg(recent.map(r =>
+  const pumpKw = latestRows.map(r => Number(r.CP_TotalChilledWaterPump_kW) || 0);
+  const kW = round(avg(pumpKw));
+  const flowRate = round(avg(latestRows.map(r =>
     (r.CP_Chiller1_ChilledWaterFlowrate + r.CP_Chiller2_ChilledWaterFlowrate + r.CP_Chiller3_ChilledWaterFlowrate) / 1000
   )), 3);
-  return { status: 'running', kW, flowRate };
+  return { status: kW > 0 ? 'running' : 'off', kW, flowRate };
 }
 
 const chillerSnapshots = [1, 2, 3].map(n => ({ n, ...chillerSnapshot(n) }));
@@ -211,9 +218,9 @@ const towerSnapshots = [];
 for (let n = 1; n <= 9; n++) towerSnapshots.push({ n, ...towerSnapshot(n) });
 const pumpSnap = pumpSnapshot();
 
-// System aggregate KPIs
+// System aggregate KPIs: average over all 24 hours (0 when no reading)
 const systemDeltaT = round(
-  avg(latestRows.filter(r => r.Avg_ChilledWaterReturnTemp > 0).map(r => r.Avg_ChilledWaterReturnTemp - r.Avg_ChilledWaterSupplyTemp)),
+  avg(latestRows.map(r => (r.Avg_ChilledWaterReturnTemp > 0 ? r.Avg_ChilledWaterReturnTemp - r.Avg_ChilledWaterSupplyTemp : 0))),
   1
 );
 const totalFlowRate = round(
@@ -222,7 +229,10 @@ const totalFlowRate = round(
   ))
 );
 const systemKwPerTon = round(
-  avg(latestRows.filter(r => r.System_Efficiency_kW_per_Ton > 0 && r.System_Efficiency_kW_per_Ton < 5).map(r => r.System_Efficiency_kW_per_Ton)),
+  avg(latestRows.map(r => {
+    const v = r.System_Efficiency_kW_per_Ton;
+    return (v > 0 && v < 5) ? v : 0;
+  })),
   3
 );
 

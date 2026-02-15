@@ -142,7 +142,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
       {/* ── KPI Cards (last 24 hours) ─────────────────────────── */}
       {isChiller && chillerKPIs && (
         <>
-          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (avg when running)</p>
+          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (hourly average)</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard label="Delta T" value={chillerKPIs.deltaT} unit="°C" sub={`Return ${chillerKPIs.chilledWaterReturnTemp}°C − Supply ${chillerKPIs.chilledWaterSupplyTemp}°C`} />
           <KpiCard label="Chilled Water Flow" value={chillerKPIs.chilledWaterFlowRate} unit="L/s" />
@@ -162,7 +162,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
 
       {isTower && coolingTowerKPIs && (
         <>
-          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (avg when running)</p>
+          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (hourly average)</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard
             label="Condenser Water Supply Temp"
@@ -176,7 +176,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
 
       {isPump && pumpKPIs && (
         <>
-          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (avg when running)</p>
+          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (hourly average)</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <KpiCard label="Flow Rate" value={pumpKPIs.flowRate} unit="m³/s" />
           <KpiCard label="Pump Head Power" value={pumpKPIs.powerDraw} unit="kW" />
