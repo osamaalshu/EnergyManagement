@@ -394,21 +394,21 @@ const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
       {/* ═══════════════════════════════════════════
           LEGEND  (bottom-right)
          ═══════════════════════════════════════════ */}
-      <g transform={`translate(${VB_W - 170},${SUM_Y - 4})`}>
+      <g transform={`translate(${VB_W - 190},${SUM_Y - 6})`}>
         <rect
-          x={0} y={0} width={152} height={42} rx={6}
+          x={0} y={0} width={178} height={48} rx={7}
           fill="var(--sch-legend-bg)" fillOpacity={0.85}
           stroke="var(--sch-node-border)" strokeWidth={0.8}
         />
-        <circle cx={12} cy={14} r={3.5} fill="#34d399" />
-        <text x={21} y={17} fontSize={8} fill="var(--sch-text-secondary)">Running</text>
-        <circle cx={68} cy={14} r={3.5} fill="#94a3b8" />
-        <text x={77} y={17} fontSize={8} fill="var(--sch-text-secondary)">Off</text>
-        <circle cx={114} cy={14} r={3.5} fill="#f87171" />
-        <text x={123} y={17} fontSize={8} fill="var(--sch-text-secondary)">Warning</text>
+        <circle cx={16} cy={16} r={4} fill="#34d399" />
+        <text x={26} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Running</text>
+        <circle cx={82} cy={16} r={4} fill="#94a3b8" />
+        <text x={92} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Off</text>
+        <circle cx={130} cy={16} r={4} fill="#f87171" />
+        <text x={140} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Warning</text>
         <text
-          x={76} y={35}
-          textAnchor="middle" fontSize={7.5}
+          x={89} y={39}
+          textAnchor="middle" fontSize={8.5}
           fill="var(--sch-text-secondary)" opacity={0.7}
         >
           Click any equipment for details
