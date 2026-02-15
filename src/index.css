@@ -7,6 +7,13 @@
   --tooltip-border: rgba(15, 23, 42, 0.12);
   --muted-text: #475569;
   --grid-stroke: rgba(148, 163, 184, 0.35);
+  /* Schematic node theming */
+  --sch-node-bg: #ffffff;
+  --sch-node-border: #cbd5e1;
+  --sch-text-primary: #1e293b;
+  --sch-text-secondary: #64748b;
+  --sch-icon: #64748b;
+  --sch-legend-bg: #f1f5f9;
 }
 
 .dark {
@@ -14,6 +21,13 @@
   --tooltip-border: rgba(255, 255, 255, 0.08);
   --muted-text: #94a3b8;
   --grid-stroke: #334155;
+  /* Schematic node theming */
+  --sch-node-bg: #1e293b;
+  --sch-node-border: #334155;
+  --sch-text-primary: #ffffff;
+  --sch-text-secondary: #94a3b8;
+  --sch-icon: #64748b;
+  --sch-legend-bg: #0f172a;
 }
 
 @layer base {

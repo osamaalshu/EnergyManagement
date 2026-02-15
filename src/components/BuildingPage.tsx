@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, overallCop, baselineDeviationSeries } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
+import ChillerPlantSchematic from './ChillerPlantSchematic';
 import type { TimeResolution } from '../types/portfolio';
 
 const tooltipStyles = {
@@ -36,6 +37,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
   const [equipmentDropdownOpen, setEquipmentDropdownOpen] = useState(false);
   const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
   const [copResolution, setCopResolution] = useState<'daily' | 'monthly' | 'seasonal' | 'yearly'>('monthly');
+  const [equipmentView, setEquipmentView] = useState<'schematic' | 'cards'>('schematic');
   const buildingDdRef = useRef<HTMLDivElement>(null);
   const equipmentDdRef = useRef<HTMLDivElement>(null);
 
@@ -211,58 +213,90 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
 
       {/* ── Equipment List ────────────────────────────────────── */}
       <div>
-        <h3 className="mb-4 text-center text-lg font-semibold text-slate-900 dark:text-white">Chiller Plant Equipment</h3>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {equipment.map((equip) => {
-            const isWarning = equip.status === 'warning';
-            return (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Chiller Plant Equipment</h3>
+          <div
+            className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10"
+            role="radiogroup"
+            aria-label="Equipment view"
+          >
+            {(['schematic', 'cards'] as const).map((v) => (
               <button
-                key={equip.id}
+                key={v}
                 type="button"
-                onClick={() => onNavigateToEquipment(equip.id)}
-                className={`card-surface flex flex-col gap-2 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl ${isWarning ? 'border-red-400/30' : ''}`}
+                role="radio"
+                aria-checked={equipmentView === v}
+                onClick={() => setEquipmentView(v)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+                  equipmentView === v
+                    ? 'bg-accent text-white shadow-sm'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-900 dark:text-white">{equip.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className={`flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.65rem] font-medium ${isWarning ? 'bg-red-400/20 text-red-400' : equip.status === 'running' ? 'bg-emerald-400/20 text-emerald-400' : 'bg-slate-400/20 text-slate-400'}`}>
-                      <span className={`inline-block h-1.5 w-1.5 rounded-full ${statusColor[equip.status]}`} />
-                      {statusLabel[equip.status]}
-                    </span>
-                    <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-
-                <div className="flex items-baseline gap-3">
-                  <span className="text-2xl font-semibold text-slate-900 dark:text-white">
-                    {equip.primaryValue}
-                  </span>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">{equip.primaryUnit}</span>
-                  {equip.secondaryValue != null && (
-                    <>
-                      <span className="text-slate-300 dark:text-slate-600">|</span>
-                      <span className={`text-lg font-semibold ${equip.secondaryValue > 0.7 ? 'text-red-400' : 'text-slate-700 dark:text-slate-300'}`}>
-                        {equip.secondaryValue}
-                      </span>
-                      <span className="text-sm text-slate-500 dark:text-slate-400">{equip.secondaryUnit}</span>
-                    </>
-                  )}
-                </div>
-
-                {isWarning && (
-                  <p className="flex items-center gap-1 text-xs font-medium text-red-400">
-                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {equip.type === 'chiller' ? 'Efficiency degraded' : 'Over temp'}
-                  </p>
-                )}
+                {v === 'schematic' ? 'Schematic' : 'Cards'}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
+
+        {equipmentView === 'schematic' ? (
+          <ChillerPlantSchematic
+            equipment={equipment}
+            onNavigateToEquipment={onNavigateToEquipment}
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {equipment.map((equip) => {
+              const isWarning = equip.status === 'warning';
+              return (
+                <button
+                  key={equip.id}
+                  type="button"
+                  onClick={() => onNavigateToEquipment(equip.id)}
+                  className={`card-surface flex flex-col gap-2 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl ${isWarning ? 'border-red-400/30' : ''}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-slate-900 dark:text-white">{equip.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.65rem] font-medium ${isWarning ? 'bg-red-400/20 text-red-400' : equip.status === 'running' ? 'bg-emerald-400/20 text-emerald-400' : 'bg-slate-400/20 text-slate-400'}`}>
+                        <span className={`inline-block h-1.5 w-1.5 rounded-full ${statusColor[equip.status]}`} />
+                        {statusLabel[equip.status]}
+                      </span>
+                      <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-2xl font-semibold text-slate-900 dark:text-white">
+                      {equip.primaryValue}
+                    </span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">{equip.primaryUnit}</span>
+                    {equip.secondaryValue != null && (
+                      <>
+                        <span className="text-slate-300 dark:text-slate-600">|</span>
+                        <span className={`text-lg font-semibold ${equip.secondaryValue > 0.7 ? 'text-red-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                          {equip.secondaryValue}
+                        </span>
+                        <span className="text-sm text-slate-500 dark:text-slate-400">{equip.secondaryUnit}</span>
+                      </>
+                    )}
+                  </div>
+
+                  {isWarning && (
+                    <p className="flex items-center gap-1 text-xs font-medium text-red-400">
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {equip.type === 'chiller' ? 'Efficiency degraded' : 'Over temp'}
+                    </p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── COP (Coefficient of Performance) ───────────────────── */}

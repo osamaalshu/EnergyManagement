@@ -69,34 +69,21 @@ const DashboardPage: FC<DashboardPageProps> = ({
   const hasChartData = hourlyProductionConsumption.length > 0 &&
     hourlyProductionConsumption.some((d) => d.production > 0 || d.consumption > 0);
 
-  // Compute tariff-based OMR for the overview cards using the CRT tariff engine
-  const tariffCosts = useMemo(() => {
+  // Compute tariff-based OMR for the consumption card using the CRT tariff engine
+  const consumptionOmr = useMemo(() => {
     if (!tariffHourlyData || tariffHourlyData.length === 0) {
-      return { productionOmr: todaysProduction.omr, consumptionOmr: todaysConsumption.omr };
+      return todaysConsumption.omr;
     }
-    // Get last day's timestamps from the tariff data
     const lastTs = tariffHourlyData[tariffHourlyData.length - 1].timestamp;
     const lastDay = lastTs.substring(0, 10);
     const todayRows = tariffHourlyData.filter((d) => d.timestamp.startsWith(lastDay));
 
-    // Production OMR = cooling output kWh × avg effective rate
-    // Consumption OMR = electrical consumption kWh × per-hour effective rate
-    let consumptionOmr = 0;
+    let omr = 0;
     for (const r of todayRows) {
       const ts = new Date(r.timestamp);
-      consumptionOmr += r.kwh * effectiveRateOmrPerKwh(ts, '11kV');
+      omr += r.kwh * effectiveRateOmrPerKwh(ts, '11kV');
     }
-
-    // For cooling output: use the production kWh with the average rate
-    const avgRate = todayRows.length > 0
-      ? todayRows.reduce((s, r) => s + effectiveRateOmrPerKwh(new Date(r.timestamp), '11kV'), 0) / todayRows.length
-      : 0.012;
-    const productionOmr = todaysProduction.kWh * avgRate;
-
-    return {
-      productionOmr: Math.round(productionOmr * 10) / 10,
-      consumptionOmr: Math.round(consumptionOmr * 10) / 10,
-    };
+    return Math.round(omr * 10) / 10;
   }, []);
 
   // Scroll-to refs
@@ -197,10 +184,10 @@ const DashboardPage: FC<DashboardPageProps> = ({
           </div>
         </button>
 
-        {/* Today's Cooling Output — navigates to Tariff page (cooling cost) */}
+        {/* Today's Cooling Output — navigates to Chiller Plant (building) */}
         <button
           type="button"
-          onClick={onNavigateToTariff}
+          onClick={() => onNavigateToBuilding('CP1')}
           className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
@@ -213,9 +200,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
               {todaysProduction.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-emerald-500">
-              {tariffCosts.productionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
-            </p>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View Chiller Plant</p>
           </div>
           <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -239,7 +224,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
               {todaysConsumption.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
             <p className="mt-0.5 text-sm font-semibold text-accent">
-              {tariffCosts.consumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
+              {consumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
           <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
