@@ -282,9 +282,11 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                     const row = payload[0]?.payload as (typeof peakDemandData)[number] | undefined;
                     if (!row) return null;
                     return (
-                      <div style={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.75rem', padding: '10px 14px', fontSize: 12 }}>
-                        <p style={{ color: 'var(--muted-text)', marginBottom: 6, fontWeight: 600 }}>{label} {selectedPeakYear}</p>
-                        <p style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>{formatOmr(row.capacityOmr)} OMR</p>
+                      <div style={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.75rem', padding: '10px 14px', fontSize: 12, lineHeight: 1.6 }}>
+                        <p style={{ color: 'var(--muted-text)', marginBottom: 4, fontWeight: 600 }}>{label} {selectedPeakYear}</p>
+                        <p style={{ color: CAPACITY_COLORS.cpr }}>Coincident Peak: <strong>{formatOmr(row.capacityCprOmr)} OMR</strong></p>
+                        <p style={{ color: CAPACITY_COLORS.ncpr }}>Non-Coincident Peak: <strong>{formatOmr(row.capacityNcprOmr)} OMR</strong></p>
+                        <p style={{ marginTop: 4, borderTop: '1px solid var(--tooltip-border)', paddingTop: 4, fontWeight: 700, fontSize: 13 }}>Total: {formatOmr(row.capacityOmr)} OMR</p>
                       </div>
                     );
                   }}
