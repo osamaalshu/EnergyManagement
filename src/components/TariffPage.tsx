@@ -10,7 +10,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  LabelList,
 } from 'recharts';
 import { tariffHourlyData } from '../data/mockPortfolioData';
 import {
@@ -45,6 +44,7 @@ interface TariffPageProps {
 const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
   const [resolution, setResolution] = useState<TimeResolution>('monthly');
   const [expandedBill, setExpandedBill] = useState<string | null>(null);
+  const [peakDemandYear, setPeakDemandYear] = useState<string>('');
 
   // Compute monthly bills using tariff engine
   const monthlyBills = useMemo<MonthlyBill[]>(() => {
@@ -70,27 +70,38 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
     }
   }, [resolution]);
 
-  // Peak demand bar chart data (monthly)
-  const peakDemandData = useMemo(() => {
-    return monthlyBills.map((bill) => {
-      const monthLabel = bill.month.length > 7
-        ? bill.month
-        : (() => {
-            const [y, m] = bill.month.split('-');
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return `${months[parseInt(m, 10) - 1]} ${y}`;
-          })();
-      return {
-        month: monthLabel,
-        dcKw: Math.round(bill.dcKw),
-        dncKw: Math.round(bill.dncKw),
-        capacityOmr: Math.round(bill.capacityOmr * 100) / 100,
-        capacityCprOmr: Math.round(bill.capacityCprOmr * 100) / 100,
-        capacityNcprOmr: Math.round(bill.capacityNcprOmr * 100) / 100,
-        capacityCgrOmr: Math.round(bill.capacityCgrOmr * 100) / 100,
-      };
-    });
+  // Available years for peak demand toggle
+  const availableYears = useMemo(() => {
+    const years = new Set(monthlyBills.map((b) => b.month.substring(0, 4)));
+    return Array.from(years).sort();
   }, [monthlyBills]);
+
+  // Default to latest year if not set
+  const selectedPeakYear = peakDemandYear || (availableYears.length > 0 ? availableYears[availableYears.length - 1] : '');
+
+  // Peak demand bar chart data (monthly, filtered by selected year)
+  const peakDemandData = useMemo(() => {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return monthlyBills
+      .filter((bill) => bill.month.startsWith(selectedPeakYear))
+      .map((bill) => {
+        const m = bill.month.split('-')[1];
+        return {
+          month: monthNames[parseInt(m, 10) - 1],
+          dcKw: Math.round(bill.dcKw),
+          dncKw: Math.round(bill.dncKw),
+          capacityOmr: Math.round(bill.capacityOmr * 100) / 100,
+          capacityCprOmr: Math.round(bill.capacityCprOmr * 100) / 100,
+          capacityNcprOmr: Math.round(bill.capacityNcprOmr * 100) / 100,
+          capacityCgrOmr: Math.round(bill.capacityCgrOmr * 100) / 100,
+        };
+      });
+  }, [monthlyBills, selectedPeakYear]);
+
+  // Total capacity cost for selected year
+  const yearCapacityTotal = useMemo(() => {
+    return peakDemandData.reduce((s, d) => s + d.capacityOmr, 0);
+  }, [peakDemandData]);
 
   // Summary totals
   const totals = useMemo(() => {
@@ -214,24 +225,47 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         )}
       </div>
 
-      {/* Chart 2: Peak Power Demand Bar Chart (monthly) */}
+      {/* Chart 2: Peak Power Demand Bar Chart (monthly per year) */}
       <div className="card-surface p-6">
-        <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
-          Monthly Peak Power Demand & Capacity Charges
-        </h3>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Monthly Peak Power Demand — {selectedPeakYear}
+            </h3>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              Total capacity charges: <span className="font-semibold text-sky-400">{formatOmr(yearCapacityTotal)} OMR</span>
+            </p>
+          </div>
+          {/* Year toggle */}
+          <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Peak demand year">
+            {availableYears.map((yr) => (
+              <button
+                key={yr}
+                type="button"
+                role="radio"
+                aria-checked={selectedPeakYear === yr}
+                onClick={() => setPeakDemandYear(yr)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+                  selectedPeakYear === yr
+                    ? 'bg-accent text-white shadow-sm'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
+                }`}
+              >
+                {yr}
+              </button>
+            ))}
+          </div>
+        </div>
         {peakDemandData.length > 0 ? (
-          <div className="h-96">
+          <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={peakDemandData} margin={{ top: 24, right: 24, left: 8, bottom: 48 }}>
+              <BarChart data={peakDemandData} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                 <XAxis
                   dataKey="month"
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
                 />
                 <YAxis
                   tick={tickStyle}
@@ -251,20 +285,13 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                 />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} />
                 <Bar dataKey="dcKw" name="Coincident Peak" stackId="peak" fill={CAPACITY_COLORS.cpr} radius={[0, 0, 0, 0]} />
-                <Bar dataKey="dncKw" name="Non-Coincident Peak" stackId="peak" fill={CAPACITY_COLORS.ncpr} radius={[3, 3, 0, 0]}>
-                  <LabelList
-                    dataKey="capacityOmr"
-                    position="top"
-                    formatter={(v) => `${v} OMR`}
-                    style={{ fill: 'var(--muted-text)', fontSize: 10, fontWeight: 600 }}
-                  />
-                </Bar>
+                <Bar dataKey="dncKw" name="Non-Coincident Peak" stackId="peak" fill={CAPACITY_COLORS.ncpr} radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         ) : (
           <div className="flex h-80 items-center justify-center">
-            <p className="text-sm text-slate-500 dark:text-slate-400">No peak demand data</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">No peak demand data for {selectedPeakYear}</p>
           </div>
         )}
       </div>
