@@ -366,13 +366,14 @@ const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
       {/* ═══════════════════════════════════════════
           SUMMARY BAR
          ═══════════════════════════════════════════ */}
+      {/* summary bar (shortened to leave room for legend) */}
       <rect
-        x={140} y={SUM_Y} width={VB_W - 280} height={SUM_H} rx={8}
+        x={140} y={SUM_Y} width={560} height={SUM_H} rx={8}
         fill="var(--sch-node-bg)" stroke="var(--sch-node-border)" strokeWidth={1}
       />
       {/* total power */}
       <text
-        x={290} y={SUM_Y + SUM_H / 2 + 4}
+        x={280} y={SUM_Y + SUM_H / 2 + 4}
         textAnchor="middle" fontSize={10.5}
         fill="var(--sch-text-secondary)"
       >
@@ -381,7 +382,7 @@ const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
       </text>
       {/* system status */}
       <text
-        x={VB_W / 2 + 100} y={SUM_Y + SUM_H / 2 + 4}
+        x={540} y={SUM_Y + SUM_H / 2 + 4}
         textAnchor="middle" fontSize={10.5}
         fill="var(--sch-text-secondary)"
       >
@@ -392,22 +393,22 @@ const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
       </text>
 
       {/* ═══════════════════════════════════════════
-          LEGEND  (bottom-right)
+          LEGEND  (to the right of summary bar)
          ═══════════════════════════════════════════ */}
-      <g transform={`translate(${VB_W - 190},${SUM_Y - 6})`}>
+      <g transform={`translate(720,${SUM_Y - 6})`}>
         <rect
-          x={0} y={0} width={178} height={48} rx={7}
+          x={0} y={0} width={220} height={48} rx={7}
           fill="var(--sch-legend-bg)" fillOpacity={0.85}
           stroke="var(--sch-node-border)" strokeWidth={0.8}
         />
-        <circle cx={16} cy={16} r={4} fill="#34d399" />
-        <text x={26} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Running</text>
-        <circle cx={82} cy={16} r={4} fill="#94a3b8" />
-        <text x={92} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Off</text>
-        <circle cx={130} cy={16} r={4} fill="#f87171" />
-        <text x={140} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Warning</text>
+        <circle cx={18} cy={16} r={4} fill="#34d399" />
+        <text x={28} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Running</text>
+        <circle cx={96} cy={16} r={4} fill="#94a3b8" />
+        <text x={106} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Off</text>
+        <circle cx={150} cy={16} r={4} fill="#f87171" />
+        <text x={160} y={20} fontSize={9.5} fill="var(--sch-text-secondary)">Warning</text>
         <text
-          x={89} y={39}
+          x={110} y={39}
           textAnchor="middle" fontSize={8.5}
           fill="var(--sch-text-secondary)" opacity={0.7}
         >
