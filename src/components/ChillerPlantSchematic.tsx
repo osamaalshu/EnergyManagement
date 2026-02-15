@@ -6,7 +6,7 @@ interface ChillerPlantSchematicProps {
   onNavigateToEquipment: (equipmentId: string) => void;
 }
 
-/* ── Status palette (fixed across themes) ─────────────── */
+/* ── Status palette ──────────────────────────────────── */
 const STATUS_FILL: Record<EquipmentStatus, string> = {
   running: '#34d399',
   off:     '#94a3b8',
@@ -18,50 +18,49 @@ const STATUS_LABEL: Record<EquipmentStatus, string> = {
   warning: 'Warning',
 };
 
-/* ── Pipe colours ─────────────────────────────────────── */
-const PIPE = {
-  supply:    '#60a5fa',
-  return:    '#fb923c',
-  condenser: '#a78bfa',
-} as const;
+/* ── Pipe colours ────────────────────────────────────── */
+const COND  = '#eab308'; // yellow-500  – condenser water
+const CHW   = '#38bdf8'; // sky-400     – chilled water
 
-/* ── ViewBox & element sizes ──────────────────────────── */
-const VB_W = 1000;
-const VB_H = 480;
+/* ── ViewBox ─────────────────────────────────────────── */
+const VB_W = 960;
+const VB_H = 560;
 
-const PUMP_W = 130;
-const PUMP_H = 90;
-const CH_W   = 165;
-const CH_H   = 92;
-const CT_W   = 76;
-const CT_H   = 64;
-const CT_GAP = 8;
+/* ── Cooling tower boxes ─────────────────────────────── */
+const CT_W = 72;
+const CT_H = 52;
+const CT_INNER_GAP = 6;
+const CT_Y = 14;
+const CT_GROUP_W = 3 * CT_W + 2 * CT_INNER_GAP; // 228
 
-/* X anchors */
-const PUMP_X = 25;
-const CH_X   = 320;
-const CT_X0  = 720;
+/* Three alignment centres (tower-group ↔ chiller) */
+const CX = [232, 480, 728];
 
-/* Vertical manifold X positions */
-const L_MAN_X = 260;
-const R_MAN_X = 650;
+const ctGroupX  = (g: number) => CX[g] - CT_GROUP_W / 2;
+const ctBoxX    = (g: number, c: number) => ctGroupX(g) + c * (CT_W + CT_INNER_GAP);
+const ctCenterX = (g: number, c: number) => ctBoxX(g, c) + CT_W / 2;
 
-/* Vertical layout – distribute 3 chillers evenly */
-const PAD_Y  = 20;
-const CH_GAP = ((VB_H - 2 * PAD_Y) - 3 * CH_H) / 2;
+/* ── Chiller boxes ───────────────────────────────────── */
+const CH_W = 182;
+const CH_H = 132;
+const CH_Y = 185;
+const chX = (i: number) => CX[i] - CH_W / 2;
 
-const chY  = (i: number) => PAD_Y + i * (CH_H + CH_GAP);
-const chCY = (i: number) => chY(i) + CH_H / 2;
+/* ── Pump ────────────────────────────────────────────── */
+const PUMP_W = 180;
+const PUMP_H = 56;
+const PUMP_X = VB_W / 2 - PUMP_W / 2;
+const PUMP_Y = 400;
 
-/* Pump centred on middle chiller */
-const PUMP_Y  = chCY(1) - PUMP_H / 2;
-const PUMP_CY = chCY(1);
+/* ── Manifold Y positions (between sections) ─────────── */
+const COND_MAN_Y = Math.round((CT_Y + CT_H + CH_Y) / 2);     // ≈ 125
+const CHW_MAN_Y  = Math.round((CH_Y + CH_H + PUMP_Y) / 2);   // ≈ 358
 
-/* CT grid positions */
-const ctColX = (c: number) => CT_X0 + c * (CT_W + CT_GAP);
-const ctRowY = (r: number) => chCY(r) - CT_H / 2;
+/* ── Summary bar ─────────────────────────────────────── */
+const SUM_Y = 484;
+const SUM_H = 36;
 
-/* ────────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════ */
 
 const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
   equipment,
@@ -77,8 +76,16 @@ const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
   );
 
   const pump = pumps[0];
-  const nCh  = chillers.length;
-  const nTR  = Math.ceil(coolingTowers.length / 3);
+
+  /* aggregate stats for the summary bar */
+  const totalPower = useMemo(
+    () =>
+      equipment
+        .filter((e) => e.type === 'chiller' || e.type === 'pump')
+        .reduce((s, e) => s + e.primaryValue, 0),
+    [equipment],
+  );
+  const allRunning = equipment.every((e) => e.status === 'running');
 
   const activate = (id: string) => () => onNavigateToEquipment(id);
   const keyDown  = (id: string) => (e: React.KeyboardEvent) => {
@@ -92,136 +99,240 @@ const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       width="100%"
-      className="max-h-[520px]"
+      className="max-h-[560px]"
       role="img"
       aria-label="Chiller plant schematic showing equipment connections"
     >
-      {/* ── Hover / focus styles ──────────────────── */}
+      {/* ── Hover / focus ────────────────────────── */}
       <style>{`
-        .cps-node{cursor:pointer}
-        .cps-node>.cps-bg{transition:stroke .15s,filter .15s}
-        .cps-node:hover>.cps-bg,.cps-node:focus>.cps-bg{
-          stroke:#22d3ee;stroke-width:2;
-          filter:drop-shadow(0 0 8px rgba(34,211,238,.3))
+        .cps-n{cursor:pointer}
+        .cps-n>.cps-bg{transition:stroke .15s,filter .15s}
+        .cps-n:hover>.cps-bg,.cps-n:focus>.cps-bg{
+          stroke:#22d3ee;stroke-width:2.2;
+          filter:drop-shadow(0 0 8px rgba(34,211,238,.35))
         }
-        .cps-node:focus{outline:none}
-        .cps-node:focus>.cps-bg{stroke-width:2.5}
+        .cps-n:focus{outline:none}
+        .cps-n:focus>.cps-bg{stroke-width:2.5}
       `}</style>
 
-      {/* ── Arrow markers ─────────────────────────── */}
+      {/* ── Arrow markers ────────────────────────── */}
       <defs>
-        <marker id="cps-as" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-          <path d="M0,0L8,3L0,6Z" fill={PIPE.supply} />
+        <marker id="a-cond" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+          <path d="M0,0L7,2.5L0,5Z" fill={COND} />
         </marker>
-        <marker id="cps-ar" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-          <path d="M0,0L8,3L0,6Z" fill={PIPE.return} />
-        </marker>
-        <marker id="cps-ac" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-          <path d="M0,0L8,3L0,6Z" fill={PIPE.condenser} />
+        <marker id="a-chw" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+          <path d="M0,0L7,2.5L0,5Z" fill={CHW} />
         </marker>
       </defs>
 
-      {/* ═══════════════════ PIPES ═══════════════════ */}
+      {/* ═══════════════════════════════════════════
+          CONDENSER WATER PIPES  (gold / yellow)
+          Chiller top → manifold → branch to towers
+         ═══════════════════════════════════════════ */}
+      {[0, 1, 2].map((gi) => {
+        const cx = CX[gi];
+        const n  = Math.min(3, coolingTowers.length - gi * 3);
+        if (n <= 0) return null;
+        return (
+          <g key={`cp-${gi}`}>
+            {/* trunk: chiller top → condenser manifold */}
+            <line
+              x1={cx} y1={CH_Y}
+              x2={cx} y2={COND_MAN_Y}
+              stroke={COND} strokeWidth={2} opacity={0.85}
+            />
+            {/* horizontal manifold across tower group */}
+            <line
+              x1={ctCenterX(gi, 0)}     y1={COND_MAN_Y}
+              x2={ctCenterX(gi, n - 1)} y2={COND_MAN_Y}
+              stroke={COND} strokeWidth={2} opacity={0.85}
+            />
+            {/* branches: manifold → each tower */}
+            {Array.from({ length: n }).map((_, ci) => (
+              <line
+                key={ci}
+                x1={ctCenterX(gi, ci)} y1={COND_MAN_Y}
+                x2={ctCenterX(gi, ci)} y2={CT_Y + CT_H}
+                stroke={COND} strokeWidth={2} opacity={0.85}
+                markerEnd="url(#a-cond)"
+              />
+            ))}
+          </g>
+        );
+      })}
 
-      {/* ── Supply: Pump → Left manifold → Chillers ─ */}
-      <line
-        x1={PUMP_X + PUMP_W} y1={PUMP_CY - 6}
-        x2={L_MAN_X}         y2={PUMP_CY - 6}
-        stroke={PIPE.supply} strokeWidth={2.5}
-      />
-      <line
-        x1={L_MAN_X} y1={chCY(0)}
-        x2={L_MAN_X} y2={chCY(nCh - 1)}
-        stroke={PIPE.supply} strokeWidth={2.5}
-      />
+      {/* condenser loop label */}
+      <text
+        x={88}
+        y={COND_MAN_Y + 4}
+        textAnchor="middle"
+        fontSize={8.5}
+        fontWeight={500}
+        fill={COND}
+        opacity={0.75}
+        transform={`rotate(-90,88,${COND_MAN_Y + 4})`}
+      >
+        Condenser Water Loop
+      </text>
+
+      {/* ═══════════════════════════════════════════
+          CHILLED WATER PIPES  (sky blue)
+          Chiller bottom → manifold → pump
+         ═══════════════════════════════════════════ */}
       {chillers.map((_, i) => (
         <line
-          key={`sp${i}`}
-          x1={L_MAN_X} y1={chCY(i)}
-          x2={CH_X - 2} y2={chCY(i)}
-          stroke={PIPE.supply} strokeWidth={2.5}
-          markerEnd="url(#cps-as)"
+          key={`cw-${i}`}
+          x1={CX[i]} y1={CH_Y + CH_H}
+          x2={CX[i]} y2={CHW_MAN_Y}
+          stroke={CHW} strokeWidth={2} opacity={0.85}
+          markerEnd="url(#a-chw)"
         />
       ))}
-      {/* Supply label */}
-      <text
-        x={(PUMP_X + PUMP_W + L_MAN_X) / 2}
-        y={PUMP_CY - 18}
-        textAnchor="middle"
-        fontSize={9}
-        fontWeight={500}
-        fill={PIPE.supply}
-        opacity={0.85}
-      >
-        Chilled Water
-      </text>
-
-      {/* ── Return: bottom path back to pump ─────── */}
-      <path
-        d={`M${L_MAN_X} ${chCY(nCh - 1)}
-            L${L_MAN_X} ${VB_H - 16}
-            L${PUMP_X + PUMP_W / 2} ${VB_H - 16}
-            L${PUMP_X + PUMP_W / 2} ${PUMP_Y + PUMP_H + 2}`}
-        fill="none"
-        stroke={PIPE.return}
-        strokeWidth={2.5}
-        markerEnd="url(#cps-ar)"
-      />
-      <text
-        x={(L_MAN_X + PUMP_X + PUMP_W / 2) / 2}
-        y={VB_H - 4}
-        textAnchor="middle"
-        fontSize={9}
-        fontWeight={500}
-        fill={PIPE.return}
-        opacity={0.85}
-      >
-        Return
-      </text>
-
-      {/* ── Condenser: Chillers → Right manifold → Towers */}
-      {chillers.map((_, i) => (
+      {/* horizontal manifold */}
+      {chillers.length > 1 && (
         <line
-          key={`co${i}`}
-          x1={CH_X + CH_W + 2} y1={chCY(i)}
-          x2={R_MAN_X}         y2={chCY(i)}
-          stroke={PIPE.condenser} strokeWidth={2.5}
-          markerEnd="url(#cps-ac)"
+          x1={CX[0]}                             y1={CHW_MAN_Y}
+          x2={CX[Math.min(2, chillers.length - 1)]} y2={CHW_MAN_Y}
+          stroke={CHW} strokeWidth={2} opacity={0.85}
         />
-      ))}
+      )}
+      {/* manifold → pump */}
       <line
-        x1={R_MAN_X} y1={chCY(0)}
-        x2={R_MAN_X} y2={chCY(nCh - 1)}
-        stroke={PIPE.condenser} strokeWidth={2.5}
+        x1={VB_W / 2} y1={CHW_MAN_Y}
+        x2={VB_W / 2} y2={PUMP_Y}
+        stroke={CHW} strokeWidth={2} opacity={0.85}
+        markerEnd="url(#a-chw)"
       />
-      {Array.from({ length: nTR }).map((_, r) => (
-        <line
-          key={`ct${r}`}
-          x1={R_MAN_X}   y1={chCY(r)}
-          x2={CT_X0 - 2} y2={chCY(r)}
-          stroke={PIPE.condenser} strokeWidth={2.5}
-          markerEnd="url(#cps-ac)"
-        />
-      ))}
-      {/* Condenser label */}
+
+      {/* chilled water loop label */}
       <text
-        x={(CH_X + CH_W + R_MAN_X) / 2 + 10}
-        y={chCY(0) - 12}
+        x={88}
+        y={CHW_MAN_Y + 4}
         textAnchor="middle"
-        fontSize={9}
+        fontSize={8.5}
         fontWeight={500}
-        fill={PIPE.condenser}
-        opacity={0.85}
+        fill={CHW}
+        opacity={0.75}
+        transform={`rotate(-90,88,${CHW_MAN_Y + 4})`}
       >
-        Condenser Water
+        Chilled Water Loop
       </text>
 
-      {/* ═══════════════ EQUIPMENT NODES ═════════════ */}
+      {/* ═══════════════════════════════════════════
+          COOLING TOWERS  (top row, grouped ×3)
+         ═══════════════════════════════════════════ */}
+      {coolingTowers.map((ct, idx) => {
+        const gi = Math.floor(idx / 3);
+        const ci = idx % 3;
+        const x  = ctBoxX(gi, ci);
+        const y  = CT_Y;
+        return (
+          <g
+            key={ct.id}
+            className="cps-n"
+            tabIndex={0}
+            role="button"
+            aria-label={`${ct.name}, ${ct.primaryValue} ${ct.primaryUnit}, ${STATUS_LABEL[ct.status]}`}
+            onClick={activate(ct.id)}
+            onKeyDown={keyDown(ct.id)}
+          >
+            <rect
+              className="cps-bg"
+              x={x} y={y} width={CT_W} height={CT_H} rx={7}
+              fill="var(--sch-node-bg)" stroke="var(--sch-node-border)" strokeWidth={1.5}
+            />
+            <text
+              x={x + CT_W / 2} y={y + 17}
+              textAnchor="middle" fontSize={9} fontWeight={600}
+              fill="var(--sch-text-primary)"
+            >
+              CT{idx + 1}
+            </text>
+            <circle cx={x + 11} cy={y + 33} r={3} fill={STATUS_FILL[ct.status]} />
+            <text
+              x={x + CT_W / 2 + 5} y={y + 37}
+              textAnchor="middle" fontSize={11.5} fontWeight={700}
+              fill="var(--sch-text-primary)"
+            >
+              {ct.primaryValue}°C
+            </text>
+          </g>
+        );
+      })}
 
-      {/* ── Pump ────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════
+          CHILLERS  (centre row, side-by-side)
+         ═══════════════════════════════════════════ */}
+      {chillers.map((ch, i) => {
+        const x = chX(i);
+        const y = CH_Y;
+        return (
+          <g
+            key={ch.id}
+            className="cps-n"
+            tabIndex={0}
+            role="button"
+            aria-label={`${ch.name}, ${ch.primaryValue} ${ch.primaryUnit}${ch.secondaryValue != null ? `, ${ch.secondaryValue} ${ch.secondaryUnit}` : ''}, ${STATUS_LABEL[ch.status]}`}
+            onClick={activate(ch.id)}
+            onKeyDown={keyDown(ch.id)}
+          >
+            <rect
+              className="cps-bg"
+              x={x} y={y} width={CH_W} height={CH_H} rx={10}
+              fill="var(--sch-node-bg)" stroke="var(--sch-node-border)" strokeWidth={1.5}
+            />
+            {/* name */}
+            <text
+              x={x + CH_W / 2} y={y + 26}
+              textAnchor="middle" fontSize={13} fontWeight={600}
+              fill="var(--sch-text-primary)"
+            >
+              {ch.name}
+            </text>
+            {/* primary value */}
+            <text
+              x={x + CH_W / 2} y={y + 60}
+              textAnchor="middle" fontSize={26} fontWeight={700}
+              fill="var(--sch-text-primary)"
+            >
+              {ch.primaryValue}
+              <tspan fontSize={12} fill="var(--sch-text-secondary)"> {ch.primaryUnit}</tspan>
+            </text>
+            {/* secondary (efficiency) */}
+            {ch.secondaryValue != null && (
+              <text
+                x={x + CH_W / 2} y={y + 82}
+                textAnchor="middle" fontSize={11}
+                fill="var(--sch-text-secondary)"
+              >
+                {ch.secondaryValue} {ch.secondaryUnit}
+              </text>
+            )}
+            {/* status badge */}
+            <rect
+              x={x + CH_W / 2 - 30} y={y + CH_H - 30}
+              width={60} height={22} rx={11}
+              fill={`${STATUS_FILL[ch.status]}25`}
+              stroke={`${STATUS_FILL[ch.status]}50`}
+              strokeWidth={1}
+            />
+            <text
+              x={x + CH_W / 2} y={y + CH_H - 14}
+              textAnchor="middle" fontSize={10} fontWeight={600}
+              fill={STATUS_FILL[ch.status]}
+            >
+              {STATUS_LABEL[ch.status]}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* ═══════════════════════════════════════════
+          PUMP  (bottom centre)
+         ═══════════════════════════════════════════ */}
       {pump && (
         <g
-          className="cps-node"
+          className="cps-n"
           tabIndex={0}
           role="button"
           aria-label={`${pump.name}, ${pump.primaryValue} ${pump.primaryUnit}, ${STATUS_LABEL[pump.status]}`}
@@ -233,156 +344,70 @@ const ChillerPlantSchematic: FC<ChillerPlantSchematicProps> = ({
             x={PUMP_X} y={PUMP_Y} width={PUMP_W} height={PUMP_H} rx={10}
             fill="var(--sch-node-bg)" stroke="var(--sch-node-border)" strokeWidth={1.5}
           />
-          {/* Pump icon (circle) */}
-          <circle
-            cx={PUMP_X + PUMP_W / 2} cy={PUMP_Y + 22} r={11}
-            fill="none" stroke="var(--sch-icon)" strokeWidth={1.3}
-          />
+          <circle cx={PUMP_X + 18} cy={PUMP_Y + PUMP_H / 2} r={4} fill={STATUS_FILL[pump.status]} />
           <text
-            x={PUMP_X + PUMP_W / 2} y={PUMP_Y + 48}
-            textAnchor="middle" fontSize={9.5} fontWeight={600}
-            fill="var(--sch-text-primary)"
-          >
-            {pump.name}
-          </text>
-          <text
-            x={PUMP_X + PUMP_W / 2} y={PUMP_Y + 66}
-            textAnchor="middle" fontSize={15} fontWeight={700}
+            x={PUMP_X + PUMP_W / 2 + 8} y={PUMP_Y + 23}
+            textAnchor="middle" fontSize={17} fontWeight={700}
             fill="var(--sch-text-primary)"
           >
             {pump.primaryValue}
+            <tspan fontSize={10} fill="var(--sch-text-secondary)"> {pump.primaryUnit}</tspan>
           </text>
           <text
-            x={PUMP_X + PUMP_W / 2} y={PUMP_Y + 78}
-            textAnchor="middle" fontSize={9}
+            x={PUMP_X + PUMP_W / 2 + 8} y={PUMP_Y + 42}
+            textAnchor="middle" fontSize={10}
             fill="var(--sch-text-secondary)"
           >
-            {pump.primaryUnit}
+            {pump.name}
           </text>
-          <circle cx={PUMP_X + PUMP_W - 14} cy={PUMP_Y + 12} r={4} fill={STATUS_FILL[pump.status]} />
         </g>
       )}
 
-      {/* ── Chillers ──────────────────────────────── */}
-      {chillers.map((ch, i) => {
-        const y = chY(i);
-        return (
-          <g
-            key={ch.id}
-            className="cps-node"
-            tabIndex={0}
-            role="button"
-            aria-label={`${ch.name}, ${ch.primaryValue} ${ch.primaryUnit}${ch.secondaryValue != null ? `, ${ch.secondaryValue} ${ch.secondaryUnit}` : ''}, ${STATUS_LABEL[ch.status]}`}
-            onClick={activate(ch.id)}
-            onKeyDown={keyDown(ch.id)}
-          >
-            <rect
-              className="cps-bg"
-              x={CH_X} y={y} width={CH_W} height={CH_H} rx={10}
-              fill="var(--sch-node-bg)" stroke="var(--sch-node-border)" strokeWidth={1.5}
-            />
-            <text
-              x={CH_X + CH_W / 2} y={y + 20}
-              textAnchor="middle" fontSize={11} fontWeight={600}
-              fill="var(--sch-text-primary)"
-            >
-              {ch.name}
-            </text>
-            <text
-              x={CH_X + CH_W / 2} y={y + 44}
-              textAnchor="middle" fontSize={17} fontWeight={700}
-              fill="var(--sch-text-primary)"
-            >
-              {ch.primaryValue}
-              <tspan fontSize={10} fill="var(--sch-text-secondary)">
-                {' '}{ch.primaryUnit}
-              </tspan>
-            </text>
-            {ch.secondaryValue != null && (
-              <text
-                x={CH_X + CH_W / 2} y={y + 62}
-                textAnchor="middle" fontSize={10}
-                fill="var(--sch-text-secondary)"
-              >
-                {ch.secondaryValue} {ch.secondaryUnit}
-              </text>
-            )}
-            <circle cx={CH_X + CH_W - 14} cy={y + 14} r={4} fill={STATUS_FILL[ch.status]} />
-            <text
-              x={CH_X + 14} y={y + CH_H - 10}
-              fontSize={8.5} fontWeight={500}
-              fill={STATUS_FILL[ch.status]}
-            >
-              {STATUS_LABEL[ch.status]}
-            </text>
-          </g>
-        );
-      })}
+      {/* ═══════════════════════════════════════════
+          SUMMARY BAR
+         ═══════════════════════════════════════════ */}
+      <rect
+        x={140} y={SUM_Y} width={VB_W - 280} height={SUM_H} rx={8}
+        fill="var(--sch-node-bg)" stroke="var(--sch-node-border)" strokeWidth={1}
+      />
+      {/* total power */}
+      <text
+        x={290} y={SUM_Y + SUM_H / 2 + 4}
+        textAnchor="middle" fontSize={10.5}
+        fill="var(--sch-text-secondary)"
+      >
+        Total Plant Power:
+        <tspan fontWeight={700} fill="var(--sch-text-primary)"> {totalPower.toFixed(2)} kW</tspan>
+      </text>
+      {/* system status */}
+      <text
+        x={VB_W / 2 + 100} y={SUM_Y + SUM_H / 2 + 4}
+        textAnchor="middle" fontSize={10.5}
+        fill="var(--sch-text-secondary)"
+      >
+        System Status:
+        <tspan fontWeight={700} fill={allRunning ? '#34d399' : '#f87171'}>
+          {allRunning ? ' All Running' : ' Issues Detected'}
+        </tspan>
+      </text>
 
-      {/* ── Cooling Towers ────────────────────────── */}
-      {coolingTowers.map((ct, idx) => {
-        const r = Math.floor(idx / 3);
-        const c = idx % 3;
-        const x = ctColX(c);
-        const y = ctRowY(r);
-        return (
-          <g
-            key={ct.id}
-            className="cps-node"
-            tabIndex={0}
-            role="button"
-            aria-label={`${ct.name}, ${ct.primaryValue} ${ct.primaryUnit}, ${STATUS_LABEL[ct.status]}`}
-            onClick={activate(ct.id)}
-            onKeyDown={keyDown(ct.id)}
-          >
-            <rect
-              className="cps-bg"
-              x={x} y={y} width={CT_W} height={CT_H} rx={8}
-              fill="var(--sch-node-bg)" stroke="var(--sch-node-border)" strokeWidth={1.5}
-            />
-            <text
-              x={x + CT_W / 2} y={y + 17}
-              textAnchor="middle" fontSize={9.5} fontWeight={600}
-              fill="var(--sch-text-primary)"
-            >
-              CT{idx + 1}
-            </text>
-            <text
-              x={x + CT_W / 2} y={y + 37}
-              textAnchor="middle" fontSize={14} fontWeight={700}
-              fill="var(--sch-text-primary)"
-            >
-              {ct.primaryValue}°
-            </text>
-            <text
-              x={x + CT_W / 2} y={y + 51}
-              textAnchor="middle" fontSize={8}
-              fill="var(--sch-text-secondary)"
-            >
-              {ct.primaryUnit}
-            </text>
-            <circle cx={x + CT_W - 9} cy={y + 9} r={3} fill={STATUS_FILL[ct.status]} />
-          </g>
-        );
-      })}
-
-      {/* ═══════════════════ LEGEND ══════════════════ */}
-      <g transform={`translate(${VB_W - 160},${VB_H - 50})`}>
+      {/* ═══════════════════════════════════════════
+          LEGEND  (bottom-right)
+         ═══════════════════════════════════════════ */}
+      <g transform={`translate(${VB_W - 170},${SUM_Y - 4})`}>
         <rect
-          x={0} y={0} width={148} height={42} rx={6}
+          x={0} y={0} width={152} height={42} rx={6}
           fill="var(--sch-legend-bg)" fillOpacity={0.85}
           stroke="var(--sch-node-border)" strokeWidth={0.8}
         />
-        {/* Row 1 – status dots */}
         <circle cx={12} cy={14} r={3.5} fill="#34d399" />
         <text x={21} y={17} fontSize={8} fill="var(--sch-text-secondary)">Running</text>
-        <circle cx={70} cy={14} r={3.5} fill="#94a3b8" />
-        <text x={79} y={17} fontSize={8} fill="var(--sch-text-secondary)">Off</text>
-        <circle cx={110} cy={14} r={3.5} fill="#f87171" />
-        <text x={119} y={17} fontSize={8} fill="var(--sch-text-secondary)">Warning</text>
-        {/* Row 2 – hint */}
+        <circle cx={68} cy={14} r={3.5} fill="#94a3b8" />
+        <text x={77} y={17} fontSize={8} fill="var(--sch-text-secondary)">Off</text>
+        <circle cx={114} cy={14} r={3.5} fill="#f87171" />
+        <text x={123} y={17} fontSize={8} fill="var(--sch-text-secondary)">Warning</text>
         <text
-          x={74} y={35}
+          x={76} y={35}
           textAnchor="middle" fontSize={7.5}
           fill="var(--sch-text-secondary)" opacity={0.7}
         >
