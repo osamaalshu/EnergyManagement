@@ -12,11 +12,15 @@ const OPTIONS: { value: TimeResolution; label: string }[] = [
 interface TimeResolutionSelectorProps {
   value: TimeResolution;
   onChange: (resolution: TimeResolution) => void;
+  /** If set, only show these resolutions (e.g. ['hourly', 'daily', 'weekly'] for overview cards). */
+  limitTo?: TimeResolution[];
 }
 
-const TimeResolutionSelector: FC<TimeResolutionSelectorProps> = ({ value, onChange }) => (
+const TimeResolutionSelector: FC<TimeResolutionSelectorProps> = ({ value, onChange, limitTo }) => {
+  const options = limitTo ? OPTIONS.filter((o) => limitTo.includes(o.value)) : OPTIONS;
+  return (
   <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Time resolution">
-    {OPTIONS.map((opt) => {
+    {options.map((opt) => {
       const isActive = opt.value === value;
       return (
         <button
@@ -36,6 +40,7 @@ const TimeResolutionSelector: FC<TimeResolutionSelectorProps> = ({ value, onChan
       );
     })}
   </div>
-);
+  );
+};
 
 export default TimeResolutionSelector;

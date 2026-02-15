@@ -16,6 +16,9 @@ import {
   getChillerAnomaly,
   getTowerTempSeries,
   getPumpTimeSeries,
+  getChillerKPIsForResolution,
+  getCoolingTowerKPIsForResolution,
+  getPumpKPIsForResolution,
 } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import TimeResolutionSelector from './TimeResolutionSelector';
@@ -37,9 +40,49 @@ interface EquipmentPageProps {
 
 const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
   const detail = equipmentDetails[equipmentId];
+  const equipment = detail?.equipment;
+  const isChiller = equipment?.type === 'chiller';
+  const isTower = equipment?.type === 'coolingTower';
+  const isPump = equipment?.type === 'pump';
+  const chillerNum = isChiller ? parseInt(equipmentId.split('-').pop() ?? '0', 10) : 0;
 
   const [chartResolution, setChartResolution] = useState<TimeResolution>('hourly');
   const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
+  const [overviewResolution, setOverviewResolution] = useState<TimeResolution>('hourly');
+
+  // Get resolution-aware time series and anomaly data for chillers
+  const chartData = useMemo(() => {
+    if (!isChiller || chillerNum === 0) return null;
+    return getChillerTimeSeries(chillerNum, chartResolution);
+  }, [isChiller, chillerNum, chartResolution]);
+
+  const anomalyData = useMemo(() => {
+    if (!isChiller || chillerNum === 0) return detail?.anomaly ?? { anomalyCount: 0, inefficiencyCost: 0, series: [] };
+    return getChillerAnomaly(chillerNum, anomalyResolution);
+  }, [isChiller, chillerNum, anomalyResolution, detail?.anomaly]);
+
+  const towerTempSeries = useMemo(() => {
+    if (!isTower) return [];
+    return getTowerTempSeries(chartResolution);
+  }, [isTower, chartResolution]);
+
+  const pumpSeries = useMemo(() => {
+    if (!isPump) return [];
+    return getPumpTimeSeries(chartResolution);
+  }, [isPump, chartResolution]);
+
+  const overviewChillerKPIs = useMemo(() => {
+    if (!isChiller || chillerNum === 0) return null;
+    return getChillerKPIsForResolution(chillerNum, overviewResolution);
+  }, [isChiller, chillerNum, overviewResolution]);
+  const overviewTowerKPIs = useMemo(() => {
+    if (!isTower) return null;
+    return getCoolingTowerKPIsForResolution(overviewResolution);
+  }, [isTower, overviewResolution]);
+  const overviewPumpKPIs = useMemo(() => {
+    if (!isPump) return null;
+    return getPumpKPIsForResolution(overviewResolution);
+  }, [isPump, overviewResolution]);
 
   if (!detail) {
     return (
@@ -49,44 +92,17 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
     );
   }
 
-  const { equipment, chillerKPIs, coolingTowerKPIs, pumpKPIs } = detail;
-  const isChiller = equipment.type === 'chiller';
-  const isTower = equipment.type === 'coolingTower';
-  const isPump = equipment.type === 'pump';
-
-  // Extract chiller number from equipment ID (e.g., "CP1-chiller-2" → 2)
-  const chillerNum = isChiller ? parseInt(equipmentId.split('-').pop() ?? '0', 10) : 0;
-
-  // Get resolution-aware time series and anomaly data for chillers
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const chartData = useMemo(() => {
-    if (!isChiller || chillerNum === 0) return null;
-    return getChillerTimeSeries(chillerNum, chartResolution);
-  }, [isChiller, chillerNum, chartResolution]);
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const anomalyData = useMemo(() => {
-    if (!isChiller || chillerNum === 0) return detail.anomaly;
-    return getChillerAnomaly(chillerNum, anomalyResolution);
-  }, [isChiller, chillerNum, anomalyResolution, detail.anomaly]);
-
-  // Cooling tower temperature series
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const towerTempSeries = useMemo(() => {
-    if (!isTower) return [];
-    return getTowerTempSeries(chartResolution);
-  }, [isTower, chartResolution]);
-
-  // Pump flow rate & power series
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const pumpSeries = useMemo(() => {
-    if (!isPump) return [];
-    return getPumpTimeSeries(chartResolution);
-  }, [isPump, chartResolution]);
-
+  const { chillerKPIs, coolingTowerKPIs, pumpKPIs } = detail;
   const efficiencySeries = chartData?.efficiencySeries ?? detail.efficiencySeries;
   const temperatureLoopSeries = chartData?.temperatureLoopSeries ?? detail.temperatureLoopSeries;
   const powerCoolingSeries = chartData?.powerCoolingSeries ?? detail.powerCoolingSeries;
+
+  const overviewPeriodLabel =
+    overviewResolution === 'hourly'
+      ? 'Last 24 hours (hourly average)'
+      : overviewResolution === 'daily'
+        ? 'Last 7 days (daily average)'
+        : 'Last 4 weeks (weekly average)';
 
   const statusColor: Record<string, string> = {
     running: 'bg-emerald-400',
@@ -139,47 +155,70 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
         </div>
       </div>
 
-      {/* ── KPI Cards (last 24 hours) ─────────────────────────── */}
-      {isChiller && chillerKPIs && (
+      {/* ── Overview KPI Cards (hourly / daily / weekly) ───────── */}
+      {isChiller && (overviewChillerKPIs ?? chillerKPIs) && (
         <>
-          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (hourly average)</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">{overviewPeriodLabel}</p>
+            <TimeResolutionSelector value={overviewResolution} onChange={setOverviewResolution} limitTo={['hourly', 'daily', 'weekly']} />
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <KpiCard label="Delta T" value={chillerKPIs.deltaT} unit="°C" sub={`Return ${chillerKPIs.chilledWaterReturnTemp}°C − Supply ${chillerKPIs.chilledWaterSupplyTemp}°C`} />
-          <KpiCard label="Chilled Water Flow" value={chillerKPIs.chilledWaterFlowRate} unit="L/s" />
-          <KpiCard label="Condenser Water Flow" value={chillerKPIs.condenserWaterFlowRate} unit="L/s" />
-          <KpiCard label="Cooling Output" value={chillerKPIs.coolingTons} unit="tons" />
-          <KpiCard
-            label="Efficiency"
-            value={chillerKPIs.efficiency}
-            unit="kW/ton"
-            accent={chillerKPIs.efficiency <= 0.5 ? 'text-emerald-400' : chillerKPIs.efficiency <= 0.7 ? 'text-yellow-400' : 'text-red-400'}
-            sub="Target: < 0.70"
-          />
-          <KpiCard label="Power Draw" value={chillerKPIs.powerDraw} unit="kW" />
+            {(() => {
+              const kpis = overviewChillerKPIs ?? chillerKPIs!;
+              return (
+                <>
+                  <KpiCard label="Delta T" value={kpis.deltaT} unit="°C" sub={`Return ${kpis.chilledWaterReturnTemp}°C − Supply ${kpis.chilledWaterSupplyTemp}°C`} />
+                  <KpiCard label="Chilled Water Flow" value={kpis.chilledWaterFlowRate} unit="L/s" />
+                  <KpiCard label="Condenser Water Flow" value={kpis.condenserWaterFlowRate} unit="L/s" />
+                  <KpiCard label="Cooling Output" value={kpis.coolingTons} unit="tons" />
+                  <KpiCard
+                    label="Efficiency"
+                    value={kpis.efficiency}
+                    unit="kW/ton"
+                    accent={kpis.efficiency <= 0.5 ? 'text-emerald-400' : kpis.efficiency <= 0.7 ? 'text-yellow-400' : 'text-red-400'}
+                    sub="Target: < 0.70"
+                  />
+                  <KpiCard label="Power Draw" value={kpis.powerDraw} unit="kW" />
+                </>
+              );
+            })()}
           </div>
         </>
       )}
 
-      {isTower && coolingTowerKPIs && (
+      {isTower && (overviewTowerKPIs ?? coolingTowerKPIs) && (
         <>
-          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (hourly average)</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">{overviewPeriodLabel}</p>
+            <TimeResolutionSelector value={overviewResolution} onChange={setOverviewResolution} limitTo={['hourly', 'daily', 'weekly']} />
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <KpiCard
-            label="Condenser Water Supply Temp"
-            value={coolingTowerKPIs.condenserWaterSupplyTemp}
-            unit="°C"
-            accent={coolingTowerKPIs.condenserWaterSupplyTemp > 50 ? 'text-red-400' : undefined}
-          />
+            <KpiCard
+              label="Condenser Water Supply Temp"
+              value={(overviewTowerKPIs ?? coolingTowerKPIs!).condenserWaterSupplyTemp}
+              unit="°C"
+              accent={(overviewTowerKPIs ?? coolingTowerKPIs!).condenserWaterSupplyTemp > 50 ? 'text-red-400' : undefined}
+            />
           </div>
         </>
       )}
 
-      {isPump && pumpKPIs && (
+      {isPump && (overviewPumpKPIs ?? pumpKPIs) && (
         <>
-          <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Last 24 hours (hourly average)</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">{overviewPeriodLabel}</p>
+            <TimeResolutionSelector value={overviewResolution} onChange={setOverviewResolution} limitTo={['hourly', 'daily', 'weekly']} />
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <KpiCard label="Flow Rate" value={pumpKPIs.flowRate} unit="m³/s" />
-          <KpiCard label="Pump Head Power" value={pumpKPIs.powerDraw} unit="kW" />
+            {(() => {
+              const kpis = overviewPumpKPIs ?? pumpKPIs!;
+              return (
+                <>
+                  <KpiCard label="Flow Rate" value={kpis.flowRate} unit="m³/s" />
+                  <KpiCard label="Pump Head Power" value={kpis.powerDraw} unit="kW" />
+                </>
+              );
+            })()}
           </div>
         </>
       )}

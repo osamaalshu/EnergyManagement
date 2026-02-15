@@ -27,6 +27,9 @@ export {
   getChillerAnomaly,
   getTowerTempSeries,
   getPumpTimeSeries,
+  getChillerKPIsForResolution,
+  getCoolingTowerKPIsForResolution,
+  getPumpKPIsForResolution,
 } from './realPortfolioData.ts';
 
 export type { ChillerTimeSeriesBundle, TowerTempPoint, PumpTimePoint } from './realPortfolioData.ts';

@@ -376,3 +376,76 @@ export function getPumpTimeSeries(resolution: TimeResolution): PumpTimePoint[] {
     flowRate: Math.round(pumpFlowSnapshot * (p.power / snapshotChillerKw) * 1000) / 1000,
   }));
 }
+
+// ═══════════════════════════════════════════════════════════════════
+//  OVERVIEW KPIs BY RESOLUTION (for equipment overview cards)
+// ═══════════════════════════════════════════════════════════════════
+
+function round1(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+function round3(n: number): number {
+  return Math.round(n * 1000) / 1000;
+}
+
+/**
+ * Compute chiller KPIs for a given time resolution (avg when running).
+ * Flow rates come from the snapshot; other metrics from time-series averages.
+ */
+export function getChillerKPIsForResolution(chillerNum: number, resolution: TimeResolution): ChillerKPIs {
+  const ts = getChillerTimeSeries(chillerNum, resolution);
+  const snapshot = raw.chillerSnapshots[chillerNum - 1];
+  const cwFlow = snapshot?.cwFlow ?? 0;
+  const cdwFlow = snapshot?.cdwFlow ?? 0;
+
+  const runningPower = ts.powerCoolingSeries.filter((p) => p.power > 0);
+  const runningTemp = ts.temperatureLoopSeries.filter((p) => p.chilledSupply > 0);
+  const runningEff = ts.efficiencySeries.filter((p) => p.value > 0 && p.value < 5);
+
+  const powerDraw = runningPower.length ? round2(runningPower.reduce((s, p) => s + p.power, 0) / runningPower.length) : 0;
+  const coolingTons = runningPower.length ? round2(runningPower.reduce((s, p) => s + p.coolingTons, 0) / runningPower.length) : 0;
+  const efficiency = runningEff.length ? round3(runningEff.reduce((s, p) => s + p.value, 0) / runningEff.length) : 0;
+
+  const chilledWaterSupplyTemp = runningTemp.length ? round1(runningTemp.reduce((s, p) => s + p.chilledSupply, 0) / runningTemp.length) : 0;
+  const chilledWaterReturnTemp = runningTemp.length ? round1(runningTemp.reduce((s, p) => s + p.chilledReturn, 0) / runningTemp.length) : 0;
+  const condenserWaterSupplyTemp = runningTemp.length ? round1(runningTemp.reduce((s, p) => s + p.condenserSupply, 0) / runningTemp.length) : 0;
+  const condenserWaterReturnTemp = runningTemp.length ? round1(runningTemp.reduce((s, p) => s + p.condenserReturn, 0) / runningTemp.length) : 0;
+  const deltaT = round1(chilledWaterReturnTemp - chilledWaterSupplyTemp);
+
+  return {
+    deltaT,
+    chilledWaterFlowRate: round2(cwFlow),
+    condenserWaterFlowRate: round2(cdwFlow),
+    coolingTons,
+    efficiency,
+    powerDraw,
+    chilledWaterSupplyTemp,
+    chilledWaterReturnTemp,
+    condenserWaterSupplyTemp,
+    condenserWaterReturnTemp,
+  };
+}
+
+/**
+ * Compute cooling tower KPIs for a given time resolution (avg when running).
+ */
+export function getCoolingTowerKPIsForResolution(resolution: TimeResolution): CoolingTowerKPIs {
+  const series = getTowerTempSeries(resolution);
+  const running = series.filter((p) => p.condenserSupply > 0);
+  const condenserWaterSupplyTemp = running.length ? round1(running.reduce((s, p) => s + p.condenserSupply, 0) / running.length) : 0;
+  return { condenserWaterSupplyTemp };
+}
+
+/**
+ * Compute pump KPIs for a given time resolution (avg when running).
+ */
+export function getPumpKPIsForResolution(resolution: TimeResolution): PumpKPIs {
+  const series = getPumpTimeSeries(resolution);
+  const running = series.filter((p) => p.power > 0);
+  const powerDraw = running.length ? round2(running.reduce((s, p) => s + p.power, 0) / running.length) : 0;
+  const flowRate = running.length ? round3(running.reduce((s, p) => s + p.flowRate, 0) / running.length) : 0;
+  return { powerDraw, flowRate };
+}
