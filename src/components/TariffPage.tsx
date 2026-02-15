@@ -277,10 +277,16 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                 <Tooltip
                   contentStyle={tooltipStyles}
                   labelStyle={{ color: 'var(--muted-text)' }}
-                  formatter={(value: number, name: string) => {
-                    if (name === 'Coincident Peak') return [`${value} kW`, name];
-                    if (name === 'Non-Coincident Peak') return [`${value} kW`, name];
-                    return [`${value}`, name];
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload || payload.length === 0) return null;
+                    const row = payload[0]?.payload as (typeof peakDemandData)[number] | undefined;
+                    if (!row) return null;
+                    return (
+                      <div style={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.75rem', padding: '10px 14px', fontSize: 12 }}>
+                        <p style={{ color: 'var(--muted-text)', marginBottom: 6, fontWeight: 600 }}>{label} {selectedPeakYear}</p>
+                        <p style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>{formatOmr(row.capacityOmr)} OMR</p>
+                      </div>
+                    );
                   }}
                 />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} />
