@@ -252,10 +252,7 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
       {/* Chart 1: Effective Tariff Rate (OMR/kWh) over time */}
       <div className="group card-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Effective Tariff Rate</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">How much you pay per kWh over time (OMR/kWh)</p>
-          </div>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Effective Tariff Rate</h3>
           <div className="flex items-center gap-2">
             <ExportExcelButton data={lineChartData as unknown as Record<string, unknown>[]} fileName={`EffectiveTariffRate_${resolution}`} />
             <TimeResolutionSelector value={resolution} onChange={setResolution} limitTo={['daily', 'weekly', 'monthly', 'yearly']} />

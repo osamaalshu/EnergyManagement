@@ -450,15 +450,10 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
 
       {/* ── Baseline Deviation ─────────────────────────────────── */}
       <div className="group card-surface p-6">
-        <div className="mb-4 flex items-start justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Baseline Deviation (vs 2013)
-            </h3>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              (Actual − Baseline) / Baseline &nbsp;&middot;&nbsp; Positive = worse than baseline, Negative = better
-            </p>
-          </div>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+            Baseline Deviation (vs 2013)
+          </h3>
           <ExportExcelButton data={baselineDeviationSeries as unknown as Record<string, unknown>[]} fileName="BaselineDeviation" />
         </div>
         {baselineDeviationSeries.length > 0 ? (

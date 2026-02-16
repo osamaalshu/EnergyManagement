@@ -166,15 +166,16 @@ const DashboardPage: FC<DashboardPageProps> = ({
         </h2>
       </div>
 
-      {/* ── KPI Strip ─────────────────────────────────────────── */}
+      {/* ── KPI Strip (titles aligned horizontally, content centered) ─────────────────────────────────────────── */}
       <div className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Warnings summary — scrolls to warnings section */}
         <button
           type="button"
           onClick={scrollToWarnings}
-          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+          className="card-surface flex flex-col items-center justify-center p-5 text-center transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${hasWarnings ? 'bg-red-400/15' : 'bg-emerald-400/15'}`}>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Warnings</p>
+          <div className={`mt-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${hasWarnings ? 'bg-red-400/15' : 'bg-emerald-400/15'}`}>
             {hasWarnings ? (
               <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86l-8.6 14.86A1 1 0 002.54 20h18.92a1 1 0 00.85-1.28l-8.6-14.86a1 1 0 00-1.72 0z" />
@@ -185,88 +186,73 @@ const DashboardPage: FC<DashboardPageProps> = ({
               </svg>
             )}
           </div>
-          <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Warnings</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {warningCount} <span className="text-sm font-normal text-slate-500">{hasWarnings ? 'Active' : 'All Clear'}</span>
-            </p>
-          </div>
+          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
+            {warningCount} <span className="text-sm font-normal text-slate-500">{hasWarnings ? 'Active' : 'All Clear'}</span>
+          </p>
         </button>
 
         {/* Notifications summary — scrolls to notifications section */}
         <button
           type="button"
           onClick={scrollToNotifications}
-          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+          className="card-surface flex flex-col items-center justify-center p-5 text-center transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Notifications</p>
+          <div className="mt-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
             <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
           </div>
-          <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Notifications</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {portfolioNotifications.length} <span className="text-sm font-normal text-slate-500">Outstanding</span>
-            </p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{unreadCount} unread</p>
-          </div>
+          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
+            {portfolioNotifications.length} <span className="text-sm font-normal text-slate-500">Outstanding</span>
+          </p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{unreadCount} unread</p>
         </button>
 
         {/* Today's Cooling Output — navigates to Chiller Plant (building) */}
         <button
           type="button"
           onClick={() => onNavigateToBuilding('CP1')}
-          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+          className="card-surface flex flex-col items-center justify-center p-5 text-center transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Cooling Output</p>
+          <div className="mt-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
             <svg className="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
           </div>
-          <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Last 24h Cooling Output</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {last24CoolingTons.toLocaleString()} <span className="text-sm font-normal text-slate-500">tons</span>
-            </p>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View Chiller Plant</p>
-          </div>
-          <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
+            {last24CoolingTons.toLocaleString()} <span className="text-sm font-normal text-slate-500">tons</span>
+          </p>
+          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View Chiller Plant</p>
         </button>
 
         {/* Today's Consumption — navigates to Tariff page (energy consumption cost) */}
         <button
           type="button"
           onClick={onNavigateToTariff}
-          className="card-surface flex items-center gap-3 p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
+          className="card-surface flex flex-col items-center justify-center p-5 text-center transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Consumption</p>
+          <div className="mt-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
             <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Last 24h Consumption</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {last24ConsumptionKwh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
-            </p>
-            <p className="mt-0.5 text-sm font-semibold text-accent">
-              {last24ConsumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
-            </p>
-          </div>
-          <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
+            {last24ConsumptionKwh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
+          </p>
+          <p className="mt-0.5 text-sm font-semibold text-accent">
+            {last24ConsumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
+          </p>
         </button>
       </div>
 
-      {/* ── Last 24h kWh and OMR over time (line chart, dual axis) ───── */}
+      {/* ── Today's kWh and OMR over time (line chart, dual axis) ───── */}
       <div className="group card-surface p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-            Last 24 Hours: Consumption (kWh) and Cost (OMR)
+            Today&apos;s Consumption (kWh) and Cost (OMR)
           </h3>
           <ExportExcelButton data={last24 as unknown as Record<string, unknown>[]} fileName="Last24h_Consumption_Cost" />
         </div>

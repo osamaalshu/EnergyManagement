@@ -205,12 +205,12 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
         </div>
       </div>
 
-      {/* ═══════════════ SECTION A: Summary Cards ═══════════════ */}
+      {/* ═══════════════ SECTION A: Summary Cards (titles aligned and centered; content centered) ═══════════════ */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Card 1: Portfolio Summary (replaces redundant name card) */}
-        <div className="card-surface flex flex-col gap-4 p-5">
+        {/* Card 1: Portfolio Summary */}
+        <div className="card-surface flex flex-col items-center p-5 text-center">
           <SectionTitle>Portfolio Summary</SectionTitle>
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="mt-4 grid w-full grid-cols-3 gap-3 text-center">
             <div>
               <p className="text-2xl font-bold text-slate-900 dark:text-white">{portfolioMeta.buildingCount}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">Buildings</p>
@@ -226,10 +226,10 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
           </div>
         </div>
 
-        {/* Card 2: Energy Breakdown donut — chart shows only positive values; legend shows all categories */}
-        <div className="group card-surface flex flex-col p-5">
-          <div className="flex items-center justify-between">
-            <SectionTitle>Energy Breakdown</SectionTitle>
+        {/* Card 2: Energy Breakdown donut — title centered; content centered */}
+        <div className="group card-surface relative flex flex-col items-center p-5 text-center">
+          <SectionTitle>Energy Breakdown</SectionTitle>
+          <div className="absolute right-4 top-4">
             <ExportExcelButton data={buildingConsumptionBreakdown as unknown as Record<string, unknown>[]} fileName="EnergyBreakdown" />
           </div>
           <div className="flex-1">
@@ -252,7 +252,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
               </PieChart>
             </div>
           </div>
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+          <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1">
             {buildingConsumptionBreakdown.map((e) => (
               <span key={e.name} className="flex items-center gap-1 text-[0.65rem] text-slate-500 dark:text-slate-400">
                 <span className="inline-block h-2 w-2 rounded-full" style={{ background: e.color }} />
@@ -263,7 +263,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
         </div>
 
         {/* Card 3: Score ring */}
-        <div className="card-surface flex flex-col items-center justify-center p-5">
+        <div className="card-surface flex flex-col items-center justify-center p-5 text-center">
           <SectionTitle>Portfolio Score</SectionTitle>
           <div className="relative mt-3 flex h-28 w-28 items-center justify-center">
             <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
