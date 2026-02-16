@@ -23,6 +23,7 @@ import {
 } from '../data/mockPortfolioData';
 import { getBandColor, BAND_BG_CLASS, BAND_TEXT_CLASS } from '../lib/performanceBands';
 import TimeResolutionSelector from './TimeResolutionSelector';
+import ExportExcelButton from './ExportExcelButton';
 import type { PerformanceBand, TimeResolution } from '../types/portfolio';
 
 /* ── Shared styles ─────────────────────────────────────────────── */
@@ -226,8 +227,11 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
         </div>
 
         {/* Card 2: Energy Breakdown donut — chart shows only positive values; legend shows all categories */}
-        <div className="card-surface flex flex-col p-5">
-          <SectionTitle>Energy Breakdown</SectionTitle>
+        <div className="group card-surface flex flex-col p-5">
+          <div className="flex items-center justify-between">
+            <SectionTitle>Energy Breakdown</SectionTitle>
+            <ExportExcelButton data={buildingConsumptionBreakdown as unknown as Record<string, unknown>[]} fileName="EnergyBreakdown" />
+          </div>
           <div className="flex-1">
             <div ref={pieContainerRef} className="h-40 min-h-[10rem]">
               <PieChart width={pieSize.width} height={pieSize.height}>
@@ -284,10 +288,13 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
       </div>
 
       {/* ═══════════════ SECTION B: Performance vs Sector Average ═══════════════ */}
-      <div className="card-surface p-6">
+      <div className="group card-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <SectionTitle>Performance vs Sector Average</SectionTitle>
-          <TimeResolutionSelector value={comparisonResolution} onChange={setComparisonResolution} />
+          <div className="flex items-center gap-2">
+            <ExportExcelButton data={comparisonData as unknown as Record<string, unknown>[]} fileName={`PerformanceVsSector_${comparisonResolution}`} />
+            <TimeResolutionSelector value={comparisonResolution} onChange={setComparisonResolution} />
+          </div>
         </div>
 
         {comparisonData.length > 0 ? (
@@ -319,10 +326,11 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
       </div>
 
       {/* ═══════════════ SECTION C: Building Performance Map (Scatter) ═══════════════ */}
-      <div className="card-surface p-6">
+      <div className="group card-surface p-6">
         <div className="mb-4 flex items-center justify-between">
           <SectionTitle>Building Performance Map</SectionTitle>
           <div className="flex items-center gap-4">
+            <ExportExcelButton data={scatterData as unknown as Record<string, unknown>[]} fileName="BuildingPerformanceMap" />
             {(['Exceeded', 'Average', 'Lower'] as PerformanceBand[]).map((band) => (
               <span key={band} className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                 <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: getBandColor(band) }} />

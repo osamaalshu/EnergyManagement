@@ -18,6 +18,7 @@ import {
   getChillerTimeSeries,
 } from '../data/mockPortfolioData';
 import { effectiveRateOmrPerKwh } from '../lib/tariffEngine';
+import ExportExcelButton from './ExportExcelButton';
 
 const tooltipStyles = {
   background: 'var(--card-bg)',
@@ -262,10 +263,13 @@ const DashboardPage: FC<DashboardPageProps> = ({
       </div>
 
       {/* ── Last 24h kWh and OMR over time (line chart, dual axis) ───── */}
-      <div className="card-surface p-6">
-        <h3 className="mb-4 text-center text-lg font-semibold text-slate-900 dark:text-white">
-          Last 24 Hours: Consumption (kWh) and Cost (OMR)
-        </h3>
+      <div className="group card-surface p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+            Last 24 Hours: Consumption (kWh) and Cost (OMR)
+          </h3>
+          <ExportExcelButton data={last24 as unknown as Record<string, unknown>[]} fileName="Last24h_Consumption_Cost" />
+        </div>
         {hasChartData ? (
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">

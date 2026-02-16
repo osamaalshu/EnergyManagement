@@ -21,6 +21,7 @@ import {
   type MonthlyBill,
 } from '../lib/tariffEngine';
 import TimeResolutionSelector from './TimeResolutionSelector';
+import ExportExcelButton from './ExportExcelButton';
 import type { TimeResolution } from '../types/portfolio';
 import type { TariffHourlyDataPoint } from '../types/portfolio';
 
@@ -249,13 +250,16 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
       )}
 
       {/* Chart 1: Effective Tariff Rate (OMR/kWh) over time */}
-      <div className="card-surface p-6">
+      <div className="group card-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Effective Tariff Rate</h3>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">How much you pay per kWh over time (OMR/kWh)</p>
           </div>
-          <TimeResolutionSelector value={resolution} onChange={setResolution} limitTo={['daily', 'weekly', 'monthly', 'yearly']} />
+          <div className="flex items-center gap-2">
+            <ExportExcelButton data={lineChartData as unknown as Record<string, unknown>[]} fileName={`EffectiveTariffRate_${resolution}`} />
+            <TimeResolutionSelector value={resolution} onChange={setResolution} limitTo={['daily', 'weekly', 'monthly', 'yearly']} />
+          </div>
         </div>
         {lineChartData.length > 0 ? (
           <div className="h-80">
@@ -307,7 +311,7 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
       </div>
 
       {/* Chart 2: Peak Power Demand Bar Chart (monthly per year) */}
-      <div className="card-surface p-6">
+      <div className="group card-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -317,6 +321,8 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
               Total capacity charges: <span className="font-semibold text-sky-400">{formatOmr(yearCapacityTotal)} OMR</span>
             </p>
           </div>
+          <div className="flex items-center gap-2">
+            <ExportExcelButton data={peakDemandData as unknown as Record<string, unknown>[]} fileName={`PeakDemand_${selectedPeakYear}`} />
           {/* Year toggle */}
           <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Peak demand year">
             {availableYears.map((yr) => (
@@ -335,6 +341,7 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                 {yr}
               </button>
             ))}
+          </div>
           </div>
         </div>
         {peakDemandData.length > 0 ? (

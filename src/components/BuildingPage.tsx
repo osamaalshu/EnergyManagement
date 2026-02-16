@@ -15,6 +15,7 @@ import {
 import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, baselineDeviationSeries, getPumpSpecificEnergySeries } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import ChillerPlantSchematic from './ChillerPlantSchematic';
+import ExportExcelButton from './ExportExcelButton';
 import type { TimeResolution } from '../types/portfolio';
 
 const tooltipStyles = {
@@ -304,7 +305,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
       </div>
 
       {/* ── COP (Coefficient of Performance) ───────────────────── */}
-      <div className="card-surface p-6">
+      <div className="group card-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -314,23 +315,26 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
               COP = (Cooling Tons × 3.517) / kW &nbsp;&middot;&nbsp; Baseline: <span className="font-semibold text-accent">5.2</span>
             </p>
           </div>
-          <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="COP resolution">
-            {(['daily', 'monthly', 'seasonal', 'yearly'] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                role="radio"
-                aria-checked={copResolution === r}
-                onClick={() => setCopResolution(r)}
-                className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
-                  copResolution === r
-                    ? 'bg-accent text-white shadow-sm'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
-                }`}
-              >
-                {r.charAt(0).toUpperCase() + r.slice(1)}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <ExportExcelButton data={(copByResolution[copResolution] ?? []) as unknown as Record<string, unknown>[]} fileName={`COP_${copResolution}`} />
+            <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="COP resolution">
+              {(['daily', 'monthly', 'seasonal', 'yearly'] as const).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  role="radio"
+                  aria-checked={copResolution === r}
+                  onClick={() => setCopResolution(r)}
+                  className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+                    copResolution === r
+                      ? 'bg-accent text-white shadow-sm'
+                      : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
+                  }`}
+                >
+                  {r.charAt(0).toUpperCase() + r.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         {(() => {
@@ -375,7 +379,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
       </div>
 
       {/* ── Specific Energy (Pump) ──────────────────────────────── */}
-      <div className="card-surface p-6">
+      <div className="group card-surface p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -385,23 +389,26 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
               kWh/m³ &nbsp;&middot;&nbsp; Baseline: <span className="font-semibold text-accent">0.08</span>
             </p>
           </div>
-          <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Pump specific energy resolution">
-            {(['daily', 'monthly', 'yearly'] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                role="radio"
-                aria-checked={pumpResolution === r}
-                onClick={() => setPumpResolution(r)}
-                className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
-                  pumpResolution === r
-                    ? 'bg-accent text-white shadow-sm'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
-                }`}
-              >
-                {r.charAt(0).toUpperCase() + r.slice(1)}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <ExportExcelButton data={pumpSpecificEnergy as unknown as Record<string, unknown>[]} fileName={`SpecificEnergy_Pump_${pumpResolution}`} />
+            <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Pump specific energy resolution">
+              {(['daily', 'monthly', 'yearly'] as const).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  role="radio"
+                  aria-checked={pumpResolution === r}
+                  onClick={() => setPumpResolution(r)}
+                  className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+                    pumpResolution === r
+                      ? 'bg-accent text-white shadow-sm'
+                      : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
+                  }`}
+                >
+                  {r.charAt(0).toUpperCase() + r.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         {pumpSpecificEnergy.length > 0 ? (
@@ -442,14 +449,17 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
       </div>
 
       {/* ── Baseline Deviation ─────────────────────────────────── */}
-      <div className="card-surface p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-            Baseline Deviation (vs 2013)
-          </h3>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            (Actual − Baseline) / Baseline &nbsp;&middot;&nbsp; Positive = worse than baseline, Negative = better
-          </p>
+      <div className="group card-surface p-6">
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Baseline Deviation (vs 2013)
+            </h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              (Actual − Baseline) / Baseline &nbsp;&middot;&nbsp; Positive = worse than baseline, Negative = better
+            </p>
+          </div>
+          <ExportExcelButton data={baselineDeviationSeries as unknown as Record<string, unknown>[]} fileName="BaselineDeviation" />
         </div>
         {baselineDeviationSeries.length > 0 ? (
           <div className="h-64">
