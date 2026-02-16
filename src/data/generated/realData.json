@@ -5,7 +5,7 @@
     "totalRows": 25053
   },
   "portfolioMeta": {
-    "name": "Chiller Plant",
+    "name": "Building A",
     "buildingCount": 1,
     "score": 70.75,
     "savingsPotentialPercent": 13
@@ -160,7 +160,7 @@
   ],
   "building": {
     "id": "CP1",
-    "name": "Chiller Plant 1",
+    "name": "Building A",
     "sector": "Commercial",
     "surfaceArea": 5000,
     "normalizedConsumption": 305,

@@ -110,7 +110,10 @@ export const comparisonsByResolution: ByResolution<MonthComparison[]> = {
   yearly:  rawComparisons.yearly.map(mapComparison),
 };
 
-export const buildingConsumptionBreakdown: ConsumptionBreakdownEntry[] = raw.consumptionBreakdown;
+// Energy breakdown by category (HVAC, lighting, heating, cooling); for now only cooling at 100%
+export const buildingConsumptionBreakdown: ConsumptionBreakdownEntry[] = [
+  { name: 'Cooling', value: 100, color: '#38bdf8' },
+];
 
 // ── Portfolio anomaly (default = weekly, backward compat) ─────────
 export const portfolioAnomaly: AnomalyData = {

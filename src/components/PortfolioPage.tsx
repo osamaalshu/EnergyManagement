@@ -14,11 +14,6 @@ import {
   ScatterChart,
   Scatter,
   ZAxis,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
 } from 'recharts';
 import {
   portfolioMeta,
@@ -136,40 +131,6 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
       { x: maxX, y: Math.round(sectorSlopeKwhPerM2 * maxX), z: 0 },
     ];
   }, [sectorSlopeKwhPerM2]);
-
-  /* ── Radar data (dynamic per building count) ───────────────── */
-  const radarData = useMemo(() => {
-    return [
-      { metric: 'Efficiency', fullMark: 100 },
-      { metric: 'Delta T', fullMark: 100 },
-      { metric: 'Flow Rate', fullMark: 100 },
-      { metric: 'Score', fullMark: 100 },
-    ].map(d => {
-      const result: Record<string, unknown> = { ...d };
-      for (const b of buildings) {
-        const detail = buildingDetails[b.id];
-        if (!detail) continue;
-        const kpis = detail.aggregateKPIs;
-        switch (d.metric) {
-          case 'Efficiency':
-            result[b.name] = Math.max(0, Math.min(100, Math.round((1 - (kpis.systemKwPerTon - 0.3) / 0.7) * 100)));
-            break;
-          case 'Delta T':
-            result[b.name] = Math.min(100, Math.round((kpis.systemDeltaT / 12) * 100));
-            break;
-          case 'Flow Rate':
-            result[b.name] = Math.min(100, Math.round((kpis.totalFlowRate / 200) * 100));
-            break;
-          case 'Score':
-            result[b.name] = portfolioMeta.score;
-            break;
-        }
-      }
-      return result;
-    });
-  }, []);
-
-  const radarColors = ['#1A365D', '#82C91E', '#FAB005', '#64748B', '#334155', '#94a3b8'];
 
   return (
     <section className="space-y-8">
@@ -469,48 +430,6 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
           })}
         </div>
 
-        {/* ── Performance Radar ───────────────────────────────── */}
-        {buildings.length > 0 && (
-          <div className="mx-auto mt-6 max-w-xl">
-            <p className="mb-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Performance Radar
-            </p>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
-                  <PolarGrid stroke="var(--grid-stroke)" />
-                  <PolarAngleAxis
-                    dataKey="metric"
-                    tick={{ fill: 'var(--muted-text)', fontSize: 11 }}
-                  />
-                  <PolarRadiusAxis
-                    angle={90}
-                    domain={[0, 100]}
-                    tick={{ fill: 'var(--muted-text)', fontSize: 10 }}
-                    tickCount={5}
-                  />
-                  {buildings.map((b, i) => (
-                    <Radar
-                      key={b.id}
-                      name={b.name}
-                      dataKey={b.name}
-                      stroke={radarColors[i % radarColors.length]}
-                      fill={radarColors[i % radarColors.length]}
-                      fillOpacity={0.15}
-                      strokeWidth={2}
-                    />
-                  ))}
-                  <Legend
-                    wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 12 }}
-                    iconType="square"
-                    iconSize={10}
-                  />
-                  <Tooltip contentStyle={tooltipStyles} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
