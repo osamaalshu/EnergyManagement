@@ -12,7 +12,6 @@ import {
 import {
   portfolioWarnings,
   portfolioNotifications,
-  todaysProduction,
   todaysConsumption,
   hourlyProductionConsumption,
   tariffHourlyData,
