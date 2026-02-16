@@ -418,9 +418,7 @@ export function aggregateToYearly(hourlyData: HourlyDataPoint[], voltageLevel: s
 }
 
 export function aggregateToHourly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
-  // For hourly, just return a sampled subset (last 168 hours = 1 week) to avoid chart overload
-  const lastWeek = hourlyData.slice(-168);
-  return lastWeek.map(d => {
+  return hourlyData.map(d => {
     const ts = new Date(d.timestamp);
     const rate = effectiveRateOmrPerKwh(ts, voltageLevel);
     const omr = d.kwh * rate;

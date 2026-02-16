@@ -182,47 +182,80 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
       {totals && (
         <div className="grid gap-4 lg:grid-cols-[auto_1fr]">
           {/* Compact date filter */}
-          {dataBounds && (
-            <div className="card-surface flex items-center gap-3 p-4">
-              <input
-                type="date"
-                value={effectiveRange?.start ?? ''}
-                min={dataBounds.minDate}
-                max={dataBounds.maxDate}
-                onChange={(e) => {
-                  const start = e.target.value;
-                  const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
-                  setDateRange({ start, end: currentEnd < start ? start : currentEnd });
-                }}
-                className="w-[8.5rem] rounded-lg border border-slate-200/70 bg-white px-2.5 py-1.5 text-xs text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
-                aria-label="Start date"
-              />
-              <span className="text-xs text-slate-400">—</span>
-              <input
-                type="date"
-                value={effectiveRange?.end ?? ''}
-                min={dataBounds.minDate}
-                max={dataBounds.maxDate}
-                onChange={(e) => {
-                  const end = e.target.value;
-                  const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
-                  setDateRange({ start: currentStart > end ? end : currentStart, end });
-                }}
-                className="w-[8.5rem] rounded-lg border border-slate-200/70 bg-white px-2.5 py-1.5 text-xs text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
-                aria-label="End date"
-              />
-              {dateRange && (
-                <button
-                  type="button"
-                  onClick={() => setDateRange(null)}
-                  className="rounded-md px-2 py-1 text-[0.65rem] font-medium text-accent transition hover:bg-accent/10"
-                  aria-label="Reset to full timeline"
-                >
-                  Reset
-                </button>
-              )}
-            </div>
-          )}
+          {dataBounds && (() => {
+            const minY = parseInt(dataBounds.minDate.substring(0, 4), 10);
+            const maxY = parseInt(dataBounds.maxDate.substring(0, 4), 10);
+            const years = Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const startDate = effectiveRange?.start ?? dataBounds.minDate;
+            const endDate = effectiveRange?.end ?? dataBounds.maxDate;
+            const startY = parseInt(startDate.substring(0, 4), 10);
+            const startM = parseInt(startDate.substring(5, 7), 10);
+            const endY = parseInt(endDate.substring(0, 4), 10);
+            const endM = parseInt(endDate.substring(5, 7), 10);
+            const selectClass = 'appearance-none rounded-lg border border-slate-200/70 bg-white px-3 py-2 pr-7 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-200 dark:hover:border-white/20 cursor-pointer';
+            const setStart = (y: number, m: number) => {
+              const s = `${y}-${String(m).padStart(2, '0')}-01`;
+              const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
+              setDateRange({ start: s, end: currentEnd < s ? s : currentEnd });
+            };
+            const setEnd = (y: number, m: number) => {
+              const lastDay = new Date(y, m, 0).getDate();
+              const e = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+              const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
+              setDateRange({ start: currentStart > e ? e : currentStart, end: e });
+            };
+            return (
+              <div className="card-surface space-y-3 p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Filter</p>
+                  {dateRange && (
+                    <button
+                      type="button"
+                      onClick={() => setDateRange(null)}
+                      className="rounded-md px-2 py-0.5 text-[0.6rem] font-medium text-accent transition hover:bg-accent/10"
+                      aria-label="Reset to full timeline"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[0.6rem] uppercase tracking-wider text-slate-400">From</span>
+                    <div className="relative">
+                      <select value={startM} onChange={(e) => setStart(startY, Number(e.target.value))} className={selectClass} aria-label="Start month">
+                        {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
+                      </select>
+                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                    <div className="relative">
+                      <select value={startY} onChange={(e) => setStart(Number(e.target.value), startM)} className={selectClass} aria-label="Start year">
+                        {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                      </select>
+                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                  </div>
+                  <span className="text-slate-300 dark:text-slate-600">—</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[0.6rem] uppercase tracking-wider text-slate-400">To</span>
+                    <div className="relative">
+                      <select value={endM} onChange={(e) => setEnd(endY, Number(e.target.value))} className={selectClass} aria-label="End month">
+                        {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
+                      </select>
+                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                    <div className="relative">
+                      <select value={endY} onChange={(e) => setEnd(Number(e.target.value), endM)} className={selectClass} aria-label="End year">
+                        {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                      </select>
+                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* KPI summary cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
