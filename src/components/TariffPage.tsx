@@ -181,24 +181,24 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
       {totals && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto]">
           <div className="card-surface flex flex-col items-center justify-center px-5 py-3.5 text-center">
-            <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total kWh</p>
-            <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total kWh</p>
+            <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
           </div>
           <div className="card-surface flex flex-col items-center justify-center px-5 py-3.5 text-center">
-            <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Energy Cost</p>
-            <p className="mt-1 text-lg font-semibold text-emerald-500">{formatOmr(totals.totalEnergyCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Energy Cost</p>
+            <p className="mt-1 text-xl font-semibold text-emerald-500">{formatOmr(totals.totalEnergyCost)} <span className="text-xs text-slate-500">OMR</span></p>
           </div>
           <div className="card-surface flex flex-col items-center justify-center px-5 py-3.5 text-center">
-            <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Capacity Cost</p>
-            <p className="mt-1 text-lg font-semibold text-sky-400">{formatOmr(totals.totalCapacityCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Capacity Cost</p>
+            <p className="mt-1 text-xl font-semibold text-sky-400">{formatOmr(totals.totalCapacityCost)} <span className="text-xs text-slate-500">OMR</span></p>
           </div>
           <div className="card-surface flex flex-col items-center justify-center px-5 py-3.5 text-center">
-            <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Supply + VAT</p>
-            <p className="mt-1 text-lg font-semibold text-amber-400">{formatOmr(totals.totalSupply + totals.totalVat)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Supply + VAT</p>
+            <p className="mt-1 text-xl font-semibold text-amber-400">{formatOmr(totals.totalSupply + totals.totalVat)} <span className="text-xs text-slate-500">OMR</span></p>
           </div>
           <div className="card-surface flex flex-col items-center justify-center px-5 py-3.5 text-center">
-            <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Bill</p>
-            <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-[0.6rem] font-normal text-slate-500">OMR</span></p>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Bill</p>
+            <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-xs font-normal text-slate-500">OMR</span></p>
           </div>
 
           {/* Filter card — minimal, dates in 2 columns (From | To) aligned vertically */}
