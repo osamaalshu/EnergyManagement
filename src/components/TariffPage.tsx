@@ -176,9 +176,9 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Summary row: KPI cards + compact date filter on the right */}
+      {/* Summary row: KPI cards + filter card (same size) on the right */}
       {totals && (
-        <div className="flex flex-wrap items-start gap-4">
+        <div className="flex flex-wrap items-stretch gap-4">
           {/* KPI summary cards */}
           <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             <div className="card-surface px-4 py-3">
@@ -229,8 +229,21 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
               setDateRange({ start: currentStart > e ? e : currentStart, end: e });
             };
             return (
-              <div className="card-surface shrink-0 space-y-2 p-3">
-                <div className="flex items-center gap-1.5">
+              <div className="card-surface flex w-full min-w-[200px] max-w-[280px] shrink-0 flex-col px-4 py-3 lg:w-auto">
+                <div className="flex items-center justify-between">
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Filter</p>
+                  {dateRange && (
+                    <button
+                      type="button"
+                      onClick={() => setDateRange(null)}
+                      className="text-[0.6rem] font-medium text-accent transition hover:text-accent/80"
+                      aria-label="Reset to full timeline"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <span className="text-[0.55rem] uppercase tracking-wider text-slate-400">From</span>
                   <div className="relative"><select value={startM} onChange={(e) => setStart(startY, Number(e.target.value))} className={selectClass} aria-label="Start month">{months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}</select>{chevron}</div>
                   <div className="relative"><select value={startY} onChange={(e) => setStart(Number(e.target.value), startM)} className={selectClass} aria-label="Start year">{years.map((y) => <option key={y} value={y}>{y}</option>)}</select>{chevron}</div>
@@ -239,16 +252,6 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                   <div className="relative"><select value={endM} onChange={(e) => setEnd(endY, Number(e.target.value))} className={selectClass} aria-label="End month">{months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}</select>{chevron}</div>
                   <div className="relative"><select value={endY} onChange={(e) => setEnd(Number(e.target.value), endM)} className={selectClass} aria-label="End year">{years.map((y) => <option key={y} value={y}>{y}</option>)}</select>{chevron}</div>
                 </div>
-                {dateRange && (
-                  <button
-                    type="button"
-                    onClick={() => setDateRange(null)}
-                    className="text-[0.6rem] font-medium text-accent transition hover:text-accent/80"
-                    aria-label="Reset to full timeline"
-                  >
-                    Reset
-                  </button>
-                )}
               </div>
             );
           })()}

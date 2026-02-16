@@ -787,7 +787,7 @@ function makePumpTimeSeriesForResolution(resolution) {
       + r.CP_Chiller2_ChilledWaterFlowrate
       + r.CP_Chiller3_ChilledWaterFlowrate
     ));
-    const se = avgTotalFlow > 0 ? avgPumpKw / avgTotalFlow : 0;
+    const se = avgTotalFlow > 0 ? (avgPumpKw / avgTotalFlow) * 10 : 0;
     return {
       label: formatLabel(key, resolution),
       pumpKw: round(avgPumpKw, 2),
@@ -811,7 +811,7 @@ const allPumpRunning = allRows.filter(r => {
 });
 const overallPumpSpecificEnergy = allPumpRunning.length > 0
   ? round(avg(allPumpRunning.map(r =>
-      r.CP_TotalChilledWaterPump_kW / (r.CP_Chiller1_ChilledWaterFlowrate + r.CP_Chiller2_ChilledWaterFlowrate + r.CP_Chiller3_ChilledWaterFlowrate)
+      (r.CP_TotalChilledWaterPump_kW / (r.CP_Chiller1_ChilledWaterFlowrate + r.CP_Chiller2_ChilledWaterFlowrate + r.CP_Chiller3_ChilledWaterFlowrate)) * 10
     )), 4)
   : 0;
 
