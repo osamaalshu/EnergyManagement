@@ -176,68 +176,9 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Date range filter pill */}
-      {dataBounds && (() => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const startDate = effectiveRange?.start ?? dataBounds.minDate;
-        const endDate = effectiveRange?.end ?? dataBounds.maxDate;
-        const startY = parseInt(startDate.substring(0, 4), 10);
-        const startM = parseInt(startDate.substring(5, 7), 10);
-        const endY = parseInt(endDate.substring(0, 4), 10);
-        const endM = parseInt(endDate.substring(5, 7), 10);
-        const minY = parseInt(dataBounds.minDate.substring(0, 4), 10);
-        const maxY = parseInt(dataBounds.maxDate.substring(0, 4), 10);
-        const years = Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i);
-        const isCustom = dateRange !== null;
-
-        const setStart = (y: number, m: number) => {
-          const s = `${y}-${String(m).padStart(2, '0')}-01`;
-          const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
-          setDateRange({ start: s, end: currentEnd < s ? s : currentEnd });
-        };
-        const setEnd = (y: number, m: number) => {
-          const lastDay = new Date(y, m, 0).getDate();
-          const e = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-          const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
-          setDateRange({ start: currentStart > e ? e : currentStart, end: e });
-        };
-
-        const selectClass = 'appearance-none rounded-md bg-transparent px-1.5 py-0.5 text-xs font-medium text-slate-700 outline-none transition hover:bg-slate-100 focus:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10 dark:focus:bg-white/10 cursor-pointer';
-
-        return (
-          <div className="flex items-center gap-3">
-            <div className="card-surface inline-flex items-center gap-2 rounded-full px-4 py-2">
-              <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <select value={`${startM}-${startY}`} onChange={(e) => { const [m, y] = e.target.value.split('-').map(Number); setStart(y, m); }} className={selectClass} aria-label="Start date">
-                {years.flatMap((y) => months.map((label, i) => <option key={`${i+1}-${y}`} value={`${i+1}-${y}`}>{label} {y}</option>))}
-              </select>
-              <span className="text-xs text-slate-400">–</span>
-              <select value={`${endM}-${endY}`} onChange={(e) => { const [m, y] = e.target.value.split('-').map(Number); setEnd(y, m); }} className={selectClass} aria-label="End date">
-                {years.flatMap((y) => months.map((label, i) => <option key={`${i+1}-${y}`} value={`${i+1}-${y}`}>{label} {y}</option>))}
-              </select>
-              <svg className="h-3 w-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-            {isCustom && (
-              <button
-                type="button"
-                onClick={() => setDateRange(null)}
-                className="text-xs font-medium text-accent transition hover:text-accent/80"
-                aria-label="Reset to full timeline"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-        );
-      })()}
-
-      {/* Summary KPI cards */}
+      {/* Summary KPI cards + Filter (filter next to Total Bill, same card design) */}
       {totals && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <div className="card-surface px-4 py-3">
             <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total kWh</p>
             <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
@@ -258,6 +199,80 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
             <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Bill</p>
             <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-[0.6rem] font-normal text-slate-500">OMR</span></p>
           </div>
+
+          {/* Filter card — same design as KPI cards, next to Total Bill */}
+          {dataBounds && (() => {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const startDate = effectiveRange?.start ?? dataBounds.minDate;
+            const endDate = effectiveRange?.end ?? dataBounds.maxDate;
+            const startY = parseInt(startDate.substring(0, 4), 10);
+            const startM = parseInt(startDate.substring(5, 7), 10);
+            const endY = parseInt(endDate.substring(0, 4), 10);
+            const endM = parseInt(endDate.substring(5, 7), 10);
+            const minY = parseInt(dataBounds.minDate.substring(0, 4), 10);
+            const maxY = parseInt(dataBounds.maxDate.substring(0, 4), 10);
+            const years = Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i);
+
+            const setStart = (y: number, m: number) => {
+              const s = `${y}-${String(m).padStart(2, '0')}-01`;
+              const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
+              setDateRange({ start: s, end: currentEnd < s ? s : currentEnd });
+            };
+            const setEnd = (y: number, m: number) => {
+              const lastDay = new Date(y, m, 0).getDate();
+              const e = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+              const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
+              setDateRange({ start: currentStart > e ? e : currentStart, end: e });
+            };
+
+            const selectClass = 'mt-1 w-full appearance-none rounded-md border border-slate-200/70 bg-white px-2 py-1.5 pr-6 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-200 dark:hover:border-white/20 cursor-pointer';
+
+            return (
+              <div className="card-surface flex flex-col px-4 py-3">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Filter</p>
+                  {dateRange !== null && (
+                    <button
+                      type="button"
+                      onClick={() => setDateRange(null)}
+                      className="text-[0.6rem] font-medium text-accent transition hover:text-accent/80"
+                      aria-label="Reset to full timeline"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-1">
+                  <span className="col-span-2 text-[0.55rem] uppercase tracking-wider text-slate-400">From</span>
+                  <div className="relative">
+                    <select value={startM} onChange={(e) => setStart(startY, Number(e.target.value))} className={selectClass} aria-label="Start month">
+                      {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
+                    </select>
+                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                  <div className="relative">
+                    <select value={startY} onChange={(e) => setStart(Number(e.target.value), startM)} className={selectClass} aria-label="Start year">
+                      {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                  <span className="col-span-2 mt-0.5 text-[0.55rem] uppercase tracking-wider text-slate-400">To</span>
+                  <div className="relative">
+                    <select value={endM} onChange={(e) => setEnd(endY, Number(e.target.value))} className={selectClass} aria-label="End month">
+                      {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
+                    </select>
+                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                  <div className="relative">
+                    <select value={endY} onChange={(e) => setEnd(Number(e.target.value), endM)} className={selectClass} aria-label="End year">
+                      {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
 
