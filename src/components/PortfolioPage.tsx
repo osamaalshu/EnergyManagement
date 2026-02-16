@@ -1,6 +1,5 @@
 import { type FC, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
-  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
@@ -65,19 +64,6 @@ const ClickableScatterDot: FC<CustomDotProps> = ({ cx = 0, cy = 0, payload, onNa
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ScatterTooltipContent: FC<any> = ({ active, payload }) => {
-  if (!active || !payload?.[0]) return null;
-  const d = payload[0].payload;
-  return (
-    <div className="card-surface space-y-1 p-3 text-sm shadow-lg">
-      <p className="font-semibold text-slate-900 dark:text-white">{d.name}</p>
-      <p className="text-slate-600 dark:text-slate-400">{d.surfaceArea.toLocaleString()} m² · {d.normalizedConsumption} kWh/m²</p>
-      <p className={BAND_TEXT_CLASS[d.performanceBand as PerformanceBand]}>{d.performanceBand}</p>
-    </div>
-  );
-};
-
 /* ═══════════════════════════════════════════════════════════════════
    Component
    ═══════════════════════════════════════════════════════════════════ */
@@ -88,9 +74,55 @@ interface PortfolioPageProps {
 const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [comparisonResolution, setComparisonResolution] = useState<TimeResolution>('monthly');
+  const [scatterSize, setScatterSize] = useState({ width: 800, height: 320 });
+  const [pieSize, setPieSize] = useState({ width: 200, height: 160 });
+  const [barSize, setBarSize] = useState({ width: 800, height: 288 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const scatterContainerRef = useRef<HTMLDivElement>(null);
+  const pieContainerRef = useRef<HTMLDivElement>(null);
+  const barContainerRef = useRef<HTMLDivElement>(null);
 
   const closeDropdown = useCallback(() => setBuildingDropdownOpen(false), []);
+
+  // Measure scatter container; only update with valid dimensions so chart never receives 0 or -1
+  useEffect(() => {
+    const el = scatterContainerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) setScatterSize({ width: Math.round(width), height: Math.round(height) });
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const el = pieContainerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) setPieSize({ width: Math.round(width), height: Math.round(height) });
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const el = barContainerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) setBarSize({ width: Math.round(width), height: Math.round(height) });
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!buildingDropdownOpen) return;
@@ -193,29 +225,27 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
           </div>
         </div>
 
-        {/* Card 2: Energy Breakdown donut */}
+        {/* Card 2: Energy Breakdown donut — chart shows only positive values; legend shows all categories */}
         <div className="card-surface flex flex-col p-5">
           <SectionTitle>Energy Breakdown</SectionTitle>
           <div className="flex-1">
-            <div className="h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={buildingConsumptionBreakdown as unknown as Record<string, unknown>[]}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={65}
-                    dataKey="value"
-                    strokeWidth={0}
-                  >
-                    {buildingConsumptionBreakdown.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={tooltipStyles} />
-                </PieChart>
-              </ResponsiveContainer>
+            <div ref={pieContainerRef} className="h-40 min-h-[10rem]">
+              <PieChart width={pieSize.width} height={pieSize.height}>
+                <Pie
+                  data={buildingConsumptionBreakdown.filter((e) => e.value > 0) as unknown as Record<string, unknown>[]}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={65}
+                  dataKey="value"
+                  strokeWidth={0}
+                >
+                  {buildingConsumptionBreakdown.filter((e) => e.value > 0).map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={tooltipStyles} />
+              </PieChart>
             </div>
           </div>
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
@@ -261,27 +291,25 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
         </div>
 
         {comparisonData.length > 0 ? (
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={comparisonData} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
-                <XAxis
-                  dataKey="month"
-                  tick={tickStyle}
-                  tickLine={false}
-                  axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  interval={comparisonData.length > 30 ? Math.floor(comparisonData.length / 10) : 0}
-                  angle={comparisonData.length > 15 ? -45 : 0}
-                  textAnchor={comparisonData.length > 15 ? 'end' : 'middle'}
-                  height={comparisonData.length > 15 ? 65 : 30}
-                />
-                <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={56} label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }} />
-                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-                <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconType="square" iconSize={10} />
-                <Bar dataKey="portfolioValue" name="Portfolio" fill="#1A365D" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="sectorValue" name="Sector Average" fill="#64748b" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div ref={barContainerRef} className="h-72 min-h-[18rem] min-w-0">
+            <BarChart width={barSize.width} height={barSize.height} data={comparisonData} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+              <XAxis
+                dataKey="month"
+                tick={tickStyle}
+                tickLine={false}
+                axisLine={{ stroke: 'var(--grid-stroke)' }}
+                interval={comparisonData.length > 30 ? Math.floor(comparisonData.length / 10) : 0}
+                angle={comparisonData.length > 15 ? -45 : 0}
+                textAnchor={comparisonData.length > 15 ? 'end' : 'middle'}
+                height={comparisonData.length > 15 ? 65 : 30}
+              />
+              <YAxis tick={tickStyle} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} width={56} label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }} />
+              <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+              <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconType="square" iconSize={10} />
+              <Bar dataKey="portfolioValue" name="Portfolio" fill="#1A365D" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="sectorValue" name="Sector Average" fill="#64748b" radius={[4, 4, 0, 0]} />
+            </BarChart>
           </div>
         ) : (
           <div className="flex h-64 items-center justify-center">
@@ -305,50 +333,56 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
         </div>
 
         {scatterData.length > 0 ? (
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
-                <XAxis
-                  type="number"
-                  dataKey="x"
-                  name="Surface Area"
-                  unit=" m²"
-                  tick={tickStyle}
-                  tickLine={false}
-                  axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  label={{ value: 'Surface Area (m²)', position: 'insideBottom', offset: -4, fill: 'var(--muted-text)', fontSize: 11 }}
-                />
-                <YAxis
-                  type="number"
-                  dataKey="y"
-                  name="Consumption"
-                  tick={tickStyle}
-                  tickLine={false}
-                  axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  width={56}
-                  label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 11 }}
-                />
-                <ZAxis type="number" dataKey="z" range={[120, 120]} />
-                {/* Diagonal sector-average baseline */}
-                {baselineDiagonal.length > 0 && (
-                  <Scatter
-                    data={baselineDiagonal}
-                    line={{ stroke: '#64748b', strokeWidth: 1.5, strokeDasharray: '6 4' }}
-                    shape={(() => <circle r={0} />) as unknown as (props: unknown) => React.JSX.Element}
-                    legendType="none"
-                    isAnimationActive={false}
-                  />
-                )}
-                <Tooltip content={<ScatterTooltipContent />} />
+          <div ref={scatterContainerRef} className="h-80 min-h-[20rem] min-w-0">
+            <ScatterChart width={scatterSize.width} height={scatterSize.height} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+              <XAxis
+                type="number"
+                dataKey="x"
+                name="Surface Area"
+                unit=" m²"
+                tick={tickStyle}
+                tickLine={false}
+                axisLine={{ stroke: 'var(--grid-stroke)' }}
+                label={{ value: 'Surface Area (m²)', position: 'insideBottom', offset: -4, fill: 'var(--muted-text)', fontSize: 11 }}
+              />
+              <YAxis
+                type="number"
+                dataKey="y"
+                name="Consumption"
+                tick={tickStyle}
+                tickLine={false}
+                axisLine={{ stroke: 'var(--grid-stroke)' }}
+                width={56}
+                label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 11 }}
+              />
+              <ZAxis type="number" dataKey="z" range={[120, 120]} />
+              {/* Diagonal sector-average baseline */}
+              {baselineDiagonal.length > 0 && (
                 <Scatter
-                  data={scatterData}
-                  shape={((props: unknown) => (
-                    <ClickableScatterDot {...(props as CustomDotProps)} onNavigateToBuilding={onNavigateToBuilding} />
-                  )) as (props: unknown) => React.JSX.Element}
+                  data={baselineDiagonal}
+                  line={{ stroke: '#64748b', strokeWidth: 1.5, strokeDasharray: '6 4' }}
+                  shape={(() => <circle r={0} />) as unknown as (props: unknown) => React.JSX.Element}
+                  legendType="none"
+                  isAnimationActive={false}
                 />
-              </ScatterChart>
-            </ResponsiveContainer>
+              )}
+              <Tooltip
+                contentStyle={tooltipStyles}
+                labelFormatter={(_, payload) => {
+                  const p = payload?.[0]?.payload;
+                  if (!p) return '';
+                  return `${p.name}\n${p.surfaceArea?.toLocaleString() ?? ''} m² · ${p.normalizedConsumption ?? ''} kWh/m²\n${p.performanceBand ?? ''}`;
+                }}
+                formatter={() => null}
+              />
+              <Scatter
+                data={scatterData}
+                shape={((props: unknown) => (
+                  <ClickableScatterDot {...(props as CustomDotProps)} onNavigateToBuilding={onNavigateToBuilding} />
+                )) as (props: unknown) => React.JSX.Element}
+              />
+            </ScatterChart>
           </div>
         ) : (
           <div className="flex h-64 items-center justify-center">

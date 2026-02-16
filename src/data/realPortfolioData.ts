@@ -110,8 +110,11 @@ export const comparisonsByResolution: ByResolution<MonthComparison[]> = {
   yearly:  rawComparisons.yearly.map(mapComparison),
 };
 
-// Energy breakdown by category (HVAC, lighting, heating, cooling); for now only cooling at 100%
+// Energy breakdown by category (HVAC, lighting, heating, cooling); for now only cooling in the breakdown (100%), others in legend only
 export const buildingConsumptionBreakdown: ConsumptionBreakdownEntry[] = [
+  { name: 'HVAC', value: 0, color: '#94a3b8' },
+  { name: 'Lighting', value: 0, color: '#94a3b8' },
+  { name: 'Heating', value: 0, color: '#94a3b8' },
   { name: 'Cooling', value: 100, color: '#38bdf8' },
 ];
 
