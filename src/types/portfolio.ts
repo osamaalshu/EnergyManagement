@@ -123,7 +123,8 @@ export interface CoolingTowerKPIs {
 
 export interface PumpKPIs {
   powerDraw: number;                 // kW
-  flowRate: number;                  // m³/s
+  flowRate: number;                  // m³/s (total chilled water flow)
+  specificEnergy: number;            // kWh/m³
 }
 
 export interface TimeSeriesPoint {

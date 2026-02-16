@@ -5,7 +5,7 @@
     "totalRows": 25053
   },
   "portfolioMeta": {
-    "name": "Building A",
+    "name": "Chiller Plant",
     "buildingCount": 1,
     "score": 70.75,
     "savingsPotentialPercent": 13
@@ -160,7 +160,7 @@
   ],
   "building": {
     "id": "CP1",
-    "name": "Building A",
+    "name": "Chiller Plant 1",
     "sector": "Commercial",
     "surfaceArea": 5000,
     "normalizedConsumption": 305,
@@ -159549,6 +159549,2077 @@
     ]
   },
   "overallCop": 7.05,
+  "pumpTimeSeriesByResolution": {
+    "hourly": [
+      {
+        "label": "Apr 2 00:00",
+        "pumpKw": 5.49,
+        "totalFlow": 708.14,
+        "specificEnergy": 0.0077
+      },
+      {
+        "label": "Apr 2 01:00",
+        "pumpKw": 4.37,
+        "totalFlow": 637.3,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 2 02:00",
+        "pumpKw": 6.02,
+        "totalFlow": 711.78,
+        "specificEnergy": 0.0085
+      },
+      {
+        "label": "Apr 2 03:00",
+        "pumpKw": 6.03,
+        "totalFlow": 724.92,
+        "specificEnergy": 0.0083
+      },
+      {
+        "label": "Apr 2 04:00",
+        "pumpKw": 4.49,
+        "totalFlow": 647.57,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 2 05:00",
+        "pumpKw": 5.25,
+        "totalFlow": 674.45,
+        "specificEnergy": 0.0078
+      },
+      {
+        "label": "Apr 2 06:00",
+        "pumpKw": 6.47,
+        "totalFlow": 755.46,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 2 07:00",
+        "pumpKw": 5.87,
+        "totalFlow": 1063.79,
+        "specificEnergy": 0.0055
+      },
+      {
+        "label": "Apr 2 08:00",
+        "pumpKw": 3.96,
+        "totalFlow": 1620.55,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 2 09:00",
+        "pumpKw": 3.46,
+        "totalFlow": 1717.71,
+        "specificEnergy": 0.002
+      },
+      {
+        "label": "Apr 2 10:00",
+        "pumpKw": 2.56,
+        "totalFlow": 1444.1,
+        "specificEnergy": 0.0018
+      },
+      {
+        "label": "Apr 2 11:00",
+        "pumpKw": 2.21,
+        "totalFlow": 1308.03,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 2 12:00",
+        "pumpKw": 2.87,
+        "totalFlow": 1291.12,
+        "specificEnergy": 0.0022
+      },
+      {
+        "label": "Apr 2 13:00",
+        "pumpKw": 6.11,
+        "totalFlow": 1356.45,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "Apr 2 14:00",
+        "pumpKw": 13.64,
+        "totalFlow": 1440.27,
+        "specificEnergy": 0.0095
+      },
+      {
+        "label": "Apr 2 15:00",
+        "pumpKw": 13.59,
+        "totalFlow": 1439.72,
+        "specificEnergy": 0.0094
+      },
+      {
+        "label": "Apr 2 16:00",
+        "pumpKw": 10.16,
+        "totalFlow": 1063.06,
+        "specificEnergy": 0.0096
+      },
+      {
+        "label": "Apr 2 17:00",
+        "pumpKw": 6.83,
+        "totalFlow": 837.13,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "Apr 2 18:00",
+        "pumpKw": 6.31,
+        "totalFlow": 733.13,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 2 19:00",
+        "pumpKw": 6.55,
+        "totalFlow": 783.69,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "Apr 2 20:00",
+        "pumpKw": 6.44,
+        "totalFlow": 767.11,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "Apr 2 21:00",
+        "pumpKw": 6.68,
+        "totalFlow": 825.8,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "Apr 2 22:00",
+        "pumpKw": 6.06,
+        "totalFlow": 758.38,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Apr 2 23:00",
+        "pumpKw": 4.5,
+        "totalFlow": 651.11,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 3 00:00",
+        "pumpKw": 5.65,
+        "totalFlow": 694.65,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "Apr 3 01:00",
+        "pumpKw": 6.42,
+        "totalFlow": 745.06,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 3 02:00",
+        "pumpKw": 4.63,
+        "totalFlow": 664.27,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 3 03:00",
+        "pumpKw": 5.37,
+        "totalFlow": 683.38,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 3 04:00",
+        "pumpKw": 6.76,
+        "totalFlow": 757.21,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 3 05:00",
+        "pumpKw": 4.75,
+        "totalFlow": 669.71,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "Apr 3 06:00",
+        "pumpKw": 6,
+        "totalFlow": 722.9,
+        "specificEnergy": 0.0083
+      },
+      {
+        "label": "Apr 3 07:00",
+        "pumpKw": 6.83,
+        "totalFlow": 1170.49,
+        "specificEnergy": 0.0058
+      },
+      {
+        "label": "Apr 3 08:00",
+        "pumpKw": 4,
+        "totalFlow": 1666.73,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 3 09:00",
+        "pumpKw": 4.05,
+        "totalFlow": 1906.13,
+        "specificEnergy": 0.0021
+      },
+      {
+        "label": "Apr 3 10:00",
+        "pumpKw": 2.64,
+        "totalFlow": 1471.1,
+        "specificEnergy": 0.0018
+      },
+      {
+        "label": "Apr 3 11:00",
+        "pumpKw": 3.25,
+        "totalFlow": 1350.43,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 3 12:00",
+        "pumpKw": 3.34,
+        "totalFlow": 1365.58,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 3 13:00",
+        "pumpKw": 3.39,
+        "totalFlow": 1358.25,
+        "specificEnergy": 0.0025
+      },
+      {
+        "label": "Apr 3 14:00",
+        "pumpKw": 3.32,
+        "totalFlow": 1337.39,
+        "specificEnergy": 0.0025
+      },
+      {
+        "label": "Apr 3 15:00",
+        "pumpKw": 3.31,
+        "totalFlow": 1322.49,
+        "specificEnergy": 0.0025
+      },
+      {
+        "label": "Apr 3 16:00",
+        "pumpKw": 3.09,
+        "totalFlow": 883.5,
+        "specificEnergy": 0.0035
+      },
+      {
+        "label": "Apr 3 17:00",
+        "pumpKw": 3.12,
+        "totalFlow": 404.64,
+        "specificEnergy": 0.0077
+      },
+      {
+        "label": "Apr 3 18:00",
+        "pumpKw": 4.27,
+        "totalFlow": 519.36,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "Apr 3 19:00",
+        "pumpKw": 4.87,
+        "totalFlow": 681.54,
+        "specificEnergy": 0.0072
+      },
+      {
+        "label": "Apr 3 20:00",
+        "pumpKw": 6.6,
+        "totalFlow": 745.13,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 3 21:00",
+        "pumpKw": 5.87,
+        "totalFlow": 736.55,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Apr 3 22:00",
+        "pumpKw": 4.65,
+        "totalFlow": 661.67,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 3 23:00",
+        "pumpKw": 6.12,
+        "totalFlow": 715.3,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 4 00:00",
+        "pumpKw": 5.85,
+        "totalFlow": 722.2,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "Apr 4 01:00",
+        "pumpKw": 4.48,
+        "totalFlow": 646.62,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 4 02:00",
+        "pumpKw": 5.72,
+        "totalFlow": 697.04,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "Apr 4 03:00",
+        "pumpKw": 6.26,
+        "totalFlow": 733.83,
+        "specificEnergy": 0.0085
+      },
+      {
+        "label": "Apr 4 04:00",
+        "pumpKw": 4.61,
+        "totalFlow": 658.59,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 4 05:00",
+        "pumpKw": 5.08,
+        "totalFlow": 666.06,
+        "specificEnergy": 0.0076
+      },
+      {
+        "label": "Apr 4 06:00",
+        "pumpKw": 6.85,
+        "totalFlow": 765.53,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 4 07:00",
+        "pumpKw": 5.08,
+        "totalFlow": 1005.68,
+        "specificEnergy": 0.0051
+      },
+      {
+        "label": "Apr 4 08:00",
+        "pumpKw": 3.79,
+        "totalFlow": 1553.56,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 4 09:00",
+        "pumpKw": 2.88,
+        "totalFlow": 1519.67,
+        "specificEnergy": 0.0019
+      },
+      {
+        "label": "Apr 4 10:00",
+        "pumpKw": 2.19,
+        "totalFlow": 1288.87,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 4 11:00",
+        "pumpKw": 2.29,
+        "totalFlow": 1353.83,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 4 12:00",
+        "pumpKw": 2.27,
+        "totalFlow": 1287.96,
+        "specificEnergy": 0.0018
+      },
+      {
+        "label": "Apr 4 13:00",
+        "pumpKw": 2.07,
+        "totalFlow": 1163.87,
+        "specificEnergy": 0.0018
+      },
+      {
+        "label": "Apr 4 14:00",
+        "pumpKw": 2.23,
+        "totalFlow": 1320.05,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 4 15:00",
+        "pumpKw": 2.32,
+        "totalFlow": 1335.75,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 4 16:00",
+        "pumpKw": 3.62,
+        "totalFlow": 991.92,
+        "specificEnergy": 0.0037
+      },
+      {
+        "label": "Apr 4 17:00",
+        "pumpKw": 4.64,
+        "totalFlow": 660.93,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 4 18:00",
+        "pumpKw": 3.79,
+        "totalFlow": 565.82,
+        "specificEnergy": 0.0067
+      },
+      {
+        "label": "Apr 4 19:00",
+        "pumpKw": 4.15,
+        "totalFlow": 606.04,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 4 20:00",
+        "pumpKw": 4.57,
+        "totalFlow": 650.59,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 4 21:00",
+        "pumpKw": 6.87,
+        "totalFlow": 746.45,
+        "specificEnergy": 0.0092
+      },
+      {
+        "label": "Apr 4 22:00",
+        "pumpKw": 5.23,
+        "totalFlow": 701.71,
+        "specificEnergy": 0.0075
+      },
+      {
+        "label": "Apr 4 23:00",
+        "pumpKw": 4.4,
+        "totalFlow": 639.47,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 5 00:00",
+        "pumpKw": 6.61,
+        "totalFlow": 742.6,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 5 01:00",
+        "pumpKw": 5.67,
+        "totalFlow": 718.79,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 5 02:00",
+        "pumpKw": 4.44,
+        "totalFlow": 644.65,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 5 03:00",
+        "pumpKw": 6.27,
+        "totalFlow": 726.87,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 5 04:00",
+        "pumpKw": 5.78,
+        "totalFlow": 718.77,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Apr 5 05:00",
+        "pumpKw": 4.46,
+        "totalFlow": 643.47,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 5 06:00",
+        "pumpKw": 5.77,
+        "totalFlow": 706.61,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "Apr 5 07:00",
+        "pumpKw": 6.82,
+        "totalFlow": 771.34,
+        "specificEnergy": 0.0088
+      },
+      {
+        "label": "Apr 5 08:00",
+        "pumpKw": 5.51,
+        "totalFlow": 740.34,
+        "specificEnergy": 0.0074
+      },
+      {
+        "label": "Apr 5 09:00",
+        "pumpKw": 5.79,
+        "totalFlow": 761.57,
+        "specificEnergy": 0.0076
+      },
+      {
+        "label": "Apr 5 10:00",
+        "pumpKw": 8.09,
+        "totalFlow": 867.48,
+        "specificEnergy": 0.0093
+      },
+      {
+        "label": "Apr 5 11:00",
+        "pumpKw": 5.84,
+        "totalFlow": 966.18,
+        "specificEnergy": 0.006
+      },
+      {
+        "label": "Apr 5 12:00",
+        "pumpKw": 6.32,
+        "totalFlow": 801.78,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 5 13:00",
+        "pumpKw": 5.43,
+        "totalFlow": 734.84,
+        "specificEnergy": 0.0074
+      },
+      {
+        "label": "Apr 5 14:00",
+        "pumpKw": 8.74,
+        "totalFlow": 879.26,
+        "specificEnergy": 0.0099
+      },
+      {
+        "label": "Apr 5 15:00",
+        "pumpKw": 5.57,
+        "totalFlow": 742.42,
+        "specificEnergy": 0.0075
+      },
+      {
+        "label": "Apr 5 16:00",
+        "pumpKw": 4.55,
+        "totalFlow": 654.01,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 5 17:00",
+        "pumpKw": 6.68,
+        "totalFlow": 746.83,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 5 18:00",
+        "pumpKw": 5.55,
+        "totalFlow": 717.85,
+        "specificEnergy": 0.0077
+      },
+      {
+        "label": "Apr 5 19:00",
+        "pumpKw": 4.46,
+        "totalFlow": 645.96,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 5 20:00",
+        "pumpKw": 6.31,
+        "totalFlow": 729.89,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 5 21:00",
+        "pumpKw": 5.66,
+        "totalFlow": 713.06,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 5 22:00",
+        "pumpKw": 4.32,
+        "totalFlow": 631.42,
+        "specificEnergy": 0.0068
+      },
+      {
+        "label": "Apr 5 23:00",
+        "pumpKw": 4.79,
+        "totalFlow": 652.04,
+        "specificEnergy": 0.0073
+      },
+      {
+        "label": "Apr 6 00:00",
+        "pumpKw": 6.54,
+        "totalFlow": 729.01,
+        "specificEnergy": 0.009
+      },
+      {
+        "label": "Apr 6 01:00",
+        "pumpKw": 4.99,
+        "totalFlow": 686.02,
+        "specificEnergy": 0.0073
+      },
+      {
+        "label": "Apr 6 02:00",
+        "pumpKw": 4.14,
+        "totalFlow": 616.83,
+        "specificEnergy": 0.0067
+      },
+      {
+        "label": "Apr 6 03:00",
+        "pumpKw": 5.67,
+        "totalFlow": 688.04,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "Apr 6 04:00",
+        "pumpKw": 6.06,
+        "totalFlow": 718.57,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "Apr 6 05:00",
+        "pumpKw": 4.48,
+        "totalFlow": 646.87,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 6 06:00",
+        "pumpKw": 4.61,
+        "totalFlow": 648.73,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "Apr 6 07:00",
+        "pumpKw": 6.96,
+        "totalFlow": 752.74,
+        "specificEnergy": 0.0092
+      },
+      {
+        "label": "Apr 6 08:00",
+        "pumpKw": 5.17,
+        "totalFlow": 703.97,
+        "specificEnergy": 0.0073
+      },
+      {
+        "label": "Apr 6 09:00",
+        "pumpKw": 4.47,
+        "totalFlow": 647.18,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 6 10:00",
+        "pumpKw": 6.69,
+        "totalFlow": 742.78,
+        "specificEnergy": 0.009
+      },
+      {
+        "label": "Apr 6 11:00",
+        "pumpKw": 4.24,
+        "totalFlow": 533.93,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 6 12:00",
+        "pumpKw": 2.97,
+        "totalFlow": 371.97,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Apr 6 13:00",
+        "pumpKw": 3.21,
+        "totalFlow": 427.56,
+        "specificEnergy": 0.0075
+      },
+      {
+        "label": "Apr 6 14:00",
+        "pumpKw": 3.19,
+        "totalFlow": 413.2,
+        "specificEnergy": 0.0077
+      },
+      {
+        "label": "Apr 6 15:00",
+        "pumpKw": 3.32,
+        "totalFlow": 437.35,
+        "specificEnergy": 0.0076
+      },
+      {
+        "label": "Apr 6 16:00",
+        "pumpKw": 3.34,
+        "totalFlow": 427.47,
+        "specificEnergy": 0.0078
+      },
+      {
+        "label": "Apr 6 17:00",
+        "pumpKw": 3.59,
+        "totalFlow": 452.46,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 6 18:00",
+        "pumpKw": 4.81,
+        "totalFlow": 575.01,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "Apr 6 19:00",
+        "pumpKw": 5.07,
+        "totalFlow": 700.43,
+        "specificEnergy": 0.0072
+      },
+      {
+        "label": "Apr 6 20:00",
+        "pumpKw": 6.6,
+        "totalFlow": 756.01,
+        "specificEnergy": 0.0087
+      },
+      {
+        "label": "Apr 6 21:00",
+        "pumpKw": 5.74,
+        "totalFlow": 716.94,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Apr 6 22:00",
+        "pumpKw": 4.43,
+        "totalFlow": 642.92,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 6 23:00",
+        "pumpKw": 5.66,
+        "totalFlow": 697.12,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "Apr 7 00:00",
+        "pumpKw": 6.42,
+        "totalFlow": 744.88,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 7 01:00",
+        "pumpKw": 4.59,
+        "totalFlow": 659.5,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 7 02:00",
+        "pumpKw": 4.86,
+        "totalFlow": 655.11,
+        "specificEnergy": 0.0074
+      },
+      {
+        "label": "Apr 7 03:00",
+        "pumpKw": 6.98,
+        "totalFlow": 755.95,
+        "specificEnergy": 0.0092
+      },
+      {
+        "label": "Apr 7 04:00",
+        "pumpKw": 5,
+        "totalFlow": 689.06,
+        "specificEnergy": 0.0073
+      },
+      {
+        "label": "Apr 7 05:00",
+        "pumpKw": 4.21,
+        "totalFlow": 620.93,
+        "specificEnergy": 0.0068
+      },
+      {
+        "label": "Apr 7 06:00",
+        "pumpKw": 6.57,
+        "totalFlow": 741.75,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 7 07:00",
+        "pumpKw": 6.21,
+        "totalFlow": 1102.5,
+        "specificEnergy": 0.0056
+      },
+      {
+        "label": "Apr 7 08:00",
+        "pumpKw": 3.93,
+        "totalFlow": 1627.27,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 7 09:00",
+        "pumpKw": 3.19,
+        "totalFlow": 1674.41,
+        "specificEnergy": 0.0019
+      },
+      {
+        "label": "Apr 7 10:00",
+        "pumpKw": 2.4,
+        "totalFlow": 1367.15,
+        "specificEnergy": 0.0018
+      },
+      {
+        "label": "Apr 7 11:00",
+        "pumpKw": 2.4,
+        "totalFlow": 1373.06,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 7 12:00",
+        "pumpKw": 3.32,
+        "totalFlow": 1335.67,
+        "specificEnergy": 0.0025
+      },
+      {
+        "label": "Apr 7 13:00",
+        "pumpKw": 3.32,
+        "totalFlow": 1340.76,
+        "specificEnergy": 0.0025
+      },
+      {
+        "label": "Apr 7 14:00",
+        "pumpKw": 3.35,
+        "totalFlow": 1374.36,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 7 15:00",
+        "pumpKw": 3.35,
+        "totalFlow": 1398.45,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 7 16:00",
+        "pumpKw": 4.04,
+        "totalFlow": 1054.03,
+        "specificEnergy": 0.0038
+      },
+      {
+        "label": "Apr 7 17:00",
+        "pumpKw": 4.77,
+        "totalFlow": 624.87,
+        "specificEnergy": 0.0076
+      },
+      {
+        "label": "Apr 7 18:00",
+        "pumpKw": 4.56,
+        "totalFlow": 582.43,
+        "specificEnergy": 0.0078
+      },
+      {
+        "label": "Apr 7 19:00",
+        "pumpKw": 4.33,
+        "totalFlow": 626.37,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 7 20:00",
+        "pumpKw": 5.6,
+        "totalFlow": 705.42,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 7 21:00",
+        "pumpKw": 6.65,
+        "totalFlow": 763.08,
+        "specificEnergy": 0.0087
+      },
+      {
+        "label": "Apr 7 22:00",
+        "pumpKw": 4.68,
+        "totalFlow": 665.18,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 7 23:00",
+        "pumpKw": 5.42,
+        "totalFlow": 680.71,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Apr 8 00:00",
+        "pumpKw": 6.64,
+        "totalFlow": 747.01,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 8 01:00",
+        "pumpKw": 4.71,
+        "totalFlow": 669.25,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 8 02:00",
+        "pumpKw": 4.94,
+        "totalFlow": 667.06,
+        "specificEnergy": 0.0074
+      },
+      {
+        "label": "Apr 8 03:00",
+        "pumpKw": 7.02,
+        "totalFlow": 756.36,
+        "specificEnergy": 0.0093
+      },
+      {
+        "label": "Apr 8 04:00",
+        "pumpKw": 4.82,
+        "totalFlow": 679.24,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "Apr 8 05:00",
+        "pumpKw": 4.65,
+        "totalFlow": 664.22,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 8 06:00",
+        "pumpKw": 6.85,
+        "totalFlow": 755.98,
+        "specificEnergy": 0.0091
+      },
+      {
+        "label": "Apr 8 07:00",
+        "pumpKw": 5.68,
+        "totalFlow": 1053.02,
+        "specificEnergy": 0.0054
+      },
+      {
+        "label": "Apr 8 08:00",
+        "pumpKw": 3.95,
+        "totalFlow": 1615.9,
+        "specificEnergy": 0.0024
+      },
+      {
+        "label": "Apr 8 09:00",
+        "pumpKw": 3.36,
+        "totalFlow": 1681.8,
+        "specificEnergy": 0.002
+      },
+      {
+        "label": "Apr 8 10:00",
+        "pumpKw": 2.56,
+        "totalFlow": 1464.46,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 8 11:00",
+        "pumpKw": 2.47,
+        "totalFlow": 1415.87,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 8 12:00",
+        "pumpKw": 2.54,
+        "totalFlow": 1464.32,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 8 13:00",
+        "pumpKw": 2.46,
+        "totalFlow": 1431.71,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 8 14:00",
+        "pumpKw": 2.3,
+        "totalFlow": 1363.36,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 8 15:00",
+        "pumpKw": 2.22,
+        "totalFlow": 1314.71,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 8 16:00",
+        "pumpKw": 4.73,
+        "totalFlow": 1048.24,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "Apr 8 17:00",
+        "pumpKw": 7.19,
+        "totalFlow": 856.02,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "Apr 8 18:00",
+        "pumpKw": 5.13,
+        "totalFlow": 702.88,
+        "specificEnergy": 0.0073
+      },
+      {
+        "label": "Apr 8 19:00",
+        "pumpKw": 5.91,
+        "totalFlow": 714.44,
+        "specificEnergy": 0.0083
+      },
+      {
+        "label": "Apr 8 20:00",
+        "pumpKw": 6.56,
+        "totalFlow": 764.23,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "Apr 8 21:00",
+        "pumpKw": 4.74,
+        "totalFlow": 669.75,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "Apr 8 22:00",
+        "pumpKw": 4.85,
+        "totalFlow": 650.65,
+        "specificEnergy": 0.0074
+      },
+      {
+        "label": "Apr 8 23:00",
+        "pumpKw": 6.55,
+        "totalFlow": 736.93,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 9 00:00",
+        "pumpKw": 4.7,
+        "totalFlow": 670.1,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 9 01:00",
+        "pumpKw": 4.6,
+        "totalFlow": 660.96,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Apr 9 02:00",
+        "pumpKw": 6.49,
+        "totalFlow": 725.32,
+        "specificEnergy": 0.0089
+      },
+      {
+        "label": "Apr 9 03:00",
+        "pumpKw": 5.59,
+        "totalFlow": 709.04,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Apr 9 04:00",
+        "pumpKw": 4.57,
+        "totalFlow": 659.57,
+        "specificEnergy": 0.0069
+      },
+      {
+        "label": "Apr 9 05:00",
+        "pumpKw": 5.47,
+        "totalFlow": 682.42,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Apr 9 06:00",
+        "pumpKw": 6.61,
+        "totalFlow": 756.57,
+        "specificEnergy": 0.0087
+      },
+      {
+        "label": "Apr 9 07:00",
+        "pumpKw": 5.39,
+        "totalFlow": 1017.07,
+        "specificEnergy": 0.0053
+      },
+      {
+        "label": "Apr 9 08:00",
+        "pumpKw": 4.16,
+        "totalFlow": 1594.55,
+        "specificEnergy": 0.0026
+      },
+      {
+        "label": "Apr 9 09:00",
+        "pumpKw": 3.42,
+        "totalFlow": 1716.32,
+        "specificEnergy": 0.002
+      },
+      {
+        "label": "Apr 9 10:00",
+        "pumpKw": 2.49,
+        "totalFlow": 1438.63,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 9 11:00",
+        "pumpKw": 2.37,
+        "totalFlow": 1393.13,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 9 12:00",
+        "pumpKw": 2.29,
+        "totalFlow": 1358.75,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 9 13:00",
+        "pumpKw": 2.32,
+        "totalFlow": 1363.21,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 9 14:00",
+        "pumpKw": 2.46,
+        "totalFlow": 1429.71,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 9 15:00",
+        "pumpKw": 2.32,
+        "totalFlow": 1370.92,
+        "specificEnergy": 0.0017
+      },
+      {
+        "label": "Apr 9 16:00",
+        "pumpKw": 6.21,
+        "totalFlow": 1021.61,
+        "specificEnergy": 0.0061
+      },
+      {
+        "label": "Apr 9 17:00",
+        "pumpKw": 4.4,
+        "totalFlow": 599.37,
+        "specificEnergy": 0.0073
+      },
+      {
+        "label": "Apr 9 18:00",
+        "pumpKw": 5.05,
+        "totalFlow": 670.24,
+        "specificEnergy": 0.0075
+      },
+      {
+        "label": "Apr 9 19:00",
+        "pumpKw": 4.19,
+        "totalFlow": 613.14,
+        "specificEnergy": 0.0068
+      },
+      {
+        "label": "Apr 9 20:00",
+        "pumpKw": 4.46,
+        "totalFlow": 639.28,
+        "specificEnergy": 0.007
+      }
+    ],
+    "daily": [
+      {
+        "label": "2014-01-01",
+        "pumpKw": 5.58,
+        "totalFlow": 692.55,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "2014-01-02",
+        "pumpKw": 5.26,
+        "totalFlow": 863.58,
+        "specificEnergy": 0.0061
+      },
+      {
+        "label": "2014-01-03",
+        "pumpKw": 4.53,
+        "totalFlow": 880.91,
+        "specificEnergy": 0.0051
+      },
+      {
+        "label": "2014-01-04",
+        "pumpKw": 5.38,
+        "totalFlow": 652.07,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "2014-01-05",
+        "pumpKw": 5.96,
+        "totalFlow": 718.53,
+        "specificEnergy": 0.0083
+      },
+      {
+        "label": "2014-01-06",
+        "pumpKw": 4.28,
+        "totalFlow": 1058.08,
+        "specificEnergy": 0.004
+      },
+      {
+        "label": "2014-01-07",
+        "pumpKw": 4.46,
+        "totalFlow": 1111.1,
+        "specificEnergy": 0.004
+      },
+      {
+        "label": "2014-01-08",
+        "pumpKw": 4.7,
+        "totalFlow": 1136.64,
+        "specificEnergy": 0.0041
+      },
+      {
+        "label": "2014-01-09",
+        "pumpKw": 4.51,
+        "totalFlow": 1074.6,
+        "specificEnergy": 0.0042
+      },
+      {
+        "label": "2014-01-10",
+        "pumpKw": 4.31,
+        "totalFlow": 1053.29,
+        "specificEnergy": 0.0041
+      },
+      {
+        "label": "2014-01-11",
+        "pumpKw": 5.97,
+        "totalFlow": 734.49,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "2014-01-12",
+        "pumpKw": 5.61,
+        "totalFlow": 702.53,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "2014-01-13",
+        "pumpKw": 4.46,
+        "totalFlow": 1082.98,
+        "specificEnergy": 0.0041
+      },
+      {
+        "label": "2014-01-14",
+        "pumpKw": 4.29,
+        "totalFlow": 1035.4,
+        "specificEnergy": 0.0041
+      },
+      {
+        "label": "2014-01-15",
+        "pumpKw": 4,
+        "totalFlow": 953.37,
+        "specificEnergy": 0.0042
+      },
+      {
+        "label": "2014-01-16",
+        "pumpKw": 4.98,
+        "totalFlow": 982.82,
+        "specificEnergy": 0.0051
+      },
+      {
+        "label": "2014-01-17",
+        "pumpKw": 4.35,
+        "totalFlow": 931.53,
+        "specificEnergy": 0.0047
+      },
+      {
+        "label": "2014-01-18",
+        "pumpKw": 5.69,
+        "totalFlow": 715.04,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "2014-01-19",
+        "pumpKw": 5.09,
+        "totalFlow": 631.2,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "2014-01-20",
+        "pumpKw": 4.49,
+        "totalFlow": 1008.87,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "2014-01-21",
+        "pumpKw": 4.28,
+        "totalFlow": 939.4,
+        "specificEnergy": 0.0046
+      },
+      {
+        "label": "2014-01-22",
+        "pumpKw": 4.41,
+        "totalFlow": 912.2,
+        "specificEnergy": 0.0048
+      },
+      {
+        "label": "2014-01-23",
+        "pumpKw": 4.48,
+        "totalFlow": 919.73,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "2014-01-24",
+        "pumpKw": 4.47,
+        "totalFlow": 908.42,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "2014-01-25",
+        "pumpKw": 5.73,
+        "totalFlow": 698.63,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "2014-01-26",
+        "pumpKw": 6.32,
+        "totalFlow": 764.02,
+        "specificEnergy": 0.0083
+      },
+      {
+        "label": "2014-01-27",
+        "pumpKw": 4.88,
+        "totalFlow": 865.4,
+        "specificEnergy": 0.0056
+      },
+      {
+        "label": "2014-01-28",
+        "pumpKw": 5.49,
+        "totalFlow": 904.92,
+        "specificEnergy": 0.0061
+      },
+      {
+        "label": "2014-01-29",
+        "pumpKw": 5.68,
+        "totalFlow": 880.2,
+        "specificEnergy": 0.0065
+      },
+      {
+        "label": "2014-01-30",
+        "pumpKw": 5.75,
+        "totalFlow": 889.24,
+        "specificEnergy": 0.0065
+      },
+      {
+        "label": "2014-01-31",
+        "pumpKw": 5.74,
+        "totalFlow": 686.31,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "2014-02-01",
+        "pumpKw": 5.41,
+        "totalFlow": 643.51,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "2014-02-02",
+        "pumpKw": 5.8,
+        "totalFlow": 685.26,
+        "specificEnergy": 0.0085
+      },
+      {
+        "label": "2014-02-03",
+        "pumpKw": 4.5,
+        "totalFlow": 1053.48,
+        "specificEnergy": 0.0043
+      },
+      {
+        "label": "2014-02-04",
+        "pumpKw": 5.48,
+        "totalFlow": 1176.8,
+        "specificEnergy": 0.0047
+      },
+      {
+        "label": "2014-02-05",
+        "pumpKw": 7.36,
+        "totalFlow": 1033.49,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "2014-02-06",
+        "pumpKw": 8.27,
+        "totalFlow": 1077.35,
+        "specificEnergy": 0.0077
+      },
+      {
+        "label": "2014-02-07",
+        "pumpKw": 8.41,
+        "totalFlow": 1114.64,
+        "specificEnergy": 0.0075
+      },
+      {
+        "label": "2014-02-08",
+        "pumpKw": 6.71,
+        "totalFlow": 781.51,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "2014-02-09",
+        "pumpKw": 6.32,
+        "totalFlow": 747.57,
+        "specificEnergy": 0.0085
+      },
+      {
+        "label": "2014-02-10",
+        "pumpKw": 5.49,
+        "totalFlow": 1177.95,
+        "specificEnergy": 0.0047
+      },
+      {
+        "label": "2014-02-11",
+        "pumpKw": 5.72,
+        "totalFlow": 1166.22,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "2014-02-12",
+        "pumpKw": 8.17,
+        "totalFlow": 1193.48,
+        "specificEnergy": 0.0068
+      },
+      {
+        "label": "2014-02-13",
+        "pumpKw": 5.99,
+        "totalFlow": 1169.38,
+        "specificEnergy": 0.0051
+      },
+      {
+        "label": "2014-02-14",
+        "pumpKw": 6.34,
+        "totalFlow": 1134.01,
+        "specificEnergy": 0.0056
+      },
+      {
+        "label": "2014-02-15",
+        "pumpKw": 7.72,
+        "totalFlow": 851.25,
+        "specificEnergy": 0.0091
+      },
+      {
+        "label": "2014-02-16",
+        "pumpKw": 6.23,
+        "totalFlow": 740.38,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "2014-02-17",
+        "pumpKw": 5.55,
+        "totalFlow": 1221.28,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "2014-02-18",
+        "pumpKw": 5.92,
+        "totalFlow": 1232.26,
+        "specificEnergy": 0.0048
+      },
+      {
+        "label": "2014-02-19",
+        "pumpKw": 8.94,
+        "totalFlow": 1217.36,
+        "specificEnergy": 0.0073
+      },
+      {
+        "label": "2014-02-20",
+        "pumpKw": 7.71,
+        "totalFlow": 1167.02,
+        "specificEnergy": 0.0066
+      },
+      {
+        "label": "2014-02-21",
+        "pumpKw": 8.46,
+        "totalFlow": 1208.61,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "2014-02-22",
+        "pumpKw": 7.89,
+        "totalFlow": 898.92,
+        "specificEnergy": 0.0088
+      },
+      {
+        "label": "2014-02-23",
+        "pumpKw": 7.17,
+        "totalFlow": 829.82,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "2014-02-24",
+        "pumpKw": 8.8,
+        "totalFlow": 1150.14,
+        "specificEnergy": 0.0076
+      },
+      {
+        "label": "2014-02-25",
+        "pumpKw": 9.03,
+        "totalFlow": 1170.08,
+        "specificEnergy": 0.0077
+      },
+      {
+        "label": "2014-02-26",
+        "pumpKw": 8.63,
+        "totalFlow": 1139.5,
+        "specificEnergy": 0.0076
+      },
+      {
+        "label": "2014-02-27",
+        "pumpKw": 7.42,
+        "totalFlow": 1192.25,
+        "specificEnergy": 0.0062
+      },
+      {
+        "label": "2014-02-28",
+        "pumpKw": 7.73,
+        "totalFlow": 1186.58,
+        "specificEnergy": 0.0065
+      },
+      {
+        "label": "2014-03-01",
+        "pumpKw": 6.28,
+        "totalFlow": 750.81,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "2014-03-02",
+        "pumpKw": 5.19,
+        "totalFlow": 671.19,
+        "specificEnergy": 0.0077
+      },
+      {
+        "label": "2014-03-03",
+        "pumpKw": 4.79,
+        "totalFlow": 1273.53,
+        "specificEnergy": 0.0038
+      },
+      {
+        "label": "2014-03-04",
+        "pumpKw": 0,
+        "totalFlow": 0,
+        "specificEnergy": 0
+      },
+      {
+        "label": "2014-03-05",
+        "pumpKw": 10.24,
+        "totalFlow": 1219.57,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "2014-03-06",
+        "pumpKw": 9.78,
+        "totalFlow": 1215.66,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "2014-03-07",
+        "pumpKw": 7.73,
+        "totalFlow": 1192.66,
+        "specificEnergy": 0.0065
+      },
+      {
+        "label": "2014-03-08",
+        "pumpKw": 6.58,
+        "totalFlow": 764.65,
+        "specificEnergy": 0.0086
+      },
+      {
+        "label": "2014-03-09",
+        "pumpKw": 5.96,
+        "totalFlow": 725.19,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "2014-03-10",
+        "pumpKw": 5.39,
+        "totalFlow": 1192.5,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "2014-03-11",
+        "pumpKw": 8.81,
+        "totalFlow": 1231.35,
+        "specificEnergy": 0.0072
+      },
+      {
+        "label": "2014-03-12",
+        "pumpKw": 5.16,
+        "totalFlow": 1190.93,
+        "specificEnergy": 0.0043
+      },
+      {
+        "label": "2014-03-13",
+        "pumpKw": 5.67,
+        "totalFlow": 1234.49,
+        "specificEnergy": 0.0046
+      },
+      {
+        "label": "2014-03-14",
+        "pumpKw": 5.5,
+        "totalFlow": 1280.26,
+        "specificEnergy": 0.0043
+      },
+      {
+        "label": "2014-03-15",
+        "pumpKw": 6.26,
+        "totalFlow": 765.51,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "2014-03-16",
+        "pumpKw": 6.05,
+        "totalFlow": 748.88,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "2014-03-17",
+        "pumpKw": 8.16,
+        "totalFlow": 1449.86,
+        "specificEnergy": 0.0056
+      },
+      {
+        "label": "2014-03-18",
+        "pumpKw": 5.82,
+        "totalFlow": 1283.05,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "2014-03-19",
+        "pumpKw": 5.34,
+        "totalFlow": 1235.52,
+        "specificEnergy": 0.0043
+      },
+      {
+        "label": "2014-03-20",
+        "pumpKw": 6.02,
+        "totalFlow": 1218.57,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "2014-03-21",
+        "pumpKw": 5.19,
+        "totalFlow": 1204.07,
+        "specificEnergy": 0.0043
+      },
+      {
+        "label": "2014-03-22",
+        "pumpKw": 4.82,
+        "totalFlow": 945.68,
+        "specificEnergy": 0.0051
+      },
+      {
+        "label": "2014-03-23",
+        "pumpKw": 5.15,
+        "totalFlow": 632.07,
+        "specificEnergy": 0.0081
+      },
+      {
+        "label": "2014-03-24",
+        "pumpKw": 4.77,
+        "totalFlow": 1209.68,
+        "specificEnergy": 0.0039
+      },
+      {
+        "label": "2014-03-25",
+        "pumpKw": 4.16,
+        "totalFlow": 1188.7,
+        "specificEnergy": 0.0035
+      },
+      {
+        "label": "2014-03-26",
+        "pumpKw": 5.13,
+        "totalFlow": 1306.99,
+        "specificEnergy": 0.0039
+      },
+      {
+        "label": "2014-03-27",
+        "pumpKw": 4.89,
+        "totalFlow": 1259.71,
+        "specificEnergy": 0.0039
+      },
+      {
+        "label": "2014-03-28",
+        "pumpKw": 5.24,
+        "totalFlow": 1396.33,
+        "specificEnergy": 0.0038
+      },
+      {
+        "label": "2014-03-29",
+        "pumpKw": 5.4,
+        "totalFlow": 692.99,
+        "specificEnergy": 0.0078
+      },
+      {
+        "label": "2014-03-30",
+        "pumpKw": 5.31,
+        "totalFlow": 661.66,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "2014-03-31",
+        "pumpKw": 4.69,
+        "totalFlow": 999.93,
+        "specificEnergy": 0.0047
+      },
+      {
+        "label": "2014-04-01",
+        "pumpKw": 4.7,
+        "totalFlow": 965.89,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "2014-04-02",
+        "pumpKw": 6.08,
+        "totalFlow": 998.36,
+        "specificEnergy": 0.0061
+      },
+      {
+        "label": "2014-04-03",
+        "pumpKw": 4.68,
+        "totalFlow": 968.06,
+        "specificEnergy": 0.0048
+      },
+      {
+        "label": "2014-04-04",
+        "pumpKw": 4.22,
+        "totalFlow": 928.42,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "2014-04-05",
+        "pumpKw": 5.81,
+        "totalFlow": 735.75,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "2014-04-06",
+        "pumpKw": 4.83,
+        "totalFlow": 613.88,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "2014-04-07",
+        "pumpKw": 4.59,
+        "totalFlow": 965.12,
+        "specificEnergy": 0.0048
+      },
+      {
+        "label": "2014-04-08",
+        "pumpKw": 4.7,
+        "totalFlow": 995.31,
+        "specificEnergy": 0.0047
+      },
+      {
+        "label": "2014-04-09",
+        "pumpKw": 4.27,
+        "totalFlow": 1004.28,
+        "specificEnergy": 0.0042
+      }
+    ],
+    "weekly": [
+      {
+        "label": "2014-W00",
+        "pumpKw": 4.58,
+        "totalFlow": 646.39,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "2014-W01",
+        "pumpKw": 5.07,
+        "totalFlow": 853.89,
+        "specificEnergy": 0.0059
+      },
+      {
+        "label": "2014-W02",
+        "pumpKw": 4.84,
+        "totalFlow": 974.29,
+        "specificEnergy": 0.005
+      },
+      {
+        "label": "2014-W03",
+        "pumpKw": 4.7,
+        "totalFlow": 880.7,
+        "specificEnergy": 0.0053
+      },
+      {
+        "label": "2014-W04",
+        "pumpKw": 5.13,
+        "totalFlow": 854.14,
+        "specificEnergy": 0.006
+      },
+      {
+        "label": "2014-W05",
+        "pumpKw": 5.48,
+        "totalFlow": 859.38,
+        "specificEnergy": 0.0064
+      },
+      {
+        "label": "2014-W06",
+        "pumpKw": 6.89,
+        "totalFlow": 1013.96,
+        "specificEnergy": 0.0068
+      },
+      {
+        "label": "2014-W07",
+        "pumpKw": 6.54,
+        "totalFlow": 1076.19,
+        "specificEnergy": 0.0061
+      },
+      {
+        "label": "2014-W08",
+        "pumpKw": 8.29,
+        "totalFlow": 1091.66,
+        "specificEnergy": 0.0076
+      },
+      {
+        "label": "2014-W09",
+        "pumpKw": 6.83,
+        "totalFlow": 1020.76,
+        "specificEnergy": 0.0067
+      },
+      {
+        "label": "2014-W10",
+        "pumpKw": 7.58,
+        "totalFlow": 1064.06,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "2014-W11",
+        "pumpKw": 6.1,
+        "totalFlow": 1136.49,
+        "specificEnergy": 0.0054
+      },
+      {
+        "label": "2014-W12",
+        "pumpKw": 5.06,
+        "totalFlow": 1090.28,
+        "specificEnergy": 0.0046
+      },
+      {
+        "label": "2014-W13",
+        "pumpKw": 5.05,
+        "totalFlow": 1040.57,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "2014-W14",
+        "pumpKw": 4.98,
+        "totalFlow": 886.19,
+        "specificEnergy": 0.0056
+      },
+      {
+        "label": "2014-W15",
+        "pumpKw": 4.24,
+        "totalFlow": 1020.99,
+        "specificEnergy": 0.0042
+      }
+    ],
+    "monthly": [
+      {
+        "label": "Jun 2011",
+        "pumpKw": 9.06,
+        "totalFlow": 1149.39,
+        "specificEnergy": 0.0079
+      },
+      {
+        "label": "Jul 2011",
+        "pumpKw": 10.74,
+        "totalFlow": 1271.72,
+        "specificEnergy": 0.0084
+      },
+      {
+        "label": "Aug 2011",
+        "pumpKw": 23.74,
+        "totalFlow": 2301.65,
+        "specificEnergy": 0.0103
+      },
+      {
+        "label": "Sep 2011",
+        "pumpKw": 0,
+        "totalFlow": 0,
+        "specificEnergy": 0
+      },
+      {
+        "label": "Oct 2011",
+        "pumpKw": 6.88,
+        "totalFlow": 920.76,
+        "specificEnergy": 0.0075
+      },
+      {
+        "label": "Nov 2011",
+        "pumpKw": 6.61,
+        "totalFlow": 947.61,
+        "specificEnergy": 0.007
+      },
+      {
+        "label": "Dec 2011",
+        "pumpKw": 5.03,
+        "totalFlow": 741.9,
+        "specificEnergy": 0.0068
+      },
+      {
+        "label": "Jan 2012",
+        "pumpKw": 0,
+        "totalFlow": 0,
+        "specificEnergy": 0
+      },
+      {
+        "label": "Feb 2012",
+        "pumpKw": 8.09,
+        "totalFlow": 1012.41,
+        "specificEnergy": 0.008
+      },
+      {
+        "label": "Mar 2012",
+        "pumpKw": 9.51,
+        "totalFlow": 1154.35,
+        "specificEnergy": 0.0082
+      },
+      {
+        "label": "Apr 2012",
+        "pumpKw": 6.1,
+        "totalFlow": 1052.9,
+        "specificEnergy": 0.0058
+      },
+      {
+        "label": "May 2012",
+        "pumpKw": 4.61,
+        "totalFlow": 1142.37,
+        "specificEnergy": 0.004
+      },
+      {
+        "label": "Jun 2012",
+        "pumpKw": 5.65,
+        "totalFlow": 1159.81,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "Jul 2012",
+        "pumpKw": 6.79,
+        "totalFlow": 1077.29,
+        "specificEnergy": 0.0063
+      },
+      {
+        "label": "Aug 2012",
+        "pumpKw": 5.33,
+        "totalFlow": 1174.58,
+        "specificEnergy": 0.0045
+      },
+      {
+        "label": "Sep 2012",
+        "pumpKw": 6.14,
+        "totalFlow": 1156.87,
+        "specificEnergy": 0.0053
+      },
+      {
+        "label": "Oct 2012",
+        "pumpKw": 6.35,
+        "totalFlow": 1068.69,
+        "specificEnergy": 0.0059
+      },
+      {
+        "label": "Nov 2012",
+        "pumpKw": 4.92,
+        "totalFlow": 1046.31,
+        "specificEnergy": 0.0047
+      },
+      {
+        "label": "Dec 2012",
+        "pumpKw": 5.58,
+        "totalFlow": 906.69,
+        "specificEnergy": 0.0062
+      },
+      {
+        "label": "Jan 2013",
+        "pumpKw": 5.09,
+        "totalFlow": 1018.69,
+        "specificEnergy": 0.005
+      },
+      {
+        "label": "Feb 2013",
+        "pumpKw": 4.93,
+        "totalFlow": 952.11,
+        "specificEnergy": 0.0052
+      },
+      {
+        "label": "Mar 2013",
+        "pumpKw": 6.49,
+        "totalFlow": 1146.37,
+        "specificEnergy": 0.0057
+      },
+      {
+        "label": "Apr 2013",
+        "pumpKw": 5.28,
+        "totalFlow": 1045.91,
+        "specificEnergy": 0.005
+      },
+      {
+        "label": "May 2013",
+        "pumpKw": 4.77,
+        "totalFlow": 1073.52,
+        "specificEnergy": 0.0044
+      },
+      {
+        "label": "Jun 2013",
+        "pumpKw": 5.23,
+        "totalFlow": 996.98,
+        "specificEnergy": 0.0052
+      },
+      {
+        "label": "Jul 2013",
+        "pumpKw": 5.17,
+        "totalFlow": 872.42,
+        "specificEnergy": 0.0059
+      },
+      {
+        "label": "Aug 2013",
+        "pumpKw": 6.14,
+        "totalFlow": 1002.27,
+        "specificEnergy": 0.0061
+      },
+      {
+        "label": "Sep 2013",
+        "pumpKw": 5.71,
+        "totalFlow": 997.46,
+        "specificEnergy": 0.0057
+      },
+      {
+        "label": "Oct 2013",
+        "pumpKw": 6.32,
+        "totalFlow": 1019.81,
+        "specificEnergy": 0.0062
+      },
+      {
+        "label": "Nov 2013",
+        "pumpKw": 4.8,
+        "totalFlow": 974.4,
+        "specificEnergy": 0.0049
+      },
+      {
+        "label": "Dec 2013",
+        "pumpKw": 6.09,
+        "totalFlow": 852.58,
+        "specificEnergy": 0.0071
+      },
+      {
+        "label": "Jan 2014",
+        "pumpKw": 5,
+        "totalFlow": 883.49,
+        "specificEnergy": 0.0057
+      },
+      {
+        "label": "Feb 2014",
+        "pumpKw": 7.04,
+        "totalFlow": 1048.58,
+        "specificEnergy": 0.0067
+      },
+      {
+        "label": "Mar 2014",
+        "pumpKw": 5.93,
+        "totalFlow": 1065.96,
+        "specificEnergy": 0.0056
+      },
+      {
+        "label": "Apr 2014",
+        "pumpKw": 4.88,
+        "totalFlow": 906.99,
+        "specificEnergy": 0.0054
+      }
+    ],
+    "yearly": [
+      {
+        "label": "2011",
+        "pumpKw": 7.28,
+        "totalFlow": 976.08,
+        "specificEnergy": 0.0075
+      },
+      {
+        "label": "2012",
+        "pumpKw": 6.28,
+        "totalFlow": 1088.41,
+        "specificEnergy": 0.0058
+      },
+      {
+        "label": "2013",
+        "pumpKw": 5.51,
+        "totalFlow": 996.26,
+        "specificEnergy": 0.0055
+      },
+      {
+        "label": "2014",
+        "pumpKw": 5.86,
+        "totalFlow": 988.05,
+        "specificEnergy": 0.0059
+      }
+    ]
+  },
+  "overallPumpSpecificEnergy": 0.0066,
   "baselineByMonth": {
     "10": 0.5019,
     "11": 0.5051,

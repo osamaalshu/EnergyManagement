@@ -1,4 +1,4 @@
-import { type FC, useState, useEffect, useRef, useCallback } from 'react';
+import { type FC, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -12,7 +12,7 @@ import {
   ReferenceLine,
   Cell,
 } from 'recharts';
-import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, overallCop, baselineDeviationSeries } from '../data/mockPortfolioData';
+import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, overallCop, baselineDeviationSeries, getPumpSpecificEnergySeries, overallPumpSpecificEnergy } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import ChillerPlantSchematic from './ChillerPlantSchematic';
 import type { TimeResolution } from '../types/portfolio';
@@ -37,6 +37,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
   const [equipmentDropdownOpen, setEquipmentDropdownOpen] = useState(false);
   const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
   const [copResolution, setCopResolution] = useState<'daily' | 'monthly' | 'seasonal' | 'yearly'>('monthly');
+  const [pumpResolution, setPumpResolution] = useState<'daily' | 'monthly' | 'yearly'>('daily');
   const [equipmentView, setEquipmentView] = useState<'schematic' | 'cards'>('schematic');
   const buildingDdRef = useRef<HTMLDivElement>(null);
   const equipmentDdRef = useRef<HTMLDivElement>(null);
@@ -67,6 +68,9 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
   }
 
   const { building, aggregateKPIs, equipment } = detail;
+
+  // Pump Specific Energy (kWh/m³) from real CSV data
+  const pumpSpecificEnergy = useMemo(() => getPumpSpecificEnergySeries(pumpResolution), [pumpResolution]);
 
   const statusColor: Record<string, string> = {
     running: 'bg-emerald-400',
@@ -368,6 +372,73 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
             </div>
           );
         })()}
+      </div>
+
+      {/* ── Specific Energy (Pump) ──────────────────────────────── */}
+      <div className="card-surface p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Specific Energy (Pump)
+            </h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              kWh/m³ &nbsp;&middot;&nbsp; Overall: <span className="font-semibold text-accent">{overallPumpSpecificEnergy}</span>
+            </p>
+          </div>
+          <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Pump specific energy resolution">
+            {(['daily', 'monthly', 'yearly'] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                role="radio"
+                aria-checked={pumpResolution === r}
+                onClick={() => setPumpResolution(r)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+                  pumpResolution === r
+                    ? 'bg-accent text-white shadow-sm'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
+                }`}
+              >
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+        {pumpSpecificEnergy.length > 0 ? (
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={pumpSpecificEnergy} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                <XAxis
+                  dataKey="label"
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  interval={pumpSpecificEnergy.length > 20 ? Math.floor(pumpSpecificEnergy.length / 15) : 0}
+                  angle={pumpSpecificEnergy.length > 10 ? -45 : 0}
+                  textAnchor={pumpSpecificEnergy.length > 10 ? 'end' : 'middle'}
+                  height={pumpSpecificEnergy.length > 10 ? 60 : 30}
+                />
+                <YAxis
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  width={56}
+                  label={{ value: 'kWh/m³', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
+                />
+                <Tooltip
+                  contentStyle={tooltipStyles}
+                  labelStyle={{ color: 'var(--muted-text)' }}
+                  formatter={(v: number) => [`${v.toFixed(4)}`, 'kWh/m³']}
+                />
+                <ReferenceLine y={overallPumpSpecificEnergy} stroke="#FAB005" strokeDasharray="4 4" label={{ value: `Avg ${overallPumpSpecificEnergy}`, fill: '#FAB005', fontSize: 11, position: 'right' }} />
+                <Line type="monotone" dataKey="specificEnergy" name="Specific Energy" stroke="#38bdf8" strokeWidth={2} dot={pumpSpecificEnergy.length <= 40} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500 dark:text-slate-400">No pump data available</p>
+        )}
       </div>
 
       {/* ── Baseline Deviation ─────────────────────────────────── */}

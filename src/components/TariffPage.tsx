@@ -14,7 +14,6 @@ import {
 import { tariffHourlyData } from '../data/mockPortfolioData';
 import {
   calculateMonthlyDetailedBills,
-  aggregateToHourly,
   aggregateToDaily,
   aggregateToWeekly,
   aggregateToMonthly,
@@ -98,7 +97,6 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
     if (!filteredTariffData.length) return [];
     const vl = '11kV';
     switch (resolution) {
-      case 'hourly':  return aggregateToHourly(filteredTariffData, vl);
       case 'daily':   return aggregateToDaily(filteredTariffData, vl);
       case 'weekly':  return aggregateToWeekly(filteredTariffData, vl);
       case 'monthly': return aggregateToMonthly(filteredTariffData, vl);
@@ -178,87 +176,11 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Summary row: date filter + KPI cards */}
+      {/* Summary row: KPI cards + compact date filter on the right */}
       {totals && (
-        <div className="grid gap-4 lg:grid-cols-[auto_1fr]">
-          {/* Compact date filter */}
-          {dataBounds && (() => {
-            const minY = parseInt(dataBounds.minDate.substring(0, 4), 10);
-            const maxY = parseInt(dataBounds.maxDate.substring(0, 4), 10);
-            const years = Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i);
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const startDate = effectiveRange?.start ?? dataBounds.minDate;
-            const endDate = effectiveRange?.end ?? dataBounds.maxDate;
-            const startY = parseInt(startDate.substring(0, 4), 10);
-            const startM = parseInt(startDate.substring(5, 7), 10);
-            const endY = parseInt(endDate.substring(0, 4), 10);
-            const endM = parseInt(endDate.substring(5, 7), 10);
-            const selectClass = 'appearance-none rounded-lg border border-slate-200/70 bg-white px-3 py-2 pr-7 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-200 dark:hover:border-white/20 cursor-pointer';
-            const setStart = (y: number, m: number) => {
-              const s = `${y}-${String(m).padStart(2, '0')}-01`;
-              const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
-              setDateRange({ start: s, end: currentEnd < s ? s : currentEnd });
-            };
-            const setEnd = (y: number, m: number) => {
-              const lastDay = new Date(y, m, 0).getDate();
-              const e = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-              const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
-              setDateRange({ start: currentStart > e ? e : currentStart, end: e });
-            };
-            return (
-              <div className="card-surface space-y-3 p-4">
-                <div className="flex items-center justify-between">
-                  <p className="text-[0.6rem] font-semibold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Filter</p>
-                  {dateRange && (
-                    <button
-                      type="button"
-                      onClick={() => setDateRange(null)}
-                      className="rounded-md px-2 py-0.5 text-[0.6rem] font-medium text-accent transition hover:bg-accent/10"
-                      aria-label="Reset to full timeline"
-                    >
-                      Reset
-                    </button>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[0.6rem] uppercase tracking-wider text-slate-400">From</span>
-                    <div className="relative">
-                      <select value={startM} onChange={(e) => setStart(startY, Number(e.target.value))} className={selectClass} aria-label="Start month">
-                        {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
-                      </select>
-                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                    </div>
-                    <div className="relative">
-                      <select value={startY} onChange={(e) => setStart(Number(e.target.value), startM)} className={selectClass} aria-label="Start year">
-                        {years.map((y) => <option key={y} value={y}>{y}</option>)}
-                      </select>
-                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                    </div>
-                  </div>
-                  <span className="text-slate-300 dark:text-slate-600">—</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[0.6rem] uppercase tracking-wider text-slate-400">To</span>
-                    <div className="relative">
-                      <select value={endM} onChange={(e) => setEnd(endY, Number(e.target.value))} className={selectClass} aria-label="End month">
-                        {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
-                      </select>
-                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                    </div>
-                    <div className="relative">
-                      <select value={endY} onChange={(e) => setEnd(Number(e.target.value), endM)} className={selectClass} aria-label="End year">
-                        {years.map((y) => <option key={y} value={y}>{y}</option>)}
-                      </select>
-                      <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-
+        <div className="flex flex-wrap items-start gap-4">
           {/* KPI summary cards */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             <div className="card-surface px-4 py-3">
               <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total kWh</p>
               <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
@@ -280,6 +202,56 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
               <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-[0.6rem] font-normal text-slate-500">OMR</span></p>
             </div>
           </div>
+
+          {/* Compact date filter */}
+          {dataBounds && (() => {
+            const minY = parseInt(dataBounds.minDate.substring(0, 4), 10);
+            const maxY = parseInt(dataBounds.maxDate.substring(0, 4), 10);
+            const years = Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const startDate = effectiveRange?.start ?? dataBounds.minDate;
+            const endDate = effectiveRange?.end ?? dataBounds.maxDate;
+            const startY = parseInt(startDate.substring(0, 4), 10);
+            const startM = parseInt(startDate.substring(5, 7), 10);
+            const endY = parseInt(endDate.substring(0, 4), 10);
+            const endM = parseInt(endDate.substring(5, 7), 10);
+            const selectClass = 'appearance-none rounded-md border border-slate-200/70 bg-white px-2 py-1 pr-5 text-[0.65rem] font-medium text-slate-700 shadow-sm transition hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-200 dark:hover:border-white/20 cursor-pointer';
+            const chevron = <svg className="pointer-events-none absolute right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>;
+            const setStart = (y: number, m: number) => {
+              const s = `${y}-${String(m).padStart(2, '0')}-01`;
+              const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
+              setDateRange({ start: s, end: currentEnd < s ? s : currentEnd });
+            };
+            const setEnd = (y: number, m: number) => {
+              const lastDay = new Date(y, m, 0).getDate();
+              const e = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+              const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
+              setDateRange({ start: currentStart > e ? e : currentStart, end: e });
+            };
+            return (
+              <div className="card-surface shrink-0 space-y-2 p-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[0.55rem] uppercase tracking-wider text-slate-400">From</span>
+                  <div className="relative"><select value={startM} onChange={(e) => setStart(startY, Number(e.target.value))} className={selectClass} aria-label="Start month">{months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}</select>{chevron}</div>
+                  <div className="relative"><select value={startY} onChange={(e) => setStart(Number(e.target.value), startM)} className={selectClass} aria-label="Start year">{years.map((y) => <option key={y} value={y}>{y}</option>)}</select>{chevron}</div>
+                  <span className="px-1 text-slate-300 dark:text-slate-600">–</span>
+                  <span className="text-[0.55rem] uppercase tracking-wider text-slate-400">To</span>
+                  <div className="relative"><select value={endM} onChange={(e) => setEnd(endY, Number(e.target.value))} className={selectClass} aria-label="End month">{months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}</select>{chevron}</div>
+                  <div className="relative"><select value={endY} onChange={(e) => setEnd(Number(e.target.value), endM)} className={selectClass} aria-label="End year">{years.map((y) => <option key={y} value={y}>{y}</option>)}</select>{chevron}</div>
+                </div>
+                {dateRange && (
+                  <button
+                    type="button"
+                    onClick={() => setDateRange(null)}
+                    className="text-[0.6rem] font-medium text-accent transition hover:text-accent/80"
+                    aria-label="Reset to full timeline"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -290,7 +262,7 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Effective Tariff Rate</h3>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">How much you pay per kWh over time (OMR/kWh)</p>
           </div>
-          <TimeResolutionSelector value={resolution} onChange={setResolution} />
+          <TimeResolutionSelector value={resolution} onChange={setResolution} limitTo={['daily', 'weekly', 'monthly', 'yearly']} />
         </div>
         {lineChartData.length > 0 ? (
           <div className="h-80">

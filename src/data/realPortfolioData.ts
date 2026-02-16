@@ -184,6 +184,8 @@ const pumpEquipment: Equipment[] = [
     status: raw.pumpSnapshot.status as EquipmentStatus,
     primaryValue: raw.pumpSnapshot.kW,
     primaryUnit: 'kW',
+    secondaryValue: (raw as unknown as { overallPumpSpecificEnergy: number }).overallPumpSpecificEnergy ?? 0,
+    secondaryUnit: 'kWh/m³',
   },
 ];
 
@@ -281,6 +283,7 @@ const pumpDetails: Record<string, EquipmentDetail> = {
     pumpKPIs: {
       powerDraw: raw.pumpSnapshot.kW,
       flowRate: (raw.pumpSnapshot as unknown as { flowRate: number }).flowRate ?? 0,
+      specificEnergy: (raw as unknown as { overallPumpSpecificEnergy: number }).overallPumpSpecificEnergy ?? 0,
     } as PumpKPIs,
     anomaly: { anomalyCount: 0, inefficiencyCost: 0, series: [] },
   },
@@ -366,25 +369,42 @@ export interface PumpTimePoint {
 }
 
 /**
- * Get pump flow rate and power time series.
- * Derived from chiller 1 power/cooling series (pump power ≈ fraction of total system).
- * Flow rate scaled from snapshot ratio.
+ * Get pump flow rate and power time series from real CSV data.
+ * Power = CP_TotalChilledWaterPump_kW, Flow = sum of all chiller ChilledWaterFlowrate.
  */
 export function getPumpTimeSeries(resolution: TimeResolution): PumpTimePoint[] {
-  const ts = rawChillerTS['1']?.[resolution];
-  if (!ts) return [];
-  // Use pump snapshot ratio to scale: pump kW / chiller kW at snapshot time
-  const pumpKw = raw.pumpSnapshot.kW;
-  const snapshotChillerKw = raw.chillerSnapshots[0]?.kW ?? 1;
-  const pumpRatio = pumpKw / snapshotChillerKw;
-  const pumpFlowSnapshot = (raw.pumpSnapshot as unknown as { flowRate: number }).flowRate ?? 0;
-
-  return ts.powerCoolingSeries.map((p) => ({
+  const resData = (raw as unknown as { pumpTimeSeriesByResolution: Record<string, { label: string; pumpKw: number; totalFlow: number; specificEnergy: number }[]> })
+    .pumpTimeSeriesByResolution?.[resolution];
+  if (!resData) return [];
+  return resData.map((p) => ({
     label: p.label,
-    power: Math.round(p.power * pumpRatio * 100) / 100,
-    flowRate: Math.round(pumpFlowSnapshot * (p.power / snapshotChillerKw) * 1000) / 1000,
+    power: p.pumpKw,
+    flowRate: p.totalFlow,
   }));
 }
+
+export interface PumpSpecificEnergyPoint {
+  label: string;
+  pumpKw: number;
+  totalFlow: number;
+  specificEnergy: number;
+}
+
+/**
+ * Get pump specific energy time series (kWh/m³) from real CSV data.
+ * Specific Energy = CP_TotalChilledWaterPump_kW / sum(Chiller_{1..3}_ChilledWaterFlowrate)
+ * Each row is 1 hour, so kW = kWh and m³/hr = m³ → result is kWh/m³.
+ */
+export function getPumpSpecificEnergySeries(resolution: TimeResolution): PumpSpecificEnergyPoint[] {
+  const resData = (raw as unknown as { pumpTimeSeriesByResolution: Record<string, PumpSpecificEnergyPoint[]> })
+    .pumpTimeSeriesByResolution?.[resolution];
+  if (!resData) return [];
+  return resData;
+}
+
+/** Overall pump specific energy (kWh/m³) averaged across all running hours. */
+export const overallPumpSpecificEnergy: number =
+  (raw as unknown as { overallPumpSpecificEnergy: number }).overallPumpSpecificEnergy ?? 0;
 
 // ═══════════════════════════════════════════════════════════════════
 //  OVERVIEW KPIs BY RESOLUTION (for equipment overview cards)
@@ -456,7 +476,10 @@ export function getPumpKPIsForResolution(resolution: TimeResolution): PumpKPIs {
   const running = series.filter((p) => p.power > 0);
   const powerDraw = running.length ? round2(running.reduce((s, p) => s + p.power, 0) / running.length) : 0;
   const flowRate = running.length ? round3(running.reduce((s, p) => s + p.flowRate, 0) / running.length) : 0;
-  return { powerDraw, flowRate };
+  const seSeries = getPumpSpecificEnergySeries(resolution);
+  const seRunning = seSeries.filter((p) => p.specificEnergy > 0);
+  const specificEnergy = seRunning.length ? round3(seRunning.reduce((s, p) => s + p.specificEnergy, 0) / seRunning.length) : 0;
+  return { powerDraw, flowRate, specificEnergy };
 }
 
 // ═══════════════════════════════════════════════════════════════════

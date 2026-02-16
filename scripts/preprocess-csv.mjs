@@ -746,6 +746,78 @@ const overallCop = overallCopRows.length > 0
 console.log(`COP (overall): ${overallCop}`);
 
 // ────────────────────────────────────────────────────────────
+// 11b. Pump Specific Energy time-series (kWh / m³)
+// ────────────────────────────────────────────────────────────
+// Specific Energy = CP_TotalChilledWaterPump_kW / (sum of all chiller ChilledWaterFlowrate)
+// Only include buckets where totalFlow > 0 (pump running)
+
+function makePumpTimeSeriesForResolution(resolution) {
+  const { map } = resolutionMaps[resolution];
+  // For hourly, only use latest 7 days
+  const keys = resolution === 'hourly'
+    ? sortedHours.filter(k => k >= hourlyWindowStartStr)
+    : resolutionMaps[resolution].keys;
+
+  // For daily/weekly, only keep latest year
+  const filteredKeys = (resolution === 'daily' || resolution === 'weekly')
+    ? keys.filter(k => k.startsWith(latestYear))
+    : keys;
+
+  return filteredKeys.map(key => {
+    const rows = map.get(key);
+    // Only use rows where the pump is actually running and there is flow
+    const validRows = rows.filter(r => {
+      const pumpKw = r.CP_TotalChilledWaterPump_kW;
+      const totalFlow = r.CP_Chiller1_ChilledWaterFlowrate
+                      + r.CP_Chiller2_ChilledWaterFlowrate
+                      + r.CP_Chiller3_ChilledWaterFlowrate;
+      return pumpKw > 0 && totalFlow > 0;
+    });
+    if (validRows.length === 0) {
+      return {
+        label: formatLabel(key, resolution),
+        pumpKw: 0,
+        totalFlow: 0,
+        specificEnergy: 0,
+      };
+    }
+    const avgPumpKw = avg(validRows.map(r => r.CP_TotalChilledWaterPump_kW));
+    const avgTotalFlow = avg(validRows.map(r =>
+      r.CP_Chiller1_ChilledWaterFlowrate
+      + r.CP_Chiller2_ChilledWaterFlowrate
+      + r.CP_Chiller3_ChilledWaterFlowrate
+    ));
+    const se = avgTotalFlow > 0 ? avgPumpKw / avgTotalFlow : 0;
+    return {
+      label: formatLabel(key, resolution),
+      pumpKw: round(avgPumpKw, 2),
+      totalFlow: round(avgTotalFlow, 2),
+      specificEnergy: round(se, 4),
+    };
+  });
+}
+
+const pumpTimeSeriesByResolution = {};
+for (const res of ALL_RESOLUTIONS) {
+  pumpTimeSeriesByResolution[res] = makePumpTimeSeriesForResolution(res);
+}
+
+// Overall pump specific energy (average when running)
+const allPumpRunning = allRows.filter(r => {
+  const totalFlow = r.CP_Chiller1_ChilledWaterFlowrate
+                  + r.CP_Chiller2_ChilledWaterFlowrate
+                  + r.CP_Chiller3_ChilledWaterFlowrate;
+  return r.CP_TotalChilledWaterPump_kW > 0 && totalFlow > 0;
+});
+const overallPumpSpecificEnergy = allPumpRunning.length > 0
+  ? round(avg(allPumpRunning.map(r =>
+      r.CP_TotalChilledWaterPump_kW / (r.CP_Chiller1_ChilledWaterFlowrate + r.CP_Chiller2_ChilledWaterFlowrate + r.CP_Chiller3_ChilledWaterFlowrate)
+    )), 4)
+  : 0;
+
+console.log(`Pump Specific Energy (overall): ${overallPumpSpecificEnergy} kWh/m³`);
+
+// ────────────────────────────────────────────────────────────
 // 12. Baseline deviation (2013 as baseline year)
 // ────────────────────────────────────────────────────────────
 // Compute monthly kW/Ton baseline from 2013, then compare other years/months
@@ -861,6 +933,10 @@ const output = {
   // COP data
   copByResolution,
   overallCop,
+
+  // Pump Specific Energy
+  pumpTimeSeriesByResolution,
+  overallPumpSpecificEnergy,
 
   // Baseline deviation
   baselineByMonth,
