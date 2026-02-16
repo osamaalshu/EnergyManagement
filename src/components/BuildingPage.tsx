@@ -12,7 +12,7 @@ import {
   ReferenceLine,
   Cell,
 } from 'recharts';
-import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, overallCop, baselineDeviationSeries, getPumpSpecificEnergySeries, overallPumpSpecificEnergy } from '../data/mockPortfolioData';
+import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, baselineDeviationSeries, getPumpSpecificEnergySeries } from '../data/mockPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import ChillerPlantSchematic from './ChillerPlantSchematic';
 import type { TimeResolution } from '../types/portfolio';
@@ -311,7 +311,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
               Coefficient of Performance (COP)
             </h3>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              COP = (Cooling Tons × 3.517) / kW &nbsp;&middot;&nbsp; Overall: <span className="font-semibold text-accent">{overallCop}</span>
+              COP = (Cooling Tons × 3.517) / kW &nbsp;&middot;&nbsp; Baseline: <span className="font-semibold text-accent">5.2</span>
             </p>
           </div>
           <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="COP resolution">
@@ -365,7 +365,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
                     labelStyle={{ color: 'var(--muted-text)' }}
                     formatter={(v: number) => [`${v.toFixed(2)}`, 'COP']}
                   />
-                  <ReferenceLine y={overallCop} stroke="#FAB005" strokeDasharray="4 4" label={{ value: `Avg ${overallCop}`, fill: '#FAB005', fontSize: 11, position: 'right' }} />
+                  <ReferenceLine y={5.2} stroke="#FAB005" strokeDasharray="4 4" label={{ value: 'Baseline 5.2', fill: '#FAB005', fontSize: 11, position: 'right' }} />
                   <Line type="monotone" dataKey="value" name="COP" stroke="#82C91E" strokeWidth={2} dot={data.length <= 40} />
                 </LineChart>
               </ResponsiveContainer>
@@ -382,7 +382,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
               Specific Energy (Pump)
             </h3>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              kWh/m³ &nbsp;&middot;&nbsp; Overall: <span className="font-semibold text-accent">{overallPumpSpecificEnergy}</span>
+              kWh/m³ &nbsp;&middot;&nbsp; Baseline: <span className="font-semibold text-accent">0.08</span>
             </p>
           </div>
           <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Pump specific energy resolution">
@@ -431,7 +431,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
                   labelStyle={{ color: 'var(--muted-text)' }}
                   formatter={(v: number) => [`${v.toFixed(4)}`, 'kWh/m³']}
                 />
-                <ReferenceLine y={overallPumpSpecificEnergy} stroke="#FAB005" strokeDasharray="4 4" label={{ value: `Avg ${overallPumpSpecificEnergy}`, fill: '#FAB005', fontSize: 11, position: 'right' }} />
+                <ReferenceLine y={0.08} stroke="#FAB005" strokeDasharray="4 4" label={{ value: 'Baseline 0.08', fill: '#FAB005', fontSize: 11, position: 'right' }} />
                 <Line type="monotone" dataKey="specificEnergy" name="Specific Energy" stroke="#38bdf8" strokeWidth={2} dot={pumpSpecificEnergy.length <= 40} />
               </LineChart>
             </ResponsiveContainer>
