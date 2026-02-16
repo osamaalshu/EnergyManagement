@@ -15,6 +15,7 @@ import {
   todaysConsumption,
   hourlyProductionConsumption,
   tariffHourlyData,
+  getChillerTimeSeries,
 } from '../data/mockPortfolioData';
 import { effectiveRateOmrPerKwh } from '../lib/tariffEngine';
 
@@ -83,14 +84,26 @@ const DashboardPage: FC<DashboardPageProps> = ({
   const hasChartData = last24.length > 0 && last24.some((d) => d.kwh > 0 || d.omr > 0);
 
   // Overview cards: actual last 24h from data
-  const last24ConsumptionKwh = useMemo(
-    () => hourlyProductionConsumption.slice(-24).reduce((s, d) => s + d.consumption, 0),
-    [],
-  );
-  const last24CoolingKwh = useMemo(
-    () => hourlyProductionConsumption.slice(-24).reduce((s, d) => s + d.production, 0),
-    [],
-  );
+
+  // Cooling output = sum of chiller 1 + 2 + 3 cooling tons (last 24h)
+  const last24CoolingTons = useMemo(() => {
+    let total = 0;
+    for (let ch = 1; ch <= 3; ch++) {
+      const series = getChillerTimeSeries(ch, 'hourly');
+      const last24 = series.powerCoolingSeries.slice(-24);
+      total += last24.reduce((s, d) => s + d.coolingTons, 0);
+    }
+    return Math.round(total * 100) / 100;
+  }, []);
+
+  // Energy consumption = sum of metered kWh from tariff data (last 24h)
+  const last24ConsumptionKwh = useMemo(() => {
+    if (!tariffHourlyData || tariffHourlyData.length === 0) {
+      return hourlyProductionConsumption.slice(-24).reduce((s, d) => s + d.consumption, 0);
+    }
+    return Math.round(tariffHourlyData.slice(-24).reduce((s, d) => s + d.kwh, 0) * 100) / 100;
+  }, []);
+
   const last24ConsumptionOmr = useMemo(() => {
     if (!tariffHourlyData || tariffHourlyData.length === 0) return todaysConsumption.omr;
     const rows = tariffHourlyData.slice(-24);
@@ -213,7 +226,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Last 24h Cooling Output</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {last24CoolingKwh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
+              {last24CoolingTons.toLocaleString()} <span className="text-sm font-normal text-slate-500">tons</span>
             </p>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View Chiller Plant</p>
           </div>
@@ -283,7 +296,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
                   width={48}
                   label={{ value: 'OMR', angle: 90, position: 'insideRight', offset: 8, fill: 'var(--muted-text)', fontSize: 11 }}
                 />
-                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [name === 'kwh' ? `${Number(value).toLocaleString()} kWh` : `${value} OMR`, name === 'kwh' ? 'Consumption (kWh)' : 'Cost (OMR)']} />
+                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [name === 'Consumption (kWh)' ? `${Number(value).toLocaleString()} kWh` : `${value} OMR`, name]} />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconType="line" />
                 <Line yAxisId="left" type="monotone" dataKey="kwh" name="Consumption (kWh)" stroke="#1A365D" strokeWidth={2} dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="omr" name="Cost (OMR)" stroke="#f59e0b" strokeWidth={2} dot={false} />

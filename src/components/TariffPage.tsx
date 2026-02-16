@@ -36,15 +36,11 @@ function getDataBounds(data: TariffHourlyDataPoint[]): { minDate: string; maxDat
   return { minDate: dates.reduce((a, b) => (a < b ? a : b)), maxDate: dates.reduce((a, b) => (a > b ? a : b)) };
 }
 
-/** Default range: full calendar month of the latest date in the data */
-function getLatestMonthRange(data: TariffHourlyDataPoint[]): { start: string; end: string } | null {
+/** Default range: full timeline */
+function getFullRange(data: TariffHourlyDataPoint[]): { start: string; end: string } | null {
   const bounds = getDataBounds(data);
   if (!bounds) return null;
-  const [y, m] = bounds.maxDate.split('-').map(Number);
-  const start = `${y}-${String(m).padStart(2, '0')}-01`;
-  const lastDay = new Date(y, m, 0).getDate();
-  const end = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-  return { start, end };
+  return { start: bounds.minDate, end: bounds.maxDate };
 }
 
 function filterByDateRange(data: TariffHourlyDataPoint[], start: string, end: string): TariffHourlyDataPoint[] {
@@ -79,7 +75,7 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
   const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
 
   const dataBounds = useMemo(() => getDataBounds(tariffHourlyData ?? []), []);
-  const defaultRange = useMemo(() => getLatestMonthRange(tariffHourlyData ?? []), []);
+  const defaultRange = useMemo(() => getFullRange(tariffHourlyData ?? []), []);
   const effectiveRange = dateRange ?? defaultRange;
 
   const filteredTariffData = useMemo(() => {
@@ -182,12 +178,12 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Date range filter — default: latest month */}
-      {dataBounds && (
-        <div className="card-surface flex flex-wrap items-end gap-4 p-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">From</span>
+      {/* Summary row: date filter + KPI cards */}
+      {totals && (
+        <div className="grid gap-4 lg:grid-cols-[auto_1fr]">
+          {/* Compact date filter */}
+          {dataBounds && (
+            <div className="card-surface flex items-center gap-3 p-4">
               <input
                 type="date"
                 value={effectiveRange?.start ?? ''}
@@ -198,12 +194,10 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                   const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
                   setDateRange({ start, end: currentEnd < start ? start : currentEnd });
                 }}
-                className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
+                className="w-[8.5rem] rounded-lg border border-slate-200/70 bg-white px-2.5 py-1.5 text-xs text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
                 aria-label="Start date"
               />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">To</span>
+              <span className="text-xs text-slate-400">—</span>
               <input
                 type="date"
                 value={effectiveRange?.end ?? ''}
@@ -214,47 +208,44 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                   const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
                   setDateRange({ start: currentStart > end ? end : currentStart, end });
                 }}
-                className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
+                className="w-[8.5rem] rounded-lg border border-slate-200/70 bg-white px-2.5 py-1.5 text-xs text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
                 aria-label="End date"
               />
-            </label>
-            <button
-              type="button"
-              onClick={() => setDateRange(null)}
-              className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-300 dark:hover:bg-white/5"
-              aria-label="Reset to latest month"
-            >
-              Latest month
-            </button>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Showing data from <strong className="text-slate-700 dark:text-slate-300">{effectiveRange?.start ?? '—'}</strong> to <strong className="text-slate-700 dark:text-slate-300">{effectiveRange?.end ?? '—'}</strong>
-          </p>
-        </div>
-      )}
+              {dateRange && (
+                <button
+                  type="button"
+                  onClick={() => setDateRange(null)}
+                  className="rounded-md px-2 py-1 text-[0.65rem] font-medium text-accent transition hover:bg-accent/10"
+                  aria-label="Reset to full timeline"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          )}
 
-      {/* Summary Cards */}
-      {totals && (
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
-          <div className="card-surface p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total kWh</p>
-            <p className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
-          </div>
-          <div className="card-surface p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Energy Cost</p>
-            <p className="mt-2 text-xl font-semibold text-emerald-500">{formatOmr(totals.totalEnergyCost)} <span className="text-xs text-slate-500">OMR</span></p>
-          </div>
-          <div className="card-surface p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Capacity Cost</p>
-            <p className="mt-2 text-xl font-semibold text-sky-400">{formatOmr(totals.totalCapacityCost)} <span className="text-xs text-slate-500">OMR</span></p>
-          </div>
-          <div className="card-surface p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Supply + VAT</p>
-            <p className="mt-2 text-xl font-semibold text-amber-400">{formatOmr(totals.totalSupply + totals.totalVat)} <span className="text-xs text-slate-500">OMR</span></p>
-          </div>
-          <div className="card-surface col-span-1 p-4 md:col-span-2">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Bill</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-sm font-normal text-slate-500">OMR</span></p>
+          {/* KPI summary cards */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="card-surface px-4 py-3">
+              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total kWh</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
+            </div>
+            <div className="card-surface px-4 py-3">
+              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Energy Cost</p>
+              <p className="mt-1 text-lg font-semibold text-emerald-500">{formatOmr(totals.totalEnergyCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            </div>
+            <div className="card-surface px-4 py-3">
+              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Capacity Cost</p>
+              <p className="mt-1 text-lg font-semibold text-sky-400">{formatOmr(totals.totalCapacityCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            </div>
+            <div className="card-surface px-4 py-3">
+              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Supply + VAT</p>
+              <p className="mt-1 text-lg font-semibold text-amber-400">{formatOmr(totals.totalSupply + totals.totalVat)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            </div>
+            <div className="card-surface px-4 py-3">
+              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Bill</p>
+              <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-[0.6rem] font-normal text-slate-500">OMR</span></p>
+            </div>
           </div>
         </div>
       )}
