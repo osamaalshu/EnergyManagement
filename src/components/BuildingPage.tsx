@@ -345,7 +345,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
           return (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+                <LineChart data={data} margin={{ top: 8, right: 80, left: 0, bottom: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                   <XAxis
                     dataKey="label"
@@ -414,7 +414,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
         {pumpSpecificEnergy.length > 0 ? (
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={pumpSpecificEnergy} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+              <LineChart data={pumpSpecificEnergy} margin={{ top: 8, right: 80, left: 0, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                 <XAxis
                   dataKey="label"
