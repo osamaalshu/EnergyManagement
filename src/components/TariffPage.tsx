@@ -176,31 +176,31 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Summary KPI cards + Filter (filter next to Total Bill, same card design) */}
+      {/* Summary KPI cards + Filter (compact height; filter minimal) */}
       {totals && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <div className="card-surface px-4 py-3">
+          <div className="card-surface px-4 py-2">
             <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total kWh</p>
-            <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
+            <p className="mt-0.5 text-base font-semibold text-slate-900 dark:text-white">{formatKwh(totals.totalKwh)}</p>
           </div>
-          <div className="card-surface px-4 py-3">
+          <div className="card-surface px-4 py-2">
             <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Energy Cost</p>
-            <p className="mt-1 text-lg font-semibold text-emerald-500">{formatOmr(totals.totalEnergyCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            <p className="mt-0.5 text-base font-semibold text-emerald-500">{formatOmr(totals.totalEnergyCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
           </div>
-          <div className="card-surface px-4 py-3">
+          <div className="card-surface px-4 py-2">
             <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Capacity Cost</p>
-            <p className="mt-1 text-lg font-semibold text-sky-400">{formatOmr(totals.totalCapacityCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            <p className="mt-0.5 text-base font-semibold text-sky-400">{formatOmr(totals.totalCapacityCost)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
           </div>
-          <div className="card-surface px-4 py-3">
+          <div className="card-surface px-4 py-2">
             <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Supply + VAT</p>
-            <p className="mt-1 text-lg font-semibold text-amber-400">{formatOmr(totals.totalSupply + totals.totalVat)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
+            <p className="mt-0.5 text-base font-semibold text-amber-400">{formatOmr(totals.totalSupply + totals.totalVat)} <span className="text-[0.6rem] text-slate-500">OMR</span></p>
           </div>
-          <div className="card-surface px-4 py-3">
+          <div className="card-surface px-4 py-2">
             <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Bill</p>
-            <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-[0.6rem] font-normal text-slate-500">OMR</span></p>
+            <p className="mt-0.5 text-base font-bold text-slate-900 dark:text-white">{formatOmr(totals.totalBill)} <span className="text-[0.6rem] font-normal text-slate-500">OMR</span></p>
           </div>
 
-          {/* Filter card — same design as KPI cards, next to Total Bill */}
+          {/* Filter card — minimal, single row */}
           {dataBounds && (() => {
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const startDate = effectiveRange?.start ?? dataBounds.minDate;
@@ -225,50 +225,22 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
               setDateRange({ start: currentStart > e ? e : currentStart, end: e });
             };
 
-            const selectClass = 'mt-1 w-full appearance-none rounded-md border border-slate-200/70 bg-white px-2 py-1.5 pr-6 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-200 dark:hover:border-white/20 cursor-pointer';
+            const selectClass = 'appearance-none rounded border border-slate-200/70 bg-white px-1.5 py-0.5 pr-5 text-[0.65rem] font-medium text-slate-700 outline-none transition hover:border-slate-400 focus:border-accent focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-200 cursor-pointer';
+            const chevron = <svg className="pointer-events-none absolute right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>;
 
             return (
-              <div className="card-surface flex flex-col px-4 py-3">
-                <div className="flex items-center justify-between gap-1">
-                  <p className="text-[0.6rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Filter</p>
+              <div className="card-surface flex flex-col justify-center px-3 py-2">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Filter</span>
                   {dateRange !== null && (
-                    <button
-                      type="button"
-                      onClick={() => setDateRange(null)}
-                      className="text-[0.6rem] font-medium text-accent transition hover:text-accent/80"
-                      aria-label="Reset to full timeline"
-                    >
-                      Reset
-                    </button>
+                    <button type="button" onClick={() => setDateRange(null)} className="text-[0.55rem] font-medium text-accent hover:text-accent/80" aria-label="Reset">Reset</button>
                   )}
-                </div>
-                <div className="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-1">
-                  <span className="col-span-2 text-[0.55rem] uppercase tracking-wider text-slate-400">From</span>
-                  <div className="relative">
-                    <select value={startM} onChange={(e) => setStart(startY, Number(e.target.value))} className={selectClass} aria-label="Start month">
-                      {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
-                    </select>
-                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </div>
-                  <div className="relative">
-                    <select value={startY} onChange={(e) => setStart(Number(e.target.value), startM)} className={selectClass} aria-label="Start year">
-                      {years.map((y) => <option key={y} value={y}>{y}</option>)}
-                    </select>
-                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </div>
-                  <span className="col-span-2 mt-0.5 text-[0.55rem] uppercase tracking-wider text-slate-400">To</span>
-                  <div className="relative">
-                    <select value={endM} onChange={(e) => setEnd(endY, Number(e.target.value))} className={selectClass} aria-label="End month">
-                      {months.map((label, i) => <option key={i} value={i + 1}>{label}</option>)}
-                    </select>
-                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </div>
-                  <div className="relative">
-                    <select value={endY} onChange={(e) => setEnd(Number(e.target.value), endM)} className={selectClass} aria-label="End year">
-                      {years.map((y) => <option key={y} value={y}>{y}</option>)}
-                    </select>
-                    <svg className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </div>
+                  <span className="text-[0.55rem] text-slate-400">·</span>
+                  <div className="relative inline-block w-12"><select value={startM} onChange={(e) => setStart(startY, Number(e.target.value))} className={selectClass} aria-label="Start month">{months.map((l, i) => <option key={i} value={i + 1}>{l}</option>)}</select>{chevron}</div>
+                  <div className="relative inline-block w-12"><select value={startY} onChange={(e) => setStart(Number(e.target.value), startM)} className={selectClass} aria-label="Start year">{years.map((y) => <option key={y} value={y}>{y}</option>)}</select>{chevron}</div>
+                  <span className="text-[0.55rem] text-slate-400">–</span>
+                  <div className="relative inline-block w-12"><select value={endM} onChange={(e) => setEnd(endY, Number(e.target.value))} className={selectClass} aria-label="End month">{months.map((l, i) => <option key={i} value={i + 1}>{l}</option>)}</select>{chevron}</div>
+                  <div className="relative inline-block w-12"><select value={endY} onChange={(e) => setEnd(Number(e.target.value), endM)} className={selectClass} aria-label="End year">{years.map((y) => <option key={y} value={y}>{y}</option>)}</select>{chevron}</div>
                 </div>
               </div>
             );
