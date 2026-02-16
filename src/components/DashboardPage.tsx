@@ -1,8 +1,8 @@
 import { type FC, useState, useRef, useMemo } from 'react';
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -66,22 +66,38 @@ const DashboardPage: FC<DashboardPageProps> = ({
   const warningCount = realWarnings.length;
   const hasWarnings = warningCount > 0;
 
-  const hasChartData = hourlyProductionConsumption.length > 0 &&
-    hourlyProductionConsumption.some((d) => d.production > 0 || d.consumption > 0);
+  // Last 24 hours: align hourly production/consumption with tariff for OMR
+  const last24 = useMemo(() => {
+    const hours = hourlyProductionConsumption.slice(-24);
+    const tariff = (tariffHourlyData ?? []).slice(-24);
+    return hours.map((h, i) => {
+      const t = tariff[i];
+      const omr = t ? effectiveRateOmrPerKwh(new Date(t.timestamp), '11kV') * t.kwh : 0;
+      return {
+        hour: h.hour,
+        kwh: h.consumption,
+        omr: Math.round(omr * 100) / 100,
+      };
+    });
+  }, []);
 
-  // Compute tariff-based OMR for the consumption card using the CRT tariff engine
-  const consumptionOmr = useMemo(() => {
-    if (!tariffHourlyData || tariffHourlyData.length === 0) {
-      return todaysConsumption.omr;
-    }
-    const lastTs = tariffHourlyData[tariffHourlyData.length - 1].timestamp;
-    const lastDay = lastTs.substring(0, 10);
-    const todayRows = tariffHourlyData.filter((d) => d.timestamp.startsWith(lastDay));
+  const hasChartData = last24.length > 0 && last24.some((d) => d.kwh > 0 || d.omr > 0);
 
+  // Overview cards: actual last 24h from data
+  const last24ConsumptionKwh = useMemo(
+    () => hourlyProductionConsumption.slice(-24).reduce((s, d) => s + d.consumption, 0),
+    [],
+  );
+  const last24CoolingKwh = useMemo(
+    () => hourlyProductionConsumption.slice(-24).reduce((s, d) => s + d.production, 0),
+    [],
+  );
+  const last24ConsumptionOmr = useMemo(() => {
+    if (!tariffHourlyData || tariffHourlyData.length === 0) return todaysConsumption.omr;
+    const rows = tariffHourlyData.slice(-24);
     let omr = 0;
-    for (const r of todayRows) {
-      const ts = new Date(r.timestamp);
-      omr += r.kwh * effectiveRateOmrPerKwh(ts, '11kV');
+    for (const r of rows) {
+      omr += r.kwh * effectiveRateOmrPerKwh(new Date(r.timestamp), '11kV');
     }
     return Math.round(omr * 10) / 10;
   }, []);
@@ -196,9 +212,9 @@ const DashboardPage: FC<DashboardPageProps> = ({
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Cooling Output</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Last 24h Cooling Output</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {todaysProduction.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
+              {last24CoolingKwh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View Chiller Plant</p>
           </div>
@@ -219,12 +235,12 @@ const DashboardPage: FC<DashboardPageProps> = ({
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Consumption</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Last 24h Consumption</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-              {todaysConsumption.kWh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
+              {last24ConsumptionKwh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
             </p>
             <p className="mt-0.5 text-sm font-semibold text-accent">
-              {consumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
+              {last24ConsumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
             </p>
           </div>
           <svg className="ml-auto h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,38 +249,46 @@ const DashboardPage: FC<DashboardPageProps> = ({
         </button>
       </div>
 
-      {/* ── Hourly Consumption vs Cooling Output Chart ─────────────── */}
+      {/* ── Last 24h kWh and OMR over time (line chart, dual axis) ───── */}
       <div className="card-surface p-6">
         <h3 className="mb-4 text-center text-lg font-semibold text-slate-900 dark:text-white">
-          Today&apos;s Hourly Consumption vs Cooling Output
+          Last 24 Hours: Consumption (kWh) and Cost (OMR)
         </h3>
         {hasChartData ? (
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={hourlyProductionConsumption} margin={{ top: 8, right: 24, left: 0, bottom: 4 }}>
+              <LineChart data={last24} margin={{ top: 8, right: 56, left: 0, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
                 <XAxis
                   dataKey="hour"
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  interval={hourlyProductionConsumption.length > 12 ? 1 : 0}
+                  interval={last24.length > 12 ? 1 : 0}
                 />
                 <YAxis
+                  yAxisId="left"
+                  orientation="left"
                   tick={tickStyle}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--grid-stroke)' }}
-                  width={56}
-                  label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
+                  width={48}
+                  label={{ value: 'kWh', angle: -90, position: 'insideLeft', offset: 8, fill: 'var(--muted-text)', fontSize: 11 }}
                 />
-                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
-                <Legend
-                  wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }}
-                  iconType="square"
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  width={48}
+                  label={{ value: 'OMR', angle: 90, position: 'insideRight', offset: 8, fill: 'var(--muted-text)', fontSize: 11 }}
                 />
-                <Bar dataKey="production" name="Cooling Output (kWh)" fill="#82C91E" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="consumption" name="Consumption (kWh)" fill="#1A365D" radius={[3, 3, 0, 0]} />
-              </BarChart>
+                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [name === 'kwh' ? `${Number(value).toLocaleString()} kWh` : `${value} OMR`, name === 'kwh' ? 'Consumption (kWh)' : 'Cost (OMR)']} />
+                <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconType="line" />
+                <Line yAxisId="left" type="monotone" dataKey="kwh" name="Consumption (kWh)" stroke="#1A365D" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="omr" name="Cost (OMR)" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         ) : (
