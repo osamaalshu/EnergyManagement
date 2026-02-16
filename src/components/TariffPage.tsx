@@ -23,6 +23,36 @@ import {
 } from '../lib/tariffEngine';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import type { TimeResolution } from '../types/portfolio';
+import type { TariffHourlyDataPoint } from '../types/portfolio';
+
+/** Normalize timestamp to YYYY-MM-DD for comparison (handles "YYYY-MM-DD HH:mm:ss" or ISO) */
+function getDatePart(ts: string): string {
+  return ts.substring(0, 10).replace('T', ' ').trim().substring(0, 10);
+}
+
+function getDataBounds(data: TariffHourlyDataPoint[]): { minDate: string; maxDate: string } | null {
+  if (!data.length) return null;
+  const dates = data.map((d) => getDatePart(d.timestamp));
+  return { minDate: dates.reduce((a, b) => (a < b ? a : b)), maxDate: dates.reduce((a, b) => (a > b ? a : b)) };
+}
+
+/** Default range: full calendar month of the latest date in the data */
+function getLatestMonthRange(data: TariffHourlyDataPoint[]): { start: string; end: string } | null {
+  const bounds = getDataBounds(data);
+  if (!bounds) return null;
+  const [y, m] = bounds.maxDate.split('-').map(Number);
+  const start = `${y}-${String(m).padStart(2, '0')}-01`;
+  const lastDay = new Date(y, m, 0).getDate();
+  const end = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+  return { start, end };
+}
+
+function filterByDateRange(data: TariffHourlyDataPoint[], start: string, end: string): TariffHourlyDataPoint[] {
+  return data.filter((d) => {
+    const date = getDatePart(d.timestamp);
+    return date >= start && date <= end;
+  });
+}
 
 const tooltipStyles = {
   background: 'var(--card-bg)',
@@ -45,30 +75,41 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
   const [resolution, setResolution] = useState<TimeResolution>('monthly');
   const [expandedBill, setExpandedBill] = useState<string | null>(null);
   const [peakDemandYear, setPeakDemandYear] = useState<string>('');
+  /** User-selected date range; null = use default (latest month) */
+  const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
 
-  // Compute monthly bills using tariff engine
+  const dataBounds = useMemo(() => getDataBounds(tariffHourlyData ?? []), []);
+  const defaultRange = useMemo(() => getLatestMonthRange(tariffHourlyData ?? []), []);
+  const effectiveRange = dateRange ?? defaultRange;
+
+  const filteredTariffData = useMemo(() => {
+    if (!tariffHourlyData?.length || !effectiveRange) return tariffHourlyData ?? [];
+    return filterByDateRange(tariffHourlyData, effectiveRange.start, effectiveRange.end);
+  }, [effectiveRange]);
+
+  // Compute monthly bills from filtered data
   const monthlyBills = useMemo<MonthlyBill[]>(() => {
-    if (!tariffHourlyData || tariffHourlyData.length === 0) return [];
-    return calculateMonthlyDetailedBills(tariffHourlyData, {
+    if (!filteredTariffData.length) return [];
+    return calculateMonthlyDetailedBills(filteredTariffData, {
       voltageLevel: '11kV',
       includeCgr: true,
       dcMethod: 'top3_peakbands',
     });
-  }, []);
+  }, [filteredTariffData]);
 
-  // Aggregated data for line chart
+  // Aggregated data for line chart (filtered range)
   const lineChartData = useMemo(() => {
-    if (!tariffHourlyData || tariffHourlyData.length === 0) return [];
+    if (!filteredTariffData.length) return [];
     const vl = '11kV';
     switch (resolution) {
-      case 'hourly':  return aggregateToHourly(tariffHourlyData, vl);
-      case 'daily':   return aggregateToDaily(tariffHourlyData, vl);
-      case 'weekly':  return aggregateToWeekly(tariffHourlyData, vl);
-      case 'monthly': return aggregateToMonthly(tariffHourlyData, vl);
-      case 'yearly':  return aggregateToYearly(tariffHourlyData, vl);
-      default:        return aggregateToMonthly(tariffHourlyData, vl);
+      case 'hourly':  return aggregateToHourly(filteredTariffData, vl);
+      case 'daily':   return aggregateToDaily(filteredTariffData, vl);
+      case 'weekly':  return aggregateToWeekly(filteredTariffData, vl);
+      case 'monthly': return aggregateToMonthly(filteredTariffData, vl);
+      case 'yearly':  return aggregateToYearly(filteredTariffData, vl);
+      default:        return aggregateToMonthly(filteredTariffData, vl);
     }
-  }, [resolution]);
+  }, [resolution, filteredTariffData]);
 
   // Available years for peak demand toggle
   const availableYears = useMemo(() => {
@@ -140,6 +181,57 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Date range filter — default: latest month */}
+      {dataBounds && (
+        <div className="card-surface flex flex-wrap items-end gap-4 p-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">From</span>
+              <input
+                type="date"
+                value={effectiveRange?.start ?? ''}
+                min={dataBounds.minDate}
+                max={dataBounds.maxDate}
+                onChange={(e) => {
+                  const start = e.target.value;
+                  const currentEnd = dateRange?.end ?? defaultRange?.end ?? dataBounds.maxDate;
+                  setDateRange({ start, end: currentEnd < start ? start : currentEnd });
+                }}
+                className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
+                aria-label="Start date"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">To</span>
+              <input
+                type="date"
+                value={effectiveRange?.end ?? ''}
+                min={dataBounds.minDate}
+                max={dataBounds.maxDate}
+                onChange={(e) => {
+                  const end = e.target.value;
+                  const currentStart = dateRange?.start ?? defaultRange?.start ?? dataBounds.minDate;
+                  setDateRange({ start: currentStart > end ? end : currentStart, end });
+                }}
+                className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-white/10 dark:bg-card-dark dark:text-white"
+                aria-label="End date"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setDateRange(null)}
+              className="rounded-lg border border-slate-200/70 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent dark:border-white/10 dark:bg-card-dark dark:text-slate-300 dark:hover:bg-white/5"
+              aria-label="Reset to latest month"
+            >
+              Latest month
+            </button>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Showing data from <strong className="text-slate-700 dark:text-slate-300">{effectiveRange?.start ?? '—'}</strong> to <strong className="text-slate-700 dark:text-slate-300">{effectiveRange?.end ?? '—'}</strong>
+          </p>
+        </div>
+      )}
 
       {/* Summary Cards */}
       {totals && (
