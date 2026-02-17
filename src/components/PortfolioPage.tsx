@@ -171,7 +171,6 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
       <div className="flex items-end justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Portfolio</p>
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">{portfolioMeta.name}</h2>
         </div>
         <div className="relative" ref={dropdownRef}>
           <button

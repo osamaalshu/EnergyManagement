@@ -108,9 +108,6 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
                 <span className="rounded-full bg-accent/20 px-3 py-0.5 text-xs font-medium text-accent">
                   {building.sector}
                 </span>
-                <span className="rounded-full border border-slate-200/70 px-3 py-0.5 text-xs text-slate-600 dark:border-white/10 dark:text-slate-400">
-                  {building.surfaceArea.toLocaleString()} m²
-                </span>
               </div>
             </div>
           </div>
