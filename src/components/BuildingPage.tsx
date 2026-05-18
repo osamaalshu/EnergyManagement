@@ -60,6 +60,9 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
 
   const detail = buildingDetails[buildingId];
 
+  // Pump Specific Energy (kWh/m³) from real CSV data
+  const pumpSpecificEnergy = useMemo(() => getPumpSpecificEnergySeries(pumpResolution), [pumpResolution]);
+
   if (!detail) {
     return (
       <section className="flex h-64 items-center justify-center">
@@ -69,9 +72,6 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
   }
 
   const { building, aggregateKPIs, equipment } = detail;
-
-  // Pump Specific Energy (kWh/m³) from real CSV data
-  const pumpSpecificEnergy = useMemo(() => getPumpSpecificEnergySeries(pumpResolution), [pumpResolution]);
 
   const statusColor: Record<string, string> = {
     running: 'bg-emerald-400',
