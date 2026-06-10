@@ -142,6 +142,50 @@ const resolutionMaps = {
 
 const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+// ────────────────────────────────────────────────────────────
+// 2c. CRT effective energy rate (Oman 2025 MIS, 11kV)
+// Mirrors src/lib/tariffEngine.ts — replaces the old flat 0.012 OMR/kWh.
+// Timestamps are parsed by string components (deterministic, no TZ drift).
+// ────────────────────────────────────────────────────────────
+const BST_MIS_2025_RO_PER_MWH = {
+  'Jan-Mar': { OP: 12, NP: 12, WDP: 12, WEDP: 12 },
+  'Apr':     { OP: 16, NP: 16, WDP: 16, WEDP: 16 },
+  'May-Jul': { OP: 19, NP: 46, WDP: 36, WEDP: 28 },
+  'Aug-Sep': { OP: 17, NP: 27, WDP: 20, WEDP: 20 },
+  'Oct':     { OP: 16, NP: 16, WDP: 16, WEDP: 16 },
+  'Nov-Dec': { OP: 12, NP: 12, WDP: 12, WEDP: 12 },
+};
+const DV_RO_PER_MWH_11KV = 5.0;
+
+function seasonBlock(m) {
+  if (m <= 3) return 'Jan-Mar';
+  if (m === 4) return 'Apr';
+  if (m <= 7) return 'May-Jul';
+  if (m <= 9) return 'Aug-Sep';
+  if (m === 10) return 'Oct';
+  return 'Nov-Dec';
+}
+
+/** TOU band from a "YYYY-MM-DD HH:MM:SS" timestamp (Oman local; Fri/Sat weekend). */
+function touBandFromTs(ts) {
+  const y = parseInt(ts.substring(0, 4), 10);
+  const m = parseInt(ts.substring(5, 7), 10);
+  const d = parseInt(ts.substring(8, 10), 10);
+  const hour = parseInt(ts.substring(11, 13), 10);
+  const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0=Sun … 5=Fri, 6=Sat
+  const isWeekend = dow === 5 || dow === 6;
+  if (hour >= 22 || hour <= 2) return 'NP';
+  if (hour >= 13 && hour <= 15) return isWeekend ? 'WEDP' : 'WDP';
+  return 'OP';
+}
+
+/** Effective CRT energy rate (BST + distribution, 11kV) in OMR/kWh for a timestamp. */
+function effectiveRateOmrPerKwh(ts) {
+  const m = parseInt(ts.substring(5, 7), 10);
+  const bst = BST_MIS_2025_RO_PER_MWH[seasonBlock(m)][touBandFromTs(ts)];
+  return (bst + DV_RO_PER_MWH_11KV) / 1000;
+}
+
 /** Format a bucket key into a human-readable label */
 function formatLabel(key, resolution) {
   switch (resolution) {
@@ -245,6 +289,11 @@ const todayTotalKw = todayRows.reduce((s, r) => s + r.Total_Chiller_kW + r.CP_To
 const todayConsumptionKwh = round(todayTotalKw);
 const todayCoolingTons = round(todayRows.reduce((s, r) => s + r.Total_CoolingTons, 0));
 const todayCoolingKwh = round(todayCoolingTons * 3.517, 0);
+// Energy cost for the day at CRT effective rates (BST + DUoS, 11kV)
+const todayEnergyOmr = todayRows.reduce(
+  (s, r) => s + (r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW) * effectiveRateOmrPerKwh(r.timestamp),
+  0
+);
 
 // Hourly production/consumption for latest day (dashboard chart)
 const hourlyProductionConsumption = todayRows.map(r => {
@@ -468,11 +517,23 @@ function makeChillerTimeSeriesFromKeys(n, resolution, keys) {
  *
  * Cost calculation:
  *   excessKw = (actual - baseline) × avgCoolingTons
- *   cost     = excessKw × hours-per-bucket × OMR-per-kWh (0.012)
+ *   cost     = excessKw × hours-per-bucket × energy-weighted CRT effective rate
  */
 const ANOMALY_THRESHOLDS = { hourly: 0.15, daily: 0.10, weekly: 0.06, monthly: 0.05, yearly: 0.04 };
 const HOURS_PER_BUCKET   = { hourly: 1,   daily: 24,   weekly: 168,  monthly: 730,  yearly: 8760 };
-const OMR_PER_KWH = 0.012;
+
+// Energy-weighted average CRT effective rate (OMR/kWh) across the whole dataset.
+// Replaces the old flat 0.012 OMR/kWh assumption.
+let _rateKwhSum = 0;
+let _rateOmrSum = 0;
+for (const r of allRows) {
+  const kwh = r.Total_Chiller_kW + r.CP_TotalChilledWaterPump_kW;
+  if (kwh <= 0) continue;
+  _rateKwhSum += kwh;
+  _rateOmrSum += kwh * effectiveRateOmrPerKwh(r.timestamp);
+}
+const AVG_EFFECTIVE_RATE_OMR_PER_KWH = _rateKwhSum > 0 ? _rateOmrSum / _rateKwhSum : 0.017;
+console.log(`Avg CRT effective energy rate: ${round(AVG_EFFECTIVE_RATE_OMR_PER_KWH, 5)} OMR/kWh`);
 
 function computeAnomalyData(efficiencyValues, resolution = 'weekly', avgCoolingTons = 200) {
   if (efficiencyValues.length < 5) {
@@ -500,7 +561,7 @@ function computeAnomalyData(efficiencyValues, resolution = 'weekly', avgCoolingT
       anomalyCount++;
       // Excess kW = (delta kW/ton) × tons × hours → kWh; cost = kWh × tariff
       const excessKwh = diff * avgCoolingTons * hoursPerBucket;
-      totalCostOmr += excessKwh * OMR_PER_KWH;
+      totalCostOmr += excessKwh * AVG_EFFECTIVE_RATE_OMR_PER_KWH;
     }
 
     series.push({
@@ -881,9 +942,12 @@ const output = {
   },
   // Production = electrical input to the system (what the plant uses)
   // Consumption = cooling output in kWh equivalent (what the building consumes as cooling)
-  // This ensures consumption > production for display purposes
-  todaysProduction: { kWh: round(todayConsumptionKwh, 0), omr: round(todayConsumptionKwh * OMR_PER_KWH, 1) },
-  todaysConsumption: { kWh: todayCoolingKwh, omr: round(todayCoolingKwh * OMR_PER_KWH, 1) },
+  // Cost is priced per hour at the CRT effective energy rate (no more flat 0.012).
+  todaysProduction: { kWh: round(todayConsumptionKwh, 0), omr: round(todayEnergyOmr, 1) },
+  todaysConsumption: {
+    kWh: todayCoolingKwh,
+    omr: round(todayConsumptionKwh > 0 ? todayCoolingKwh * (todayEnergyOmr / todayConsumptionKwh) : 0, 1),
+  },
   hourlyProductionConsumption,
   warnings,
   notifications,

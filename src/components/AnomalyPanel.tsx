@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
-import type { AnomalyData, TimeResolution } from '../types/portfolio';
+import type { AnomalyData, PhysicsRuleResult, TimeResolution } from '../types/portfolio';
 import TimeResolutionSelector from './TimeResolutionSelector';
 
 const tooltipStyles = {
@@ -19,10 +19,20 @@ const tooltipStyles = {
 };
 const tickStyle = { fill: 'var(--muted-text)', fontSize: 12 } as const;
 
+const severityBadge: Record<string, string> = {
+  HIGH: 'bg-red-400/15 text-red-400',
+  MEDIUM: 'bg-amber-400/15 text-amber-400',
+  LOW: 'bg-sky-400/15 text-sky-400',
+};
+
 interface AnomalyPanelProps {
   data: AnomalyData;
   /** Optional title override (default: "Anomaly Detection") */
   title?: string;
+  /** Optional subtitle explaining the data source / methodology */
+  subtitle?: string;
+  /** Physics rule findings (rule id, severity, hours, priced OMR impact) */
+  findings?: PhysicsRuleResult[];
   /** When provided, shows a time-resolution toggle */
   resolution?: TimeResolution;
   onResolutionChange?: (resolution: TimeResolution) => void;
@@ -31,15 +41,21 @@ interface AnomalyPanelProps {
 const AnomalyPanel: FC<AnomalyPanelProps> = ({
   data,
   title = 'Anomaly Detection',
+  subtitle,
+  findings,
   resolution,
   onResolutionChange,
 }) => {
   const hasData = data.series.length > 0;
+  const isPhysics = findings != null;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-center text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+          {subtitle && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>}
+        </div>
         {resolution != null && onResolutionChange && (
           <TimeResolutionSelector value={resolution} onChange={onResolutionChange} />
         )}
@@ -49,21 +65,41 @@ const AnomalyPanel: FC<AnomalyPanelProps> = ({
       <div className="grid grid-cols-2 gap-4">
         <div className="card-surface p-4">
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-            Anomalies Detected
+            {isPhysics ? 'Rule-Triggered Hours' : 'Anomalies Detected'}
           </p>
           <p className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
-            {data.anomalyCount}
+            {data.anomalyCount.toLocaleString()}
           </p>
         </div>
         <div className="card-surface p-4">
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-            Inefficiency Cost
+            {isPhysics ? 'Diagnosed Cost Impact' : 'Inefficiency Cost'}
           </p>
           <p className="mt-2 text-3xl font-semibold text-red-400">
-            {data.inefficiencyCost} <span className="text-base font-normal text-slate-500">OMR</span>
+            {data.inefficiencyCost.toLocaleString()} <span className="text-base font-normal text-slate-500">OMR</span>
           </p>
         </div>
       </div>
+
+      {/* Physics rule findings */}
+      {findings && findings.length > 0 && (
+        <div className="space-y-2">
+          {findings.map((f) => (
+            <div key={f.ruleId} className="card-surface flex flex-wrap items-center gap-3 p-3">
+              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[0.65rem] font-bold ${severityBadge[f.severity] ?? 'bg-slate-400/15 text-slate-400'}`}>
+                {f.ruleId}
+              </span>
+              <p className="min-w-0 flex-1 text-xs text-slate-700 dark:text-slate-300">{f.description}</p>
+              <p className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
+                {f.triggeredHours.toLocaleString()} / {f.evaluatedHours.toLocaleString()} hrs
+              </p>
+              <p className={`shrink-0 text-sm font-semibold ${f.triggeredHours > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                {f.omrImpact.toLocaleString(undefined, { maximumFractionDigits: 1 })} OMR
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Baseline vs Actual chart */}
       {hasData ? (
@@ -100,7 +136,7 @@ const AnomalyPanel: FC<AnomalyPanelProps> = ({
                 <Line
                   type="monotone"
                   dataKey="baseline"
-                  name="Baseline"
+                  name={isPhysics ? 'Gulf benchmark (COP 4.5)' : 'Baseline'}
                   stroke="#94a3b8"
                   strokeDasharray="5 5"
                   strokeWidth={2}

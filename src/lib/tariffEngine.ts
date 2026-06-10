@@ -111,13 +111,42 @@ export function monthBlock(m: number): SeasonBlock {
   throw new Error(`Invalid month: ${m}`);
 }
 
-/** Determine the TOU band for a given timestamp.
- *  Oman weekend: Friday (5) and Saturday (6) in JS Date.getDay()
+export interface TimestampParts {
+  year: number;
+  month: number;  // 1-12
+  day: number;    // 1-31
+  hour: number;   // 0-23
+  minute: number; // 0-59
+  /** Day of week: 0=Sun … 5=Fri, 6=Sat */
+  dow: number;
+}
+
+/**
+ * Parse a data timestamp ("YYYY-MM-DD HH:mm:ss" or ISO "YYYY-MM-DDTHH:mm:ss")
+ * as fixed Oman local time (UTC+4, no DST) by string components.
+ *
+ * This is deliberately NOT `new Date(ts)`: implicit Date parsing interprets
+ * the string in the *viewer's* browser timezone, which shifts APSR TOU band
+ * assignment depending on where the dashboard is opened. Band windows are
+ * defined in Oman local time, so we read the wall-clock components directly.
  */
-export function touBand(ts: Date): TOUBand {
-  const hm = ts.getHours() * 60 + ts.getMinutes();
-  const dow = ts.getDay(); // 0=Sun, 5=Fri, 6=Sat
-  const isWeekend = dow === 5 || dow === 6; // Oman weekend: Fri, Sat
+export function parseOmanTimestamp(ts: string): TimestampParts {
+  const year = parseInt(ts.substring(0, 4), 10);
+  const month = parseInt(ts.substring(5, 7), 10);
+  const day = parseInt(ts.substring(8, 10), 10);
+  const hour = parseInt(ts.substring(11, 13), 10) || 0;
+  const minute = parseInt(ts.substring(14, 16), 10) || 0;
+  // Day-of-week via UTC calendar math — immune to the browser timezone.
+  const dow = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  return { year, month, day, hour, minute, dow };
+}
+
+/** Determine the TOU band from parsed Oman-local components.
+ *  Oman weekend: Friday (dow 5) and Saturday (dow 6).
+ */
+export function touBandFromParts(p: TimestampParts): TOUBand {
+  const hm = p.hour * 60 + p.minute;
+  const isWeekend = p.dow === 5 || p.dow === 6;
 
   // Night: 22:00 -> 02:59
   if (hm >= 22 * 60 || hm <= 2 * 60 + 59) {
@@ -131,6 +160,11 @@ export function touBand(ts: Date): TOUBand {
 
   // Off-peak: 03:00–12:59 and 16:00–21:59
   return 'OP';
+}
+
+/** Determine the TOU band for a raw timestamp string (treated as Oman local). */
+export function touBand(ts: string): TOUBand {
+  return touBandFromParts(parseOmanTimestamp(ts));
 }
 
 /** Distribution rate in RO/MWh for the given voltage level */
@@ -147,22 +181,21 @@ export function omrPerKwMonthFromOmrPerMwYear(xOmrPerMwYear: number): number {
   return xOmrPerMwYear / 12000.0;
 }
 
-/** Get BST rate for a given timestamp */
-export function bstRate(ts: Date): number {
-  const blk = monthBlock(ts.getMonth() + 1);
-  const band = touBand(ts);
+/** Get BST rate for a given timestamp (treated as Oman local) */
+export function bstRate(ts: string): number {
+  const p = parseOmanTimestamp(ts);
+  const blk = monthBlock(p.month);
+  const band = touBandFromParts(p);
   return BST_MIS_2025_RO_PER_MWH[blk][band];
 }
 
-/** Get the month key from a Date (e.g. "2013-01") */
-function getMonthKey(d: Date): string {
-  const y = d.getFullYear();
-  const m = (d.getMonth() + 1).toString().padStart(2, '0');
-  return `${y}-${m}`;
+/** Get the month key from a raw timestamp (e.g. "2013-01") */
+function getMonthKey(ts: string): string {
+  return ts.substring(0, 7);
 }
 
 /** Group hourly data by month */
-function groupByMonth(data: Array<{ ts: Date; kw: number; kwh: number; band: TOUBand; bstRoPerMwh: number }>): Map<string, typeof data> {
+function groupByMonth(data: Array<{ ts: string; kw: number; kwh: number; band: TOUBand; bstRoPerMwh: number }>): Map<string, typeof data> {
   const groups = new Map<string, typeof data>();
   for (const d of data) {
     const key = getMonthKey(d.ts);
@@ -221,14 +254,14 @@ export function calculateMonthlyDetailedBills(
   const ncprKwMonth = omrPerKwMonthFromOmrPerMwYear(CAPACITY_OMR_PER_MW_YEAR.NCPR);
   const cgrKwMonth = omrPerKwMonthFromOmrPerMwYear(CAPACITY_OMR_PER_MW_YEAR.CGR);
 
-  // Preprocess: parse timestamps, compute TOU band & BST rate
+  // Preprocess: parse timestamps (fixed Oman local), compute TOU band & BST rate
   const enriched = hourlyData.map(d => {
-    const ts = new Date(d.timestamp);
-    const band = touBand(ts);
-    const blk = monthBlock(ts.getMonth() + 1);
+    const p = parseOmanTimestamp(d.timestamp);
+    const band = touBandFromParts(p);
+    const blk = monthBlock(p.month);
     const bstRo = BST_MIS_2025_RO_PER_MWH[blk][band];
     return {
-      ts,
+      ts: d.timestamp,
       kw: d.kw,
       kwh: d.kwh,
       band,
@@ -325,12 +358,13 @@ export function calculateMonthlyDetailedBills(
 }
 
 /**
- * Compute the effective OMR/kWh rate for a given timestamp.
+ * Compute the effective OMR/kWh rate for a given timestamp (Oman local string).
  * Useful for hourly cost charts.
  */
-export function effectiveRateOmrPerKwh(ts: Date, voltageLevel: string, tuosAdder: number = 0): number {
-  const blk = monthBlock(ts.getMonth() + 1);
-  const band = touBand(ts);
+export function effectiveRateOmrPerKwh(ts: string, voltageLevel: string, tuosAdder: number = 0): number {
+  const p = parseOmanTimestamp(ts);
+  const blk = monthBlock(p.month);
+  const band = touBandFromParts(p);
   const bst = BST_MIS_2025_RO_PER_MWH[blk][band];
   const dv = distRoPerMwh(voltageLevel);
   // Rate is in RO/MWh, convert to OMR/kWh (divide by 1000)
@@ -355,12 +389,11 @@ function computeRate(kwh: number, omr: number): number {
 export function aggregateToDaily(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
   const dayMap = new Map<string, { kwh: number; omr: number }>();
   for (const d of hourlyData) {
-    const ts = new Date(d.timestamp);
     const key = d.timestamp.substring(0, 10); // "YYYY-MM-DD"
     if (!dayMap.has(key)) dayMap.set(key, { kwh: 0, omr: 0 });
     const entry = dayMap.get(key)!;
     entry.kwh += d.kwh;
-    entry.omr += d.kwh * effectiveRateOmrPerKwh(ts, voltageLevel);
+    entry.omr += d.kwh * effectiveRateOmrPerKwh(d.timestamp, voltageLevel);
   }
   return Array.from(dayMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
@@ -370,17 +403,16 @@ export function aggregateToDaily(hourlyData: HourlyDataPoint[], voltageLevel: st
 export function aggregateToWeekly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
   const weekMap = new Map<string, { kwh: number; omr: number }>();
   for (const d of hourlyData) {
-    const ts = new Date(d.timestamp);
-    // ISO week: get the Monday of the week
-    const day = ts.getDay();
-    const diff = ts.getDate() - day + (day === 0 ? -6 : 1);
-    const monday = new Date(ts);
-    monday.setDate(diff);
-    const key = `${monday.getFullYear()}-${(monday.getMonth() + 1).toString().padStart(2, '0')}-${monday.getDate().toString().padStart(2, '0')}`;
+    const p = parseOmanTimestamp(d.timestamp);
+    // Monday of the week, computed in UTC calendar space (deterministic)
+    const utc = new Date(Date.UTC(p.year, p.month - 1, p.day));
+    const day = utc.getUTCDay();
+    utc.setUTCDate(utc.getUTCDate() - day + (day === 0 ? -6 : 1));
+    const key = `${utc.getUTCFullYear()}-${(utc.getUTCMonth() + 1).toString().padStart(2, '0')}-${utc.getUTCDate().toString().padStart(2, '0')}`;
     if (!weekMap.has(key)) weekMap.set(key, { kwh: 0, omr: 0 });
     const entry = weekMap.get(key)!;
     entry.kwh += d.kwh;
-    entry.omr += d.kwh * effectiveRateOmrPerKwh(ts, voltageLevel);
+    entry.omr += d.kwh * effectiveRateOmrPerKwh(d.timestamp, voltageLevel);
   }
   return Array.from(weekMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
@@ -390,12 +422,11 @@ export function aggregateToWeekly(hourlyData: HourlyDataPoint[], voltageLevel: s
 export function aggregateToMonthly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
   const monthMap = new Map<string, { kwh: number; omr: number }>();
   for (const d of hourlyData) {
-    const ts = new Date(d.timestamp);
-    const key = getMonthKey(ts);
+    const key = getMonthKey(d.timestamp);
     if (!monthMap.has(key)) monthMap.set(key, { kwh: 0, omr: 0 });
     const entry = monthMap.get(key)!;
     entry.kwh += d.kwh;
-    entry.omr += d.kwh * effectiveRateOmrPerKwh(ts, voltageLevel);
+    entry.omr += d.kwh * effectiveRateOmrPerKwh(d.timestamp, voltageLevel);
   }
   return Array.from(monthMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
@@ -405,12 +436,11 @@ export function aggregateToMonthly(hourlyData: HourlyDataPoint[], voltageLevel: 
 export function aggregateToYearly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
   const yearMap = new Map<string, { kwh: number; omr: number }>();
   for (const d of hourlyData) {
-    const ts = new Date(d.timestamp);
-    const key = ts.getFullYear().toString();
+    const key = d.timestamp.substring(0, 4);
     if (!yearMap.has(key)) yearMap.set(key, { kwh: 0, omr: 0 });
     const entry = yearMap.get(key)!;
     entry.kwh += d.kwh;
-    entry.omr += d.kwh * effectiveRateOmrPerKwh(ts, voltageLevel);
+    entry.omr += d.kwh * effectiveRateOmrPerKwh(d.timestamp, voltageLevel);
   }
   return Array.from(yearMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
@@ -419,8 +449,7 @@ export function aggregateToYearly(hourlyData: HourlyDataPoint[], voltageLevel: s
 
 export function aggregateToHourly(hourlyData: HourlyDataPoint[], voltageLevel: string): AggregatedTariffPoint[] {
   return hourlyData.map(d => {
-    const ts = new Date(d.timestamp);
-    const rate = effectiveRateOmrPerKwh(ts, voltageLevel);
+    const rate = effectiveRateOmrPerKwh(d.timestamp, voltageLevel);
     const omr = d.kwh * rate;
     return {
       label: d.timestamp.substring(5, 16).replace('T', ' '),

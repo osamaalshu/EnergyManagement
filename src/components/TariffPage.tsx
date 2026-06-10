@@ -5,6 +5,7 @@ import {
   Line,
   Bar,
   BarChart,
+  ComposedChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,6 +13,14 @@ import {
   Legend,
 } from 'recharts';
 import { tariffHourlyData } from '../data/mockPortfolioData';
+import {
+  crtVoltages,
+  getOptionTotals,
+  decompositionMeta,
+  decompositionMonths,
+  TARIFF_OPTION_LABELS,
+  tariffParity,
+} from '../data/enrichedPortfolioData';
 import {
   calculateMonthlyDetailedBills,
   aggregateToDaily,
@@ -22,7 +31,7 @@ import {
 } from '../lib/tariffEngine';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import ExportExcelButton from './ExportExcelButton';
-import type { TimeResolution } from '../types/portfolio';
+import type { CrtVoltage, TimeResolution } from '../types/portfolio';
 import type { TariffHourlyDataPoint } from '../types/portfolio';
 
 /** Normalize timestamp to YYYY-MM-DD for comparison (handles "YYYY-MM-DD HH:mm:ss" or ISO) */
@@ -71,6 +80,8 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
   const [resolution, setResolution] = useState<TimeResolution>('monthly');
   const [expandedBill, setExpandedBill] = useState<string | null>(null);
   const [peakDemandYear, setPeakDemandYear] = useState<string>('');
+  /** Connection voltage level (drives DUoS rates and Options 2/3 BST rates) */
+  const [voltage, setVoltage] = useState<CrtVoltage>('11kV');
   /** User-selected date range; null = use default (latest month) */
   const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
 
@@ -87,24 +98,33 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
   const monthlyBills = useMemo<MonthlyBill[]>(() => {
     if (!filteredTariffData.length) return [];
     return calculateMonthlyDetailedBills(filteredTariffData, {
-      voltageLevel: '11kV',
+      voltageLevel: voltage,
       includeCgr: true,
       dcMethod: 'top3_peakbands',
     });
-  }, [filteredTariffData]);
+  }, [filteredTariffData, voltage]);
 
   // Aggregated data for line chart (filtered range)
   const lineChartData = useMemo(() => {
     if (!filteredTariffData.length) return [];
-    const vl = '11kV';
     switch (resolution) {
-      case 'daily':   return aggregateToDaily(filteredTariffData, vl);
-      case 'weekly':  return aggregateToWeekly(filteredTariffData, vl);
-      case 'monthly': return aggregateToMonthly(filteredTariffData, vl);
-      case 'yearly':  return aggregateToYearly(filteredTariffData, vl);
-      default:        return aggregateToMonthly(filteredTariffData, vl);
+      case 'daily':   return aggregateToDaily(filteredTariffData, voltage);
+      case 'weekly':  return aggregateToWeekly(filteredTariffData, voltage);
+      case 'monthly': return aggregateToMonthly(filteredTariffData, voltage);
+      case 'yearly':  return aggregateToYearly(filteredTariffData, voltage);
+      default:        return aggregateToMonthly(filteredTariffData, voltage);
     }
-  }, [resolution, filteredTariffData]);
+  }, [resolution, filteredTariffData, voltage]);
+
+  // Option 1 vs 2 vs 3 comparison (full timeline, Python APSR CRT engine)
+  const optionComparison = useMemo(() => {
+    const totals = getOptionTotals(voltage);
+    const entries = (['1', '2', '3'] as const)
+      .filter((o) => totals[o])
+      .map((o) => ({ option: o, ...totals[o] }));
+    const cheapest = entries.length ? entries.reduce((a, b) => (b.totalOmr < a.totalOmr ? b : a)).option : null;
+    return { entries, cheapest };
+  }, [voltage]);
 
   // Available years for peak demand toggle
   const availableYears = useMemo(() => {
@@ -159,20 +179,45 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
     <section className="space-y-8">
       {/* Header */}
       <div>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/70 text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5"
-            aria-label="Back to overview"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Tariff Analysis</p>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Tariff Structure</h2>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/70 text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5"
+              aria-label="Back to overview"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Tariff Analysis</p>
+              <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Tariff Structure</h2>
+            </div>
+          </div>
+
+          {/* Voltage level selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Connection voltage</span>
+            <div className="inline-flex rounded-lg border border-slate-200/70 dark:border-white/10" role="radiogroup" aria-label="Connection voltage level">
+              {crtVoltages.map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="radio"
+                  aria-checked={voltage === v}
+                  onClick={() => setVoltage(v)}
+                  className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+                    voltage === v
+                      ? 'bg-accent text-white shadow-sm'
+                      : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-card-dark dark:text-slate-400 dark:hover:bg-white/5'
+                  }`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -246,6 +291,56 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {/* Tariff option comparison (APSR CRT Options 1/2/3, Python engine) */}
+      {optionComparison.entries.length > 0 && (
+        <div className="card-surface p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Tariff Option Comparison — {voltage}</h3>
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                Full data range, computed by the APSR CRT engine (incl. capacity, supply &amp; 5% VAT).
+                TS/Python parity: {tariffParity.pass ? 'verified' : 'FAILED'} (max diff {tariffParity.maxDiffPct}%).
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {optionComparison.entries.map((e) => {
+              const isCheapest = e.option === optionComparison.cheapest;
+              return (
+                <div
+                  key={e.option}
+                  className={`rounded-xl border p-4 ${
+                    isCheapest
+                      ? 'border-emerald-400/60 bg-emerald-400/5'
+                      : 'border-slate-200/70 dark:border-white/10'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{TARIFF_OPTION_LABELS[e.option]}</p>
+                    {isCheapest && (
+                      <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-emerald-500">
+                        Cheapest
+                      </span>
+                    )}
+                  </div>
+                  <p className={`mt-3 text-2xl font-semibold ${isCheapest ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
+                    {formatOmr(e.totalOmr)} <span className="text-xs font-normal text-slate-500">OMR</span>
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Energy charges: {formatOmr(e.energyOmr)} OMR &middot; {e.months} months
+                  </p>
+                  {!isCheapest && optionComparison.cheapest && (
+                    <p className="mt-1 text-xs font-medium text-red-400">
+                      +{formatOmr(e.totalOmr - optionComparison.entries.find((c) => c.option === optionComparison.cheapest)!.totalOmr)} OMR vs cheapest
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -462,6 +557,92 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
             )}
           </table>
         </div>
+      </div>
+
+      {/* Bill Decomposition (Python engine: structural / operational / tariff-driven / physics) */}
+      <div className="group card-surface p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Bill Decomposition</h3>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              {decompositionMeta.voltage} &middot; Option {decompositionMeta.option} (TOU) &middot; Structural = unavoidable cost of an efficient
+              reference operation; Operational = correctable excess; Physics-diagnosed = the slice attributed to chiller faults (R-CH-01/03).
+            </p>
+          </div>
+          <ExportExcelButton data={decompositionMonths as unknown as Record<string, unknown>[]} fileName="BillDecomposition" />
+        </div>
+
+        {decompositionMonths.length > 0 ? (
+          <>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={decompositionMonths} margin={{ top: 8, right: 24, left: 8, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                  <XAxis
+                    dataKey="label"
+                    tick={tickStyle}
+                    tickLine={false}
+                    axisLine={{ stroke: 'var(--grid-stroke)' }}
+                    interval={decompositionMonths.length > 18 ? 1 : 0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis
+                    tick={tickStyle}
+                    tickLine={false}
+                    axisLine={{ stroke: 'var(--grid-stroke)' }}
+                    width={64}
+                    label={{ value: 'OMR', angle: -90, position: 'insideLeft', offset: 10, fill: 'var(--muted-text)', fontSize: 12 }}
+                  />
+                  <Tooltip
+                    contentStyle={tooltipStyles}
+                    labelStyle={{ color: 'var(--muted-text)' }}
+                    formatter={(value: number, name: string) => [`${formatOmr(value)} OMR`, name]}
+                  />
+                  <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} />
+                  <Bar dataKey="structuralOmr" name="Structural (unavoidable)" stackId="bill" fill="#38bdf8" />
+                  <Bar dataKey="operationalOmr" name="Operational (correctable)" stackId="bill" fill="#f87171" radius={[3, 3, 0, 0]} />
+                  <Line type="monotone" dataKey="tariffDrivenOmr" name="Tariff-driven (TOU premium)" stroke="#FAB005" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="physicsOmr" name="Physics-diagnosed" stroke="#a78bfa" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-6 overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-t border-slate-200/70 bg-slate-50 dark:border-white/5 dark:bg-white/5">
+                    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Month</th>
+                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total (OMR)</th>
+                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Structural</th>
+                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Operational</th>
+                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tariff-driven</th>
+                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Physics-diagnosed</th>
+                    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reference</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/70 dark:divide-white/5">
+                  {decompositionMonths.map((d) => (
+                    <tr key={d.month}>
+                      <td className="px-4 py-2 font-medium text-slate-900 dark:text-white">{d.label}</td>
+                      <td className="px-4 py-2 text-right text-slate-700 dark:text-slate-300">{formatOmr(d.totalOmr)}</td>
+                      <td className="px-4 py-2 text-right text-sky-400">{formatOmr(d.structuralOmr)} <span className="text-xs text-slate-500">({d.structuralPct}%)</span></td>
+                      <td className="px-4 py-2 text-right text-red-400">{formatOmr(d.operationalOmr)}</td>
+                      <td className="px-4 py-2 text-right text-amber-400">{formatOmr(d.tariffDrivenOmr)}</td>
+                      <td className="px-4 py-2 text-right text-violet-400">{formatOmr(d.physicsOmr)}</td>
+                      <td className="px-4 py-2 text-xs text-slate-500 dark:text-slate-400">{d.referenceProfile.replace(/_/g, ' ')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="flex h-40 items-center justify-center">
+            <p className="text-sm text-slate-500 dark:text-slate-400">No decomposition data — run npm run enrich</p>
+          </div>
+        )}
       </div>
     </section>
   );

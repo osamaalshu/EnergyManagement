@@ -12,11 +12,18 @@ import {
   ReferenceLine,
   Cell,
 } from 'recharts';
-import { buildingDetails, buildings, buildingAnomalyByResolution, copByResolution, baselineDeviationSeries, getPumpSpecificEnergySeries } from '../data/mockPortfolioData';
+import { buildingDetails, buildings, copByResolution, baselineDeviationSeries, getPumpSpecificEnergySeries } from '../data/mockPortfolioData';
+import {
+  dataQuality,
+  getPhysicsAnomaly,
+  notApplicableRules,
+  plantPhysics,
+  QUALITY_STATUS_COLORS,
+  QUALITY_STATUS_ORDER,
+} from '../data/enrichedPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import ChillerPlantSchematic from './ChillerPlantSchematic';
 import ExportExcelButton from './ExportExcelButton';
-import type { TimeResolution } from '../types/portfolio';
 
 const tooltipStyles = {
   background: 'var(--card-bg)',
@@ -36,7 +43,6 @@ interface BuildingPageProps {
 const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToEquipment, onNavigateToBuilding, onOpenSystemSummary }) => {
   const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [equipmentDropdownOpen, setEquipmentDropdownOpen] = useState(false);
-  const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
   const [copResolution, setCopResolution] = useState<'daily' | 'monthly' | 'seasonal' | 'yearly'>('monthly');
   const [pumpResolution, setPumpResolution] = useState<'daily' | 'monthly' | 'yearly'>('daily');
   const [equipmentView, setEquipmentView] = useState<'schematic' | 'cards'>('schematic');
@@ -500,12 +506,84 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
         )}
       </div>
 
-      {/* ── Anomaly Panel ─────────────────────────────────────── */}
+      {/* ── Data Quality (physics-engine sensor validation) ──── */}
+      {(() => {
+        const total = Object.values(dataQuality.byStatus).reduce((s, v) => s + v, 0);
+        const shares = QUALITY_STATUS_ORDER
+          .map((st) => ({ status: st, count: dataQuality.byStatus[st] ?? 0 }))
+          .filter((s) => s.count > 0);
+        const topEpisodes = Object.entries(dataQuality.perChiller)
+          .flatMap(([n, rep]) => rep.episodes.map((e) => ({ chiller: n, ...e })))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 4);
+        return (
+          <div className="card-surface p-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Data Quality</h3>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              Every sensor hour is classified by the physics engine (COP bounds 0.5–12, min ΔT 1°C) — flagged
+              readings are reported as findings, never silently dropped.
+            </p>
+
+            {/* Status share bar */}
+            <div className="mt-4 flex h-4 w-full overflow-hidden rounded-full" role="img" aria-label="Data quality status share">
+              {shares.map((s) => (
+                <div
+                  key={s.status}
+                  style={{ width: `${(s.count / total) * 100}%`, background: QUALITY_STATUS_COLORS[s.status] }}
+                  title={`${s.status}: ${s.count.toLocaleString()} rows (${((s.count / total) * 100).toFixed(1)}%)`}
+                />
+              ))}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+              {shares.map((s) => (
+                <span key={s.status} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+                  <span className="inline-block h-2 w-2 rounded-full" style={{ background: QUALITY_STATUS_COLORS[s.status] }} />
+                  {s.status} {((s.count / total) * 100).toFixed(1)}%
+                </span>
+              ))}
+            </div>
+
+            {/* Per-chiller summary */}
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {Object.entries(dataQuality.perChiller).map(([n, rep]) => {
+                const goodPct = rep.totalRows > 0 ? (rep.goodForDiagnosis / rep.totalRows) * 100 : 0;
+                return (
+                  <div key={n} className="rounded-xl border border-slate-200/70 p-3 dark:border-white/10">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">Chiller {n}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      <span className="font-semibold text-emerald-500">{rep.goodForDiagnosis.toLocaleString()}</span> GOOD hours
+                      ({goodPct.toFixed(1)}%) &middot; {rep.flaggedNotDiscarded.toLocaleString()} flagged
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Top quality findings */}
+            {topEpisodes.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Top quality findings</p>
+                {topEpisodes.map((e, i) => (
+                  <div key={i} className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                    <span className="rounded-full bg-amber-400/15 px-2 py-0.5 font-medium text-amber-500">Chiller {e.chiller}</span>
+                    <span className="min-w-0 flex-1">{e.reason}</span>
+                    <span className="text-slate-500 dark:text-slate-400">
+                      {e.count.toLocaleString()} hrs over {e.distinctDays} days
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* ── Anomaly Panel (physics diagnostics) ───────────────── */}
       <AnomalyPanel
-        data={buildingAnomalyByResolution[anomalyResolution]}
-        title="Building Anomaly Detection"
-        resolution={anomalyResolution}
-        onResolutionChange={setAnomalyResolution}
+        data={getPhysicsAnomaly().data}
+        findings={getPhysicsAnomaly().findings}
+        title="Plant Physics Diagnostics"
+        subtitle={`Monthly kW/ton from physics-validated GOOD readings (${plantPhysics.goodRows.toLocaleString()} hrs, avg COP ${plantPhysics.avgCop}) vs the Gulf COP 4.5 benchmark. ${notApplicableRules.length} rules skipped for missing signals.`}
       />
 
       {/* ── System Summary Button ─────────────────────────────── */}

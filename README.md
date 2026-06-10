@@ -127,6 +127,31 @@ The production output is generated in the `dist/` directory.
 
 ---
 
+## Data Pipeline
+
+The dashboard is a static SPA: all data is precomputed at development time and committed as JSON under `src/data/generated/`. Two scripts produce it from the raw `src/data/hourly_data_*.csv` files:
+
+### 1. Node preprocessing (always available)
+
+```bash
+node scripts/preprocess-csv.mjs
+```
+
+Generates `src/data/generated/realData.json` — time series, KPIs, comparisons, and anomaly series consumed via `src/data/realPortfolioData.ts`. Costs use Oman CRT effective rates (no flat OMR/kWh).
+
+### 2. Python enrichment (requires the Enerlytics reference repo)
+
+```bash
+export ENERLYTICS_REPO=/path/to/enerlytics   # clone of github.com/Muathhinai/enerlytics
+npm run enrich                               # runs scripts/enrich_data.py
+```
+
+Generates `src/data/generated/enrichedData.json` — physics-validated data quality report, diagnostic rule findings (priced OMR impact), full APSR CRT bills for Options 1/2/3 at 33kV / 11kV / 0.415kV, monthly bill decomposition, and a Python-vs-TypeScript tariff parity check. Consumed via `src/data/enrichedPortfolioData.ts`.
+
+Both JSON outputs are committed, so `npm run build` (and Netlify) never requires Python or the CSVs.
+
+---
+
 ## Netlify Deployment
 
 This application is deployed on Netlify as a Single Page Application.

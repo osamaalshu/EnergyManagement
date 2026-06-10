@@ -13,13 +13,13 @@ import {
 import {
   equipmentDetails,
   getChillerTimeSeries,
-  getChillerAnomaly,
   getTowerTempSeries,
   getPumpTimeSeries,
   getChillerKPIsForResolution,
   getCoolingTowerKPIsForResolution,
   getPumpKPIsForResolution,
 } from '../data/mockPortfolioData';
+import { chillerPhysics, getPhysicsAnomaly, physicsConstants } from '../data/enrichedPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import type { TimeResolution } from '../types/portfolio';
@@ -47,7 +47,6 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
   const chillerNum = isChiller ? parseInt(equipmentId.split('-').pop() ?? '0', 10) : 0;
 
   const [chartResolution, setChartResolution] = useState<TimeResolution>('hourly');
-  const [anomalyResolution, setAnomalyResolution] = useState<TimeResolution>('weekly');
   const [overviewResolution, setOverviewResolution] = useState<TimeResolution>('hourly');
 
   // Get resolution-aware time series and anomaly data for chillers
@@ -56,10 +55,12 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
     return getChillerTimeSeries(chillerNum, chartResolution);
   }, [isChiller, chillerNum, chartResolution]);
 
-  const anomalyData = useMemo(() => {
-    if (!isChiller || chillerNum === 0) return detail?.anomaly ?? { anomalyCount: 0, inefficiencyCost: 0, series: [] };
-    return getChillerAnomaly(chillerNum, anomalyResolution);
-  }, [isChiller, chillerNum, anomalyResolution, detail?.anomaly]);
+  // Physics-validated diagnostics (GOOD rows only, priced by the rule engine)
+  const physicsAnomaly = useMemo(() => {
+    if (!isChiller || chillerNum === 0) return null;
+    return getPhysicsAnomaly(chillerNum);
+  }, [isChiller, chillerNum]);
+  const physics = isChiller && chillerNum > 0 ? chillerPhysics[String(chillerNum)] : undefined;
 
   const towerTempSeries = useMemo(() => {
     if (!isTower) return [];
@@ -150,6 +151,19 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
                 <span className={`inline-block h-2 w-2 rounded-full ${statusColor[equipment.status]}`} />
                 {equipment.status === 'running' ? 'Running' : equipment.status === 'off' ? 'Off' : 'Warning'}
               </span>
+              {physics?.rules
+                .filter((r) => r.triggeredHours > 0)
+                .map((r) => (
+                  <span
+                    key={r.ruleId}
+                    className={`rounded-full px-2 py-0.5 text-[0.65rem] font-bold ${
+                      r.severity === 'HIGH' ? 'bg-red-400/15 text-red-400' : 'bg-amber-400/15 text-amber-400'
+                    }`}
+                    title={r.description}
+                  >
+                    {r.ruleId}
+                  </span>
+                ))}
             </div>
           </div>
         </div>
@@ -468,13 +482,88 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
         </>
       )}
 
+      {/* ── Physics-validated performance (chiller only) ───────── */}
+      {isChiller && physics && (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KpiCard
+            label="Avg COP (validated)"
+            value={physics.avgCop}
+            unit=""
+            sub={`From ${physics.goodRows.toLocaleString()} physics-validated GOOD hours`}
+            accent={physics.avgCop >= physicsConstants.copBenchmarkPeak ? 'text-emerald-400' : 'text-yellow-400'}
+          />
+          <KpiCard
+            label="Benchmark COP"
+            value={physicsConstants.copBenchmarkPeak}
+            unit=""
+            sub="Gulf peak-condition benchmark"
+          />
+          <KpiCard
+            label="Alert threshold"
+            value={physicsConstants.copAlertThreshold}
+            unit="COP"
+            sub="Below this = severe degradation (R-CH-01)"
+          />
+        </div>
+      )}
+
+      {/* ── Monthly COP from physics-validated rows (chiller) ──── */}
+      {isChiller && physics && physics.monthlyCop.length > 0 && (
+        <div className="card-surface p-5">
+          <h4 className="mb-1 text-center text-sm font-semibold text-slate-900 dark:text-white">
+            Monthly COP — physics-validated readings only
+          </h4>
+          <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400">
+            COP = Q̇ / P from GOOD rows (Q̇ = ṁ·c<sub>p</sub>·ΔT); flagged sensor hours excluded
+          </p>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={physics.monthlyCop} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-stroke)" />
+                <XAxis
+                  dataKey="label"
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  {...getXAxisProps(physics.monthlyCop.length)}
+                />
+                <YAxis
+                  tick={tickStyle}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--grid-stroke)' }}
+                  width={44}
+                  label={{ value: 'COP', angle: -90, position: 'insideLeft', offset: 0, fill: 'var(--muted-text)', fontSize: 11 }}
+                />
+                <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} />
+                <Legend wrapperStyle={{ color: 'var(--muted-text)', fontSize: 10, paddingTop: 8 }} iconSize={10} />
+                <ReferenceLine
+                  y={physicsConstants.copBenchmarkPeak}
+                  stroke="#82C91E"
+                  strokeDasharray="6 4"
+                  strokeWidth={1.5}
+                  label={{ value: `Benchmark ${physicsConstants.copBenchmarkPeak}`, position: 'right', fill: '#82C91E', fontSize: 10 }}
+                />
+                <ReferenceLine
+                  y={physicsConstants.copAlertThreshold}
+                  stroke="#f87171"
+                  strokeDasharray="6 4"
+                  strokeWidth={1.5}
+                  label={{ value: `Alert ${physicsConstants.copAlertThreshold}`, position: 'right', fill: '#f87171', fontSize: 10 }}
+                />
+                <Line type="monotone" dataKey="value" name="COP (GOOD rows)" stroke="#1A365D" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
       {/* ── Anomaly Panel (chiller only) ───────────────────────── */}
-      {isChiller && (
+      {isChiller && physicsAnomaly && (
         <AnomalyPanel
-          data={anomalyData}
-          title="Equipment Anomaly Detection"
-          resolution={anomalyResolution}
-          onResolutionChange={setAnomalyResolution}
+          data={physicsAnomaly.data}
+          findings={physicsAnomaly.findings}
+          title="Physics Diagnostics"
+          subtitle="Monthly kW/ton from GOOD readings vs the Gulf COP 4.5 benchmark; rule impacts priced at CRT effective rates."
         />
       )}
     </section>

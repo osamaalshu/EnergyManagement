@@ -17,7 +17,7 @@ import {
   tariffHourlyData,
   getChillerTimeSeries,
 } from '../data/mockPortfolioData';
-import { effectiveRateOmrPerKwh } from '../lib/tariffEngine';
+import { effectiveRateOmrPerKwh, calculateMonthlyDetailedBills } from '../lib/tariffEngine';
 import ExportExcelButton from './ExportExcelButton';
 
 const tooltipStyles = {
@@ -38,6 +38,23 @@ const severityBg: Record<string, string> = {
   warning: 'bg-amber-400/15',
   info: 'bg-accent/15',
 };
+
+// Last 24 hours straight from the metered hourly series: kWh and OMR are
+// derived from the SAME timestamped rows (no index-based join between two
+// different series, which could silently misalign). Computed once at module
+// scope since the underlying data is static.
+const last24 = (() => {
+  const rows = (tariffHourlyData ?? []).slice(-24);
+  if (rows.length > 0) {
+    return rows.map((r) => ({
+      hour: r.timestamp.substring(11, 16),
+      kwh: Math.round(r.kwh * 100) / 100,
+      omr: Math.round(r.kwh * effectiveRateOmrPerKwh(r.timestamp, '11kV') * 100) / 100,
+    }));
+  }
+  // Fallback when no tariff data: show consumption only
+  return hourlyProductionConsumption.slice(-24).map((h) => ({ hour: h.hour, kwh: h.consumption, omr: 0 }));
+})();
 
 interface DashboardPageProps {
   onNavigateToPortfolio: () => void;
@@ -67,21 +84,6 @@ const DashboardPage: FC<DashboardPageProps> = ({
   const warningCount = realWarnings.length;
   const hasWarnings = warningCount > 0;
 
-  // Last 24 hours: align hourly production/consumption with tariff for OMR
-  const last24 = useMemo(() => {
-    const hours = hourlyProductionConsumption.slice(-24);
-    const tariff = (tariffHourlyData ?? []).slice(-24);
-    return hours.map((h, i) => {
-      const t = tariff[i];
-      const omr = t ? effectiveRateOmrPerKwh(new Date(t.timestamp), '11kV') * t.kwh : 0;
-      return {
-        hour: h.hour,
-        kwh: h.consumption,
-        omr: Math.round(omr * 100) / 100,
-      };
-    });
-  }, []);
-
   const hasChartData = last24.length > 0 && last24.some((d) => d.kwh > 0 || d.omr > 0);
 
   // Overview cards: actual last 24h from data
@@ -110,10 +112,25 @@ const DashboardPage: FC<DashboardPageProps> = ({
     const rows = tariffHourlyData.slice(-24);
     let omr = 0;
     for (const r of rows) {
-      omr += r.kwh * effectiveRateOmrPerKwh(new Date(r.timestamp), '11kV');
+      omr += r.kwh * effectiveRateOmrPerKwh(r.timestamp, '11kV');
     }
     return Math.round(omr * 10) / 10;
   }, []);
+
+  // Full-bill-aware daily cost: energy charges + the day's amortized share of
+  // capacity + supply charges, plus VAT — derived from the latest month's CRT bill.
+  const last24FullBillOmr = useMemo(() => {
+    if (!tariffHourlyData || tariffHourlyData.length === 0) return null;
+    const lastTs = tariffHourlyData[tariffHourlyData.length - 1].timestamp;
+    const monthRows = tariffHourlyData.filter((d) => d.timestamp.startsWith(lastTs.substring(0, 7)));
+    const bills = calculateMonthlyDetailedBills(monthRows, { voltageLevel: '11kV' });
+    if (bills.length === 0) return null;
+    const bill = bills[0];
+    const daysInMonth = new Set(monthRows.map((d) => d.timestamp.substring(0, 10))).size || 1;
+    const energyOmr = typeof last24ConsumptionOmr === 'number' ? last24ConsumptionOmr : 0;
+    const subtotal = energyOmr + (bill.capacityOmr + bill.supplyOmr) / daysInMonth;
+    return Math.round(subtotal * 1.05 * 10) / 10; // + 5% VAT
+  }, [last24ConsumptionOmr]);
 
   // Scroll-to refs
   const warningsRef = useRef<HTMLDivElement>(null);
@@ -243,17 +260,27 @@ const DashboardPage: FC<DashboardPageProps> = ({
             {last24ConsumptionKwh.toLocaleString()} <span className="text-sm font-normal text-slate-500">kWh</span>
           </p>
           <p className="mt-0.5 text-sm font-semibold text-accent">
-            {last24ConsumptionOmr} <span className="text-xs font-normal text-slate-500">OMR</span>
+            {last24ConsumptionOmr} <span className="text-xs font-normal text-slate-500">OMR energy</span>
           </p>
+          {last24FullBillOmr != null && (
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              ≈ {last24FullBillOmr} OMR full bill (incl. capacity, supply, VAT)
+            </p>
+          )}
         </button>
       </div>
 
       {/* ── Today's kWh and OMR over time (line chart, dual axis) ───── */}
       <div className="group card-surface p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-            Today&apos;s Consumption (kWh) and Cost (OMR)
-          </h3>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Today&apos;s Consumption (kWh) and Cost (OMR)
+            </h3>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              Cost line shows CRT energy charges only (BST + distribution); capacity, supply and VAT are billed monthly.
+            </p>
+          </div>
           <ExportExcelButton data={last24 as unknown as Record<string, unknown>[]} fileName="Last24h_Consumption_Cost" />
         </div>
         {hasChartData ? (
@@ -289,7 +316,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
                 <Tooltip contentStyle={tooltipStyles} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [name === 'Consumption (kWh)' ? `${Number(value).toLocaleString()} kWh` : `${value} OMR`, name]} />
                 <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} iconType="line" />
                 <Line yAxisId="left" type="monotone" dataKey="kwh" name="Consumption (kWh)" stroke="#1A365D" strokeWidth={2} dot={false} />
-                <Line yAxisId="right" type="monotone" dataKey="omr" name="Cost (OMR)" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="omr" name="Energy Cost (OMR)" stroke="#f59e0b" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

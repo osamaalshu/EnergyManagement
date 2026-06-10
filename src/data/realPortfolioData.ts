@@ -110,13 +110,10 @@ export const comparisonsByResolution: ByResolution<MonthComparison[]> = {
   yearly:  rawComparisons.yearly.map(mapComparison),
 };
 
-// Energy breakdown by category (HVAC, lighting, heating, cooling); for now only cooling in the breakdown (100%), others in legend only
-export const buildingConsumptionBreakdown: ConsumptionBreakdownEntry[] = [
-  { name: 'HVAC', value: 0, color: '#f59e0b' },
-  { name: 'Lighting', value: 0, color: '#a78bfa' },
-  { name: 'Heating', value: 0, color: '#f43f5e' },
-  { name: 'Cooling', value: 100, color: '#38bdf8' },
-];
+// Real consumption breakdown by equipment (chillers 1–3 + pumps), computed
+// from the measured kWh shares in realData.json.
+export const buildingConsumptionBreakdown: ConsumptionBreakdownEntry[] =
+  raw.consumptionBreakdown as ConsumptionBreakdownEntry[];
 
 // ── Portfolio anomaly (default = weekly, backward compat) ─────────
 export const portfolioAnomaly: AnomalyData = {

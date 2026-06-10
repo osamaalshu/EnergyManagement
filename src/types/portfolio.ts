@@ -178,6 +178,108 @@ export interface BaselineDeviationPoint {
   deviationPercent: number;
 }
 
+// ── Enriched data (Python reference engine output) ──────────────
+/** Connection voltage levels supported by the APSR CRT engine */
+export type CrtVoltage = '33kV' | '11kV' | '0.415kV';
+
+export interface QualityEpisode {
+  reason: string;
+  count: number;
+  first: string;
+  last: string;
+  distinctDays: number;
+}
+
+export interface ChillerQualityReport {
+  totalRows: number;
+  byStatus: Record<string, number>;
+  goodForDiagnosis: number;
+  flaggedNotDiscarded: number;
+  episodes: QualityEpisode[];
+}
+
+export interface DataQualityReport {
+  totalRows: number;
+  byStatus: Record<string, number>;
+  perChiller: Record<string, ChillerQualityReport>;
+}
+
+export interface PhysicsRuleResult {
+  ruleId: string;
+  severity: string;
+  triggeredHours: number;
+  evaluatedHours: number;
+  omrImpact: number;
+  description: string;
+}
+
+export interface MonthlyKwPerTonPoint {
+  month: string;
+  label: string;
+  actual: number;
+  benchmark: number;
+}
+
+export interface MonthlyCopPoint {
+  month: string;
+  label: string;
+  value: number;
+}
+
+export interface ChillerPhysics {
+  goodRows: number;
+  avgCop: number;
+  avgKwPerTon: number;
+  monthlyKwPerTon: MonthlyKwPerTonPoint[];
+  monthlyCop: MonthlyCopPoint[];
+  rules: PhysicsRuleResult[];
+}
+
+export interface CrtBandDetail {
+  kwh: number;
+  omr: number;
+}
+
+export interface CrtMonthlyBill {
+  month: string;
+  label: string;
+  hours: number;
+  totalKwh: number;
+  bstOmr: number;
+  duosOmr: number;
+  tuosOmr: number;
+  standingOmr: number;
+  subtotalOmr: number;
+  vatOmr: number;
+  totalOmr: number;
+  peakKw: number;
+  coincidentKw: number;
+  byBand: Record<string, CrtBandDetail>;
+}
+
+export interface TariffOptionTotal {
+  totalOmr: number;
+  energyOmr: number;
+  months: number;
+}
+
+export interface DecompositionMonth {
+  month: string;
+  label: string;
+  totalOmr: number;
+  structuralOmr: number;
+  structuralPct: number;
+  tariffDrivenOmr: number;
+  tariffDrivenPct: number;
+  operationalOmr: number;
+  operationalPct: number;
+  physicsOmr: number;
+  physicsRawOmr: number;
+  referenceTotalOmr: number;
+  referenceProfile: string;
+  operationalComponents: Record<string, number>;
+}
+
 // ── Building detail ──────────────────────────────────────────────
 export interface BuildingAggregateKPIs {
   systemDeltaT: number;       // °C

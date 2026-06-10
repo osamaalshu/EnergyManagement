@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "preview": "vite preview",
-    "preprocess": "node scripts/preprocess-csv.mjs"
+    "preprocess": "node scripts/preprocess-csv.mjs",
+    "enrich": "python3 scripts/enrich_data.py"
   },
   "dependencies": {
     "html2canvas": "^1.4.1",
