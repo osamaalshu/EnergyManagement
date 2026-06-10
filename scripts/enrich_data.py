@@ -462,23 +462,36 @@ def compute_decomposition(rows_by_month: dict[str, list[dict]], config, monthly_
             benchmark_noncoincident_mw=ref_dnc_kw / 1000.0,
         )
         physics_omr = monthly_physics_omr.get(mk, 0.0)
+        # Apply VAT to every component so decomposition totals reconcile with
+        # the monthly bill table (which displays VAT-inclusive totals).
+        vat = 1.0 + VAT_RATE
+        total = dec.total_omr * vat
+        reference_total = dec.reference_total_omr * vat
+        structural_raw = dec.structural_omr * vat
+        # The decomposer reports structural = full reference-profile bill. When
+        # the month ran BETTER than the reference, cap the structural slice at
+        # the actual bill so the stacked chart always sums to the real total.
+        structural = min(structural_raw, total)
+        better_than_ref = structural_raw > total + 1e-9
         out.append({
             "month": mk,
             "label": month_label(mk),
-            "totalOmr": r(dec.total_omr, 3),
-            "structuralOmr": r(dec.structural_omr, 3),
-            "structuralPct": r(dec.structural_pct, 1),
-            "tariffDrivenOmr": r(dec.tariff_driven_omr, 3),
+            "totalOmr": r(total, 3),
+            "structuralOmr": r(structural, 3),
+            "structuralPct": r(structural / total * 100 if total > 0 else 0.0, 1),
+            "tariffDrivenOmr": r(dec.tariff_driven_omr * vat, 3),
             "tariffDrivenPct": r(dec.tariff_driven_pct, 1),
-            "operationalOmr": r(dec.operational_omr, 3),
+            "operationalOmr": r(dec.operational_omr * vat, 3),
             "operationalPct": r(dec.operational_pct, 1),
             # Physics-diagnosed subset of operational waste (R-CH-01 + R-CH-03)
-            "physicsOmr": r(min(physics_omr, dec.operational_omr), 3),
-            "physicsRawOmr": r(physics_omr, 3),
-            "referenceTotalOmr": r(dec.reference_total_omr, 3),
+            "physicsOmr": r(min(physics_omr, dec.operational_omr) * vat, 3),
+            "physicsRawOmr": r(physics_omr * vat, 3),
+            "referenceTotalOmr": r(reference_total, 3),
             "referenceProfile": profile,
+            "betterThanReference": better_than_ref,
+            "savingsVsReferenceOmr": r(max(0.0, reference_total - total), 3),
             "operationalComponents": {
-                k: r(v, 3) for k, v in dec.operational_components.items()
+                k: r(v * vat, 3) for k, v in dec.operational_components.items()
             },
         })
     return {"voltage": DEFAULT_VOLTAGE, "option": 1, "months": out}

@@ -565,8 +565,9 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Bill Decomposition</h3>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-              {decompositionMeta.voltage} &middot; Option {decompositionMeta.option} (TOU) &middot; Structural = unavoidable cost of an efficient
-              reference operation; Operational = correctable excess; Physics-diagnosed = the slice attributed to chiller faults (R-CH-01/03).
+              {decompositionMeta.voltage} &middot; Option {decompositionMeta.option} (TOU) &middot; incl. 5% VAT (matches the monthly bill table) &middot;
+              Structural = unavoidable cost of an efficient reference operation (capped at the actual bill);
+              Operational = correctable excess; Physics-diagnosed = the slice attributed to chiller faults (R-CH-01/03).
             </p>
           </div>
           <ExportExcelButton data={decompositionMonths as unknown as Record<string, unknown>[]} fileName="BillDecomposition" />
@@ -631,7 +632,14 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                       <td className="px-4 py-2 text-right text-red-400">{formatOmr(d.operationalOmr)}</td>
                       <td className="px-4 py-2 text-right text-amber-400">{formatOmr(d.tariffDrivenOmr)}</td>
                       <td className="px-4 py-2 text-right text-violet-400">{formatOmr(d.physicsOmr)}</td>
-                      <td className="px-4 py-2 text-xs text-slate-500 dark:text-slate-400">{d.referenceProfile.replace(/_/g, ' ')}</td>
+                      <td className="px-4 py-2 text-xs text-slate-500 dark:text-slate-400">
+                        {d.referenceProfile.replace(/_/g, ' ')}
+                        {d.betterThanReference && (
+                          <span className="ml-1.5 rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[0.6rem] font-semibold text-emerald-500">
+                            −{formatOmr(d.savingsVsReferenceOmr)} vs ref
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

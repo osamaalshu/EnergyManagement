@@ -277,6 +277,9 @@ export interface DecompositionMonth {
   physicsRawOmr: number;
   referenceTotalOmr: number;
   referenceProfile: string;
+  /** True when the month's actual bill came in below the reference profile */
+  betterThanReference: boolean;
+  savingsVsReferenceOmr: number;
   operationalComponents: Record<string, number>;
 }
 

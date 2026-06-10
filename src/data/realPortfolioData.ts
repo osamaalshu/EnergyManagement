@@ -428,7 +428,12 @@ export function getChillerKPIsForResolution(chillerNum: number, resolution: Time
   const cdwFlow = snapshot?.cdwFlow ?? 0;
 
   const runningPower = ts.powerCoolingSeries.filter((p) => p.power > 0);
-  const runningTemp = ts.temperatureLoopSeries.filter((p) => p.chilledSupply > 0);
+  // Physics-valid hours only: exclude inverted ΔT (return ≤ supply), which the
+  // quality engine classifies as BAD sensor data — averaging it in would show
+  // physically impossible KPIs (e.g. negative Delta T).
+  const runningTemp = ts.temperatureLoopSeries.filter(
+    (p) => p.chilledSupply > 0 && p.chilledReturn > p.chilledSupply,
+  );
   const runningEff = ts.efficiencySeries.filter((p) => p.value > 0 && p.value < 5);
 
   const powerDraw = runningPower.length ? round2(runningPower.reduce((s, p) => s + p.power, 0) / runningPower.length) : 0;

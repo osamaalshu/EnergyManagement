@@ -226,16 +226,23 @@ function chillerSnapshot(n) {
   const tons = round(avg(vals('CoolingTons')));
   const cwFlow = round(avg(vals('ChilledWaterFlowrate')));
   const cdwFlow = round(avg(vals('CondenserWaterFlowrate')));
-  const cwSupply = round(avg(vals('ChilledWaterSupplyTemp')), 1);
-  const cwReturn = round(avg(vals('ChilledWaterReturnTemp')), 1);
-  const cdwSupply = round(avg(vals('CondenserWaterSupplyTemp')), 1);
-  const cdwReturn = round(avg(vals('CondenserWaterReturnTemp')), 1);
-  const deltaT = round(avg(latestRows.map(r => {
-    const ret = r[`${prefix}ChilledWaterReturnTemp`];
+  // Temperatures are intensive (not additive): average only physics-valid
+  // running hours — supply > 0 and return > supply. Inverted ΔT readings are
+  // sensor faults (classified BAD by the quality engine) and would otherwise
+  // produce impossible KPIs like negative Delta T.
+  const validTempRows = latestRows.filter(r => {
     const sup = r[`${prefix}ChilledWaterSupplyTemp`];
-    if (ret > 0 && sup >= 0) return ret - sup;
-    return 0;
-  })), 1);
+    const ret = r[`${prefix}ChilledWaterReturnTemp`];
+    return sup > 0 && ret > sup;
+  });
+  const tempAvg = (key) => validTempRows.length
+    ? round(avg(validTempRows.map(r => Number(r[`${prefix}${key}`]) || 0)), 1)
+    : 0;
+  const cwSupply = tempAvg('ChilledWaterSupplyTemp');
+  const cwReturn = tempAvg('ChilledWaterReturnTemp');
+  const cdwSupply = tempAvg('CondenserWaterSupplyTemp');
+  const cdwReturn = tempAvg('CondenserWaterReturnTemp');
+  const deltaT = round(cwReturn - cwSupply, 1);
   const status = eff > 0.7 ? 'warning' : kW > 0 ? 'running' : 'off';
   return { status, kW, efficiency: eff, coolingTons: tons, cwFlow, cdwFlow, cwSupply, cwReturn, cdwSupply, cdwReturn, deltaT };
 }
@@ -756,6 +763,29 @@ console.log(`\nTariff hourly data: ${tariffHourlyData.length} rows`);
 // COP = CoolingTons × 3.517 / kW (dimensionless)
 // Only compute when kW > 0 and CoolingTons > 0
 
+// Physics-validated COP, mirroring the quality gates in scripts/enrich_data.py:
+// per chiller-hour, require running (kW > 5), ΔT ≥ 1°C, recompute the cooling
+// load Q = V̇·Cp·ΔT (GPM → L/s), and keep COP only within physical bounds
+// [0.5, 12]. This makes the building COP chart consistent with the
+// physics-validated figures in enrichedData.json (GOOD rows only).
+const GPM_TO_LS = 0.0630902;
+const CP_WATER_KJ_PER_KG_K = 4.186;
+function validChillerCops(r) {
+  const cops = [];
+  for (let n = 1; n <= 3; n++) {
+    const kw = r[`CP_Chiller${n}_kW`];
+    if (!(kw > 5)) continue;                       // off / idle
+    const sup = r[`CP_Chiller${n}_ChilledWaterSupplyTemp`];
+    const ret = r[`CP_Chiller${n}_ChilledWaterReturnTemp`];
+    const dT = ret - sup;
+    if (!(dT >= 1)) continue;                      // inverted or suspect ΔT
+    const flowLs = r[`CP_Chiller${n}_ChilledWaterFlowrate`] * GPM_TO_LS;
+    const cop = (flowLs * CP_WATER_KJ_PER_KG_K * dT) / kw;
+    if (cop >= 0.5 && cop <= 12) cops.push(cop);   // physical bounds
+  }
+  return cops;
+}
+
 function computeCopForResolution(resolution) {
   const { map, keys } = resolutionMaps[resolution];
   
@@ -765,12 +795,11 @@ function computeCopForResolution(resolution) {
     : keys;
 
   return resKeys.map(key => {
-    const rows = map.get(key).filter(r => r.Total_Chiller_kW > 0 && r.Total_CoolingTons > 0);
-    if (rows.length === 0) {
+    const cops = map.get(key).flatMap(validChillerCops);
+    if (cops.length === 0) {
       return { label: formatLabel(key, resolution), value: 0 };
     }
-    const avgCop = avg(rows.map(r => (r.Total_CoolingTons * 3.517) / r.Total_Chiller_kW));
-    return { label: formatLabel(key, resolution), value: round(avgCop, 2) };
+    return { label: formatLabel(key, resolution), value: round(avg(cops), 2) };
   });
 }
 
@@ -780,13 +809,11 @@ function computeSeasonalCop() {
   const seasons = [];
   for (let i = 0; i <= sortedMonths.length - 4; i += 4) {
     const seasonMonths = sortedMonths.slice(i, i + 4);
-    const seasonRows = seasonMonths.flatMap(m => monthlyMap.get(m));
-    const validRows = seasonRows.filter(r => r.Total_Chiller_kW > 0 && r.Total_CoolingTons > 0);
-    if (validRows.length === 0) continue;
-    const avgCop = avg(validRows.map(r => (r.Total_CoolingTons * 3.517) / r.Total_Chiller_kW));
+    const cops = seasonMonths.flatMap(m => monthlyMap.get(m)).flatMap(validChillerCops);
+    if (cops.length === 0) continue;
     seasons.push({
       label: `${formatLabel(seasonMonths[0], 'monthly')} - ${formatLabel(seasonMonths[seasonMonths.length - 1], 'monthly')}`,
-      value: round(avgCop, 2),
+      value: round(avg(cops), 2),
     });
   }
   return seasons;
@@ -798,11 +825,9 @@ for (const res of ALL_RESOLUTIONS) {
 }
 copByResolution.seasonal = computeSeasonalCop();
 
-// Overall COP
-const overallCopRows = allRows.filter(r => r.Total_Chiller_kW > 0 && r.Total_CoolingTons > 0);
-const overallCop = overallCopRows.length > 0
-  ? round(avg(overallCopRows.map(r => (r.Total_CoolingTons * 3.517) / r.Total_Chiller_kW)), 2)
-  : 0;
+// Overall COP (physics-validated rows only)
+const allValidCops = allRows.flatMap(validChillerCops);
+const overallCop = allValidCops.length > 0 ? round(avg(allValidCops), 2) : 0;
 
 console.log(`COP (overall): ${overallCop}`);
 
