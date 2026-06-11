@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/verify-provenance.mjs && tsc -b && vite build",
+    "verify:provenance": "node scripts/verify-provenance.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "preview": "vite preview",
