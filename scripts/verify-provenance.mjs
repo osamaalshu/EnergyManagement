@@ -67,6 +67,7 @@ console.log('T1 — units on known headline metrics');
     else if (m.unit === undefined) bad('T1', `${m.path}: no unit declared (use null if dimensionless)`);
     else ok(`${m.path} → ${m.unit === null ? 'dimensionless' : m.unit}`);
   }
+  console.log(`  · coverage: ${KNOWN_METRICS.length} metrics (Slice 1, partial). Most headline outputs are NOT yet unit-checked — full registry lands in Slice 2. A green T1 does not mean every metric has a verified unit.`);
 }
 
 // ── FH — freshness honesty: no live/today claims in demo/historical UI ───────

@@ -12,9 +12,14 @@ function fmtMonthYear(iso: string): string {
 const fmtRange = (m: DatasetMeta) => `${fmtMonthYear(m.coverageStart)} – ${fmtMonthYear(m.asOf)}`;
 
 const Chip: FC<{ dot: string; label: string; title: string }> = ({ dot, label, title }) => (
+  // Keyboard-focusable + the full provenance in `aria-label` (not just `title`)
+  // so screen-reader and keyboard users get the detail, not mouse-hover only.
   <span
+    role="note"
+    tabIndex={0}
+    aria-label={title}
     title={title}
-    className="inline-flex cursor-default select-none items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+    className="inline-flex cursor-default select-none items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-500 outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-light dark:border-white/10 dark:bg-white/5 dark:text-slate-400 dark:focus-visible:ring-offset-surface-dark"
   >
     <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
     {label}

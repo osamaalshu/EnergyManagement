@@ -8,6 +8,14 @@
 > **Evidence legend:** **[F]** fact observed in repo · **[I]** interpretation · **[D]** inferred design intent · **[P]** proposed assumption · **[R]** recommendation.
 > **Confidence:** High / Medium / Low. Where I could not trace something, it says **Insufficient evidence — validation required.**
 
+> ### ⏱ Status update (post-audit remediation — branch `fix/audit-p0-baselines`)
+> This audit was written *before* remediation. As of this branch:
+> - ✅ **F3 hardcoded baselines** — fixed (COP → sourced 4.5 Gulf benchmark; pump → P25 own-data).
+> - ✅ **F1 "Today/LIVE" freshness** — fixed (dataset `mode`/`<DataFreshness>` chip; demo discloses honestly). See `PROVENANCE_FRESHNESS_CONTRACT_PLAN.md` (Slice 1 SHIPPED).
+> - ✅ Decomposition methodology, signed tariff effect, physics→diagnostic-estimate, 2-hour/SUSPECT COP, integrity flag — fixed earlier.
+> - ⏳ **Still open:** F2 ×10 pump factor (**traced, `unresolved`** — see plan §12.3), F4 production/consumption label, F6 dual anomaly systems, F7 score, F8 README, F5 tests-beyond-provenance. Slices 2–3 of the provenance contract.
+> The body below is the original point-in-time audit; treat the items above as the live status.
+
 ---
 
 ## 1. Executive Summary
