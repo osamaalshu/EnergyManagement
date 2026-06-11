@@ -17,6 +17,7 @@ import {
   dataQuality,
   getPhysicsAnomaly,
   notApplicableRules,
+  physicsConstants,
   plantPhysics,
   QUALITY_STATUS_COLORS,
   QUALITY_STATUS_ORDER,
@@ -68,6 +69,16 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
 
   // Pump Specific Energy (kWh/m³) from real CSV data
   const pumpSpecificEnergy = useMemo(() => getPumpSpecificEnergySeries(pumpResolution), [pumpResolution]);
+
+  // Best-demonstrated pump reference = P25 of the plant's own specific energy
+  // (lower = better). Self-referential, so it stays valid regardless of the
+  // absolute kWh/m³ scaling — the upstream flow-unit factor is still unverified,
+  // so we do NOT assert an absolute external target here.
+  const pumpBaseline = useMemo(() => {
+    const vals = pumpSpecificEnergy.map((d) => d.specificEnergy).filter((v) => v > 0).sort((a, b) => a - b);
+    if (!vals.length) return 0;
+    return Math.round(vals[Math.floor(0.25 * (vals.length - 1))] * 1000) / 1000;
+  }, [pumpSpecificEnergy]);
 
   if (!detail) {
     return (
@@ -315,7 +326,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
               Coefficient of Performance (COP)
             </h3>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              COP = (Cooling Tons × 3.517) / kW &nbsp;&middot;&nbsp; Baseline: <span className="font-semibold text-accent">5.2</span>
+              COP = (Cooling Tons × 3.517) / kW &nbsp;&middot;&nbsp; Min acceptable: <span className="font-semibold text-accent">{physicsConstants.copBenchmarkPeak}</span> <span className="text-slate-400">(Gulf benchmark)</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -372,7 +383,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
                     labelStyle={{ color: 'var(--muted-text)' }}
                     formatter={(v: number) => [`${v.toFixed(2)}`, 'COP']}
                   />
-                  <ReferenceLine y={5.2} stroke="#FAB005" strokeDasharray="4 4" label={{ value: 'Baseline 5.2', fill: '#FAB005', fontSize: 11, position: 'right' }} />
+                  <ReferenceLine y={physicsConstants.copBenchmarkPeak} stroke="#FAB005" strokeDasharray="4 4" label={{ value: `Min ${physicsConstants.copBenchmarkPeak}`, fill: '#FAB005', fontSize: 11, position: 'right' }} />
                   <Line type="monotone" dataKey="value" name="COP" stroke="#82C91E" strokeWidth={2} dot={data.length <= 40} />
                 </LineChart>
               </ResponsiveContainer>
@@ -389,7 +400,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
               Specific Energy (Pump)
             </h3>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              kWh/m³ &nbsp;&middot;&nbsp; Baseline: <span className="font-semibold text-accent">0.08</span>
+              kWh/m³ &nbsp;&middot;&nbsp; Best demonstrated: <span className="font-semibold text-accent">{pumpBaseline}</span> <span className="text-slate-400">(P25, own data)</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -441,7 +452,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
                   labelStyle={{ color: 'var(--muted-text)' }}
                   formatter={(v: number) => [`${v.toFixed(4)}`, 'kWh/m³']}
                 />
-                <ReferenceLine y={0.08} stroke="#FAB005" strokeDasharray="4 4" label={{ value: 'Baseline 0.08', fill: '#FAB005', fontSize: 11, position: 'right' }} />
+                <ReferenceLine y={pumpBaseline} stroke="#FAB005" strokeDasharray="4 4" label={{ value: `Best ${pumpBaseline}`, fill: '#FAB005', fontSize: 11, position: 'right' }} />
                 <Line type="monotone" dataKey="specificEnergy" name="Specific Energy" stroke="#38bdf8" strokeWidth={2} dot={pumpSpecificEnergy.length <= 40} />
               </LineChart>
             </ResponsiveContainer>
