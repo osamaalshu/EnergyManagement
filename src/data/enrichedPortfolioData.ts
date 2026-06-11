@@ -140,12 +140,17 @@ export const TARIFF_OPTION_LABELS: Record<string, string> = {
 type EnrichedDecomposition = {
   voltage: CrtVoltage;
   option: number;
+  targetCop: number;
   months: DecompositionMonth[];
 };
 
 const decomposition = enriched.decomposition as unknown as EnrichedDecomposition;
 
-export const decompositionMeta = { voltage: decomposition.voltage, option: decomposition.option };
+export const decompositionMeta = {
+  voltage: decomposition.voltage,
+  option: decomposition.option,
+  targetCop: decomposition.targetCop,
+};
 export const decompositionMonths: DecompositionMonth[] = decomposition.months;
 
 // ═══════════════════════════════════════════════════════════════════

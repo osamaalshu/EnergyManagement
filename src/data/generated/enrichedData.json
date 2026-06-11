@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-06-10T20:18:52.147046+00:00",
+  "generatedAt": "2026-06-11T09:48:30.448081+00:00",
   "engine": "enerlytics reference platform (Python)",
   "tariffConfigYear": 2025,
   "system": "MIS",
@@ -20,97 +20,110 @@
  "dataQuality": {
   "totalRows": 75159,
   "byStatus": {
-   "IDLE": 50727,
-   "GOOD": 21821,
-   "BAD": 822,
-   "SUSPECT": 1789
+   "IDLE": 22983,
+   "SUSPECT": 1390,
+   "GOOD": 12904,
+   "BAD": 304
   },
   "perChiller": {
    "1": {
-    "totalRows": 25053,
+    "totalRows": 12527,
     "byStatus": {
-     "IDLE": 18763,
-     "GOOD": 5637,
-     "BAD": 412,
-     "SUSPECT": 241
+     "IDLE": 9020,
+     "SUSPECT": 161,
+     "GOOD": 3224,
+     "BAD": 122
     },
-    "goodForDiagnosis": 5637,
-    "flaggedNotDiscarded": 653,
+    "goodForDiagnosis": 3224,
+    "usableForDiagnosis": 3385,
+    "impossibleReadings": 122,
+    "flaggedNotDiscarded": 283,
     "episodes": [
      {
-      "reason": "inverted \u0394T (return \u2264 supply) \u2014 sensor fault or no cooling",
-      "count": 412,
-      "first": "2011-06-16 10:00:00",
-      "last": "2014-03-21 06:00:00",
-      "distinctDays": 397
+      "reason": "very low \u0394T \u2014 low load or sensor drift",
+      "status": "SUSPECT",
+      "count": 161,
+      "first": "2011-06-09 14:00:00",
+      "last": "2014-04-02 12:00:00",
+      "distinctDays": 140
      },
      {
-      "reason": "very low \u0394T \u2014 low load or sensor drift",
-      "count": 241,
-      "first": "2011-07-10 22:00:00",
-      "last": "2014-04-02 13:00:00",
-      "distinctDays": 201
+      "reason": "inverted \u0394T (return \u2264 supply) \u2014 sensor fault or no cooling",
+      "status": "BAD",
+      "count": 122,
+      "first": "2011-06-16 10:00:00",
+      "last": "2014-04-09 08:00:00",
+      "distinctDays": 115
      }
     ]
    },
    "2": {
-    "totalRows": 25053,
+    "totalRows": 12527,
     "byStatus": {
-     "IDLE": 18354,
-     "GOOD": 6128,
-     "SUSPECT": 250,
-     "BAD": 321
+     "IDLE": 8840,
+     "SUSPECT": 147,
+     "GOOD": 3414,
+     "BAD": 126
     },
-    "goodForDiagnosis": 6128,
-    "flaggedNotDiscarded": 571,
+    "goodForDiagnosis": 3414,
+    "usableForDiagnosis": 3561,
+    "impossibleReadings": 126,
+    "flaggedNotDiscarded": 273,
     "episodes": [
      {
-      "reason": "inverted \u0394T (return \u2264 supply) \u2014 sensor fault or no cooling",
-      "count": 321,
-      "first": "2011-07-11 08:00:00",
-      "last": "2014-04-03 07:00:00",
-      "distinctDays": 315
+      "reason": "very low \u0394T \u2014 low load or sensor drift",
+      "status": "SUSPECT",
+      "count": 147,
+      "first": "2011-06-09 14:00:00",
+      "last": "2014-03-25 18:00:00",
+      "distinctDays": 138
      },
      {
-      "reason": "very low \u0394T \u2014 low load or sensor drift",
-      "count": 250,
-      "first": "2011-06-14 14:00:00",
-      "last": "2014-04-09 07:00:00",
-      "distinctDays": 203
+      "reason": "inverted \u0394T (return \u2264 supply) \u2014 sensor fault or no cooling",
+      "status": "BAD",
+      "count": 126,
+      "first": "2011-07-11 08:00:00",
+      "last": "2014-04-09 06:00:00",
+      "distinctDays": 121
      }
     ]
    },
    "3": {
-    "totalRows": 25053,
+    "totalRows": 12527,
     "byStatus": {
-     "IDLE": 13610,
-     "SUSPECT": 1298,
-     "GOOD": 10056,
-     "BAD": 89
+     "IDLE": 5123,
+     "BAD": 56,
+     "GOOD": 6266,
+     "SUSPECT": 1082
     },
-    "goodForDiagnosis": 10056,
-    "flaggedNotDiscarded": 1387,
+    "goodForDiagnosis": 6266,
+    "usableForDiagnosis": 7348,
+    "impossibleReadings": 56,
+    "flaggedNotDiscarded": 1138,
     "episodes": [
      {
       "reason": "very low \u0394T \u2014 low load or sensor drift",
-      "count": 1298,
-      "first": "2011-06-14 09:00:00",
+      "status": "SUSPECT",
+      "count": 1082,
+      "first": "2011-06-14 18:00:00",
       "last": "2014-04-09 04:00:00",
-      "distinctDays": 642
+      "distinctDays": 634
      },
      {
       "reason": "inverted \u0394T (return \u2264 supply) \u2014 sensor fault or no cooling",
-      "count": 65,
-      "first": "2011-06-16 10:00:00",
-      "last": "2013-11-18 17:00:00",
-      "distinctDays": 65
+      "status": "BAD",
+      "count": 38,
+      "first": "2011-06-14 08:00:00",
+      "last": "2013-11-24 12:00:00",
+      "distinctDays": 38
      },
      {
       "reason": "COP outside [0.5, 12.0] \u2014 implausible",
-      "count": 24,
-      "first": "2013-05-20 06:00:00",
-      "last": "2013-12-23 16:00:00",
-      "distinctDays": 10
+      "status": "BAD",
+      "count": 18,
+      "first": "2013-05-17 06:00:00",
+      "last": "2013-12-23 08:00:00",
+      "distinctDays": 13
      }
     ]
    }
@@ -129,206 +142,206 @@
   },
   "perChiller": {
    "1": {
-    "goodRows": 5637,
-    "avgCop": 6.676,
-    "avgKwPerTon": 0.5767,
+    "goodRows": 3385,
+    "avgCop": 5.586,
+    "avgKwPerTon": 1.3718,
     "monthlyKwPerTon": [
      {
       "month": "2011-06",
       "label": "Jun 2011",
-      "actual": 0.7005,
+      "actual": 0.8247,
       "benchmark": 0.7816
      },
      {
       "month": "2011-07",
       "label": "Jul 2011",
-      "actual": 0.6834,
+      "actual": 0.7162,
       "benchmark": 0.7816
      },
      {
       "month": "2011-08",
       "label": "Aug 2011",
-      "actual": 0.5134,
+      "actual": 0.5779,
       "benchmark": 0.7816
      },
      {
       "month": "2011-10",
       "label": "Oct 2011",
-      "actual": 0.5703,
+      "actual": 0.6843,
       "benchmark": 0.7816
      },
      {
       "month": "2011-11",
       "label": "Nov 2011",
-      "actual": 0.4963,
+      "actual": 0.5544,
       "benchmark": 0.7816
      },
      {
       "month": "2011-12",
       "label": "Dec 2011",
-      "actual": 0.4878,
+      "actual": 0.5527,
       "benchmark": 0.7816
      },
      {
       "month": "2012-02",
       "label": "Feb 2012",
-      "actual": 0.49,
+      "actual": 0.5473,
       "benchmark": 0.7816
      },
      {
       "month": "2012-03",
       "label": "Mar 2012",
-      "actual": 0.4839,
+      "actual": 0.543,
       "benchmark": 0.7816
      },
      {
       "month": "2012-04",
       "label": "Apr 2012",
-      "actual": 0.4844,
+      "actual": 0.5436,
       "benchmark": 0.7816
      },
      {
       "month": "2012-05",
       "label": "May 2012",
-      "actual": 0.4832,
+      "actual": 0.544,
       "benchmark": 0.7816
      },
      {
       "month": "2012-06",
       "label": "Jun 2012",
-      "actual": 0.4884,
+      "actual": 0.5482,
       "benchmark": 0.7816
      },
      {
       "month": "2012-07",
       "label": "Jul 2012",
-      "actual": 0.5271,
+      "actual": 0.6441,
       "benchmark": 0.7816
      },
      {
       "month": "2012-08",
       "label": "Aug 2012",
-      "actual": 0.4988,
+      "actual": 0.5494,
       "benchmark": 0.7816
      },
      {
       "month": "2012-09",
       "label": "Sep 2012",
-      "actual": 0.5069,
+      "actual": 0.5564,
       "benchmark": 0.7816
      },
      {
       "month": "2012-10",
       "label": "Oct 2012",
-      "actual": 0.5001,
+      "actual": 0.5527,
       "benchmark": 0.7816
      },
      {
       "month": "2012-11",
       "label": "Nov 2012",
-      "actual": 0.502,
+      "actual": 0.5403,
       "benchmark": 0.7816
      },
      {
       "month": "2012-12",
       "label": "Dec 2012",
-      "actual": 0.5189,
+      "actual": 0.5472,
       "benchmark": 0.7816
      },
      {
       "month": "2013-01",
       "label": "Jan 2013",
-      "actual": 0.5016,
+      "actual": 0.5408,
       "benchmark": 0.7816
      },
      {
       "month": "2013-02",
       "label": "Feb 2013",
-      "actual": 0.5141,
+      "actual": 0.5578,
       "benchmark": 0.7816
      },
      {
       "month": "2013-03",
       "label": "Mar 2013",
-      "actual": 0.503,
+      "actual": 0.5489,
       "benchmark": 0.7816
      },
      {
       "month": "2013-04",
       "label": "Apr 2013",
-      "actual": 0.5184,
+      "actual": 0.5929,
       "benchmark": 0.7816
      },
      {
       "month": "2013-05",
       "label": "May 2013",
-      "actual": 0.5199,
+      "actual": 0.5871,
       "benchmark": 0.7816
      },
      {
       "month": "2013-06",
       "label": "Jun 2013",
-      "actual": 0.5206,
+      "actual": 0.578,
       "benchmark": 0.7816
      },
      {
       "month": "2013-07",
       "label": "Jul 2013",
-      "actual": 0.5438,
+      "actual": 0.5727,
       "benchmark": 0.7816
      },
      {
       "month": "2013-08",
       "label": "Aug 2013",
-      "actual": 0.493,
+      "actual": 0.5209,
       "benchmark": 0.7816
      },
      {
       "month": "2013-09",
       "label": "Sep 2013",
-      "actual": 0.4993,
+      "actual": 0.5297,
       "benchmark": 0.7816
      },
      {
       "month": "2013-10",
       "label": "Oct 2013",
-      "actual": 0.51,
+      "actual": 0.5417,
       "benchmark": 0.7816
      },
      {
       "month": "2013-11",
       "label": "Nov 2013",
-      "actual": 0.5231,
+      "actual": 0.5855,
       "benchmark": 0.7816
      },
      {
       "month": "2013-12",
       "label": "Dec 2013",
-      "actual": 0.517,
+      "actual": 0.5429,
       "benchmark": 0.7816
      },
      {
       "month": "2014-01",
       "label": "Jan 2014",
-      "actual": 0.6092,
+      "actual": 0.7739,
       "benchmark": 0.7816
      },
      {
       "month": "2014-02",
       "label": "Feb 2014",
-      "actual": 0.5071,
+      "actual": 0.5501,
       "benchmark": 0.7816
      },
      {
       "month": "2014-03",
       "label": "Mar 2014",
-      "actual": 0.5106,
+      "actual": 0.5508,
       "benchmark": 0.7816
      },
      {
       "month": "2014-04",
       "label": "Apr 2014",
-      "actual": 0.6179,
+      "actual": 0.8551,
       "benchmark": 0.7816
      }
     ],
@@ -336,389 +349,389 @@
      {
       "month": "2011-06",
       "label": "Jun 2011",
-      "value": 5.02
+      "value": 4.265
      },
      {
       "month": "2011-07",
       "label": "Jul 2011",
-      "value": 5.147
+      "value": 4.91
      },
      {
       "month": "2011-08",
       "label": "Aug 2011",
-      "value": 6.85
+      "value": 6.086
      },
      {
       "month": "2011-10",
       "label": "Oct 2011",
-      "value": 6.167
+      "value": 5.139
      },
      {
       "month": "2011-11",
       "label": "Nov 2011",
-      "value": 7.086
+      "value": 6.344
      },
      {
       "month": "2011-12",
       "label": "Dec 2011",
-      "value": 7.21
+      "value": 6.363
      },
      {
       "month": "2012-02",
       "label": "Feb 2012",
-      "value": 7.177
+      "value": 6.426
      },
      {
       "month": "2012-03",
       "label": "Mar 2012",
-      "value": 7.269
+      "value": 6.477
      },
      {
       "month": "2012-04",
       "label": "Apr 2012",
-      "value": 7.261
+      "value": 6.47
      },
      {
       "month": "2012-05",
       "label": "May 2012",
-      "value": 7.279
+      "value": 6.465
      },
      {
       "month": "2012-06",
       "label": "Jun 2012",
-      "value": 7.202
+      "value": 6.416
      },
      {
       "month": "2012-07",
       "label": "Jul 2012",
-      "value": 6.672
+      "value": 5.46
      },
      {
       "month": "2012-08",
       "label": "Aug 2012",
-      "value": 7.051
+      "value": 6.402
      },
      {
       "month": "2012-09",
       "label": "Sep 2012",
-      "value": 6.938
+      "value": 6.321
      },
      {
       "month": "2012-10",
       "label": "Oct 2012",
-      "value": 7.033
+      "value": 6.363
      },
      {
       "month": "2012-11",
       "label": "Nov 2012",
-      "value": 7.006
+      "value": 6.509
      },
      {
       "month": "2012-12",
       "label": "Dec 2012",
-      "value": 6.777
+      "value": 6.427
      },
      {
       "month": "2013-01",
       "label": "Jan 2013",
-      "value": 7.011
+      "value": 6.503
      },
      {
       "month": "2013-02",
       "label": "Feb 2013",
-      "value": 6.84
+      "value": 6.305
      },
      {
       "month": "2013-03",
       "label": "Mar 2013",
-      "value": 6.991
+      "value": 6.408
      },
      {
       "month": "2013-04",
       "label": "Apr 2013",
-      "value": 6.785
+      "value": 5.932
      },
      {
       "month": "2013-05",
       "label": "May 2013",
-      "value": 6.764
+      "value": 5.99
      },
      {
       "month": "2013-06",
       "label": "Jun 2013",
-      "value": 6.756
+      "value": 6.084
      },
      {
       "month": "2013-07",
       "label": "Jul 2013",
-      "value": 6.468
+      "value": 6.141
      },
      {
       "month": "2013-08",
       "label": "Aug 2013",
-      "value": 7.134
+      "value": 6.752
      },
      {
       "month": "2013-09",
       "label": "Sep 2013",
-      "value": 7.044
+      "value": 6.639
      },
      {
       "month": "2013-10",
       "label": "Oct 2013",
-      "value": 6.896
+      "value": 6.492
      },
      {
       "month": "2013-11",
       "label": "Nov 2013",
-      "value": 6.723
+      "value": 6.006
      },
      {
       "month": "2013-12",
       "label": "Dec 2013",
-      "value": 6.803
+      "value": 6.478
      },
      {
       "month": "2014-01",
       "label": "Jan 2014",
-      "value": 5.773
+      "value": 4.545
      },
      {
       "month": "2014-02",
       "label": "Feb 2014",
-      "value": 6.935
+      "value": 6.394
      },
      {
       "month": "2014-03",
       "label": "Mar 2014",
-      "value": 6.888
+      "value": 6.386
      },
      {
       "month": "2014-04",
       "label": "Apr 2014",
-      "value": 5.692
+      "value": 4.113
      }
     ],
     "rules": [
      {
       "ruleId": "R-CH-01",
       "severity": "HIGH",
-      "triggeredHours": 154,
-      "evaluatedHours": 5637,
-      "omrImpact": 57.56,
+      "triggeredHours": 373,
+      "evaluatedHours": 3385,
+      "omrImpact": 176.32,
       "description": "Low COP alert \u2014 COP < 2.5 indicates severe degradation"
      },
      {
       "ruleId": "R-CH-03",
       "severity": "HIGH",
-      "triggeredHours": 99,
-      "evaluatedHours": 5637,
-      "omrImpact": 107.61,
+      "triggeredHours": 164,
+      "evaluatedHours": 3385,
+      "omrImpact": 176.8,
       "description": "TOU peak overconsumption \u2014 kW > 115% of COP=4.5 benchmark during Oman TOU peak"
      }
     ]
    },
    "2": {
-    "goodRows": 6128,
-    "avgCop": 6.696,
-    "avgKwPerTon": 0.5786,
+    "goodRows": 3561,
+    "avgCop": 5.749,
+    "avgKwPerTon": 1.1204,
     "monthlyKwPerTon": [
      {
       "month": "2011-06",
       "label": "Jun 2011",
-      "actual": 0.6174,
+      "actual": 0.6931,
       "benchmark": 0.7816
      },
      {
       "month": "2011-07",
       "label": "Jul 2011",
-      "actual": 0.5677,
+      "actual": 0.5939,
       "benchmark": 0.7816
      },
      {
       "month": "2011-08",
       "label": "Aug 2011",
-      "actual": 0.5068,
+      "actual": 0.576,
       "benchmark": 0.7816
      },
      {
       "month": "2011-10",
       "label": "Oct 2011",
-      "actual": 0.5189,
+      "actual": 0.5538,
       "benchmark": 0.7816
      },
      {
       "month": "2011-11",
       "label": "Nov 2011",
-      "actual": 0.5003,
+      "actual": 0.5749,
       "benchmark": 0.7816
      },
      {
       "month": "2011-12",
       "label": "Dec 2011",
-      "actual": 0.5061,
+      "actual": 0.5764,
       "benchmark": 0.7816
      },
      {
       "month": "2012-02",
       "label": "Feb 2012",
-      "actual": 0.4948,
+      "actual": 0.5386,
       "benchmark": 0.7816
      },
      {
       "month": "2012-03",
       "label": "Mar 2012",
-      "actual": 0.4883,
+      "actual": 0.5351,
       "benchmark": 0.7816
      },
      {
       "month": "2012-04",
       "label": "Apr 2012",
-      "actual": 0.4998,
+      "actual": 0.5451,
       "benchmark": 0.7816
      },
      {
       "month": "2012-05",
       "label": "May 2012",
-      "actual": 0.4882,
+      "actual": 0.5348,
       "benchmark": 0.7816
      },
      {
       "month": "2012-06",
       "label": "Jun 2012",
-      "actual": 0.495,
+      "actual": 0.5166,
       "benchmark": 0.7816
      },
      {
       "month": "2012-07",
       "label": "Jul 2012",
-      "actual": 0.4931,
+      "actual": 0.4989,
       "benchmark": 0.7816
      },
      {
       "month": "2012-08",
       "label": "Aug 2012",
-      "actual": 0.4928,
+      "actual": 0.5478,
       "benchmark": 0.7816
      },
      {
       "month": "2012-09",
       "label": "Sep 2012",
-      "actual": 0.4891,
+      "actual": 0.5491,
       "benchmark": 0.7816
      },
      {
       "month": "2012-10",
       "label": "Oct 2012",
-      "actual": 0.4889,
+      "actual": 0.5458,
       "benchmark": 0.7816
      },
      {
       "month": "2012-11",
       "label": "Nov 2012",
-      "actual": 0.4845,
+      "actual": 0.535,
       "benchmark": 0.7816
      },
      {
       "month": "2012-12",
       "label": "Dec 2012",
-      "actual": 0.4994,
+      "actual": 0.5585,
       "benchmark": 0.7816
      },
      {
       "month": "2013-01",
       "label": "Jan 2013",
-      "actual": 0.4951,
+      "actual": 0.5429,
       "benchmark": 0.7816
      },
      {
       "month": "2013-02",
       "label": "Feb 2013",
-      "actual": 0.4999,
+      "actual": 0.5543,
       "benchmark": 0.7816
      },
      {
       "month": "2013-03",
       "label": "Mar 2013",
-      "actual": 0.5037,
+      "actual": 0.5466,
       "benchmark": 0.7816
      },
      {
       "month": "2013-04",
       "label": "Apr 2013",
-      "actual": 0.5217,
+      "actual": 0.5618,
       "benchmark": 0.7816
      },
      {
       "month": "2013-05",
       "label": "May 2013",
-      "actual": 0.513,
+      "actual": 0.5419,
       "benchmark": 0.7816
      },
      {
       "month": "2013-06",
       "label": "Jun 2013",
-      "actual": 0.5176,
+      "actual": 0.5404,
       "benchmark": 0.7816
      },
      {
       "month": "2013-07",
       "label": "Jul 2013",
-      "actual": 0.5428,
+      "actual": 0.5467,
       "benchmark": 0.7816
      },
      {
       "month": "2013-08",
       "label": "Aug 2013",
-      "actual": 0.5234,
+      "actual": 0.5809,
       "benchmark": 0.7816
      },
      {
       "month": "2013-09",
       "label": "Sep 2013",
-      "actual": 0.5152,
+      "actual": 0.5711,
       "benchmark": 0.7816
      },
      {
       "month": "2013-10",
       "label": "Oct 2013",
-      "actual": 0.5167,
+      "actual": 0.5519,
       "benchmark": 0.7816
      },
      {
       "month": "2013-11",
       "label": "Nov 2013",
-      "actual": 0.514,
+      "actual": 0.5412,
       "benchmark": 0.7816
      },
      {
       "month": "2013-12",
       "label": "Dec 2013",
-      "actual": 0.5308,
+      "actual": 0.5759,
       "benchmark": 0.7816
      },
      {
       "month": "2014-01",
       "label": "Jan 2014",
-      "actual": 0.5008,
+      "actual": 0.5296,
       "benchmark": 0.7816
      },
      {
       "month": "2014-02",
       "label": "Feb 2014",
-      "actual": 0.5286,
+      "actual": 0.6015,
       "benchmark": 0.7816
      },
      {
       "month": "2014-03",
       "label": "Mar 2014",
-      "actual": 0.5187,
+      "actual": 0.5507,
       "benchmark": 0.7816
      },
      {
       "month": "2014-04",
       "label": "Apr 2014",
-      "actual": 0.5194,
+      "actual": 0.5192,
       "benchmark": 0.7816
      }
     ],
@@ -726,383 +739,383 @@
      {
       "month": "2011-06",
       "label": "Jun 2011",
-      "value": 5.697
+      "value": 5.074
      },
      {
       "month": "2011-07",
       "label": "Jul 2011",
-      "value": 6.195
+      "value": 5.922
      },
      {
       "month": "2011-08",
       "label": "Aug 2011",
-      "value": 6.939
+      "value": 6.106
      },
      {
       "month": "2011-10",
       "label": "Oct 2011",
-      "value": 6.778
+      "value": 6.351
      },
      {
       "month": "2011-11",
       "label": "Nov 2011",
-      "value": 7.029
+      "value": 6.118
      },
      {
       "month": "2011-12",
       "label": "Dec 2011",
-      "value": 6.95
+      "value": 6.102
      },
      {
       "month": "2012-02",
       "label": "Feb 2012",
-      "value": 7.107
+      "value": 6.53
      },
      {
       "month": "2012-03",
       "label": "Mar 2012",
-      "value": 7.202
+      "value": 6.572
      },
      {
       "month": "2012-04",
       "label": "Apr 2012",
-      "value": 7.036
+      "value": 6.452
      },
      {
       "month": "2012-05",
       "label": "May 2012",
-      "value": 7.205
+      "value": 6.576
      },
      {
       "month": "2012-06",
       "label": "Jun 2012",
-      "value": 7.106
+      "value": 6.807
      },
      {
       "month": "2012-07",
       "label": "Jul 2012",
-      "value": 7.132
+      "value": 7.049
      },
      {
       "month": "2012-08",
       "label": "Aug 2012",
-      "value": 7.137
+      "value": 6.421
      },
      {
       "month": "2012-09",
       "label": "Sep 2012",
-      "value": 7.191
+      "value": 6.405
      },
      {
       "month": "2012-10",
       "label": "Oct 2012",
-      "value": 7.194
+      "value": 6.444
      },
      {
       "month": "2012-11",
       "label": "Nov 2012",
-      "value": 7.259
+      "value": 6.574
      },
      {
       "month": "2012-12",
       "label": "Dec 2012",
-      "value": 7.043
+      "value": 6.297
      },
      {
       "month": "2013-01",
       "label": "Jan 2013",
-      "value": 7.104
+      "value": 6.478
      },
      {
       "month": "2013-02",
       "label": "Feb 2013",
-      "value": 7.035
+      "value": 6.345
      },
      {
       "month": "2013-03",
       "label": "Mar 2013",
-      "value": 6.982
+      "value": 6.434
      },
      {
       "month": "2013-04",
       "label": "Apr 2013",
-      "value": 6.742
+      "value": 6.26
      },
      {
       "month": "2013-05",
       "label": "May 2013",
-      "value": 6.856
+      "value": 6.49
      },
      {
       "month": "2013-06",
       "label": "Jun 2013",
-      "value": 6.795
+      "value": 6.508
      },
      {
       "month": "2013-07",
       "label": "Jul 2013",
-      "value": 6.48
+      "value": 6.433
      },
      {
       "month": "2013-08",
       "label": "Aug 2013",
-      "value": 6.72
+      "value": 6.054
      },
      {
       "month": "2013-09",
       "label": "Sep 2013",
-      "value": 6.827
+      "value": 6.158
      },
      {
       "month": "2013-10",
       "label": "Oct 2013",
-      "value": 6.807
+      "value": 6.372
      },
      {
       "month": "2013-11",
       "label": "Nov 2013",
-      "value": 6.842
+      "value": 6.498
      },
      {
       "month": "2013-12",
       "label": "Dec 2013",
-      "value": 6.626
+      "value": 6.107
      },
      {
       "month": "2014-01",
       "label": "Jan 2014",
-      "value": 7.023
+      "value": 6.641
      },
      {
       "month": "2014-02",
       "label": "Feb 2014",
-      "value": 6.654
+      "value": 5.847
      },
      {
       "month": "2014-03",
       "label": "Mar 2014",
-      "value": 6.78
+      "value": 6.386
      },
      {
       "month": "2014-04",
       "label": "Apr 2014",
-      "value": 6.771
+      "value": 6.773
      }
     ],
     "rules": [
      {
       "ruleId": "R-CH-01",
       "severity": "HIGH",
-      "triggeredHours": 207,
-      "evaluatedHours": 6128,
-      "omrImpact": 87.19,
+      "triggeredHours": 385,
+      "evaluatedHours": 3561,
+      "omrImpact": 203.19,
       "description": "Low COP alert \u2014 COP < 2.5 indicates severe degradation"
      },
      {
       "ruleId": "R-CH-03",
       "severity": "HIGH",
-      "triggeredHours": 93,
-      "evaluatedHours": 6128,
-      "omrImpact": 105.0,
+      "triggeredHours": 207,
+      "evaluatedHours": 3561,
+      "omrImpact": 223.94,
       "description": "TOU peak overconsumption \u2014 kW > 115% of COP=4.5 benchmark during Oman TOU peak"
      }
     ]
    },
    "3": {
-    "goodRows": 10056,
-    "avgCop": 5.835,
-    "avgKwPerTon": 0.6395,
+    "goodRows": 7348,
+    "avgCop": 5.505,
+    "avgKwPerTon": 0.7839,
     "monthlyKwPerTon": [
      {
       "month": "2011-06",
       "label": "Jun 2011",
-      "actual": 0.6499,
+      "actual": 0.6639,
       "benchmark": 0.7816
      },
      {
       "month": "2011-07",
       "label": "Jul 2011",
-      "actual": 0.5705,
+      "actual": 0.5921,
       "benchmark": 0.7816
      },
      {
       "month": "2011-10",
       "label": "Oct 2011",
-      "actual": 0.6567,
+      "actual": 0.674,
       "benchmark": 0.7816
      },
      {
       "month": "2011-11",
       "label": "Nov 2011",
-      "actual": 0.6606,
+      "actual": 0.6914,
       "benchmark": 0.7816
      },
      {
       "month": "2011-12",
       "label": "Dec 2011",
-      "actual": 0.6455,
+      "actual": 0.6835,
       "benchmark": 0.7816
      },
      {
       "month": "2012-02",
       "label": "Feb 2012",
-      "actual": 0.6182,
+      "actual": 0.6489,
       "benchmark": 0.7816
      },
      {
       "month": "2012-03",
       "label": "Mar 2012",
-      "actual": 0.5686,
+      "actual": 0.6043,
       "benchmark": 0.7816
      },
      {
       "month": "2012-04",
       "label": "Apr 2012",
-      "actual": 0.5867,
+      "actual": 0.6448,
       "benchmark": 0.7816
      },
      {
       "month": "2012-05",
       "label": "May 2012",
-      "actual": 0.5669,
+      "actual": 0.5951,
       "benchmark": 0.7816
      },
      {
       "month": "2012-06",
       "label": "Jun 2012",
-      "actual": 0.5452,
+      "actual": 0.5602,
       "benchmark": 0.7816
      },
      {
       "month": "2012-07",
       "label": "Jul 2012",
-      "actual": 0.5263,
+      "actual": 0.5301,
       "benchmark": 0.7816
      },
      {
       "month": "2012-08",
       "label": "Aug 2012",
-      "actual": 0.5849,
+      "actual": 0.6348,
       "benchmark": 0.7816
      },
      {
       "month": "2012-09",
       "label": "Sep 2012",
-      "actual": 0.5844,
+      "actual": 0.624,
       "benchmark": 0.7816
      },
      {
       "month": "2012-10",
       "label": "Oct 2012",
-      "actual": 0.5754,
+      "actual": 0.6274,
       "benchmark": 0.7816
      },
      {
       "month": "2012-11",
       "label": "Nov 2012",
-      "actual": 0.5841,
+      "actual": 0.6516,
       "benchmark": 0.7816
      },
      {
       "month": "2012-12",
       "label": "Dec 2012",
-      "actual": 0.5822,
+      "actual": 0.6249,
       "benchmark": 0.7816
      },
      {
       "month": "2013-01",
       "label": "Jan 2013",
-      "actual": 0.5679,
+      "actual": 0.6094,
       "benchmark": 0.7816
      },
      {
       "month": "2013-02",
       "label": "Feb 2013",
-      "actual": 0.576,
+      "actual": 0.627,
       "benchmark": 0.7816
      },
      {
       "month": "2013-03",
       "label": "Mar 2013",
-      "actual": 0.5771,
+      "actual": 0.6177,
       "benchmark": 0.7816
      },
      {
       "month": "2013-04",
       "label": "Apr 2013",
-      "actual": 0.5778,
+      "actual": 0.605,
       "benchmark": 0.7816
      },
      {
       "month": "2013-05",
       "label": "May 2013",
-      "actual": 0.5766,
+      "actual": 0.6,
       "benchmark": 0.7816
      },
      {
       "month": "2013-06",
       "label": "Jun 2013",
-      "actual": 0.5708,
+      "actual": 0.5917,
       "benchmark": 0.7816
      },
      {
       "month": "2013-07",
       "label": "Jul 2013",
-      "actual": 0.5541,
+      "actual": 0.559,
       "benchmark": 0.7816
      },
      {
       "month": "2013-08",
       "label": "Aug 2013",
-      "actual": 0.5672,
+      "actual": 0.5878,
       "benchmark": 0.7816
      },
      {
       "month": "2013-09",
       "label": "Sep 2013",
-      "actual": 0.5702,
+      "actual": 0.595,
       "benchmark": 0.7816
      },
      {
       "month": "2013-10",
       "label": "Oct 2013",
-      "actual": 0.5641,
+      "actual": 0.5797,
       "benchmark": 0.7816
      },
      {
       "month": "2013-11",
       "label": "Nov 2013",
-      "actual": 0.5735,
+      "actual": 0.5913,
       "benchmark": 0.7816
      },
      {
       "month": "2013-12",
       "label": "Dec 2013",
-      "actual": 0.5714,
+      "actual": 0.5845,
       "benchmark": 0.7816
      },
      {
       "month": "2014-01",
       "label": "Jan 2014",
-      "actual": 0.5588,
+      "actual": 0.5805,
       "benchmark": 0.7816
      },
      {
       "month": "2014-02",
       "label": "Feb 2014",
-      "actual": 0.5558,
+      "actual": 0.5787,
       "benchmark": 0.7816
      },
      {
       "month": "2014-03",
       "label": "Mar 2014",
-      "actual": 0.5803,
+      "actual": 0.6052,
       "benchmark": 0.7816
      },
      {
       "month": "2014-04",
       "label": "Apr 2014",
-      "actual": 0.584,
+      "actual": 0.5988,
       "benchmark": 0.7816
      }
     ],
@@ -1110,384 +1123,384 @@
      {
       "month": "2011-06",
       "label": "Jun 2011",
-      "value": 5.412
+      "value": 5.297
      },
      {
       "month": "2011-07",
       "label": "Jul 2011",
-      "value": 6.165
+      "value": 5.94
      },
      {
       "month": "2011-10",
       "label": "Oct 2011",
-      "value": 5.355
+      "value": 5.218
      },
      {
       "month": "2011-11",
       "label": "Nov 2011",
-      "value": 5.324
+      "value": 5.087
      },
      {
       "month": "2011-12",
       "label": "Dec 2011",
-      "value": 5.449
+      "value": 5.146
      },
      {
       "month": "2012-02",
       "label": "Feb 2012",
-      "value": 5.689
+      "value": 5.42
      },
      {
       "month": "2012-03",
       "label": "Mar 2012",
-      "value": 6.185
+      "value": 5.82
      },
      {
       "month": "2012-04",
       "label": "Apr 2012",
-      "value": 5.995
+      "value": 5.455
      },
      {
       "month": "2012-05",
       "label": "May 2012",
-      "value": 6.204
+      "value": 5.91
      },
      {
       "month": "2012-06",
       "label": "Jun 2012",
-      "value": 6.451
+      "value": 6.278
      },
      {
       "month": "2012-07",
       "label": "Jul 2012",
-      "value": 6.683
+      "value": 6.634
      },
      {
       "month": "2012-08",
       "label": "Aug 2012",
-      "value": 6.013
+      "value": 5.54
      },
      {
       "month": "2012-09",
       "label": "Sep 2012",
-      "value": 6.018
+      "value": 5.636
      },
      {
       "month": "2012-10",
       "label": "Oct 2012",
-      "value": 6.113
+      "value": 5.606
      },
      {
       "month": "2012-11",
       "label": "Nov 2012",
-      "value": 6.021
+      "value": 5.398
      },
      {
       "month": "2012-12",
       "label": "Dec 2012",
-      "value": 6.041
+      "value": 5.628
      },
      {
       "month": "2013-01",
       "label": "Jan 2013",
-      "value": 6.193
+      "value": 5.771
      },
      {
       "month": "2013-02",
       "label": "Feb 2013",
-      "value": 6.106
+      "value": 5.609
      },
      {
       "month": "2013-03",
       "label": "Mar 2013",
-      "value": 6.094
+      "value": 5.694
      },
      {
       "month": "2013-04",
       "label": "Apr 2013",
-      "value": 6.086
+      "value": 5.813
      },
      {
       "month": "2013-05",
       "label": "May 2013",
-      "value": 6.1
+      "value": 5.861
      },
      {
       "month": "2013-06",
       "label": "Jun 2013",
-      "value": 6.161
+      "value": 5.944
      },
      {
       "month": "2013-07",
       "label": "Jul 2013",
-      "value": 6.347
+      "value": 6.292
      },
      {
       "month": "2013-08",
       "label": "Aug 2013",
-      "value": 6.201
+      "value": 5.983
      },
      {
       "month": "2013-09",
       "label": "Sep 2013",
-      "value": 6.168
+      "value": 5.911
      },
      {
       "month": "2013-10",
       "label": "Oct 2013",
-      "value": 6.234
+      "value": 6.067
      },
      {
       "month": "2013-11",
       "label": "Nov 2013",
-      "value": 6.132
+      "value": 5.948
      },
      {
       "month": "2013-12",
       "label": "Dec 2013",
-      "value": 6.155
+      "value": 6.017
      },
      {
       "month": "2014-01",
       "label": "Jan 2014",
-      "value": 6.294
+      "value": 6.058
      },
      {
       "month": "2014-02",
       "label": "Feb 2014",
-      "value": 6.328
+      "value": 6.078
      },
      {
       "month": "2014-03",
       "label": "Mar 2014",
-      "value": 6.06
+      "value": 5.812
      },
      {
       "month": "2014-04",
       "label": "Apr 2014",
-      "value": 6.022
+      "value": 5.874
      }
     ],
     "rules": [
      {
       "ruleId": "R-CH-01",
       "severity": "HIGH",
-      "triggeredHours": 206,
-      "evaluatedHours": 10056,
-      "omrImpact": 33.05,
+      "triggeredHours": 470,
+      "evaluatedHours": 7348,
+      "omrImpact": 97.57,
       "description": "Low COP alert \u2014 COP < 2.5 indicates severe degradation"
      },
      {
       "ruleId": "R-CH-03",
       "severity": "HIGH",
-      "triggeredHours": 163,
-      "evaluatedHours": 10056,
-      "omrImpact": 115.29,
+      "triggeredHours": 218,
+      "evaluatedHours": 7348,
+      "omrImpact": 162.53,
       "description": "TOU peak overconsumption \u2014 kW > 115% of COP=4.5 benchmark during Oman TOU peak"
      }
     ]
    }
   },
   "plant": {
-   "avgCop": 6.294,
-   "goodRows": 21821,
+   "avgCop": 5.585,
+   "goodRows": 14294,
    "monthlyKwPerTon": [
     {
      "month": "2011-06",
      "label": "Jun 2011",
-     "actual": 0.6493,
+     "actual": 0.6712,
      "benchmark": 0.7816
     },
     {
      "month": "2011-07",
      "label": "Jul 2011",
-     "actual": 0.5956,
+     "actual": 0.6212,
      "benchmark": 0.7816
     },
     {
      "month": "2011-08",
      "label": "Aug 2011",
-     "actual": 0.5101,
+     "actual": 0.5769,
      "benchmark": 0.7816
     },
     {
      "month": "2011-10",
      "label": "Oct 2011",
-     "actual": 0.5795,
+     "actual": 0.614,
      "benchmark": 0.7816
     },
     {
      "month": "2011-11",
      "label": "Nov 2011",
-     "actual": 0.5414,
+     "actual": 0.5993,
      "benchmark": 0.7816
     },
     {
      "month": "2011-12",
      "label": "Dec 2011",
-     "actual": 0.5452,
+     "actual": 0.6049,
      "benchmark": 0.7816
     },
     {
      "month": "2012-02",
      "label": "Feb 2012",
-     "actual": 0.5205,
+     "actual": 0.5678,
      "benchmark": 0.7816
     },
     {
      "month": "2012-03",
      "label": "Mar 2012",
-     "actual": 0.5037,
+     "actual": 0.5533,
      "benchmark": 0.7816
     },
     {
      "month": "2012-04",
      "label": "Apr 2012",
-     "actual": 0.5156,
+     "actual": 0.5685,
      "benchmark": 0.7816
     },
     {
      "month": "2012-05",
      "label": "May 2012",
-     "actual": 0.5013,
+     "actual": 0.5505,
      "benchmark": 0.7816
     },
     {
      "month": "2012-06",
      "label": "Jun 2012",
-     "actual": 0.5078,
+     "actual": 0.5357,
      "benchmark": 0.7816
     },
     {
      "month": "2012-07",
      "label": "Jul 2012",
-     "actual": 0.5065,
+     "actual": 0.5142,
      "benchmark": 0.7816
     },
     {
      "month": "2012-08",
      "label": "Aug 2012",
-     "actual": 0.5142,
+     "actual": 0.5669,
      "benchmark": 0.7816
     },
     {
      "month": "2012-09",
      "label": "Sep 2012",
-     "actual": 0.5176,
+     "actual": 0.5696,
      "benchmark": 0.7816
     },
     {
      "month": "2012-10",
      "label": "Oct 2012",
-     "actual": 0.5159,
+     "actual": 0.5701,
      "benchmark": 0.7816
     },
     {
      "month": "2012-11",
      "label": "Nov 2012",
-     "actual": 0.5088,
+     "actual": 0.5565,
      "benchmark": 0.7816
     },
     {
      "month": "2012-12",
      "label": "Dec 2012",
-     "actual": 0.5266,
+     "actual": 0.566,
      "benchmark": 0.7816
     },
     {
      "month": "2013-01",
      "label": "Jan 2013",
-     "actual": 0.5104,
+     "actual": 0.5535,
      "benchmark": 0.7816
     },
     {
      "month": "2013-02",
      "label": "Feb 2013",
-     "actual": 0.5174,
+     "actual": 0.5665,
      "benchmark": 0.7816
     },
     {
      "month": "2013-03",
      "label": "Mar 2013",
-     "actual": 0.5163,
+     "actual": 0.5603,
      "benchmark": 0.7816
     },
     {
      "month": "2013-04",
      "label": "Apr 2013",
-     "actual": 0.5358,
+     "actual": 0.5815,
      "benchmark": 0.7816
     },
     {
      "month": "2013-05",
      "label": "May 2013",
-     "actual": 0.5271,
+     "actual": 0.5669,
      "benchmark": 0.7816
     },
     {
      "month": "2013-06",
      "label": "Jun 2013",
-     "actual": 0.5324,
+     "actual": 0.5645,
      "benchmark": 0.7816
     },
     {
      "month": "2013-07",
      "label": "Jul 2013",
-     "actual": 0.5482,
+     "actual": 0.5544,
      "benchmark": 0.7816
     },
     {
      "month": "2013-08",
      "label": "Aug 2013",
-     "actual": 0.5202,
+     "actual": 0.554,
      "benchmark": 0.7816
     },
     {
      "month": "2013-09",
      "label": "Sep 2013",
-     "actual": 0.52,
+     "actual": 0.5571,
      "benchmark": 0.7816
     },
     {
      "month": "2013-10",
      "label": "Oct 2013",
-     "actual": 0.5282,
+     "actual": 0.5567,
      "benchmark": 0.7816
     },
     {
      "month": "2013-11",
      "label": "Nov 2013",
-     "actual": 0.5321,
+     "actual": 0.5669,
      "benchmark": 0.7816
     },
     {
      "month": "2013-12",
      "label": "Dec 2013",
-     "actual": 0.539,
+     "actual": 0.5648,
      "benchmark": 0.7816
     },
     {
      "month": "2014-01",
      "label": "Jan 2014",
-     "actual": 0.5336,
+     "actual": 0.5715,
      "benchmark": 0.7816
     },
     {
      "month": "2014-02",
      "label": "Feb 2014",
-     "actual": 0.5263,
+     "actual": 0.5704,
      "benchmark": 0.7816
     },
     {
      "month": "2014-03",
      "label": "Mar 2014",
-     "actual": 0.531,
+     "actual": 0.5649,
      "benchmark": 0.7816
     },
     {
      "month": "2014-04",
      "label": "Apr 2014",
-     "actual": 0.554,
+     "actual": 0.5703,
      "benchmark": 0.7816
     }
    ],
@@ -1495,184 +1508,184 @@
     {
      "month": "2011-06",
      "label": "Jun 2011",
-     "value": 5.417
+     "value": 5.24
     },
     {
      "month": "2011-07",
      "label": "Jul 2011",
-     "value": 5.905
+     "value": 5.662
     },
     {
      "month": "2011-08",
      "label": "Aug 2011",
-     "value": 6.895
+     "value": 6.096
     },
     {
      "month": "2011-10",
      "label": "Oct 2011",
-     "value": 6.069
+     "value": 5.728
     },
     {
      "month": "2011-11",
      "label": "Nov 2011",
-     "value": 6.496
+     "value": 5.869
     },
     {
      "month": "2011-12",
      "label": "Dec 2011",
-     "value": 6.451
+     "value": 5.814
     },
     {
      "month": "2012-02",
      "label": "Feb 2012",
-     "value": 6.757
+     "value": 6.194
     },
     {
      "month": "2012-03",
      "label": "Mar 2012",
-     "value": 6.983
+     "value": 6.357
     },
     {
      "month": "2012-04",
      "label": "Apr 2012",
-     "value": 6.822
+     "value": 6.186
     },
     {
      "month": "2012-05",
      "label": "May 2012",
-     "value": 7.015
+     "value": 6.388
     },
     {
      "month": "2012-06",
      "label": "Jun 2012",
-     "value": 6.926
+     "value": 6.565
     },
     {
      "month": "2012-07",
      "label": "Jul 2012",
-     "value": 6.944
+     "value": 6.84
     },
     {
      "month": "2012-08",
      "label": "Aug 2012",
-     "value": 6.839
+     "value": 6.204
     },
     {
      "month": "2012-09",
      "label": "Sep 2012",
-     "value": 6.795
+     "value": 6.175
     },
     {
      "month": "2012-10",
      "label": "Oct 2012",
-     "value": 6.817
+     "value": 6.169
     },
     {
      "month": "2012-11",
      "label": "Nov 2012",
-     "value": 6.912
+     "value": 6.319
     },
     {
      "month": "2012-12",
      "label": "Dec 2012",
-     "value": 6.679
+     "value": 6.214
     },
     {
      "month": "2013-01",
      "label": "Jan 2013",
-     "value": 6.891
+     "value": 6.355
     },
     {
      "month": "2013-02",
      "label": "Feb 2013",
-     "value": 6.797
+     "value": 6.208
     },
     {
      "month": "2013-03",
      "label": "Mar 2013",
-     "value": 6.812
+     "value": 6.276
     },
     {
      "month": "2013-04",
      "label": "Apr 2013",
-     "value": 6.564
+     "value": 6.048
     },
     {
      "month": "2013-05",
      "label": "May 2013",
-     "value": 6.672
+     "value": 6.204
     },
     {
      "month": "2013-06",
      "label": "Jun 2013",
-     "value": 6.606
+     "value": 6.23
     },
     {
      "month": "2013-07",
      "label": "Jul 2013",
-     "value": 6.416
+     "value": 6.343
     },
     {
      "month": "2013-08",
      "label": "Aug 2013",
-     "value": 6.761
+     "value": 6.348
     },
     {
      "month": "2013-09",
      "label": "Sep 2013",
-     "value": 6.763
+     "value": 6.313
     },
     {
      "month": "2013-10",
      "label": "Oct 2013",
-     "value": 6.659
+     "value": 6.318
     },
     {
      "month": "2013-11",
      "label": "Nov 2013",
-     "value": 6.61
+     "value": 6.204
     },
     {
      "month": "2013-12",
      "label": "Dec 2013",
-     "value": 6.525
+     "value": 6.227
     },
     {
      "month": "2014-01",
      "label": "Jan 2014",
-     "value": 6.591
+     "value": 6.154
     },
     {
      "month": "2014-02",
      "label": "Feb 2014",
-     "value": 6.683
+     "value": 6.166
     },
     {
      "month": "2014-03",
      "label": "Mar 2014",
-     "value": 6.624
+     "value": 6.226
     },
     {
      "month": "2014-04",
      "label": "Apr 2014",
-     "value": 6.348
+     "value": 6.167
     }
    ],
    "rules": [
     {
      "ruleId": "R-CH-01",
      "severity": "HIGH",
-     "triggeredHours": 567,
-     "evaluatedHours": 21821,
-     "omrImpact": 177.8,
+     "triggeredHours": 1228,
+     "evaluatedHours": 14294,
+     "omrImpact": 477.08,
      "description": "Low COP alert \u2014 COP < 2.5 indicates severe degradation"
     },
     {
      "ruleId": "R-CH-03",
      "severity": "HIGH",
-     "triggeredHours": 355,
-     "evaluatedHours": 21821,
-     "omrImpact": 327.9,
+     "triggeredHours": 589,
+     "evaluatedHours": 14294,
+     "omrImpact": 563.27,
      "description": "TOU peak overconsumption \u2014 kW > 115% of COP=4.5 benchmark during Oman TOU peak"
     }
    ]
@@ -1695,162 +1708,167 @@
    {
     "month": "2011-06",
     "label": "Jun 2011",
-    "omr": 7.568
+    "omr": 12.716
    },
    {
     "month": "2011-07",
     "label": "Jul 2011",
-    "omr": 6.095
+    "omr": 14.206
+   },
+   {
+    "month": "2011-08",
+    "label": "Aug 2011",
+    "omr": 7.15
    },
    {
     "month": "2011-10",
     "label": "Oct 2011",
-    "omr": 2.261
+    "omr": 9.944
    },
    {
     "month": "2011-11",
     "label": "Nov 2011",
-    "omr": 1.983
+    "omr": 8.734
    },
    {
     "month": "2011-12",
     "label": "Dec 2011",
-    "omr": 1.338
+    "omr": 9.55
    },
    {
     "month": "2012-02",
     "label": "Feb 2012",
-    "omr": 6.314
+    "omr": 11.407
    },
    {
     "month": "2012-03",
     "label": "Mar 2012",
-    "omr": 3.685
+    "omr": 3.912
    },
    {
     "month": "2012-04",
     "label": "Apr 2012",
-    "omr": 5.348
+    "omr": 10.854
    },
    {
     "month": "2012-05",
     "label": "May 2012",
-    "omr": 14.396
+    "omr": 62.768
    },
    {
     "month": "2012-06",
     "label": "Jun 2012",
-    "omr": 14.859
+    "omr": 54.282
    },
    {
     "month": "2012-07",
     "label": "Jul 2012",
-    "omr": 28.273
+    "omr": 37.649
    },
    {
     "month": "2012-08",
     "label": "Aug 2012",
-    "omr": 50.456
+    "omr": 97.381
    },
    {
     "month": "2012-09",
     "label": "Sep 2012",
-    "omr": 47.082
+    "omr": 88.368
    },
    {
     "month": "2012-10",
     "label": "Oct 2012",
-    "omr": 2.809
+    "omr": 9.716
    },
    {
     "month": "2012-11",
     "label": "Nov 2012",
-    "omr": 4.089
+    "omr": 16.413
    },
    {
     "month": "2012-12",
     "label": "Dec 2012",
-    "omr": 3.243
+    "omr": 9.635
    },
    {
     "month": "2013-01",
     "label": "Jan 2013",
-    "omr": 4.76
+    "omr": 9.752
    },
    {
     "month": "2013-02",
     "label": "Feb 2013",
-    "omr": 1.722
+    "omr": 10.48
    },
    {
     "month": "2013-03",
     "label": "Mar 2013",
-    "omr": 4.596
+    "omr": 12.154
    },
    {
     "month": "2013-04",
     "label": "Apr 2013",
-    "omr": 6.401
+    "omr": 17.208
    },
    {
     "month": "2013-05",
     "label": "May 2013",
-    "omr": 60.381
+    "omr": 105.101
    },
    {
     "month": "2013-06",
     "label": "Jun 2013",
-    "omr": 74.725
+    "omr": 90.624
    },
    {
     "month": "2013-07",
     "label": "Jul 2013",
-    "omr": 34.072
+    "omr": 69.591
    },
    {
     "month": "2013-08",
     "label": "Aug 2013",
-    "omr": 42.063
+    "omr": 64.565
    },
    {
     "month": "2013-09",
     "label": "Sep 2013",
-    "omr": 36.171
+    "omr": 63.509
    },
    {
     "month": "2013-10",
     "label": "Oct 2013",
-    "omr": 7.255
+    "omr": 14.391
    },
    {
     "month": "2013-11",
     "label": "Nov 2013",
-    "omr": 4.448
+    "omr": 9.821
    },
    {
     "month": "2013-12",
     "label": "Dec 2013",
-    "omr": 10.455
+    "omr": 13.715
    },
    {
     "month": "2014-01",
     "label": "Jan 2014",
-    "omr": 9.66
+    "omr": 27.872
    },
    {
     "month": "2014-02",
     "label": "Feb 2014",
-    "omr": 2.986
+    "omr": 31.772
    },
    {
     "month": "2014-03",
     "label": "Mar 2014",
-    "omr": 4.17
+    "omr": 28.729
    },
    {
     "month": "2014-04",
     "label": "Apr 2014",
-    "omr": 2.035
+    "omr": 6.385
    }
   ]
  },
@@ -10244,71 +10262,78 @@
  "decomposition": {
   "voltage": "11kV",
   "option": 1,
+  "targetCop": 6.355,
   "months": [
    {
     "month": "2011-06",
     "label": "Jun 2011",
     "totalOmr": 1476.379,
-    "structuralOmr": 1476.379,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 7.946,
-    "referenceTotalOmr": 5122.5,
-    "referenceProfile": "best_same_month_2013-06",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 3646.121,
+    "structuralOmr": 1246.185,
+    "structuralPct": 84.4,
+    "tariffDrivenOmr": -34.745,
+    "tariffDrivenPct": -2.4,
+    "operationalOmr": 230.194,
+    "operationalPct": 15.6,
+    "targetCop": 6.355,
+    "actualCop": 5.24,
+    "physicsOmr": 13.352,
+    "physicsRawOmr": 13.352,
+    "referenceTotalOmr": 1246.185,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 73.286,
+     "tou_band_component_omr": 104.36,
+     "volume_component_omr": 26.274
     }
    },
    {
     "month": "2011-07",
     "label": "Jul 2011",
     "totalOmr": 1624.169,
-    "structuralOmr": 1624.169,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 6.4,
-    "referenceTotalOmr": 4454.59,
-    "referenceProfile": "best_same_month_2013-07",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 2830.421,
+    "structuralOmr": 1457.91,
+    "structuralPct": 89.8,
+    "tariffDrivenOmr": -84.554,
+    "tariffDrivenPct": -5.2,
+    "operationalOmr": 166.259,
+    "operationalPct": 10.2,
+    "targetCop": 6.355,
+    "actualCop": 5.662,
+    "physicsOmr": 14.916,
+    "physicsRawOmr": 14.916,
+    "referenceTotalOmr": 1457.91,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 59.612,
+     "tou_band_component_omr": 69.451,
+     "volume_component_omr": 18.598
     }
    },
    {
     "month": "2011-08",
     "label": "Aug 2011",
     "totalOmr": 837.39,
-    "structuralOmr": 837.39,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 0.0,
-    "referenceTotalOmr": 4527.48,
-    "referenceProfile": "best_same_month_2013-08",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 3690.091,
+    "structuralOmr": 805.124,
+    "structuralPct": 96.1,
+    "tariffDrivenOmr": -50.667,
+    "tariffDrivenPct": -6.1,
+    "operationalOmr": 32.266,
+    "operationalPct": 3.9,
+    "targetCop": 6.355,
+    "actualCop": 6.096,
+    "physicsOmr": 7.508,
+    "physicsRawOmr": 7.508,
+    "referenceTotalOmr": 805.124,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 27.077,
+     "tou_band_component_omr": 2.883,
+     "volume_component_omr": 1.153
     }
    },
    {
@@ -10321,12 +10346,14 @@
     "tariffDrivenPct": 0.0,
     "operationalOmr": 0.0,
     "operationalPct": 0.0,
+    "targetCop": 6.355,
+    "actualCop": 0.0,
     "physicsOmr": 0.0,
     "physicsRawOmr": 0.0,
-    "referenceTotalOmr": 4944.344,
-    "referenceProfile": "best_same_month_2013-09",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 4939.969,
+    "referenceTotalOmr": 4.375,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
      "peak_demand_component_omr": 0.0,
      "tou_band_component_omr": 0.0,
@@ -10337,66 +10364,72 @@
     "month": "2011-10",
     "label": "Oct 2011",
     "totalOmr": 2605.389,
-    "structuralOmr": 2605.389,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 2.374,
-    "referenceTotalOmr": 4205.956,
-    "referenceProfile": "best_same_month_2012-10",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 1600.567,
+    "structuralOmr": 2358.331,
+    "structuralPct": 90.5,
+    "tariffDrivenOmr": -825.546,
+    "tariffDrivenPct": -31.7,
+    "operationalOmr": 247.058,
+    "operationalPct": 9.5,
+    "targetCop": 6.355,
+    "actualCop": 5.728,
+    "physicsOmr": 10.441,
+    "physicsRawOmr": 10.441,
+    "referenceTotalOmr": 2358.331,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 82.73,
+     "tou_band_component_omr": 86.076,
+     "volume_component_omr": 39.126
     }
    },
    {
     "month": "2011-11",
     "label": "Nov 2011",
     "totalOmr": 3797.992,
-    "structuralOmr": 3797.992,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 2.082,
-    "referenceTotalOmr": 3836.928,
-    "referenceProfile": "best_same_month_2013-11",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 38.936,
+    "structuralOmr": 3516.567,
+    "structuralPct": 92.6,
+    "tariffDrivenOmr": -2391.248,
+    "tariffDrivenPct": -63.0,
+    "operationalOmr": 281.425,
+    "operationalPct": 7.4,
+    "targetCop": 6.355,
+    "actualCop": 5.869,
+    "physicsOmr": 9.171,
+    "physicsRawOmr": 9.171,
+    "referenceTotalOmr": 3516.567,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 66.002,
+     "tou_band_component_omr": 88.704,
+     "volume_component_omr": 63.36
     }
    },
    {
     "month": "2011-12",
     "label": "Dec 2011",
     "totalOmr": 2396.396,
-    "structuralOmr": 2396.396,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 1.405,
-    "referenceTotalOmr": 3113.824,
-    "referenceProfile": "best_same_month_2012-12",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 717.428,
+    "structuralOmr": 2197.768,
+    "structuralPct": 91.7,
+    "tariffDrivenOmr": -1310.796,
+    "tariffDrivenPct": -54.7,
+    "operationalOmr": 198.628,
+    "operationalPct": 8.3,
+    "targetCop": 6.355,
+    "actualCop": 5.814,
+    "physicsOmr": 10.027,
+    "physicsRawOmr": 10.027,
+    "referenceTotalOmr": 2197.768,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 66.77,
+     "tou_band_component_omr": 54.294,
+     "volume_component_omr": 38.782
     }
    },
    {
@@ -10409,12 +10442,14 @@
     "tariffDrivenPct": 0.0,
     "operationalOmr": 0.0,
     "operationalPct": 0.0,
+    "targetCop": 6.355,
+    "actualCop": 0.0,
     "physicsOmr": 0.0,
     "physicsRawOmr": 0.0,
-    "referenceTotalOmr": 2902.46,
-    "referenceProfile": "best_same_month_2014-01",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 2898.085,
+    "referenceTotalOmr": 4.375,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
      "peak_demand_component_omr": 0.0,
      "tou_band_component_omr": 0.0,
@@ -10425,66 +10460,72 @@
     "month": "2012-02",
     "label": "Feb 2012",
     "totalOmr": 3576.538,
-    "structuralOmr": 3101.237,
-    "structuralPct": 86.7,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 475.301,
-    "operationalPct": 13.3,
-    "physicsOmr": 6.63,
-    "physicsRawOmr": 6.63,
-    "referenceTotalOmr": 3101.237,
-    "referenceProfile": "best_same_month_2013-02",
+    "structuralOmr": 3489.612,
+    "structuralPct": 97.6,
+    "tariffDrivenOmr": -2187.339,
+    "tariffDrivenPct": -61.2,
+    "operationalOmr": 86.926,
+    "operationalPct": 2.4,
+    "targetCop": 6.355,
+    "actualCop": 6.194,
+    "physicsOmr": 11.977,
+    "physicsRawOmr": 11.977,
+    "referenceTotalOmr": 3489.612,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 8.829,
-     "tou_band_component_omr": 192.077,
-     "volume_component_omr": 137.198
+     "peak_demand_component_omr": 22.336,
+     "tou_band_component_omr": 26.596,
+     "volume_component_omr": 18.997
     }
    },
    {
     "month": "2012-03",
     "label": "Mar 2012",
     "totalOmr": 3804.575,
-    "structuralOmr": 3551.811,
-    "structuralPct": 93.4,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 252.764,
-    "operationalPct": 6.6,
-    "physicsOmr": 3.869,
-    "physicsRawOmr": 3.869,
-    "referenceTotalOmr": 3551.811,
-    "referenceProfile": "best_same_month_2014-03",
+    "structuralOmr": 3804.575,
+    "structuralPct": 100.0,
+    "tariffDrivenOmr": -2371.984,
+    "tariffDrivenPct": -62.3,
+    "operationalOmr": 0.0,
+    "operationalPct": 0.0,
+    "targetCop": 6.355,
+    "actualCop": 6.357,
+    "physicsOmr": 0.0,
+    "physicsRawOmr": 4.107,
+    "referenceTotalOmr": 3804.575,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 37.174,
-     "tou_band_component_omr": 88.772,
-     "volume_component_omr": 63.409
+     "peak_demand_component_omr": 0.0,
+     "tou_band_component_omr": 0.0,
+     "volume_component_omr": 0.0
     }
    },
    {
     "month": "2012-04",
     "label": "Apr 2012",
     "totalOmr": 3452.219,
-    "structuralOmr": 1387.768,
-    "structuralPct": 40.2,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 2064.451,
-    "operationalPct": 59.8,
-    "physicsOmr": 5.615,
-    "physicsRawOmr": 5.615,
-    "referenceTotalOmr": 1387.768,
-    "referenceProfile": "best_same_month_2014-04",
+    "structuralOmr": 3363.198,
+    "structuralPct": 97.4,
+    "tariffDrivenOmr": -1208.716,
+    "tariffDrivenPct": -35.0,
+    "operationalOmr": 89.021,
+    "operationalPct": 2.6,
+    "targetCop": 6.355,
+    "actualCop": 6.186,
+    "physicsOmr": 11.396,
+    "physicsRawOmr": 11.396,
+    "referenceTotalOmr": 3363.198,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 289.149,
-     "tou_band_component_omr": 929.92,
-     "volume_component_omr": 422.691
+     "peak_demand_component_omr": 23.889,
+     "tou_band_component_omr": 34.117,
+     "volume_component_omr": 15.508
     }
    },
    {
@@ -10493,16 +10534,18 @@
     "totalOmr": 5911.623,
     "structuralOmr": 5911.623,
     "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
+    "tariffDrivenOmr": -375.322,
+    "tariffDrivenPct": -6.3,
     "operationalOmr": 0.0,
     "operationalPct": 0.0,
+    "targetCop": 6.355,
+    "actualCop": 6.388,
     "physicsOmr": 0.0,
-    "physicsRawOmr": 15.115,
-    "referenceTotalOmr": 6403.863,
-    "referenceProfile": "best_same_month_2013-05",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 492.241,
+    "physicsRawOmr": 65.907,
+    "referenceTotalOmr": 5911.623,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
      "peak_demand_component_omr": 0.0,
      "tou_band_component_omr": 0.0,
@@ -10513,506 +10556,552 @@
     "month": "2012-06",
     "label": "Jun 2012",
     "totalOmr": 6244.25,
-    "structuralOmr": 1476.379,
-    "structuralPct": 23.6,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 4767.871,
-    "operationalPct": 76.4,
-    "physicsOmr": 15.602,
-    "physicsRawOmr": 15.602,
-    "referenceTotalOmr": 1476.379,
-    "referenceProfile": "prior_year_2011-06",
+    "structuralOmr": 6244.25,
+    "structuralPct": 100.0,
+    "tariffDrivenOmr": -256.437,
+    "tariffDrivenPct": -4.1,
+    "operationalOmr": 0.0,
+    "operationalPct": 0.0,
+    "targetCop": 6.355,
+    "actualCop": 6.565,
+    "physicsOmr": 0.0,
+    "physicsRawOmr": 56.996,
+    "referenceTotalOmr": 6244.25,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 487.426,
-     "tou_band_component_omr": 2828.143,
-     "volume_component_omr": 726.151
+     "peak_demand_component_omr": 0.0,
+     "tou_band_component_omr": 0.0,
+     "volume_component_omr": 0.0
     }
    },
    {
     "month": "2012-07",
     "label": "Jul 2012",
     "totalOmr": 6824.097,
-    "structuralOmr": 1624.169,
-    "structuralPct": 23.8,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 5199.928,
-    "operationalPct": 76.2,
-    "physicsOmr": 29.687,
-    "physicsRawOmr": 29.687,
-    "referenceTotalOmr": 1624.169,
-    "referenceProfile": "prior_year_2011-07",
+    "structuralOmr": 6824.097,
+    "structuralPct": 100.0,
+    "tariffDrivenOmr": -57.226,
+    "tariffDrivenPct": -0.8,
+    "operationalOmr": 0.0,
+    "operationalPct": 0.0,
+    "targetCop": 6.355,
+    "actualCop": 6.84,
+    "physicsOmr": 0.0,
+    "physicsRawOmr": 39.531,
+    "referenceTotalOmr": 6824.097,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 312.788,
-     "tou_band_component_omr": 3319.459,
-     "volume_component_omr": 783.841
+     "peak_demand_component_omr": 0.0,
+     "tou_band_component_omr": 0.0,
+     "volume_component_omr": 0.0
     }
    },
    {
     "month": "2012-08",
     "label": "Aug 2012",
     "totalOmr": 5320.799,
-    "structuralOmr": 837.39,
-    "structuralPct": 15.7,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 4483.409,
-    "operationalPct": 84.3,
-    "physicsOmr": 52.979,
-    "physicsRawOmr": 52.979,
-    "referenceTotalOmr": 837.39,
-    "referenceProfile": "prior_year_2011-08",
+    "structuralOmr": 5197.625,
+    "structuralPct": 97.7,
+    "tariffDrivenOmr": -1445.627,
+    "tariffDrivenPct": -27.2,
+    "operationalOmr": 123.174,
+    "operationalPct": 2.3,
+    "targetCop": 6.355,
+    "actualCop": 6.204,
+    "physicsOmr": 102.25,
+    "physicsRawOmr": 102.25,
+    "referenceTotalOmr": 5197.625,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 286.868,
-     "tou_band_component_omr": 2392.832,
-     "volume_component_omr": 901.855
+     "peak_demand_component_omr": 23.108,
+     "tou_band_component_omr": 56.974,
+     "volume_component_omr": 21.546
     }
    },
    {
     "month": "2012-09",
     "label": "Sep 2012",
     "totalOmr": 5104.563,
-    "structuralOmr": 4.375,
-    "structuralPct": 0.1,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 5100.188,
-    "operationalPct": 99.9,
-    "physicsOmr": 49.436,
-    "physicsRawOmr": 49.436,
-    "referenceTotalOmr": 4.375,
-    "referenceProfile": "prior_year_2011-09",
+    "structuralOmr": 4963.57,
+    "structuralPct": 97.2,
+    "tariffDrivenOmr": -1325.036,
+    "tariffDrivenPct": -26.0,
+    "operationalOmr": 140.993,
+    "operationalPct": 2.8,
+    "targetCop": 6.355,
+    "actualCop": 6.175,
+    "physicsOmr": 92.787,
+    "physicsRawOmr": 92.787,
+    "referenceTotalOmr": 4963.57,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 1044.081,
-     "tou_band_component_omr": 2320.255,
-     "volume_component_omr": 867.926
+     "peak_demand_component_omr": 29.369,
+     "tou_band_component_omr": 63.801,
+     "volume_component_omr": 23.911
     }
    },
    {
     "month": "2012-10",
     "label": "Oct 2012",
     "totalOmr": 4205.956,
-    "structuralOmr": 2605.389,
-    "structuralPct": 61.9,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 1600.567,
-    "operationalPct": 38.1,
-    "physicsOmr": 2.95,
-    "physicsRawOmr": 2.95,
-    "referenceTotalOmr": 2605.389,
-    "referenceProfile": "prior_year_2011-10",
+    "structuralOmr": 4086.61,
+    "structuralPct": 97.2,
+    "tariffDrivenOmr": -1533.953,
+    "tariffDrivenPct": -36.5,
+    "operationalOmr": 119.346,
+    "operationalPct": 2.8,
+    "targetCop": 6.355,
+    "actualCop": 6.169,
+    "physicsOmr": 10.202,
+    "physicsRawOmr": 10.202,
+    "referenceTotalOmr": 4086.61,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 112.914,
-     "tou_band_component_omr": 779.247,
-     "volume_component_omr": 354.203
+     "peak_demand_component_omr": 28.37,
+     "tou_band_component_omr": 47.654,
+     "volume_component_omr": 21.661
     }
    },
    {
     "month": "2012-11",
     "label": "Nov 2012",
     "totalOmr": 4014.536,
-    "structuralOmr": 3797.992,
-    "structuralPct": 94.6,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 216.544,
-    "operationalPct": 5.4,
-    "physicsOmr": 4.294,
-    "physicsRawOmr": 4.294,
-    "referenceTotalOmr": 3797.992,
-    "referenceProfile": "prior_year_2011-11",
+    "structuralOmr": 3992.714,
+    "structuralPct": 99.5,
+    "tariffDrivenOmr": -2545.76,
+    "tariffDrivenPct": -63.4,
+    "operationalOmr": 21.822,
+    "operationalPct": 0.5,
+    "targetCop": 6.355,
+    "actualCop": 6.319,
+    "physicsOmr": 17.234,
+    "physicsRawOmr": 17.234,
+    "referenceTotalOmr": 3992.714,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 28.923,
-     "tou_band_component_omr": 77.256,
-     "volume_component_omr": 55.183
+     "peak_demand_component_omr": 5.051,
+     "tou_band_component_omr": 6.906,
+     "volume_component_omr": 4.933
     }
    },
    {
     "month": "2012-12",
     "label": "Dec 2012",
     "totalOmr": 3113.824,
-    "structuralOmr": 2396.396,
-    "structuralPct": 77.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 717.428,
-    "operationalPct": 23.0,
-    "physicsOmr": 3.405,
-    "physicsRawOmr": 3.405,
-    "referenceTotalOmr": 2396.396,
-    "referenceProfile": "prior_year_2011-12",
+    "structuralOmr": 3046.681,
+    "structuralPct": 97.8,
+    "tariffDrivenOmr": -1813.955,
+    "tariffDrivenPct": -58.3,
+    "operationalOmr": 67.144,
+    "operationalPct": 2.2,
+    "targetCop": 6.355,
+    "actualCop": 6.214,
+    "physicsOmr": 10.117,
+    "physicsRawOmr": 10.117,
+    "referenceTotalOmr": 3046.681,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 106.449,
-     "tou_band_component_omr": 251.579,
-     "volume_component_omr": 179.7
+     "peak_demand_component_omr": 19.94,
+     "tou_band_component_omr": 19.437,
+     "volume_component_omr": 13.883
     }
    },
    {
     "month": "2013-01",
     "label": "Jan 2013",
     "totalOmr": 3672.332,
-    "structuralOmr": 4.375,
-    "structuralPct": 0.1,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 3667.957,
-    "operationalPct": 99.9,
-    "physicsOmr": 4.998,
-    "physicsRawOmr": 4.998,
-    "referenceTotalOmr": 4.375,
-    "referenceProfile": "prior_year_2012-01",
+    "structuralOmr": 3672.332,
+    "structuralPct": 100.0,
+    "tariffDrivenOmr": -2297.884,
+    "tariffDrivenPct": -62.6,
+    "operationalOmr": 0.0,
+    "operationalPct": 0.0,
+    "targetCop": 6.355,
+    "actualCop": 6.355,
+    "physicsOmr": 0.0,
+    "physicsRawOmr": 10.24,
+    "referenceTotalOmr": 3672.332,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 877.669,
-     "tou_band_component_omr": 1148.942,
-     "volume_component_omr": 820.673
+     "peak_demand_component_omr": 0.0,
+     "tou_band_component_omr": 0.0,
+     "volume_component_omr": 0.0
     }
    },
    {
     "month": "2013-02",
     "label": "Feb 2013",
     "totalOmr": 3101.237,
-    "structuralOmr": 3101.237,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 1.808,
-    "referenceTotalOmr": 3576.538,
-    "referenceProfile": "prior_year_2012-02",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 475.301,
+    "structuralOmr": 3031.345,
+    "structuralPct": 97.7,
+    "tariffDrivenOmr": -1803.186,
+    "tariffDrivenPct": -58.1,
+    "operationalOmr": 69.892,
+    "operationalPct": 2.3,
+    "targetCop": 6.355,
+    "actualCop": 6.208,
+    "physicsOmr": 11.004,
+    "physicsRawOmr": 11.004,
+    "referenceTotalOmr": 3031.345,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 20.745,
+     "tou_band_component_omr": 20.237,
+     "volume_component_omr": 14.455
     }
    },
    {
     "month": "2013-03",
     "label": "Mar 2013",
     "totalOmr": 4189.31,
-    "structuralOmr": 3804.575,
-    "structuralPct": 90.8,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 384.735,
-    "operationalPct": 9.2,
-    "physicsOmr": 4.825,
-    "physicsRawOmr": 4.825,
-    "referenceTotalOmr": 3804.575,
-    "referenceProfile": "prior_year_2012-03",
+    "structuralOmr": 4139.042,
+    "structuralPct": 98.8,
+    "tariffDrivenOmr": -2591.16,
+    "tariffDrivenPct": -61.9,
+    "operationalOmr": 50.268,
+    "operationalPct": 1.2,
+    "targetCop": 6.355,
+    "actualCop": 6.276,
+    "physicsOmr": 12.761,
+    "physicsRawOmr": 12.761,
+    "referenceTotalOmr": 4139.042,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 118.594,
-     "tou_band_component_omr": 109.588,
-     "volume_component_omr": 78.277
+     "peak_demand_component_omr": 12.663,
+     "tou_band_component_omr": 15.484,
+     "volume_component_omr": 11.06
     }
    },
    {
     "month": "2013-04",
     "label": "Apr 2013",
     "totalOmr": 4316.024,
-    "structuralOmr": 3452.219,
-    "structuralPct": 80.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 863.805,
-    "operationalPct": 20.0,
-    "physicsOmr": 6.721,
-    "physicsRawOmr": 6.721,
-    "referenceTotalOmr": 3452.219,
-    "referenceProfile": "prior_year_2012-04",
+    "structuralOmr": 4112.218,
+    "structuralPct": 95.3,
+    "tariffDrivenOmr": -1536.889,
+    "tariffDrivenPct": -35.6,
+    "operationalOmr": 203.806,
+    "operationalPct": 4.7,
+    "targetCop": 6.355,
+    "actualCop": 6.048,
+    "physicsOmr": 18.068,
+    "physicsRawOmr": 18.068,
+    "referenceTotalOmr": 4112.218,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 174.642,
-     "tou_band_component_omr": 360.99,
-     "volume_component_omr": 164.086
+     "peak_demand_component_omr": 52.03,
+     "tou_band_component_omr": 79.502,
+     "volume_component_omr": 36.137
     }
    },
    {
     "month": "2013-05",
     "label": "May 2013",
     "totalOmr": 6403.863,
-    "structuralOmr": 5911.623,
-    "structuralPct": 92.3,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 492.241,
-    "operationalPct": 7.7,
-    "physicsOmr": 63.4,
-    "physicsRawOmr": 63.4,
-    "referenceTotalOmr": 5911.623,
-    "referenceProfile": "prior_year_2012-05",
+    "structuralOmr": 6255.196,
+    "structuralPct": 97.7,
+    "tariffDrivenOmr": -392.357,
+    "tariffDrivenPct": -6.1,
+    "operationalOmr": 148.667,
+    "operationalPct": 2.3,
+    "targetCop": 6.355,
+    "actualCop": 6.204,
+    "physicsOmr": 110.357,
+    "physicsRawOmr": 110.357,
+    "referenceTotalOmr": 6255.196,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 23.175,
-     "tou_band_component_omr": 312.259,
-     "volume_component_omr": 78.403
+     "peak_demand_component_omr": 22.043,
+     "tou_band_component_omr": 82.741,
+     "volume_component_omr": 21.941
     }
    },
    {
     "month": "2013-06",
     "label": "Jun 2013",
     "totalOmr": 5122.5,
-    "structuralOmr": 5122.5,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 78.461,
-    "referenceTotalOmr": 6244.25,
-    "referenceProfile": "prior_year_2012-06",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 1121.75,
+    "structuralOmr": 5024.912,
+    "structuralPct": 98.1,
+    "tariffDrivenOmr": -274.669,
+    "tariffDrivenPct": -5.4,
+    "operationalOmr": 97.588,
+    "operationalPct": 1.9,
+    "targetCop": 6.355,
+    "actualCop": 6.23,
+    "physicsOmr": 95.155,
+    "physicsRawOmr": 95.155,
+    "referenceTotalOmr": 5024.912,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 17.249,
+     "tou_band_component_omr": 52.675,
+     "volume_component_omr": 13.832
     }
    },
    {
     "month": "2013-07",
     "label": "Jul 2013",
     "totalOmr": 4454.59,
-    "structuralOmr": 4454.59,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 35.776,
-    "referenceTotalOmr": 6824.097,
-    "referenceProfile": "prior_year_2012-07",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 2369.507,
+    "structuralOmr": 4447.083,
+    "structuralPct": 99.8,
+    "tariffDrivenOmr": -179.84,
+    "tariffDrivenPct": -4.0,
+    "operationalOmr": 7.507,
+    "operationalPct": 0.2,
+    "targetCop": 6.355,
+    "actualCop": 6.343,
+    "physicsOmr": 7.507,
+    "physicsRawOmr": 73.071,
+    "referenceTotalOmr": 4447.083,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 1.275,
+     "tou_band_component_omr": 4.118,
+     "volume_component_omr": 1.057
     }
    },
    {
     "month": "2013-08",
     "label": "Aug 2013",
     "totalOmr": 4527.48,
-    "structuralOmr": 4527.48,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 44.166,
-    "referenceTotalOmr": 5320.799,
-    "referenceProfile": "prior_year_2012-08",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 793.319,
+    "structuralOmr": 4522.883,
+    "structuralPct": 99.9,
+    "tariffDrivenOmr": -1201.451,
+    "tariffDrivenPct": -26.5,
+    "operationalOmr": 4.597,
+    "operationalPct": 0.1,
+    "targetCop": 6.355,
+    "actualCop": 6.348,
+    "physicsOmr": 4.597,
+    "physicsRawOmr": 67.794,
+    "referenceTotalOmr": 4522.883,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 0.893,
+     "tou_band_component_omr": 2.114,
+     "volume_component_omr": 0.795
     }
    },
    {
     "month": "2013-09",
     "label": "Sep 2013",
     "totalOmr": 4944.344,
-    "structuralOmr": 4944.344,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 37.979,
-    "referenceTotalOmr": 5104.563,
-    "referenceProfile": "prior_year_2012-09",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 160.219,
+    "structuralOmr": 4913.132,
+    "structuralPct": 99.4,
+    "tariffDrivenOmr": -1342.771,
+    "tariffDrivenPct": -27.2,
+    "operationalOmr": 31.212,
+    "operationalPct": 0.6,
+    "targetCop": 6.355,
+    "actualCop": 6.313,
+    "physicsOmr": 31.212,
+    "physicsRawOmr": 66.684,
+    "referenceTotalOmr": 4913.132,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 5.833,
+     "tou_band_component_omr": 14.448,
+     "volume_component_omr": 5.465
     }
    },
    {
     "month": "2013-10",
     "label": "Oct 2013",
     "totalOmr": 4284.538,
-    "structuralOmr": 4205.956,
-    "structuralPct": 98.2,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 78.582,
-    "operationalPct": 1.8,
-    "physicsOmr": 7.618,
-    "physicsRawOmr": 7.618,
-    "referenceTotalOmr": 4205.956,
-    "referenceProfile": "prior_year_2012-10",
+    "structuralOmr": 4260.47,
+    "structuralPct": 99.4,
+    "tariffDrivenOmr": -1604.069,
+    "tariffDrivenPct": -37.4,
+    "operationalOmr": 24.068,
+    "operationalPct": 0.6,
+    "targetCop": 6.355,
+    "actualCop": 6.318,
+    "physicsOmr": 15.111,
+    "physicsRawOmr": 15.111,
+    "referenceTotalOmr": 4260.47,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 77.128,
-     "volume_component_omr": 35.058
+     "peak_demand_component_omr": 5.226,
+     "tou_band_component_omr": 9.87,
+     "volume_component_omr": 4.486
     }
    },
    {
     "month": "2013-11",
     "label": "Nov 2013",
     "totalOmr": 3836.928,
-    "structuralOmr": 3836.928,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 4.671,
-    "referenceTotalOmr": 4014.536,
-    "referenceProfile": "prior_year_2012-11",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 177.608,
+    "structuralOmr": 3747.667,
+    "structuralPct": 97.7,
+    "tariffDrivenOmr": -2422.853,
+    "tariffDrivenPct": -63.1,
+    "operationalOmr": 89.26,
+    "operationalPct": 2.3,
+    "targetCop": 6.355,
+    "actualCop": 6.204,
+    "physicsOmr": 10.312,
+    "physicsRawOmr": 10.312,
+    "referenceTotalOmr": 3747.667,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 20.977,
+     "tou_band_component_omr": 28.117,
+     "volume_component_omr": 20.083
     }
    },
    {
     "month": "2013-12",
     "label": "Dec 2013",
     "totalOmr": 3064.813,
-    "structuralOmr": 3064.813,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 10.978,
-    "referenceTotalOmr": 3113.824,
-    "referenceProfile": "prior_year_2012-12",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 49.012,
+    "structuralOmr": 3005.266,
+    "structuralPct": 98.1,
+    "tariffDrivenOmr": -1847.977,
+    "tariffDrivenPct": -60.3,
+    "operationalOmr": 59.547,
+    "operationalPct": 1.9,
+    "targetCop": 6.355,
+    "actualCop": 6.227,
+    "physicsOmr": 14.4,
+    "physicsRawOmr": 14.4,
+    "referenceTotalOmr": 3005.266,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 17.011,
-     "volume_component_omr": 12.151
+     "peak_demand_component_omr": 16.254,
+     "tou_band_component_omr": 17.826,
+     "volume_component_omr": 12.733
     }
    },
    {
     "month": "2014-01",
     "label": "Jan 2014",
     "totalOmr": 2902.46,
-    "structuralOmr": 2902.46,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 10.143,
-    "referenceTotalOmr": 3672.332,
-    "referenceProfile": "prior_year_2013-01",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 769.871,
+    "structuralOmr": 2813.159,
+    "structuralPct": 96.9,
+    "tariffDrivenOmr": -1714.152,
+    "tariffDrivenPct": -59.1,
+    "operationalOmr": 89.302,
+    "operationalPct": 3.1,
+    "targetCop": 6.355,
+    "actualCop": 6.154,
+    "physicsOmr": 29.266,
+    "physicsRawOmr": 29.266,
+    "referenceTotalOmr": 2813.159,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 25.636,
+     "tou_band_component_omr": 26.215,
+     "volume_component_omr": 18.725
     }
    },
    {
     "month": "2014-02",
     "label": "Feb 2014",
     "totalOmr": 3192.303,
-    "structuralOmr": 3101.237,
+    "structuralOmr": 3100.322,
     "structuralPct": 97.1,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 91.066,
+    "tariffDrivenOmr": -1970.051,
+    "tariffDrivenPct": -61.7,
+    "operationalOmr": 91.981,
     "operationalPct": 2.9,
-    "physicsOmr": 3.135,
-    "physicsRawOmr": 3.135,
-    "referenceTotalOmr": 3101.237,
-    "referenceProfile": "prior_year_2013-02",
+    "targetCop": 6.355,
+    "actualCop": 6.166,
+    "physicsOmr": 33.361,
+    "physicsRawOmr": 33.361,
+    "referenceTotalOmr": 3100.322,
+    "referenceProfile": "efficient_cop_6.35",
     "betterThanReference": false,
     "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 83.432,
-     "volume_component_omr": 59.595
+     "peak_demand_component_omr": 23.451,
+     "tou_band_component_omr": 28.218,
+     "volume_component_omr": 20.156
     }
    },
    {
     "month": "2014-03",
     "label": "Mar 2014",
     "totalOmr": 3551.811,
-    "structuralOmr": 3551.811,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 4.378,
-    "referenceTotalOmr": 4189.31,
-    "referenceProfile": "prior_year_2013-03",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 637.499,
+    "structuralOmr": 3481.567,
+    "structuralPct": 98.0,
+    "tariffDrivenOmr": -2194.44,
+    "tariffDrivenPct": -61.8,
+    "operationalOmr": 70.244,
+    "operationalPct": 2.0,
+    "targetCop": 6.355,
+    "actualCop": 6.226,
+    "physicsOmr": 30.166,
+    "physicsRawOmr": 30.166,
+    "referenceTotalOmr": 3481.567,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 17.738,
+     "tou_band_component_omr": 21.62,
+     "volume_component_omr": 15.443
     }
    },
    {
     "month": "2014-04",
     "label": "Apr 2014",
     "totalOmr": 1387.768,
-    "structuralOmr": 1387.768,
-    "structuralPct": 100.0,
-    "tariffDrivenOmr": 0.0,
-    "tariffDrivenPct": 0.0,
-    "operationalOmr": 0.0,
-    "operationalPct": 0.0,
-    "physicsOmr": 0.0,
-    "physicsRawOmr": 2.137,
-    "referenceTotalOmr": 4316.024,
-    "referenceProfile": "prior_year_2013-04",
-    "betterThanReference": true,
-    "savingsVsReferenceOmr": 2928.255,
+    "structuralOmr": 1347.669,
+    "structuralPct": 97.1,
+    "tariffDrivenOmr": -363.334,
+    "tariffDrivenPct": -26.2,
+    "operationalOmr": 40.1,
+    "operationalPct": 2.9,
+    "targetCop": 6.355,
+    "actualCop": 6.167,
+    "physicsOmr": 6.704,
+    "physicsRawOmr": 6.704,
+    "referenceTotalOmr": 1347.669,
+    "referenceProfile": "efficient_cop_6.35",
+    "betterThanReference": false,
+    "savingsVsReferenceOmr": 0.0,
     "operationalComponents": {
-     "peak_demand_component_omr": 0.0,
-     "tou_band_component_omr": 0.0,
-     "volume_component_omr": 0.0
+     "peak_demand_component_omr": 18.227,
+     "tou_band_component_omr": 11.457,
+     "volume_component_omr": 5.208
     }
    }
   ]

@@ -162,6 +162,37 @@ def load_rows() -> list[dict]:
     return deduped
 
 
+_META_KEYS = {"timestamp", "_ts", "_ts_utc", "_month"}
+
+
+def aggregate_2h(rows: list[dict]) -> list[dict]:
+    """Average hourly readings into 2-hour blocks for the physics/COP layer.
+
+    Single-hour sensor noise (a one-off inverted ΔT, a transient implausible COP)
+    gets averaged out, so more *true* data survives QA instead of ~⅔ of hours
+    being dropped as single-hour glitches. Bills, the tariff engine, and the
+    decomposition's energy all keep the raw hourly rows — only the COP/efficiency
+    basis uses these 2-hour blocks. Block timestamp = the even-hour start.
+    """
+    if not rows:
+        return []
+    numeric_keys = [k for k in rows[0] if k not in _META_KEYS]
+    buckets: dict[tuple, list[dict]] = defaultdict(list)
+    for row in rows:
+        ts = row["_ts"]
+        buckets[(ts.year, ts.month, ts.day, ts.hour // 2)].append(row)
+    out: list[dict] = []
+    for key in sorted(buckets):
+        grp = buckets[key]
+        base = grp[0]
+        agg: dict = {k: base[k] for k in _META_KEYS}
+        for k in numeric_keys:
+            vals = [g.get(k, 0.0) for g in grp]
+            agg[k] = sum(vals) / len(vals)
+        out.append(agg)
+    return out
+
+
 # ────────────────────────────────────────────────────────────────────
 # 2. Data quality classification (tag + keep, per chiller)
 # ────────────────────────────────────────────────────────────────────
@@ -214,14 +245,14 @@ def quality_summary(tagged: list[dict]) -> dict:
     flagged = [t for t in tagged if t["status"] in (BAD, SUSPECT, MISSING)]
     episodes: dict[str, dict] = {}
     for t in flagged:
-        e = episodes.setdefault(t["reason"], {"count": 0, "first": None, "last": None, "_days": set()})
+        e = episodes.setdefault(t["reason"], {"count": 0, "first": None, "last": None, "_days": set(), "status": t["status"]})
         e["count"] += 1
         ts = t["row"]["timestamp"]
         e["first"] = ts if e["first"] is None else min(e["first"], ts)
         e["last"] = ts if e["last"] is None else max(e["last"], ts)
         e["_days"].add(ts[:10])
     ep_list = [
-        {"reason": k, "count": v["count"], "first": v["first"], "last": v["last"], "distinctDays": len(v["_days"])}
+        {"reason": k, "status": v["status"], "count": v["count"], "first": v["first"], "last": v["last"], "distinctDays": len(v["_days"])}
         for k, v in sorted(episodes.items(), key=lambda kv: -kv[1]["count"])
     ]
     total = len(tagged)
@@ -229,6 +260,11 @@ def quality_summary(tagged: list[dict]) -> dict:
         "totalRows": total,
         "byStatus": dict(by_status),
         "goodForDiagnosis": by_status.get(GOOD, 0),
+        # Used for COP/efficiency = GOOD + SUSPECT (low-ΔT but computable).
+        "usableForDiagnosis": by_status.get(GOOD, 0) + by_status.get(SUSPECT, 0),
+        # Impossible/inverted readings — retained and surfaced to INVESTIGATE
+        # (sensor fault or equipment running abnormally), never silently dropped.
+        "impossibleReadings": by_status.get(BAD, 0),
         "flaggedNotDiscarded": len(flagged),
         "episodes": ep_list,
     }
@@ -244,7 +280,13 @@ RULE_DESCRIPTIONS = {
 
 
 def run_physics_for_chiller(tagged: list[dict]) -> dict:
-    good = [t for t in tagged if t["status"] == GOOD]
+    # COP/physics basis: GOOD + SUSPECT (low-ΔT). SUSPECT readings still have a
+    # valid (if lower-confidence) COP, so we use them rather than discard. BAD
+    # (inverted ΔT / impossible COP), IDLE and MISSING can't yield a COP and stay
+    # out of the metric — but they are retained and surfaced as integrity flags
+    # (see quality_summary) because an "impossible" reading is itself a signal:
+    # a faulty meter, or a chiller genuinely running wrong.
+    good = [t for t in tagged if t["status"] in (GOOD, SUSPECT) and t["cop"] is not None]
 
     monthly: dict[str, dict] = defaultdict(lambda: {"kw": 0.0, "tons": 0.0, "cool_kw": 0.0, "hours": 0})
     rule_totals = {
@@ -409,92 +451,130 @@ def compute_bills(rows_by_month: dict[str, list[dict]], config) -> dict:
 # ────────────────────────────────────────────────────────────────────
 # 5. Bill decomposition (default voltage, Option 1)
 # ────────────────────────────────────────────────────────────────────
-def compute_decomposition(rows_by_month: dict[str, list[dict]], config, monthly_physics_omr: dict[str, float]) -> dict:
-    months_sorted = sorted(rows_by_month.keys())
-    kwh_by_month = {
-        mk: sum(plant_kw(row) for row in rows_by_month[mk]) for mk in months_sorted
-    }
+# Manufacturer / nameplate design COP from client equipment data. Populate per
+# deployment (e.g. from the chiller spec sheet). None → fall back to the plant's
+# own demonstrated-best COP. The 4.5 COP_BENCHMARK_PEAK is only a last-resort floor.
+DESIGN_COP: float | None = None
 
-    def find_reference(mk: str) -> tuple[str | None, str]:
-        y, m = int(mk[:4]), mk[5:7]
-        prior = f"{y - 1}-{m}"
-        if prior in rows_by_month:
-            return prior, f"prior_year_{prior}"
-        # fallback: same calendar month from any other year, lowest kWh (efficient baseline)
-        candidates = [k for k in months_sorted if k.endswith(f"-{m}") and k != mk]
-        if candidates:
-            best = min(candidates, key=lambda k: kwh_by_month[k])
-            return best, f"best_same_month_{best}"
-        return None, "none"
+
+def resolve_target_cop(plant_cop_by_month: dict[str, float]) -> tuple[float, str]:
+    """Efficiency target for the decomposition reference, in priority order:
+    1. manufacturer/design COP (client equipment data), else
+    2. the plant's demonstrated-best COP (90th-percentile monthly COP), else
+    3. the COP_BENCHMARK_PEAK floor."""
+    if DESIGN_COP and DESIGN_COP > 0:
+        return DESIGN_COP, "design_nameplate"
+    cops = sorted(v for v in plant_cop_by_month.values() if v > 0)
+    if cops:
+        idx = min(len(cops) - 1, int(0.9 * (len(cops) - 1)))
+        return cops[idx], "demonstrated_best_p90"
+    return COP_BENCHMARK_PEAK, "benchmark_floor"
+
+
+def compute_decomposition(
+    rows_by_month: dict[str, list[dict]],
+    config,
+    monthly_physics_omr: dict[str, float],
+    plant_cop_by_month: dict[str, float],
+    target_cop: float,
+) -> dict:
+    """Decompose each month's bill against an EFFICIENT reference: the same load
+    with the chillers scaled to `target_cop` (manufacturer/design COP, else the
+    plant's demonstrated best). Operational = the correctable cost of running
+    below that target. Also reports the signed TOU-vs-flat tariff effect."""
+    months_sorted = sorted(rows_by_month.keys())
+
+    def chiller_kw(row: dict) -> float:
+        return row.get("Total_Chiller_kW", 0.0)
+
+    def pump_kw(row: dict) -> float:
+        return row.get("CP_TotalChilledWaterPump_kW", 0.0)
+
+    def eff_peaks(load_by_row: list[tuple[dict, float]]) -> tuple[float, float]:
+        vals = [v for _, v in load_by_row]
+        dnc = max(vals) if vals else 0.0
+        peak_band = [
+            v for row, v in load_by_row
+            if classify_band(row["_ts_utc"], SYSTEM)[0] in ("weekday_day_peak", "weekend_day_peak") and v > 0
+        ]
+        top = sorted(peak_band, reverse=True)[:3] if peak_band else sorted([v for v in vals if v > 0], reverse=True)[:3]
+        dc = sum(top) / len(top) if top else 0.0
+        return dc, dnc
 
     out = []
     for mk in months_sorted:
-        ref_mk, profile = find_reference(mk)
-        if ref_mk is None:
-            continue
         rows = rows_by_month[mk]
         intervals = month_intervals(rows_by_month, mk)
-        ref_intervals = month_intervals(rows_by_month, ref_mk)
         dc_kw, dnc_kw = month_peaks_kw(rows)
-        ref_dc_kw, ref_dnc_kw = month_peaks_kw(rows_by_month[ref_mk])
+
+        # Efficiency factor: chillers serving the SAME cooling at the target COP
+        # would draw (actual_cop / target_cop) of the energy. At/above target → 1
+        # (no correctable waste). Pumps are not COP-rated, so they pass through.
+        actual_cop = plant_cop_by_month.get(mk, 0.0)
+        factor = min(1.0, actual_cop / target_cop) if (target_cop > 0 and actual_cop > 0) else 1.0
+
+        eff_load = [(row, pump_kw(row) + chiller_kw(row) * factor) for row in rows]
+        ref_intervals = [
+            {"timestamp_utc": row["_ts_utc"], "kwh": v, "interval_minutes": 60.0}
+            for row, v in eff_load
+        ]
+        ref_dc_kw, ref_dnc_kw = eff_peaks(eff_load)
+        profile = f"efficient_cop_{target_cop:.2f}"
 
         actual_bill = calculate_crt_bill(
-            site_id=SITE_ID,
-            intervals=intervals,
-            voltage=DEFAULT_VOLTAGE,
-            system=SYSTEM,
-            tariff_option=1,
-            tariff_year=TARIFF_YEAR,
-            billing_month=int(mk[5:7]),
-            estimated_coincident_mw=dc_kw / 1000.0,
-            estimated_noncoincident_mw=dnc_kw / 1000.0,
+            site_id=SITE_ID, intervals=intervals, voltage=DEFAULT_VOLTAGE, system=SYSTEM,
+            tariff_option=1, tariff_year=TARIFF_YEAR, billing_month=int(mk[5:7]),
+            estimated_coincident_mw=dc_kw / 1000.0, estimated_noncoincident_mw=dnc_kw / 1000.0,
             config=config,
         )
+        # Option 3 (flat) on the SAME load → signed TOU-vs-flat effect (− = TOU saves).
+        flat_bill = calculate_crt_bill(
+            site_id=SITE_ID, intervals=intervals, voltage=DEFAULT_VOLTAGE, system=SYSTEM,
+            tariff_option=3, tariff_year=TARIFF_YEAR, billing_month=int(mk[5:7]),
+            estimated_coincident_mw=dc_kw / 1000.0, estimated_noncoincident_mw=dnc_kw / 1000.0,
+            config=config,
+        )
+        tariff_effect_omr = actual_bill.bst_omr - flat_bill.bst_omr
+
         dec = decompose_bill(
-            actual_bill=actual_bill,
-            actual_intervals=intervals,
-            reference_intervals=ref_intervals,
-            config=config,
-            voltage=DEFAULT_VOLTAGE,
-            system=SYSTEM,
-            reference_profile=profile,
-            benchmark_coincident_mw=ref_dc_kw / 1000.0,
-            benchmark_noncoincident_mw=ref_dnc_kw / 1000.0,
+            actual_bill=actual_bill, actual_intervals=intervals, reference_intervals=ref_intervals,
+            config=config, voltage=DEFAULT_VOLTAGE, system=SYSTEM, reference_profile=profile,
+            benchmark_coincident_mw=ref_dc_kw / 1000.0, benchmark_noncoincident_mw=ref_dnc_kw / 1000.0,
         )
+
         physics_omr = monthly_physics_omr.get(mk, 0.0)
-        # Apply VAT to every component so decomposition totals reconcile with
-        # the monthly bill table (which displays VAT-inclusive totals).
+        # VAT-inclusive so the decomposition reconciles with the monthly bill table.
         vat = 1.0 + VAT_RATE
         total = dec.total_omr * vat
         reference_total = dec.reference_total_omr * vat
-        structural_raw = dec.structural_omr * vat
-        # The decomposer reports structural = full reference-profile bill. When
-        # the month ran BETTER than the reference, cap the structural slice at
-        # the actual bill so the stacked chart always sums to the real total.
-        structural = min(structural_raw, total)
-        better_than_ref = structural_raw > total + 1e-9
+        structural = min(dec.structural_omr * vat, total)
+        operational = max(0.0, total - structural)
         out.append({
             "month": mk,
             "label": month_label(mk),
             "totalOmr": r(total, 3),
             "structuralOmr": r(structural, 3),
             "structuralPct": r(structural / total * 100 if total > 0 else 0.0, 1),
-            "tariffDrivenOmr": r(dec.tariff_driven_omr * vat, 3),
-            "tariffDrivenPct": r(dec.tariff_driven_pct, 1),
-            "operationalOmr": r(dec.operational_omr * vat, 3),
-            "operationalPct": r(dec.operational_pct, 1),
+            # Signed TOU-vs-flat effect (+ premium / − saving). A separate lens,
+            # NOT part of the structural/operational partition.
+            "tariffDrivenOmr": r(tariff_effect_omr * vat, 3),
+            "tariffDrivenPct": r(tariff_effect_omr * vat / total * 100 if total > 0 else 0.0, 1),
+            "operationalOmr": r(operational, 3),
+            "operationalPct": r(operational / total * 100 if total > 0 else 0.0, 1),
+            "targetCop": r(target_cop, 3),
+            "actualCop": r(actual_cop, 3),
             # Physics-diagnosed subset of operational waste (R-CH-01 + R-CH-03)
-            "physicsOmr": r(min(physics_omr, dec.operational_omr) * vat, 3),
+            "physicsOmr": r(min(physics_omr, operational / vat) * vat, 3),
             "physicsRawOmr": r(physics_omr * vat, 3),
             "referenceTotalOmr": r(reference_total, 3),
             "referenceProfile": profile,
-            "betterThanReference": better_than_ref,
-            "savingsVsReferenceOmr": r(max(0.0, reference_total - total), 3),
+            "betterThanReference": False,
+            "savingsVsReferenceOmr": 0.0,
             "operationalComponents": {
                 k: r(v * vat, 3) for k, v in dec.operational_components.items()
             },
         })
-    return {"voltage": DEFAULT_VOLTAGE, "option": 1, "months": out}
+    return {"voltage": DEFAULT_VOLTAGE, "option": 1, "targetCop": r(target_cop, 3), "months": out}
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -611,8 +691,13 @@ def main() -> None:
     }
     plant_cop_sum, plant_cop_n = 0.0, 0
 
+    # COP/efficiency basis: 2-hour blocks (smooths single-hour sensor noise so
+    # more true data passes QA). Bills/decomposition energy still use `rows`.
+    rows_2h = aggregate_2h(rows)
+    print(f"Physics basis: {len(rows_2h)} 2-hour blocks (from {len(rows)} hourly rows)")
+
     for n in (1, 2, 3):
-        tagged = classify_chiller_rows(rows, n)
+        tagged = classify_chiller_rows(rows_2h, n)
         dq = quality_summary(tagged)
         data_quality_per_chiller[str(n)] = dq
         for k, v in dq["byStatus"].items():
@@ -686,7 +771,15 @@ def main() -> None:
     }
 
     print("Computing bill decomposition…")
-    decomposition = compute_decomposition(rows_by_month, config, dict(monthly_physics_omr))
+    plant_cop_by_month = {
+        mk: plant_monthly[mk]["cool_kw"] / plant_monthly[mk]["kw"]
+        for mk in plant_months if plant_monthly[mk]["kw"] > 0
+    }
+    target_cop, target_basis = resolve_target_cop(plant_cop_by_month)
+    print(f"  efficiency target COP: {target_cop:.3f} ({target_basis})")
+    decomposition = compute_decomposition(
+        rows_by_month, config, dict(monthly_physics_omr), plant_cop_by_month, target_cop
+    )
 
     print("Running TS↔Python tariff parity check…")
     parity = parity_check(rows_by_month, bills)

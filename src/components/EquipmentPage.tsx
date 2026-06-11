@@ -489,7 +489,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
             label="Avg COP (validated)"
             value={physics.avgCop}
             unit=""
-            sub={`From ${physics.goodRows.toLocaleString()} physics-validated GOOD hours`}
+            sub={`From ${physics.goodRows.toLocaleString()} physics-validated 2-hour intervals`}
             accent={physics.avgCop >= physicsConstants.copBenchmarkPeak ? 'text-emerald-400' : 'text-yellow-400'}
           />
           <KpiCard
@@ -514,7 +514,7 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
             Monthly COP — physics-validated readings only
           </h4>
           <p className="mb-3 text-center text-xs text-slate-500 dark:text-slate-400">
-            COP = Q̇ / P from GOOD rows (Q̇ = ṁ·c<sub>p</sub>·ΔT); flagged sensor hours excluded
+            COP = Q̇ / P from validated 2-hour intervals (Q̇ = ṁ·c<sub>p</sub>·ΔT); flagged sensor intervals excluded
           </p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
