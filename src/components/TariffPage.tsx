@@ -31,6 +31,7 @@ import {
 } from '../lib/tariffEngine';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import ExportExcelButton from './ExportExcelButton';
+import ConsumptionHeatmap from './ConsumptionHeatmap';
 import type { CrtVoltage, TimeResolution } from '../types/portfolio';
 import type { TariffHourlyDataPoint } from '../types/portfolio';
 
@@ -171,6 +172,22 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
       totalBill: monthlyBills.reduce((s, b) => s + b.totalBillOmr, 0),
     };
   }, [monthlyBills]);
+
+  // Physics diagnostic estimate — a modeled subset of operational waste, kept
+  // OUT of the financial decomposition and surfaced as a prioritisation signal.
+  const physicsEstimate = useMemo(() => {
+    if (!decompositionMonths.length) return null;
+    const attributed = decompositionMonths.reduce((s, d) => s + d.physicsOmr, 0); // capped at operational
+    const raw = decompositionMonths.reduce((s, d) => s + d.physicsRawOmr, 0); //     uncapped model
+    const operational = decompositionMonths.reduce((s, d) => s + d.operationalOmr, 0);
+    return {
+      attributed,
+      lo: Math.min(attributed, raw),
+      hi: Math.max(attributed, raw),
+      operational,
+      shareOfOperational: operational > 0 ? (attributed / operational) * 100 : 0,
+    };
+  }, []);
 
   const formatOmr = (v: number) => v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const formatKwh = (v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -484,6 +501,9 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
         )}
       </div>
 
+      {/* Daily Consumption Heatmap (month × day, year toggle) — under Peak Demand */}
+      <ConsumptionHeatmap />
+
       {/* Bill Breakdown Table */}
       <div className="card-surface overflow-hidden">
         <div className="px-6 py-4">
@@ -565,9 +585,9 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Bill Decomposition</h3>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-              {decompositionMeta.voltage} &middot; Option {decompositionMeta.option} (TOU) &middot; incl. 5% VAT (matches the monthly bill table) &middot;
-              Structural = unavoidable cost of an efficient reference operation (capped at the actual bill);
-              Operational = correctable excess; Physics-diagnosed = the slice attributed to chiller faults (R-CH-01/03).
+              {decompositionMeta.voltage} &middot; Option {decompositionMeta.option} (TOU) &middot; incl. 5% VAT (matches the monthly bill table). Reference = the same
+              load run at the efficient target COP {decompositionMeta.targetCop.toFixed(2)} (the plant&apos;s demonstrated best).
+              Structural = the efficient floor; Operational = the correctable gap to that COP. The two reconcile to the actual bill.
             </p>
           </div>
           <ExportExcelButton data={decompositionMonths as unknown as Record<string, unknown>[]} fileName="BillDecomposition" />
@@ -602,13 +622,24 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                     formatter={(value: number, name: string) => [`${formatOmr(value)} OMR`, name]}
                   />
                   <Legend wrapperStyle={{ color: 'var(--muted-text)', paddingTop: 8 }} />
-                  <Bar dataKey="structuralOmr" name="Structural (unavoidable)" stackId="bill" fill="#38bdf8" />
+                  <Bar dataKey="structuralOmr" name="Structural (efficient floor)" stackId="bill" fill="#38bdf8" />
                   <Bar dataKey="operationalOmr" name="Operational (correctable)" stackId="bill" fill="#f87171" radius={[3, 3, 0, 0]} />
-                  <Line type="monotone" dataKey="tariffDrivenOmr" name="Tariff-driven (TOU premium)" stroke="#FAB005" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="physicsOmr" name="Physics-diagnosed" stroke="#a78bfa" strokeWidth={2} strokeDasharray="5 3" dot={false} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
+
+            {(() => {
+              const effYr = decompositionMonths.reduce((s, d) => s + d.tariffDrivenOmr, 0);
+              const saving = effYr < 0;
+              return (
+                <p className="mt-4 rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5 text-xs text-slate-600 dark:text-slate-300">
+                  <span className="font-semibold text-emerald-500">Tariff structure:</span>{' '}
+                  on Option 1 (TOU) you {saving ? 'save' : 'pay a premium of'}{' '}
+                  <span className="font-semibold tabular-nums">{formatOmr(Math.abs(effYr))} OMR</span>{' '}
+                  over the period vs the flat Option 3 rate — {saving ? 'TOU is the right plan for this load.' : 'flat would be cheaper for this load.'}
+                </p>
+              );
+            })()}
 
             <div className="mt-6 overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -618,9 +649,7 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                     <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total (OMR)</th>
                     <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Structural</th>
                     <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Operational</th>
-                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tariff-driven</th>
-                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Physics-diagnosed</th>
-                    <th className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reference</th>
+                    <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Efficiency (COP)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/70 dark:divide-white/5">
@@ -629,16 +658,9 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
                       <td className="px-4 py-2 font-medium text-slate-900 dark:text-white">{d.label}</td>
                       <td className="px-4 py-2 text-right text-slate-700 dark:text-slate-300">{formatOmr(d.totalOmr)}</td>
                       <td className="px-4 py-2 text-right text-sky-400">{formatOmr(d.structuralOmr)} <span className="text-xs text-slate-500">({d.structuralPct}%)</span></td>
-                      <td className="px-4 py-2 text-right text-red-400">{formatOmr(d.operationalOmr)}</td>
-                      <td className="px-4 py-2 text-right text-amber-400">{formatOmr(d.tariffDrivenOmr)}</td>
-                      <td className="px-4 py-2 text-right text-violet-400">{formatOmr(d.physicsOmr)}</td>
-                      <td className="px-4 py-2 text-xs text-slate-500 dark:text-slate-400">
-                        {d.referenceProfile.replace(/_/g, ' ')}
-                        {d.betterThanReference && (
-                          <span className="ml-1.5 rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[0.6rem] font-semibold text-emerald-500">
-                            −{formatOmr(d.savingsVsReferenceOmr)} vs ref
-                          </span>
-                        )}
+                      <td className="px-4 py-2 text-right text-red-400">{formatOmr(d.operationalOmr)} <span className="text-xs text-slate-500">({d.operationalPct}%)</span></td>
+                      <td className="px-4 py-2 text-right text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                        {d.actualCop > 0 ? `${d.actualCop.toFixed(2)} → ${d.targetCop.toFixed(2)}` : '—'}
                       </td>
                     </tr>
                   ))}
@@ -652,6 +674,49 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
           </div>
         )}
       </div>
+
+      {/* Diagnostic estimate — physics attribution, kept separate from the billed decomposition */}
+      {physicsEstimate && (
+        <div className="card-surface p-6">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Diagnostic estimate — chiller faults</h3>
+            <span className="rounded-full bg-violet-400/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-violet-400">
+              Modeled · est.
+            </span>
+          </div>
+          <p className="mt-1 max-w-3xl text-xs text-slate-500 dark:text-slate-400">
+            Avoidable energy cost our physics engine attributes to diagnosed chiller faults (R-CH-01 low COP,
+            R-CH-03 peak overconsumption), from physics-validated 2-hour intervals only. This is a <strong>subset of the
+            Operational waste</strong> above — a prioritisation signal for where to act, <strong>not a separate or
+            billed charge</strong>.
+          </p>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-violet-400/30 bg-violet-400/5 p-4">
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Est. avoidable / yr</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-violet-400">
+                ~{formatOmr(physicsEstimate.attributed)} <span className="text-xs font-normal text-slate-500">OMR</span>
+              </p>
+              <p className="mt-1 text-[0.7rem] tabular-nums text-slate-400">
+                modeled range {formatOmr(physicsEstimate.lo)}–{formatOmr(physicsEstimate.hi)} OMR
+              </p>
+            </div>
+            <div className="rounded-xl border border-slate-200/70 p-4 dark:border-white/10">
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Share of operational</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900 dark:text-white">
+                {physicsEstimate.shareOfOperational.toFixed(0)}<span className="text-xs font-normal text-slate-500">%</span>
+              </p>
+              <p className="mt-1 text-[0.7rem] tabular-nums text-slate-400">of {formatOmr(physicsEstimate.operational)} OMR correctable</p>
+            </div>
+            <div className="rounded-xl border border-slate-200/70 p-4 dark:border-white/10">
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Confidence basis</p>
+              <p className="mt-1 text-[0.8rem] leading-relaxed text-slate-600 dark:text-slate-300">
+                Physics-validated 2-hour intervals · COP bounds [0.5–12] · fault benchmark COP 4.5. QA-failing intervals excluded.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -184,6 +184,7 @@ export type CrtVoltage = '33kV' | '11kV' | '0.415kV';
 
 export interface QualityEpisode {
   reason: string;
+  status?: string;
   count: number;
   first: string;
   last: string;
@@ -194,6 +195,10 @@ export interface ChillerQualityReport {
   totalRows: number;
   byStatus: Record<string, number>;
   goodForDiagnosis: number;
+  /** GOOD + SUSPECT — the basis used for COP/efficiency. */
+  usableForDiagnosis?: number;
+  /** Inverted-ΔT / impossible-COP readings — kept and flagged to investigate. */
+  impossibleReadings?: number;
   flaggedNotDiscarded: number;
   episodes: QualityEpisode[];
 }
@@ -273,6 +278,8 @@ export interface DecompositionMonth {
   tariffDrivenPct: number;
   operationalOmr: number;
   operationalPct: number;
+  targetCop: number;
+  actualCop: number;
   physicsOmr: number;
   physicsRawOmr: number;
   referenceTotalOmr: number;

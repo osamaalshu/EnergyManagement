@@ -516,12 +516,14 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
           .flatMap(([n, rep]) => rep.episodes.map((e) => ({ chiller: n, ...e })))
           .sort((a, b) => b.count - a.count)
           .slice(0, 4);
+        const impossibleTotal = Object.values(dataQuality.perChiller).reduce((s, r) => s + (r.impossibleReadings ?? 0), 0);
         return (
           <div className="card-surface p-6">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Data Quality</h3>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-              Every sensor hour is classified by the physics engine (COP bounds 0.5–12, min ΔT 1°C) — flagged
-              readings are reported as findings, never silently dropped.
+              Every reading is classified by the physics engine (COP bounds 0.5–12, min ΔT 1°C) and kept — never dropped.
+              GOOD + low-ΔT readings feed the COP; impossible / inverted-ΔT readings can&apos;t yield a COP, so they&apos;re
+              held out of the metric and flagged to investigate (faulty meter, or a chiller running abnormally).
             </p>
 
             {/* Status share bar */}
@@ -551,7 +553,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
                   <div key={n} className="rounded-xl border border-slate-200/70 p-3 dark:border-white/10">
                     <p className="text-sm font-medium text-slate-900 dark:text-white">Chiller {n}</p>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      <span className="font-semibold text-emerald-500">{rep.goodForDiagnosis.toLocaleString()}</span> GOOD hours
+                      <span className="font-semibold text-emerald-500">{rep.goodForDiagnosis.toLocaleString()}</span> GOOD 2-hr intervals
                       ({goodPct.toFixed(1)}%) &middot; {rep.flaggedNotDiscarded.toLocaleString()} flagged
                     </p>
                   </div>
@@ -559,16 +561,28 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
               })}
             </div>
 
+            {/* Integrity flag — impossible readings are a signal, not noise */}
+            {impossibleTotal > 0 && (
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-400/30 bg-red-400/5 px-4 py-2.5 text-xs text-slate-600 dark:text-slate-300">
+                <span className="mt-px shrink-0 font-semibold text-red-400">⚠ Investigate:</span>
+                <span>
+                  <span className="font-semibold tabular-nums">{impossibleTotal.toLocaleString()}</span> impossible / inverted-ΔT readings
+                  (e.g. return colder than supply). Kept and held out of the COP — but they point to a faulty meter or a chiller
+                  running abnormally, and warrant a sensor + equipment check.
+                </span>
+              </div>
+            )}
+
             {/* Top quality findings */}
             {topEpisodes.length > 0 && (
               <div className="mt-4 space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Top quality findings</p>
                 {topEpisodes.map((e, i) => (
                   <div key={i} className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                    <span className="rounded-full bg-amber-400/15 px-2 py-0.5 font-medium text-amber-500">Chiller {e.chiller}</span>
+                    <span className={`rounded-full px-2 py-0.5 font-medium ${e.status === 'BAD' ? 'bg-red-400/15 text-red-400' : 'bg-amber-400/15 text-amber-500'}`}>Chiller {e.chiller}</span>
                     <span className="min-w-0 flex-1">{e.reason}</span>
                     <span className="text-slate-500 dark:text-slate-400">
-                      {e.count.toLocaleString()} hrs over {e.distinctDays} days
+                      {e.count.toLocaleString()} intervals over {e.distinctDays} days
                     </span>
                   </div>
                 ))}
@@ -583,7 +597,7 @@ const BuildingPage: FC<BuildingPageProps> = ({ buildingId, onBack, onNavigateToE
         data={getPhysicsAnomaly().data}
         findings={getPhysicsAnomaly().findings}
         title="Plant Physics Diagnostics"
-        subtitle={`Monthly kW/ton from physics-validated GOOD readings (${plantPhysics.goodRows.toLocaleString()} hrs, avg COP ${plantPhysics.avgCop}) vs the Gulf COP 4.5 benchmark. ${notApplicableRules.length} rules skipped for missing signals.`}
+        subtitle={`Monthly kW/ton from physics-validated readings (${plantPhysics.goodRows.toLocaleString()} 2-hr intervals, avg COP ${plantPhysics.avgCop}) vs the Gulf COP 4.5 benchmark. ${notApplicableRules.length} rules skipped for missing signals.`}
       />
 
       {/* ── System Summary Button ─────────────────────────────── */}
