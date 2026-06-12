@@ -29,6 +29,7 @@ Requires Python >= 3.10, stdlib only.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import os
 import sys
@@ -671,6 +672,58 @@ def parity_check(rows_by_month: dict[str, list[dict]], bills: dict) -> dict:
 
 
 # ────────────────────────────────────────────────────────────────────
+# Single tariff source of truth (seam B)
+# ────────────────────────────────────────────────────────────────────
+# TS season blocks ← Python monthly rates (rates are identical within a block).
+_SEASON_BLOCKS = {
+    "Jan-Mar": ["Jan", "Feb", "Mar"],
+    "Apr": ["Apr"],
+    "May-Jul": ["May", "Jun", "Jul"],
+    "Aug-Sep": ["Aug", "Sep"],
+    "Oct": ["Oct"],
+    "Nov-Dec": ["Nov", "Dec"],
+}
+_BAND_MAP = {"off_peak": "OP", "night_peak": "NP", "weekday_day_peak": "WDP", "weekend_day_peak": "WEDP"}
+
+
+def build_tariff_schedule() -> dict:
+    """Snapshot the platform's CRT config into the TS engine's shape, so the rates
+    have ONE source. Reads the same config files `load_tariff_config` reads; the
+    platform itself is not modified."""
+    cfg = Path(REPO_PATH) / "layer2_tariff" / "block_a_crt" / "config"
+    monthly = json.loads((cfg / f"tariff_{TARIFF_YEAR}_{SYSTEM}.json").read_text())["monthly_rates"]
+    duos = json.loads((cfg / f"duos_{TARIFF_YEAR}.json").read_text())["rates_by_voltage"]
+    tuos = json.loads((cfg / f"tuos_{TARIFF_YEAR}.json").read_text())["demand_charges_omr_per_mw"]
+    standing = json.loads((cfg / f"standing_{TARIFF_YEAR}.json").read_text())["annual_charge"]
+
+    bst: dict = {}
+    for block, months in _SEASON_BLOCKS.items():
+        ref = {_BAND_MAP[k]: v for k, v in monthly[months[0]].items()}
+        for m in months[1:]:
+            if {_BAND_MAP[k]: v for k, v in monthly[m].items()} != ref:
+                sys.exit(f"ERROR: BST rates differ within season block {block} ({m} ≠ {months[0]}); TS season-block model invalid.")
+        bst[block] = ref
+
+    schedule = {
+        "system": SYSTEM,
+        "year": TARIFF_YEAR,
+        "source": "APSR Statement of CRT Charges 2025 — snapshot of the enerlytics tariff config",
+        "bst": bst,
+        "dist": {v: duos[v] for v in ("33kV", "11kV", "0.415kV")},
+        "capacity": {
+            "CGR": tuos["conventional_generation_cgc"],
+            "CPR": tuos["coincident_peak_cpr"],
+            "NCPR": tuos["non_coincident_peak_ncpr"],
+        },
+        "supply": standing,
+        "vat": 0.05,
+    }
+    version = f"{SYSTEM}-{TARIFF_YEAR}-" + hashlib.sha1(json.dumps(schedule, sort_keys=True).encode()).hexdigest()[:8]
+    schedule["scheduleVersion"] = version
+    return schedule
+
+
+# ────────────────────────────────────────────────────────────────────
 # Main
 # ────────────────────────────────────────────────────────────────────
 def main() -> None:
@@ -787,9 +840,21 @@ def main() -> None:
     if not parity["pass"]:
         sys.exit(f"ERROR: parity check failed — TS and Python engines diverge: {parity['worst']}")
 
+    # ── Single tariff source of truth (seam B) ─────────────────────
+    # Snapshot the platform's CRT config into one committed JSON in the exact
+    # shape the TS runtime engine consumes, so TS stops carrying its own copy of
+    # the rates. `scheduleVersion` is stamped here AND on meta; the dashboard's
+    # verify-provenance guard fails if they ever disagree (no stale divergence).
+    tariff_schedule = build_tariff_schedule()
+    sched_file = DATA_DIR / "generated" / "tariffSchedule.json"
+    with open(sched_file, "w", encoding="utf-8") as fh:
+        json.dump(tariff_schedule, fh, indent=1)
+    print(f"Wrote tariffSchedule.json (version {tariff_schedule['scheduleVersion']})")
+
     output = {
         "meta": {
             "generatedAt": datetime.now(timezone.utc).isoformat(),
+            "scheduleVersion": tariff_schedule["scheduleVersion"],
             "engine": "enerlytics reference platform (Python)",
             "tariffConfigYear": TARIFF_YEAR,
             "system": SYSTEM,

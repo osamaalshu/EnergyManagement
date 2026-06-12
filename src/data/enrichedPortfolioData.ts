@@ -30,6 +30,7 @@ export const enrichedMeta = enriched.meta as {
   generatedAt: string;
   engine: string;
   tariffConfigYear: number;
+  scheduleVersion: string;
   system: string;
   siteId: string;
   dataRange: { from: string; to: string; totalRows: number };

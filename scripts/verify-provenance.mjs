@@ -111,6 +111,29 @@ console.log('P1/PB — provenance propagation');
   }
 }
 
+// ── B-seam: single tariff source of truth ───────────────────────────────────
+//   P5 staleness · P2 version present · P3 one runtime rate authority
+console.log('P2/P3/P5 — single tariff source of truth');
+{
+  let sched = null, meta = null;
+  try { sched = JSON.parse(readFileSync(join(ROOT, 'src/data/generated/tariffSchedule.json'), 'utf8')); } catch { /* below */ }
+  try { meta = JSON.parse(readFileSync(join(ROOT, 'src/data/generated/enrichedData.json'), 'utf8')).meta; } catch { /* below */ }
+  if (!sched) bad('P2', 'tariffSchedule.json missing');
+  else if (!sched.scheduleVersion) bad('P2', 'tariffSchedule.json lacks scheduleVersion');
+  if (meta && !meta.scheduleVersion) bad('P2', 'enrichedData.meta lacks scheduleVersion');
+  // P5 — the runtime rate source and the precomputed Python artifacts must share a version.
+  if (sched?.scheduleVersion && meta?.scheduleVersion) {
+    if (sched.scheduleVersion !== meta.scheduleVersion)
+      bad('P5', `tariff STALE: tariffSchedule (${sched.scheduleVersion}) ≠ enrichedData.meta (${meta.scheduleVersion}) — re-run npm run enrich`);
+    else ok(`tariff schedule in sync (${sched.scheduleVersion})`);
+  }
+  // P3 — only the runtime engine may read the rate schedule; no component re-implements rates.
+  const compDir = join(ROOT, 'src/components');
+  const offenders = readdirSync(compDir).filter((f) => f.endsWith('.tsx') && readFileSync(join(compDir, f), 'utf8').includes('tariffSchedule.json'));
+  if (offenders.length) bad('P3', `tariffSchedule.json read by components (${offenders.join(', ')}); only lib/tariffEngine.ts may`);
+  else ok('one runtime rate authority (lib/tariffEngine.ts)');
+}
+
 // ── result ──────────────────────────────────────────────────────────────────
 console.log('');
 if (failures.length) {

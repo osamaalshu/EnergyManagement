@@ -1,0 +1,56 @@
+{
+ "system": "MIS",
+ "year": 2025,
+ "source": "APSR Statement of CRT Charges 2025 \u2014 snapshot of the enerlytics tariff config",
+ "bst": {
+  "Jan-Mar": {
+   "OP": 12,
+   "NP": 12,
+   "WDP": 12,
+   "WEDP": 12
+  },
+  "Apr": {
+   "OP": 16,
+   "NP": 16,
+   "WDP": 16,
+   "WEDP": 16
+  },
+  "May-Jul": {
+   "OP": 19,
+   "NP": 46,
+   "WDP": 36,
+   "WEDP": 28
+  },
+  "Aug-Sep": {
+   "OP": 17,
+   "NP": 27,
+   "WDP": 20,
+   "WEDP": 20
+  },
+  "Oct": {
+   "OP": 16,
+   "NP": 16,
+   "WDP": 16,
+   "WEDP": 16
+  },
+  "Nov-Dec": {
+   "OP": 12,
+   "NP": 12,
+   "WDP": 12,
+   "WEDP": 12
+  }
+ },
+ "dist": {
+  "33kV": 4.0,
+  "11kV": 5.0,
+  "0.415kV": 10.6
+ },
+ "capacity": {
+  "CGR": 6775,
+  "CPR": 7691,
+  "NCPR": 1839
+ },
+ "supply": 50.0,
+ "vat": 0.05,
+ "scheduleVersion": "MIS-2025-f34c3d4a"
+}

@@ -1,6 +1,7 @@
 {
  "meta": {
-  "generatedAt": "2026-06-11T09:48:30.448081+00:00",
+  "generatedAt": "2026-06-12T12:32:08.334928+00:00",
+  "scheduleVersion": "MIS-2025-f34c3d4a",
   "engine": "enerlytics reference platform (Python)",
   "tariffConfigYear": 2025,
   "system": "MIS",
