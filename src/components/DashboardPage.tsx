@@ -16,7 +16,9 @@ import {
   hourlyProductionConsumption,
   tariffHourlyData,
   getChillerTimeSeries,
+  datasetMeta,
 } from '../data/mockPortfolioData';
+import { DataFreshness } from './Provenance';
 import { effectiveRateOmrPerKwh, calculateMonthlyDetailedBills } from '../lib/tariffEngine';
 import ExportExcelButton from './ExportExcelButton';
 
@@ -174,13 +176,18 @@ const DashboardPage: FC<DashboardPageProps> = ({
   return (
     <section className="space-y-8">
       {/* Page header */}
-      <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-          Overview
-        </p>
-        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
-          Portfolio Overview
-        </h2>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+            Overview
+          </p>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            Portfolio Overview
+          </h2>
+        </div>
+        <div className="mt-1">
+          <DataFreshness meta={datasetMeta} />
+        </div>
       </div>
 
       {/* ── KPI Strip (titles aligned horizontally, content centered) ─────────────────────────────────────────── */}
@@ -226,13 +233,13 @@ const DashboardPage: FC<DashboardPageProps> = ({
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{unreadCount} unread</p>
         </button>
 
-        {/* Today's Cooling Output — navigates to Chiller Plant (building) */}
+        {/* Cooling Output — navigates to Chiller Plant (building) */}
         <button
           type="button"
           onClick={() => onNavigateToBuilding('CP1')}
           className="card-surface flex flex-col items-center justify-center p-5 text-center transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Cooling Output</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Cooling Output</p>
           <div className="mt-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15">
             <svg className="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -244,13 +251,13 @@ const DashboardPage: FC<DashboardPageProps> = ({
           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">View Chiller Plant</p>
         </button>
 
-        {/* Today's Consumption — navigates to Tariff page (energy consumption cost) */}
+        {/* Energy Consumption — navigates to Tariff page (energy consumption cost) */}
         <button
           type="button"
           onClick={onNavigateToTariff}
           className="card-surface flex flex-col items-center justify-center p-5 text-center transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl"
         >
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Today&apos;s Consumption</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Energy Consumption</p>
           <div className="mt-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15">
             <svg className="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -270,12 +277,12 @@ const DashboardPage: FC<DashboardPageProps> = ({
         </button>
       </div>
 
-      {/* ── Today's kWh and OMR over time (line chart, dual axis) ───── */}
+      {/* ── Daily kWh and OMR profile (line chart, dual axis) ───── */}
       <div className="group card-surface p-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Today&apos;s Consumption (kWh) and Cost (OMR)
+              Daily Profile — Consumption (kWh) & Cost (OMR)
             </h3>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
               Cost line shows CRT energy charges only (BST + distribution); capacity, supply and VAT are billed monthly.

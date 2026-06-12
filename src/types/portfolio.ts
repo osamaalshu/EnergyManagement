@@ -1,6 +1,31 @@
 // ── Time resolution ──────────────────────────────────────────────
 export type TimeResolution = 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
+/**
+ * Where the dashboard's data comes from, as a product environment:
+ *  - `demo`       polished sample dataset used to present the intended UX
+ *  - `historical` a real but non-current dataset (show "Latest available · <date>")
+ *  - `live`       a real current feed (may show "Live" only if also fresh)
+ */
+export type DataMode = 'demo' | 'historical' | 'live';
+
+/**
+ * Dataset-level provenance/freshness (Slice 1 of the provenance contract).
+ * One descriptor for the whole dashboard, derived at the adapter boundary.
+ * `mode` is the source of truth; "is it live?" is *derived* from mode + freshness
+ * (see `isLiveDataset` in lib/datasetFreshness.ts) rather than stored, to avoid
+ * a redundant field that could disagree with `mode`.
+ */
+export interface DatasetMeta {
+  /** ISO date (YYYY-MM-DD) of the latest real reading. */
+  asOf: string;
+  /** ISO date of the earliest real reading. */
+  coverageStart: string;
+  /** ISO date the underlying JSON was prepared (build/process date). */
+  generatedAt: string;
+  mode: DataMode;
+}
+
 /** A record keyed by time resolution containing data of type T */
 export type ByResolution<T> = Record<TimeResolution, T>;
 

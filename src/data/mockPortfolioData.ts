@@ -37,6 +37,7 @@ export {
   overallCop,
   baselineByMonth,
   baselineDeviationSeries,
+  datasetMeta,
 } from './realPortfolioData.ts';
 
 export type { ChillerTimeSeriesBundle, TowerTempPoint, PumpTimePoint, PumpSpecificEnergyPoint } from './realPortfolioData.ts';
