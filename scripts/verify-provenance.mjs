@@ -89,6 +89,28 @@ console.log('FH — freshness honesty (no Today/LIVE/Real-time in UI)');
   if (!flagged) ok('no Today/LIVE/Real-time claims in client UI');
 }
 
+// ── P1 — provenance source is complete; PB — tariff basis disclosed & sourced ─
+console.log('P1/PB — provenance propagation');
+{
+  let meta = null;
+  try { meta = JSON.parse(readFileSync(join(ROOT, 'src/data/generated/enrichedData.json'), 'utf8')).meta; } catch { /* handled below */ }
+  if (!meta) bad('P1', 'enrichedData.meta missing');
+  else {
+    if (meta.generatedAt == null) bad('P1', 'meta.generatedAt missing');
+    if (meta.tariffConfigYear == null) bad('P1', 'meta.tariffConfigYear missing');
+    if (!meta.dataRange?.from || !meta.dataRange?.to) bad('P1', 'meta.dataRange.from/to missing');
+    if (!Array.isArray(meta.notes) || !meta.notes.length) bad('P1', 'meta.notes missing/empty');
+    if (meta.generatedAt && meta.dataRange?.from && meta.tariffConfigYear != null) ok('meta carries period + generatedAt + tariffConfigYear + notes');
+  }
+  // Every page showing a CRT bill/cost must render the basis from `tariffBasis`
+  // (the single sourced disclosure) rather than hand-authoring the tariff wording.
+  for (const file of ['TariffPage.tsx', 'DashboardPage.tsx']) {
+    const text = readFileSync(join(ROOT, 'src/components', file), 'utf8');
+    if (!text.includes('tariffBasis')) bad('PB', `${file}: CRT cost shown without a sourced tariff basis (tariffBasis)`);
+    else ok(`${file} → renders sourced tariffBasis`);
+  }
+}
+
 // ── result ──────────────────────────────────────────────────────────────────
 console.log('');
 if (failures.length) {

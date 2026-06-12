@@ -20,7 +20,9 @@ import {
   decompositionMonths,
   TARIFF_OPTION_LABELS,
   tariffParity,
+  tariffBasis,
 } from '../data/enrichedPortfolioData';
+import { TariffBasis } from './Provenance';
 import {
   calculateMonthlyDetailedBills,
   aggregateToDaily,
@@ -211,6 +213,7 @@ const TariffPage: FC<TariffPageProps> = ({ onBack }) => {
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Tariff Analysis</p>
               <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Tariff Structure</h2>
+              <TariffBasis text={tariffBasis} className="mt-1.5 max-w-xl" />
             </div>
           </div>
 

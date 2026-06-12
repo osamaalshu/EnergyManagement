@@ -36,6 +36,27 @@ export const enrichedMeta = enriched.meta as {
   notes: string[];
 };
 
+const _fromYear = enrichedMeta.dataRange.from.substring(0, 4);
+const _toYear = enrichedMeta.dataRange.to.substring(0, 4);
+
+/**
+ * One-line tariff-vintage disclosure, DERIVED from `enrichedData.meta` — the
+ * single source. The UI must render this string, never re-author the wording.
+ * Distinguishes the historical load period from the (newer) tariff schedule, so
+ * a bill is never mistaken for a historical invoice.
+ */
+export const tariffBasis = `Estimated using ${enrichedMeta.tariffConfigYear} CRT tariff rates applied to historical ${_fromYear}–${_toYear} load data.`;
+
+/** Compact provenance view sourced from `enrichedData.meta` (period, build date, tariff vintage, engine, notes). */
+export const datasetProvenance = {
+  periodFrom: enrichedMeta.dataRange.from.substring(0, 10),
+  periodTo: enrichedMeta.dataRange.to.substring(0, 10),
+  generatedAt: enrichedMeta.generatedAt.substring(0, 10),
+  tariffYear: enrichedMeta.tariffConfigYear,
+  engine: enrichedMeta.engine,
+  notes: enrichedMeta.notes,
+};
+
 // ═══════════════════════════════════════════════════════════════════
 //  DATA QUALITY
 // ═══════════════════════════════════════════════════════════════════

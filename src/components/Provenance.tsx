@@ -54,3 +54,15 @@ export const DataFreshness: FC<{ meta: DatasetMeta }> = ({ meta }) => {
   }
   return <Chip dot="bg-amber-400" label={`As of ${fmtMonthYear(meta.asOf)}`} title={`Live feed paused · latest reading ${meta.asOf} (stale)`} />;
 };
+
+/**
+ * One-line tariff-basis disclosure. `text` MUST come from `tariffBasis`
+ * (derived from `enrichedData.meta`) — never hand-author the wording in a page.
+ * Keeps a CRT bill from reading as a historical invoice.
+ */
+export const TariffBasis: FC<{ text: string; className?: string }> = ({ text, className }) => (
+  <span role="note" className={`inline-flex items-start gap-1.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400 ${className ?? ''}`}>
+    <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-slate-400" aria-hidden />
+    {text}
+  </span>
+);
