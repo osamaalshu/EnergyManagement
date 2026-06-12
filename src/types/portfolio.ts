@@ -13,7 +13,7 @@ export type DataMode = 'demo' | 'historical' | 'live';
  * Dataset-level provenance/freshness (Slice 1 of the provenance contract).
  * One descriptor for the whole dashboard, derived at the adapter boundary.
  * `mode` is the source of truth; "is it live?" is *derived* from mode + freshness
- * (see `isLiveDataset` in components/Provenance.tsx) rather than stored, to avoid
+ * (see `isLiveDataset` in lib/datasetFreshness.ts) rather than stored, to avoid
  * a redundant field that could disagree with `mode`.
  */
 export interface DatasetMeta {
