@@ -38,6 +38,7 @@ import type {
 } from '../types/portfolio';
 
 import raw from './generated/realData.json';
+import { enrichedMeta } from './enrichedPortfolioData';
 
 // ═══════════════════════════════════════════════════════════════════
 //  PORTFOLIO-LEVEL
@@ -493,23 +494,22 @@ export const tariffHourlyData: TariffHourlyDataPoint[] =
   (raw as unknown as { tariffHourlyData: TariffHourlyDataPoint[] }).tariffHourlyData;
 
 /**
- * Dataset freshness/provenance, derived from the real timeseries (sorted asc in
- * preprocessing).
+ * Dataset freshness/provenance. Period and build date are sourced from the SINGLE
+ * provenance source — `enrichedData.meta` (via `enrichedMeta`) — not recomputed
+ * here, so every view agrees on "when".
  *
  * `mode: 'demo'` — this build presents a polished sample dataset to demonstrate
  * the product UX. It is NOT a live client deployment. The true data period is
- * still carried (asOf/coverageStart) and exposed in the provenance tooltip, but
- * the UI must never imply this is live/current data.
+ * carried (asOf/coverageStart) and exposed in the provenance tooltip, but the UI
+ * must never imply this is live/current data.
  *
  * To ship a real historical deployment, set `mode: 'historical'`; for a live
  * feed, set `mode: 'live'` (the UI shows "Live" only when also fresh).
  */
 export const datasetMeta: DatasetMeta = {
-  asOf: tariffHourlyData.length
-    ? tariffHourlyData[tariffHourlyData.length - 1].timestamp.substring(0, 10)
-    : '',
-  coverageStart: tariffHourlyData.length ? tariffHourlyData[0].timestamp.substring(0, 10) : '',
-  generatedAt: new Date().toISOString().substring(0, 10),
+  asOf: enrichedMeta.dataRange.to.substring(0, 10),
+  coverageStart: enrichedMeta.dataRange.from.substring(0, 10),
+  generatedAt: enrichedMeta.generatedAt.substring(0, 10),
   mode: 'demo',
 };
 

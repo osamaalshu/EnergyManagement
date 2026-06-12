@@ -18,7 +18,8 @@ import {
   getChillerTimeSeries,
   datasetMeta,
 } from '../data/mockPortfolioData';
-import { DataFreshness } from './Provenance';
+import { DataFreshness, TariffBasis } from './Provenance';
+import { tariffBasis } from '../data/enrichedPortfolioData';
 import { effectiveRateOmrPerKwh, calculateMonthlyDetailedBills } from '../lib/tariffEngine';
 import ExportExcelButton from './ExportExcelButton';
 
@@ -287,6 +288,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
               Cost line shows CRT energy charges only (BST + distribution); capacity, supply and VAT are billed monthly.
             </p>
+            <TariffBasis text={tariffBasis} className="mt-1.5" />
           </div>
           <ExportExcelButton data={last24 as unknown as Record<string, unknown>[]} fileName="Last24h_Consumption_Cost" />
         </div>

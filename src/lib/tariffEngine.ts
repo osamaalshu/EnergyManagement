@@ -9,7 +9,15 @@
  *   - Capacity charges (coincident CPR+CGR, non-coincident NCPR)
  *   - Supply charge
  *   - VAT
+ *
+ * RATES ARE NOT HARDCODED HERE. They come from the single source of truth
+ * `src/data/generated/tariffSchedule.json`, snapshotted from the enerlytics CRT
+ * config by `npm run enrich` — the one runtime tariff authority. The Python
+ * precompute (decomposition, option comparison) is stamped with the same
+ * `scheduleVersion`, and verify-provenance fails the build if they diverge.
  */
+
+import tariffSchedule from '../data/generated/tariffSchedule.json';
 
 // ═══════════════════════════════════════════════════════════════════
 //  TYPES
@@ -69,32 +77,20 @@ export interface TariffCalculationOptions {
 //  CONSTANTS
 // ═══════════════════════════════════════════════════════════════════
 
-/** BST MIS 2025 rates in RO per MWh, by season block and TOU band */
-export const BST_MIS_2025_RO_PER_MWH: Record<SeasonBlock, Record<TOUBand, number>> = {
-  'Jan-Mar': { OP: 12, NP: 12, WDP: 12, WEDP: 12 },
-  'Apr':     { OP: 16, NP: 16, WDP: 16, WEDP: 16 },
-  'May-Jul': { OP: 19, NP: 46, WDP: 36, WEDP: 28 },
-  'Aug-Sep': { OP: 17, NP: 27, WDP: 20, WEDP: 20 },
-  'Oct':     { OP: 16, NP: 16, WDP: 16, WEDP: 16 },
-  'Nov-Dec': { OP: 12, NP: 12, WDP: 12, WEDP: 12 },
-};
+/** Schedule version — stamped here and on enrichedData.meta; the guard blocks drift. */
+export const TARIFF_SCHEDULE_VERSION: string = tariffSchedule.scheduleVersion;
 
-/** Distribution charge in bz per kWh (treated as RO/MWh adder) */
-export const DIST_BZ_PER_KWH: Record<string, number> = {
-  '33kV': 4.0,
-  '11kV': 5.0,
-  '0.415kV': 10.6,
-};
+/** BST rates (RO/MWh) by season block and TOU band — from the schedule JSON. */
+export const BST_MIS_2025_RO_PER_MWH = tariffSchedule.bst as Record<SeasonBlock, Record<TOUBand, number>>;
 
-/** Capacity charges in OMR per MW per year */
-export const CAPACITY_OMR_PER_MW_YEAR: Record<string, number> = {
-  CGR: 6775,
-  CPR: 7691,
-  NCPR: 1839,
-};
+/** Distribution charge (bz/kWh, treated as RO/MWh adder) by voltage — from the schedule JSON. */
+export const DIST_BZ_PER_KWH = tariffSchedule.dist as Record<string, number>;
 
-export const SUPPLY_CHARGE_OMR_PER_YEAR = 50;
-export const VAT_RATE = 0.05;
+/** Capacity charges (OMR/MW/year): CGR/CPR/NCPR — from the schedule JSON. */
+export const CAPACITY_OMR_PER_MW_YEAR = tariffSchedule.capacity as Record<string, number>;
+
+export const SUPPLY_CHARGE_OMR_PER_YEAR: number = tariffSchedule.supply;
+export const VAT_RATE: number = tariffSchedule.vat;
 
 // ═══════════════════════════════════════════════════════════════════
 //  HELPER FUNCTIONS
