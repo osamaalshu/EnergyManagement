@@ -1,8 +1,8 @@
 {
   "meta": {
-    "facility": "OQ GN Synthetic Compressor Station",
+    "facility": "Synthetic gas compressor station",
     "compressorTag": "CS-01",
-    "site": "OQ Gas Networks (Nizwa)",
+    "site": "Compressor Station #1",
     "asOf": "2026-05-30",
     "coverageStart": "2026-05-01",
     "generatedAt": "2026-06-14",

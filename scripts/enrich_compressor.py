@@ -158,7 +158,7 @@ def main():
     ts = [_as_dt(r["timestamp_utc"]) for r in readings]
     out = {
         "meta": {
-            "facility": reg.facility_name, "compressorTag": TAG, "site": "OQ Gas Networks (Nizwa)",
+            "facility": "Synthetic gas compressor station", "compressorTag": TAG, "site": "Compressor Station #1",
             "asOf": max(ts).date().isoformat(), "coverageStart": min(ts).date().isoformat(),
             "generatedAt": datetime.now(timezone.utc).date().isoformat(),
             "mode": "demo", "proxyStatus": "DEVELOPMENT_PROXY",

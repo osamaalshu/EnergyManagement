@@ -416,7 +416,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
             onClick={() => onNavigateToBuilding(COMPRESSOR_SITE_ID)}
             className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:opacity-80 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300"
           >
-            OQ-GN Nizwa · pilot
+            Compressor Station #1 · pilot
           </button>
         </div>
       </div>
