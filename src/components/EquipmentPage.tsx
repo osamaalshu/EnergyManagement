@@ -22,6 +22,7 @@ import {
 import { chillerPhysics, getPhysicsAnomaly, physicsConstants } from '../data/enrichedPortfolioData';
 import AnomalyPanel from './AnomalyPanel';
 import TimeResolutionSelector from './TimeResolutionSelector';
+import Breadcrumb, { type Crumb } from './Breadcrumb';
 import type { TimeResolution } from '../types/portfolio';
 
 const tooltipStyles = {
@@ -34,11 +35,12 @@ const tickStyle = { fill: 'var(--muted-text)', fontSize: 11 } as const;
 interface EquipmentPageProps {
   buildingId: string;
   equipmentId: string;
+  crumbs: Crumb[];
   onBack: () => void;
   onNavigateToPortfolio: () => void;
 }
 
-const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
+const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, crumbs, onBack }) => {
   const detail = equipmentDetails[equipmentId];
   const equipment = detail?.equipment;
   const isChiller = equipment?.type === 'chiller';
@@ -128,8 +130,8 @@ const EquipmentPage: FC<EquipmentPageProps> = ({ equipmentId, onBack }) => {
   return (
     <section className="space-y-8">
       {/* ── Header ────────────────────────────────────────────── */}
-      <div>
-        {/* Breadcrumb hidden — navigation via back button */}
+      <div className="space-y-4">
+        <Breadcrumb crumbs={crumbs} />
         <div className="flex items-center gap-4">
           <button
             type="button"

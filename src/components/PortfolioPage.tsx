@@ -22,6 +22,7 @@ import {
   buildingDetails,
 } from '../data/mockPortfolioData';
 import { getBandColor, BAND_BG_CLASS, BAND_TEXT_CLASS } from '../lib/performanceBands';
+import { COMPRESSOR_SITE_ID } from '../lib/portfolioNav';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import ExportExcelButton from './ExportExcelButton';
 import type { PerformanceBand, TimeResolution } from '../types/portfolio';
@@ -409,6 +410,14 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
               {b.name}
             </button>
           ))}
+          {/* Gas pilot — a different site/domain, so it sits outside the cooling benchmark above */}
+          <button
+            type="button"
+            onClick={() => onNavigateToBuilding(COMPRESSOR_SITE_ID)}
+            className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:opacity-80 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300"
+          >
+            OQ-GN Nizwa · pilot
+          </button>
         </div>
       </div>
 

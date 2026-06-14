@@ -5,6 +5,7 @@ import {
 import { compressorData } from '../data/compressorData';
 import { DataFreshness } from './Provenance';
 import CompressorSchematic, { type CmpStage } from './CompressorSchematic';
+import Breadcrumb, { type Crumb } from './Breadcrumb';
 import type { CompressorFinding } from '../types/compressor';
 
 const tooltipStyles = { background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.75rem' };
@@ -57,7 +58,7 @@ const STAGE_META: Record<CmpStage, { title: string; sub: string }> = {
 const axisX = { dataKey: 'label', tick: tickStyle, tickLine: false, axisLine: { stroke: 'var(--grid-stroke)' }, interval: 1, angle: -45, textAnchor: 'end' as const, height: 50 };
 const axisY = (label: string) => ({ tick: tickStyle, tickLine: false, axisLine: { stroke: 'var(--grid-stroke)' }, width: 56, label: { value: label, angle: -90, position: 'insideLeft' as const, fill: 'var(--muted-text)', fontSize: 11 } });
 
-const CompressorPage: FC<{ onBack: () => void }> = ({ onBack }) => {
+const CompressorPage: FC<{ crumbs: Crumb[]; onBack: () => void }> = ({ crumbs, onBack }) => {
   const { meta, kpis, series, findings, reinforcing, counts, totalOmrImpactPerWindow } = compressorData;
   const dropPct = kpis.etaPoly !== null && kpis.designPolyEff ? ((kpis.designPolyEff - kpis.etaPoly) / kpis.designPolyEff) * 100 : null;
   const alertEff = kpis.designPolyEff ? kpis.designPolyEff * 0.9 : null;
@@ -76,6 +77,7 @@ const CompressorPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <section className="space-y-8">
+      <Breadcrumb crumbs={crumbs} />
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">

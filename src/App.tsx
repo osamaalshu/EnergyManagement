@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
-import Sidebar, { type NavigationKey, type ActivePage } from './components/Sidebar';
+import Sidebar, { type ActivePage } from './components/Sidebar';
 import TopBar from './components/TopBar';
 import DashboardPage from './components/DashboardPage';
 import PortfolioPage from './components/PortfolioPage';
 import BuildingPage from './components/BuildingPage';
+import SubsystemPage from './components/SubsystemPage';
 import EquipmentPage from './components/EquipmentPage';
 import TariffPage from './components/TariffPage';
 import CompressorPage from './components/CompressorPage';
 import SystemSummaryModal from './components/SystemSummaryModal';
+import { type Crumb } from './components/Breadcrumb';
+import {
+  navSites, getSite, getSubsystem, locateEquip,
+  COMPRESSOR_SITE_ID, COMPRESSOR_EQUIP_ID, type LeafRoute,
+} from './lib/portfolioNav';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -28,8 +34,9 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => getDefaultSidebarState());
   const [theme, setTheme] = useState<ThemeMode>(() => getPreferredTheme());
 
-  // Drill-down state
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
+  // Drill-down state: Portfolio → Site → Subsystem → Equipment
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
+  const [selectedSubsystemId, setSelectedSubsystemId] = useState<string | null>(null);
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
   const [systemSummaryOpen, setSystemSummaryOpen] = useState(false);
 
@@ -38,63 +45,88 @@ function App() {
     window.localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Scroll to top whenever the active page changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activePage]);
+  }, [activePage, selectedSiteId, selectedSubsystemId, selectedEquipmentId]);
 
-  // ── Navigation handlers ────────────────────────────────────────
+  const closeMobileSidebar = () => { if (window.innerWidth < 1024) setSidebarOpen(false); };
 
-  const handleNavigate = (key: NavigationKey) => {
-    if (key === 'dashboard' || key === 'portfolio' || key === 'compressor') {
-      setActivePage(key);
-      setSelectedBuildingId(null);
-      setSelectedEquipmentId(null);
+  // ── Navigation (one model for cooling sites and the compressor pilot) ──
+
+  const goOverview = () => { setActivePage('dashboard'); setSelectedSiteId(null); setSelectedSubsystemId(null); setSelectedEquipmentId(null); closeMobileSidebar(); };
+  const goPortfolio = () => { setActivePage('portfolio'); setSelectedSiteId(null); setSelectedSubsystemId(null); setSelectedEquipmentId(null); closeMobileSidebar(); };
+  const goTariff = () => { setActivePage('tariff'); closeMobileSidebar(); };
+
+  const goSite = (siteId: string) => {
+    const site = getSite(siteId);
+    if (!site) return;
+    setSelectedSiteId(siteId);
+    setSelectedSubsystemId(null);
+    setSelectedEquipmentId(null);
+    if (site.kind === 'compressor') {
+      setSelectedSubsystemId('gas');
+      setSelectedEquipmentId(COMPRESSOR_EQUIP_ID);
+      setActivePage('compressor');
+    } else {
+      setActivePage('building');
     }
-    if (window.innerWidth < 1024) setSidebarOpen(false);
+    closeMobileSidebar();
   };
 
-  const handleNavigateToPortfolio = () => {
-    setActivePage('portfolio');
-    setSelectedBuildingId(null);
+  const goSubsystem = (siteId: string, subId: string) => {
+    const site = getSite(siteId);
+    if (!site) return;
+    setSelectedSiteId(siteId);
+    setSelectedSubsystemId(subId);
     setSelectedEquipmentId(null);
+    if (site.kind === 'compressor') {
+      setSelectedEquipmentId(COMPRESSOR_EQUIP_ID);
+      setActivePage('compressor');
+    } else {
+      setActivePage('subsystem');
+    }
+    closeMobileSidebar();
   };
 
-  const handleNavigateToBuilding = (buildingId: string) => {
-    setSelectedBuildingId(buildingId);
-    setSelectedEquipmentId(null);
-    setActivePage('building');
+  const goEquip = (equipId: string, route: LeafRoute) => {
+    const loc = locateEquip(equipId);
+    if (loc) {
+      setSelectedSiteId(loc.site.id);
+      setSelectedSubsystemId(loc.subsystem.id);
+    }
+    setSelectedEquipmentId(equipId);
+    setActivePage(route === 'compressor' ? 'compressor' : 'equipment');
+    closeMobileSidebar();
   };
 
-  const handleNavigateToEquipment = (equipmentId: string) => {
-    setSelectedEquipmentId(equipmentId);
-    setActivePage('equipment');
-  };
+  // ── Breadcrumb builder (segments carry sibling switchers) ──────────────
 
-  /** Navigate directly to equipment from dashboard (warning/notification click) */
-  const handleNavigateToEquipmentDirect = (buildingId: string, equipmentId: string) => {
-    setSelectedBuildingId(buildingId);
-    setSelectedEquipmentId(equipmentId);
-    setActivePage('equipment');
-  };
-
-  const handleNavigateToTariff = () => {
-    setActivePage('tariff');
-  };
-
-  const handleBackFromTariff = () => {
-    setActivePage('dashboard');
-  };
-
-  const handleBackFromBuilding = () => {
-    setSelectedBuildingId(null);
-    setSelectedEquipmentId(null);
-    setActivePage('portfolio');
-  };
-
-  const handleBackFromEquipment = () => {
-    setSelectedEquipmentId(null);
-    setActivePage('building');
+  const makeCrumbs = (siteId: string | null, subId: string | null, equipId: string | null): Crumb[] => {
+    const crumbs: Crumb[] = [{ key: 'portfolio', label: 'Portfolio', onClick: goPortfolio }];
+    const site = getSite(siteId);
+    if (!site) return crumbs;
+    crumbs.push({
+      key: 'site',
+      label: site.name,
+      onClick: () => goSite(site.id),
+      siblings: navSites.map((s) => ({ id: s.id, label: s.name, hint: s.sector, active: s.id === site.id, onSelect: () => goSite(s.id) })),
+    });
+    const sub = subId ? site.subsystems.find((s) => s.id === subId) : undefined;
+    if (!sub) return crumbs;
+    crumbs.push({
+      key: 'sub',
+      label: sub.label,
+      onClick: () => goSubsystem(site.id, sub.id),
+      siblings: site.subsystems.map((s) => ({ id: s.id, label: s.label, hint: `${s.equipment.length}`, active: s.id === sub.id, onSelect: () => goSubsystem(site.id, s.id) })),
+    });
+    const eq = equipId ? sub.equipment.find((e) => e.id === equipId) : undefined;
+    if (!eq) return crumbs;
+    crumbs.push({
+      key: 'eq',
+      label: eq.name,
+      siblings: sub.equipment.map((e) => ({ id: e.id, label: e.name, active: e.id === eq.id, onSelect: () => goEquip(e.id, e.route) })),
+    });
+    return crumbs;
   };
 
   const toggleTheme = () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -106,35 +138,50 @@ function App() {
       case 'dashboard':
         return (
           <DashboardPage
-            onNavigateToPortfolio={handleNavigateToPortfolio}
-            onNavigateToBuilding={handleNavigateToBuilding}
-            onNavigateToEquipment={handleNavigateToEquipmentDirect}
-            onNavigateToTariff={handleNavigateToTariff}
+            onNavigateToPortfolio={goPortfolio}
+            onNavigateToBuilding={goSite}
+            onNavigateToEquipment={(_buildingId: string, equipmentId: string) => goEquip(equipmentId, 'equipment')}
+            onNavigateToTariff={goTariff}
           />
         );
       case 'tariff':
-        return <TariffPage onBack={handleBackFromTariff} />;
+        return <TariffPage onBack={goOverview} />;
       case 'compressor':
-        return <CompressorPage onBack={() => setActivePage('dashboard')} />;
+        return <CompressorPage crumbs={makeCrumbs(COMPRESSOR_SITE_ID, 'gas', COMPRESSOR_EQUIP_ID)} onBack={goPortfolio} />;
       case 'portfolio':
-        return <PortfolioPage onNavigateToBuilding={handleNavigateToBuilding} />;
+        return <PortfolioPage onNavigateToBuilding={goSite} />;
       case 'building':
-        return selectedBuildingId ? (
+        return selectedSiteId ? (
           <BuildingPage
-            buildingId={selectedBuildingId}
-            onBack={handleBackFromBuilding}
-            onNavigateToEquipment={handleNavigateToEquipment}
-            onNavigateToBuilding={handleNavigateToBuilding}
+            buildingId={selectedSiteId}
+            crumbs={makeCrumbs(selectedSiteId, null, null)}
+            onBack={goPortfolio}
+            onNavigateToSubsystem={(subId) => goSubsystem(selectedSiteId, subId)}
+            onNavigateToEquipment={(equipId) => goEquip(equipId, 'equipment')}
             onOpenSystemSummary={() => setSystemSummaryOpen(true)}
           />
         ) : null;
+      case 'subsystem': {
+        const site = getSite(selectedSiteId);
+        const sub = getSubsystem(selectedSiteId, selectedSubsystemId);
+        return site && sub ? (
+          <SubsystemPage
+            crumbs={makeCrumbs(selectedSiteId, selectedSubsystemId, null)}
+            site={site}
+            subsystem={sub}
+            onBack={() => goSite(site.id)}
+            onNavigateToEquipment={goEquip}
+          />
+        ) : null;
+      }
       case 'equipment':
-        return selectedBuildingId && selectedEquipmentId ? (
+        return selectedSiteId && selectedEquipmentId ? (
           <EquipmentPage
-            buildingId={selectedBuildingId}
+            buildingId={selectedSiteId}
             equipmentId={selectedEquipmentId}
-            onBack={handleBackFromEquipment}
-            onNavigateToPortfolio={handleNavigateToPortfolio}
+            crumbs={makeCrumbs(selectedSiteId, selectedSubsystemId, selectedEquipmentId)}
+            onBack={() => (selectedSubsystemId ? goSubsystem(selectedSiteId, selectedSubsystemId) : goSite(selectedSiteId))}
+            onNavigateToPortfolio={goPortfolio}
           />
         ) : null;
       default:
@@ -148,7 +195,14 @@ function App() {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         activePage={activePage}
-        onNavigate={handleNavigate}
+        selectedSiteId={selectedSiteId}
+        selectedSubsystemId={selectedSubsystemId}
+        selectedEquipmentId={selectedEquipmentId}
+        onOverview={goOverview}
+        onPortfolio={goPortfolio}
+        onSite={goSite}
+        onSubsystem={goSubsystem}
+        onEquip={goEquip}
       />
       <div className={`flex min-h-screen flex-col transition-[padding] duration-300 ${sidebarOpen ? 'lg:pl-72' : 'lg:pl-0'}`}>
         <TopBar
@@ -162,11 +216,9 @@ function App() {
         </main>
       </div>
 
-      {/* System Summary Modal */}
       {systemSummaryOpen && (
         <SystemSummaryModal onClose={() => setSystemSummaryOpen(false)} />
       )}
-
     </div>
   );
 }
