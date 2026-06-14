@@ -3,13 +3,14 @@ import type { FC } from 'react';
 export type NavigationKey =
   | 'dashboard'
   | 'portfolio'
+  | 'compressor'
   | 'detect'
   | 'analyse'
   | 'optimise'
   | 'account'
   | 'apps';
 
-export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'equipment' | 'tariff';
+export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'equipment' | 'tariff' | 'compressor';
 
 interface SidebarProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface SidebarProps {
 const navItems: Array<{ key: NavigationKey; label: string; actionable?: boolean }> = [
   { key: 'dashboard', label: 'Overview', actionable: true },
   { key: 'portfolio', label: 'Portfolio', actionable: true },
+  { key: 'compressor', label: 'Compressor', actionable: true },
   { key: 'detect', label: 'Detect' },
   { key: 'analyse', label: 'Analyse' },
   { key: 'optimise', label: 'Optimise' },
@@ -61,7 +63,8 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, activePage, onNavigate }) =>
           {navItems.map((item) => {
             const isActive =
               (item.key === 'dashboard' && activePage === 'dashboard') ||
-              (item.key === 'portfolio' && (activePage === 'portfolio' || activePage === 'building' || activePage === 'equipment'));
+              (item.key === 'portfolio' && (activePage === 'portfolio' || activePage === 'building' || activePage === 'equipment')) ||
+              (item.key === 'compressor' && activePage === 'compressor');
             const actionable = Boolean(item.actionable);
             const sharedClass = `flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm transition font-medium`;
 

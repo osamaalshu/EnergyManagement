@@ -6,6 +6,7 @@ import PortfolioPage from './components/PortfolioPage';
 import BuildingPage from './components/BuildingPage';
 import EquipmentPage from './components/EquipmentPage';
 import TariffPage from './components/TariffPage';
+import CompressorPage from './components/CompressorPage';
 import SystemSummaryModal from './components/SystemSummaryModal';
 
 type ThemeMode = 'light' | 'dark';
@@ -45,7 +46,7 @@ function App() {
   // ── Navigation handlers ────────────────────────────────────────
 
   const handleNavigate = (key: NavigationKey) => {
-    if (key === 'dashboard' || key === 'portfolio') {
+    if (key === 'dashboard' || key === 'portfolio' || key === 'compressor') {
       setActivePage(key);
       setSelectedBuildingId(null);
       setSelectedEquipmentId(null);
@@ -113,6 +114,8 @@ function App() {
         );
       case 'tariff':
         return <TariffPage onBack={handleBackFromTariff} />;
+      case 'compressor':
+        return <CompressorPage onBack={() => setActivePage('dashboard')} />;
       case 'portfolio':
         return <PortfolioPage onNavigateToBuilding={handleNavigateToBuilding} />;
       case 'building':

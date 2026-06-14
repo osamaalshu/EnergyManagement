@@ -1,0 +1,294 @@
+{
+  "meta": {
+    "facility": "OQ GN Synthetic Compressor Station",
+    "compressorTag": "CS-01",
+    "site": "OQ Gas Networks (Nizwa)",
+    "asOf": "2026-05-30",
+    "coverageStart": "2026-05-01",
+    "generatedAt": "2026-06-14",
+    "mode": "demo",
+    "proxyStatus": "DEVELOPMENT_PROXY",
+    "note": "Pilot preview on SYNTHETIC data \u2014 block5 physics validated pre-pilot; OQ-GN tariff class & timezone unconfirmed (KFU-5/6); not real OQ-GN data."
+  },
+  "kpis": {
+    "etaPoly": 0.788,
+    "etaIsen": 0.637,
+    "specificPowerKwPerNm3hr": 0.02675,
+    "compressionRatio": 1.8,
+    "designPolyEff": 0.8,
+    "ratedKw": 9200.0
+  },
+  "series": [
+    {
+      "label": "May 15",
+      "etaPoly": 0.7992,
+      "specificPower": 0.0258,
+      "compressionRatio": 1.8032,
+      "actualKw": 9002.9375,
+      "expectedKw": 9002.3484,
+      "suctionP": 47.8832,
+      "suctionT": 33.9965,
+      "dischargeP": 86.3456,
+      "dischargeT": 91.0076,
+      "gasFlow": 349420.3425
+    },
+    {
+      "label": "May 16",
+      "etaPoly": 0.7038,
+      "specificPower": 0.0287,
+      "compressionRatio": 1.8,
+      "actualKw": 10093.4478,
+      "expectedKw": 8995.245,
+      "suctionP": 47.9383,
+      "suctionT": 33.9789,
+      "dischargeP": 86.2925,
+      "dischargeT": 99.2644,
+      "gasFlow": 351351.2118
+    },
+    {
+      "label": "May 17",
+      "etaPoly": 0.704,
+      "specificPower": 0.0287,
+      "compressionRatio": 1.8011,
+      "actualKw": 10090.1179,
+      "expectedKw": 8998.0141,
+      "suctionP": 48.0718,
+      "suctionT": 34.0208,
+      "dischargeP": 86.5811,
+      "dischargeT": 99.3652,
+      "gasFlow": 351448.4278
+    },
+    {
+      "label": "May 18",
+      "etaPoly": 0.7987,
+      "specificPower": 0.0258,
+      "compressionRatio": 1.8012,
+      "actualKw": 9007.3139,
+      "expectedKw": 9000.7833,
+      "suctionP": 47.8695,
+      "suctionT": 34.0424,
+      "dischargeP": 86.2223,
+      "dischargeT": 90.9783,
+      "gasFlow": 348862.7561
+    },
+    {
+      "label": "May 19",
+      "etaPoly": 0.8006,
+      "specificPower": 0.0257,
+      "compressionRatio": 1.8018,
+      "actualKw": 9010.3502,
+      "expectedKw": 9000.7833,
+      "suctionP": 47.9789,
+      "suctionT": 34.0392,
+      "dischargeP": 86.4459,
+      "dischargeT": 90.8536,
+      "gasFlow": 350981.085
+    },
+    {
+      "label": "May 20",
+      "etaPoly": 0.7998,
+      "specificPower": 0.0258,
+      "compressionRatio": 1.7965,
+      "actualKw": 9004.1956,
+      "expectedKw": 8998.0141,
+      "suctionP": 48.0072,
+      "suctionT": 33.9905,
+      "dischargeP": 86.2465,
+      "dischargeT": 90.5545,
+      "gasFlow": 349540.6767
+    },
+    {
+      "label": "May 21",
+      "etaPoly": 0.8008,
+      "specificPower": null,
+      "compressionRatio": 1.7987,
+      "actualKw": 8989.8532,
+      "expectedKw": 8998.0141,
+      "suctionP": 47.9418,
+      "suctionT": 33.9629,
+      "dischargeP": 86.2302,
+      "dischargeT": 90.5693,
+      "gasFlow": null
+    },
+    {
+      "label": "May 22",
+      "etaPoly": 0.7999,
+      "specificPower": null,
+      "compressionRatio": 1.7988,
+      "actualKw": 8998.97,
+      "expectedKw": 8992.4758,
+      "suctionP": 48.0816,
+      "suctionT": 34.0287,
+      "dischargeP": 86.4894,
+      "dischargeT": 90.7256,
+      "gasFlow": null
+    },
+    {
+      "label": "May 23",
+      "etaPoly": 0.7974,
+      "specificPower": null,
+      "compressionRatio": 1.7986,
+      "actualKw": 10797.4696,
+      "expectedKw": 9000.7833,
+      "suctionP": 48.0043,
+      "suctionT": 33.9839,
+      "dischargeP": 86.3404,
+      "dischargeT": 90.8567,
+      "gasFlow": null
+    },
+    {
+      "label": "May 24",
+      "etaPoly": 0.7994,
+      "specificPower": null,
+      "compressionRatio": 1.799,
+      "actualKw": 10784.0911,
+      "expectedKw": 8995.245,
+      "suctionP": 47.981,
+      "suctionT": 34.0171,
+      "dischargeP": 86.3192,
+      "dischargeT": 90.7664,
+      "gasFlow": null
+    },
+    {
+      "label": "May 25",
+      "etaPoly": 0.8005,
+      "specificPower": null,
+      "compressionRatio": 1.8002,
+      "actualKw": 10781.7741,
+      "expectedKw": 9003.5524,
+      "suctionP": 47.9515,
+      "suctionT": 33.9785,
+      "dischargeP": 86.3204,
+      "dischargeT": 90.6999,
+      "gasFlow": null
+    },
+    {
+      "label": "May 26",
+      "etaPoly": 0.7997,
+      "specificPower": null,
+      "compressionRatio": 1.7994,
+      "actualKw": 8919.9874,
+      "expectedKw": 8998.0141,
+      "suctionP": 47.9722,
+      "suctionT": 33.9208,
+      "dischargeP": 86.32,
+      "dischargeT": 90.6434,
+      "gasFlow": null
+    },
+    {
+      "label": "May 27",
+      "etaPoly": 0.8005,
+      "specificPower": null,
+      "compressionRatio": 1.8011,
+      "actualKw": 8762.7245,
+      "expectedKw": 8998.0141,
+      "suctionP": 47.9776,
+      "suctionT": 34.1229,
+      "dischargeP": 86.4108,
+      "dischargeT": 90.928,
+      "gasFlow": null
+    },
+    {
+      "label": "May 28",
+      "etaPoly": 0.7997,
+      "specificPower": null,
+      "compressionRatio": 1.8015,
+      "actualKw": 8985.9655,
+      "expectedKw": 8998.0141,
+      "suctionP": 47.9372,
+      "suctionT": 34.0107,
+      "dischargeP": 86.3611,
+      "dischargeT": 90.8815,
+      "gasFlow": null
+    },
+    {
+      "label": "May 29",
+      "etaPoly": 0.7998,
+      "specificPower": null,
+      "compressionRatio": 1.8002,
+      "actualKw": 9007.8029,
+      "expectedKw": 8995.245,
+      "suctionP": 48.0383,
+      "suctionT": 33.983,
+      "dischargeP": 86.4799,
+      "dischargeT": 90.7576,
+      "gasFlow": null
+    },
+    {
+      "label": "May 30",
+      "etaPoly": 0.7996,
+      "specificPower": null,
+      "compressionRatio": 1.7984,
+      "actualKw": 9009.286,
+      "expectedKw": 9000.7833,
+      "suctionP": 48.0358,
+      "suctionT": 33.9641,
+      "dischargeP": 86.3884,
+      "dischargeT": 90.6466,
+      "gasFlow": null
+    }
+  ],
+  "latest": {
+    "timestamp": "2026-05-30T23:00:00+00:00",
+    "etaPoly": 0.805,
+    "actualKw": 8950.0,
+    "expectedKw": 9031.0,
+    "compressionRatio": 1.8
+  },
+  "findings": [
+    {
+      "ruleId": "R-CS-01",
+      "label": "Polytropic efficiency degradation",
+      "severity": "HIGH",
+      "triggeredHours": 48,
+      "evaluatedHours": 143,
+      "omrImpact": 1581.5,
+      "description": "Polytropic efficiency 0.704 is 12.0% below design 0.800. Excess power 1212.6 kW."
+    },
+    {
+      "ruleId": "R-CS-01-DRIFT",
+      "label": "Power drift vs ratio baseline",
+      "severity": "HIGH",
+      "triggeredHours": 72,
+      "evaluatedHours": 240,
+      "omrImpact": 3500.95,
+      "description": "kW 19.5% above ratio baseline (actual 10715.1, expected 8964.8)."
+    },
+    {
+      "ruleId": "R-CS-02",
+      "label": "Idle / unloaded-running waste",
+      "severity": "MEDIUM",
+      "triggeredHours": 16,
+      "evaluatedHours": 383,
+      "omrImpact": 3188.29,
+      "description": "Compressor running unloaded/recycling. Excess power 8524.9 kW."
+    },
+    {
+      "ruleId": "R-CS-03",
+      "label": "TOU-peak overconsumption",
+      "severity": "HIGH",
+      "triggeredHours": 39,
+      "evaluatedHours": 383,
+      "omrImpact": 2437.25,
+      "description": "Compressor 20% above expected during TOU peak."
+    }
+  ],
+  "totalOmrImpactPerWindow": 10707.99,
+  "counts": {
+    "diagnosticReadings": 383,
+    "badReadings": 0,
+    "pathUsed": {
+      "A": 143,
+      "B": 240
+    },
+    "blockedClaims": 0
+  },
+  "reinforcing": {
+    "modelVersion": "block5_gas_compressor-v1",
+    "contextKey": "oq-gn-synthetic/ratio-baseline/DEVELOPMENT_PROXY",
+    "nRecorded": 383,
+    "nReconciled": 383,
+    "coveragePct": 100.0,
+    "mape": 4.9
+  }
+}
