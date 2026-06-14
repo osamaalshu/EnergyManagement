@@ -22,7 +22,7 @@ import {
   buildingDetails,
 } from '../data/mockPortfolioData';
 import { getBandColor, BAND_BG_CLASS, BAND_TEXT_CLASS } from '../lib/performanceBands';
-import { COMPRESSOR_SITE_ID } from '../lib/portfolioNav';
+import { COMPRESSOR_SITE_ID, navSites } from '../lib/portfolioNav';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import ExportExcelButton from './ExportExcelButton';
 import type { PerformanceBand, TimeResolution } from '../types/portfolio';
@@ -202,6 +202,41 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── Sites: the landing list — pick where to go ─────────── */}
+      <div>
+        <SectionTitle>Sites</SectionTitle>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {navSites.map((site) => {
+            const units = site.subsystems.reduce((n, s) => n + s.equipment.length, 0);
+            const warnings = site.subsystems.reduce((n, s) => n + s.warnings, 0);
+            const isPilot = site.kind === 'compressor';
+            return (
+              <button
+                key={site.id}
+                type="button"
+                onClick={() => onNavigateToBuilding(site.id)}
+                className={`card-surface flex flex-col gap-3 p-5 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl ${warnings > 0 ? 'border-red-400/30' : ''}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-base font-semibold text-slate-900 dark:text-white">{site.name}</p>
+                    <span className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium ${isPilot ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300' : 'bg-accent/15 text-accent'}`}>{site.sector}</span>
+                  </div>
+                  <svg className="h-5 w-5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                  <span>{site.subsystems.length} subsystem{site.subsystems.length === 1 ? '' : 's'}</span>
+                  <span>{units} unit{units === 1 ? '' : 's'}</span>
+                  {warnings > 0
+                    ? <span className="font-medium text-red-400">{warnings} warning{warnings === 1 ? '' : 's'}</span>
+                    : <span className="font-medium text-emerald-500">Healthy</span>}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
