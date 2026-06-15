@@ -6,27 +6,20 @@
 // portfolio as its own site with a single "Compressed gas" subsystem — honest
 // placement, not folded into a cooling building. Compressor leaves route to the
 // dedicated CompressorPage; cooling leaves route to the generic EquipmentPage.
-import type { EquipmentType } from '../types/portfolio';
 import { buildings as coolingBuildings, buildingDetails } from '../data/mockPortfolioData';
 import { compressorData } from '../data/compressorData';
 
-export type SubsystemId = 'chillers' | 'towers' | 'pumps' | 'gas';
+// A site has one or more subsystems; each subsystem has many equipment units.
+// Cooling is a single subsystem (the chiller plant) whose units are the
+// chillers, cooling towers, and pumps — not three separate subsystems.
+export type SubsystemId = 'cooling' | 'gas';
 export type SiteKind = 'cooling' | 'compressor';
 export type LeafRoute = 'equipment' | 'compressor';
 
 export const SUBSYSTEM_META: Record<SubsystemId, { label: string }> = {
-  chillers: { label: 'Chillers' },
-  towers: { label: 'Cooling towers' },
-  pumps: { label: 'Pumps' },
+  cooling: { label: 'Cooling' },
   gas: { label: 'Compressed gas' },
 };
-
-const COOLING_SUBSYSTEM_OF: Record<EquipmentType, SubsystemId> = {
-  chiller: 'chillers',
-  coolingTower: 'towers',
-  pump: 'pumps',
-};
-const COOLING_ORDER: SubsystemId[] = ['chillers', 'towers', 'pumps'];
 
 export const COMPRESSOR_SITE_ID = 'oq-gn-nizwa';
 export const COMPRESSOR_EQUIP_ID = 'cmp-cs-01';
@@ -53,12 +46,10 @@ export interface NavSite {
 
 function coolingSite(b: { id: string; name: string; sector: string }): NavSite {
   const equipment = buildingDetails[b.id]?.equipment ?? [];
-  const subsystems: NavSubsystem[] = COOLING_ORDER.map((sid) => {
-    const items: NavEquip[] = equipment
-      .filter((e) => COOLING_SUBSYSTEM_OF[e.type] === sid)
-      .map((e) => ({ id: e.id, name: e.name, status: e.status, route: 'equipment' as const }));
-    return { id: sid, label: SUBSYSTEM_META[sid].label, equipment: items, warnings: items.filter((i) => i.status === 'warning').length };
-  }).filter((s) => s.equipment.length > 0);
+  const items: NavEquip[] = equipment.map((e) => ({ id: e.id, name: e.name, status: e.status, route: 'equipment' as const }));
+  const subsystems: NavSubsystem[] = items.length
+    ? [{ id: 'cooling', label: SUBSYSTEM_META.cooling.label, equipment: items, warnings: items.filter((i) => i.status === 'warning').length }]
+    : [];
   return { id: b.id, name: b.name, sector: b.sector, kind: 'cooling', subsystems };
 }
 
