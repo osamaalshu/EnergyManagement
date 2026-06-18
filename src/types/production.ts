@@ -98,7 +98,7 @@ export interface ModelBlock {
     operatingHoursPerYear: number; nMachines: number; machineNames: string[] | null;
   };
   economics: { elecOmrPerKwh: number; materialOmrPerKg: number; holdingRateAnnual: number };
-  skus: { id: string; name: string; demand: number; rateEffective: number; kgPerUnit: number; meanRejection: number }[];
+  skus: { id: string; name: string; family: string; diameterMm: number; demand: number; rateEffective: number; kgPerUnit: number; meanRejection: number }[];
 }
 
 export interface ProductionData {

@@ -14,7 +14,7 @@ const MTO_DAYS_STOCK = 7;            // make-to-order: ~a week of stock
 const MTS_DAYS_STOCK = 60;           // make-to-stock: ~two months of stock
 
 export interface SkuParam {
-  id: string; name: string;
+  id: string; name: string; family: string; diameterMm: number;
   demand: number; rateEffective: number; kgPerUnit: number; meanRejection: number;
 }
 export interface LineParam {
@@ -144,17 +144,127 @@ export const DEMO_LINE: LineParam = {
   machineNames: ['Machine 01', 'Machine 02', 'Machine 03'],
 };
 export const DEMO_ECON: Econ = { elecOmrPerKwh: 0.025, materialOmrPerKg: 0.32, holdingRateAnnual: 0.20 };
+const _s = (id: string, family: string, diameterMm: number, demand: number, rateEffective: number, kgPerUnit: number, meanRejection: number): SkuParam =>
+  ({ id, name: `${family} ${diameterMm} mm`, family, diameterMm, demand, rateEffective, kgPerUnit, meanRejection });
 export const DEMO_SKUS: SkuParam[] = [
-  { id: 'DR-110', name: 'Drainage 110 mm', demand: 28000, rateEffective: 22, kgPerUnit: 6.4, meanRejection: 0.020 },
-  { id: 'DR-160', name: 'Drainage 160 mm', demand: 18000, rateEffective: 15, kgPerUnit: 11.2, meanRejection: 0.022 },
-  { id: 'DR-200', name: 'Drainage 200 mm', demand: 9000, rateEffective: 10, kgPerUnit: 16.8, meanRejection: 0.028 },
-  { id: 'PR-110', name: 'Pressure 110 mm', demand: 24000, rateEffective: 20, kgPerUnit: 9.1, meanRejection: 0.024 },
-  { id: 'PR-160', name: 'Pressure 160 mm', demand: 14000, rateEffective: 14, kgPerUnit: 14.0, meanRejection: 0.026 },
-  { id: 'PR-75', name: 'Pressure 75 mm', demand: 30000, rateEffective: 26, kgPerUnit: 5.2, meanRejection: 0.019 },
-  { id: 'CO-20', name: 'Conduit 20 mm', demand: 60000, rateEffective: 40, kgPerUnit: 1.3, meanRejection: 0.015 },
-  { id: 'CO-25', name: 'Conduit 25 mm', demand: 48000, rateEffective: 36, kgPerUnit: 1.7, meanRejection: 0.016 },
-  { id: 'CO-32', name: 'Conduit 32 mm', demand: 36000, rateEffective: 30, kgPerUnit: 2.4, meanRejection: 0.017 },
-  { id: 'WP-50', name: 'Waste 50 mm', demand: 26000, rateEffective: 28, kgPerUnit: 3.1, meanRejection: 0.018 },
-  { id: 'WP-110', name: 'Waste 110 mm', demand: 16000, rateEffective: 18, kgPerUnit: 7.3, meanRejection: 0.021 },
-  { id: 'DR-75', name: 'Drainage 75 mm', demand: 34000, rateEffective: 27, kgPerUnit: 4.0, meanRejection: 0.018 },
+  _s('DR-75', 'Drainage', 75, 34000, 27, 4.0, 0.018),
+  _s('DR-110', 'Drainage', 110, 28000, 22, 6.4, 0.020),
+  _s('DR-160', 'Drainage', 160, 18000, 15, 11.2, 0.022),
+  _s('DR-200', 'Drainage', 200, 9000, 10, 16.8, 0.028),
+  _s('PR-75', 'Pressure', 75, 30000, 26, 5.2, 0.019),
+  _s('PR-110', 'Pressure', 110, 24000, 20, 9.1, 0.024),
+  _s('PR-160', 'Pressure', 160, 14000, 14, 14.0, 0.026),
+  _s('CO-20', 'Conduit', 20, 60000, 40, 1.3, 0.015),
+  _s('CO-25', 'Conduit', 25, 48000, 36, 1.7, 0.016),
+  _s('CO-32', 'Conduit', 32, 36000, 30, 2.4, 0.017),
+  _s('WP-50', 'Waste', 50, 26000, 28, 3.1, 0.018),
+  _s('WP-110', 'Waste', 110, 16000, 18, 7.3, 0.021),
 ];
+
+// ── Planning periods. Quantities are scaled from the calibrated annual demand.
+export const PERIODS: Record<string, { label: string; days: number }> = {
+  week: { label: 'Week', days: 7 },
+  month: { label: 'Month', days: 30 },
+  season: { label: 'Season', days: 91 },
+  year: { label: 'Year', days: 365 },
+};
+
+// ── Sequence-dependent changeover, the real cost structure: switching FAMILY
+//    (drainage→pressure: different recipe/colour) costs far more than switching
+//    only DIAMETER within a family (just a die/calibrator change). Assumptions,
+//    to be replaced by the measured matrix from the changeover log.
+export const SETUP_FAMILY_H = 3.0;
+export const SETUP_DIAMETER_H = 0.5;
+
+export type SetupType = 'none' | 'diameter' | 'family';
+export interface ScheduleItem {
+  machine: number; machineName: string; seq: number;
+  id: string; name: string; family: string; diameterMm: number;
+  pieces: number; runtimeH: number; setupBeforeH: number; setupType: SetupType;
+  startH: number; endH: number;
+}
+export interface ScheduleResult {
+  items: ScheduleItem[];
+  lanes: { machine: number; name: string; items: ScheduleItem[]; loadH: number }[];
+  productionH: number; changeoverH: number; familyChanges: number; diameterChanges: number;
+  makespanH: number; makespanDays: number; capacityPerMachineH: number; fits: boolean; utilization: number;
+  naiveChangeoverH: number; savedH: number;
+  energyKwh: number; costOmr: number;
+}
+
+function setupBetween(prev: SkuParam | null, cur: SkuParam): { h: number; type: SetupType } {
+  if (!prev) return { h: 0, type: 'none' };
+  if (prev.family !== cur.family) return { h: SETUP_FAMILY_H, type: 'family' };
+  if (prev.diameterMm !== cur.diameterMm) return { h: SETUP_DIAMETER_H, type: 'diameter' };
+  return { h: 0, type: 'none' };
+}
+
+function changeoverHoursForOrder(order: SkuParam[]): number {
+  let h = 0;
+  for (let i = 1; i < order.length; i++) h += setupBetween(order[i - 1], order[i]).h;
+  return h;
+}
+
+/** Build the changeover-minimising schedule: group products by family, step
+ *  diameters within each family, balance whole families across machines. */
+export function buildSchedule(
+  skus: SkuParam[], pieces: Record<string, number>, days: number, machines: number,
+  line: LineParam, econ: Econ, hoursPerDay: number,
+): ScheduleResult {
+  const active = skus.filter((s) => (pieces[s.id] ?? 0) > 0);
+  const runtime = (s: SkuParam) => (pieces[s.id] ?? 0) / Math.max(s.rateEffective, 1e-9);
+
+  // group by family → assign whole families to the least-loaded machine
+  const families = [...new Set(active.map((s) => s.family))];
+  const famLoad = (f: string) => active.filter((s) => s.family === f).reduce((a, s) => a + runtime(s), 0);
+  families.sort((a, b) => famLoad(b) - famLoad(a));
+  const m = Math.max(1, machines);
+  const machineFamilies: SkuParam[][] = Array.from({ length: m }, () => []);
+  const machineLoad = new Array(m).fill(0);
+  for (const f of families) {
+    const items = active.filter((s) => s.family === f).sort((a, b) => a.diameterMm - b.diameterMm); // step diameters
+    const lo = machineLoad.indexOf(Math.min(...machineLoad));
+    machineFamilies[lo].push(...items);
+    machineLoad[lo] += famLoad(f);
+  }
+
+  const items: ScheduleItem[] = [];
+  const lanes = machineFamilies.map((seq, mi) => {
+    let t = 0; const laneItems: ScheduleItem[] = [];
+    seq.forEach((s, idx) => {
+      const su = setupBetween(idx === 0 ? null : seq[idx - 1], s);
+      const rt = runtime(s);
+      const item: ScheduleItem = {
+        machine: mi, machineName: line.machineNames?.[mi] ?? `Machine ${mi + 1}`, seq: idx + 1,
+        id: s.id, name: s.name, family: s.family, diameterMm: s.diameterMm,
+        pieces: pieces[s.id] ?? 0, runtimeH: rt, setupBeforeH: su.h, setupType: su.type,
+        startH: t + su.h, endH: t + su.h + rt,
+      };
+      t = item.endH; laneItems.push(item); items.push(item);
+    });
+    return { machine: mi, name: line.machineNames?.[mi] ?? `Machine ${mi + 1}`, items: laneItems, loadH: t };
+  });
+
+  const productionH = active.reduce((a, s) => a + runtime(s), 0);
+  const changeoverH = items.reduce((a, it) => a + it.setupBeforeH, 0);
+  const familyChanges = items.filter((it) => it.setupType === 'family').length;
+  const diameterChanges = items.filter((it) => it.setupType === 'diameter').length;
+  const makespanH = Math.max(0, ...lanes.map((l) => l.loadH));
+  const capacityPerMachineH = days * hoursPerDay;
+  // naive = run in catalogue/entry order on one notional line (no grouping)
+  const naiveChangeoverH = changeoverHoursForOrder(active);
+
+  const energyKwh = productionH * line.machineKw + changeoverH * line.changeoverKw;
+  const costOmr = energyKwh * econ.elecOmrPerKwh;
+
+  return {
+    items, lanes,
+    productionH: round(productionH), changeoverH: round(changeoverH, 1),
+    familyChanges, diameterChanges,
+    makespanH: round(makespanH), makespanDays: round(makespanH / hoursPerDay, 1),
+    capacityPerMachineH: round(capacityPerMachineH), fits: makespanH <= capacityPerMachineH,
+    utilization: round(capacityPerMachineH ? makespanH / capacityPerMachineH : 0, 3),
+    naiveChangeoverH: round(naiveChangeoverH, 1), savedH: round(naiveChangeoverH - changeoverH, 1),
+    energyKwh: round(energyKwh), costOmr: round(costOmr),
+  };
+}

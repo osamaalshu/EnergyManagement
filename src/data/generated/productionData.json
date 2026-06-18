@@ -40,6 +40,8 @@
       {
         "id": "DRAIN-SN2",
         "name": "UPVC Drainage Pipe BS EN SN2 Blue 6x6m",
+        "family": "Drainage",
+        "diameterMm": 160,
         "demand": 12151,
         "rateEffective": 9.3,
         "rateMedian": 16.9,
@@ -49,6 +51,8 @@
       {
         "id": "PRESS-DIN-CL3",
         "name": "UPVC Pressure Pipe DIN Class 3 Dark Grey 110mm x6m",
+        "family": "Pressure",
+        "diameterMm": 110,
         "demand": 45695,
         "rateEffective": 20.0,
         "rateMedian": 27.7,

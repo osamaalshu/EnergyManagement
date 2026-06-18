@@ -49,6 +49,9 @@ def main() -> None:
         m = sku["measured"].get(key)
         return m["value"] if isinstance(m, dict) else m
 
+    # family + nominal diameter for the real SKUs (sequence-dependent setup driver)
+    SKU_META = {"DRAIN-SN2": ("Drainage", 160), "PRESS-DIN-CL3": ("Pressure", 110)}
+
     model = {
         "line": {
             "id": line_def["id"], "name": line_def["name"],
@@ -65,6 +68,8 @@ def main() -> None:
         },
         "skus": [{
             "id": s["sku_id"], "name": s["name"],
+            "family": SKU_META.get(s["sku_id"], ("Other", 0))[0],
+            "diameterMm": SKU_META.get(s["sku_id"], ("Other", 0))[1],
             "demand": round(_q(s, "annual_demand")),
             "rateEffective": _q(s, "effective_rate"),
             "rateMedian": _q(s, "line_rate"),
