@@ -8,7 +8,8 @@ import {
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '../lib/tariffEngine';
 
 // Representative day for Time-of-Use pricing — Oman summer (peak season), factory LV.
-const TOU_DATE = '2025-07-15', TOU_VOLTAGE = '0.415kV', START_HOUR = 6;
+const TOU_DATE = '2025-07-15', TOU_VOLTAGE = '0.415kV';
+const hhmm = (h: number) => `${String(((h % 24) + 24) % 24).padStart(2, '0')}:00`;
 const heat = (v: number, max: number, rgb: string) => ({ background: `rgba(${rgb},${0.06 + 0.5 * (max > 0 ? v / max : 0)})` });
 
 const FAMILY_BG: Record<string, string> = {
@@ -43,8 +44,12 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const econ: Econ = dataset === 'demo' ? DEMO_ECON : model.economics;
 
   const [horizon, setHorizon] = useState(30);
-  const [hoursPerDay, setHoursPerDay] = useState(24);
-  const [machines, setMachines] = useState(line.nMachines || 1);
+  const [hoursPerDay, setHoursPerDay] = useState(16);
+  // Pilot scope: plan Machine 01 only. The other extruders run different dies at
+  // different rates and power, and we haven't calibrated them yet — modelling them
+  // with MC01's numbers would be a guess dressed up as data. One machine, honest.
+  const machines = 1;
+  const [shiftStart, setShiftStart] = useState(22); // hour the daily shift begins (TOU lever)
   const [famH, setFamH] = useState(3);
   const [diaH, setDiaH] = useState(0.5);
   const [scrapPerChg, setScrapPerChg] = useState(10);
@@ -56,7 +61,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const chooseDataset = (ds: 'pilot' | 'demo') => {
     const list = ds === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
-    setDataset(ds); setMachines((ds === 'demo' ? DEMO_LINE.nMachines : model.line.nMachines) || 1);
+    setDataset(ds);
     setOrders(genOrders(list, horizon));
   };
   const editOrder = (id: string, patch: Partial<Order>) => setOrders((os) => os.map((o) => (o.id === id ? { ...o, ...patch } : o)));
@@ -82,25 +87,41 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const hourlyRates = useMemo(() => Array.from({ length: 24 }, (_, h) => effectiveRateOmrPerKwh(`${TOU_DATE}T${String(h).padStart(2, '0')}:00:00`, TOU_VOLTAGE)), []);
   const medRate = useMemo(() => [...hourlyRates].sort((a, b) => a - b)[12], [hourlyRates]);
 
-  // energy + tariff cost for a single run, priced by the clock-hours it occupies
-  const runEnergy = (startH: number, runtimeH: number) => {
-    let kwh = 0, omr = 0, peakH = 0, t = startH, rem = runtimeH;
+  // Price one run by WHEN it actually runs. The machine works a daily shift of
+  // `hoursPerDay` starting at clock hour `start`, so machine-elapsed hours map onto
+  // the repeating shift window — shifting `start` slides every run across the
+  // tariff bands. At 24 h/day the window is the whole clock, so there's nothing to
+  // dodge; below that, choosing the start hour is a real money lever.
+  const priceRun = (elapsedAtStart: number, runtimeH: number, start: number) => {
+    let kwh = 0, omr = 0, peakH = 0, t = elapsedAtStart, rem = runtimeH;
     while (rem > 1e-9) {
-      const step = Math.min(1, rem); const hod = Math.floor(START_HOUR + t) % 24; const r = hourlyRates[hod];
+      const step = Math.min(1, rem);
+      const hod = (start + Math.floor(((t % hoursPerDay) + hoursPerDay) % hoursPerDay)) % 24;
+      const r = hourlyRates[hod];
       kwh += line.machineKw * step; omr += line.machineKw * step * r; if (r > medRate) peakH += step;
       t += step; rem -= step;
     }
     return { kwh, omr, peakFrac: runtimeH ? peakH / runtimeH : 0 };
   };
 
+  // TOU lever: scan every shift-start hour, price the whole plan at each, and find
+  // the cheapest. The manager sees what their current start costs and what the best
+  // start would save — then applies it with one click.
   const tou = useMemo(() => {
-    const sorted = [...hourlyRates].sort((a, b) => a - b);
-    const k = Math.min(Math.max(hoursPerDay, 1), 24);
-    const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / a.length;
-    const offRate = mean(sorted.slice(0, k)), peakRate = mean(sorted.slice(24 - k));
-    const kwh = smart.lanes.reduce((a, l) => a + l.loadH, 0) * line.machineKw;
-    return { kwh: Math.round(kwh), offRate, peakRate, offCost: Math.round(kwh * offRate), peakCost: Math.round(kwh * peakRate), spread: Math.round(kwh * (peakRate - offRate)) };
-  }, [smart, line, hoursPerDay, hourlyRates]);
+    const omrAt = (start: number) => smart.items.reduce((a, it) => a + priceRun(it.startH, it.runtimeH, start).omr, 0);
+    const kwh = smart.items.reduce((a, it) => a + it.runtimeH, 0) * line.machineKw;
+    const starts = Array.from({ length: 24 }, (_, h) => ({ h, omr: omrAt(h) }));
+    const best = starts.reduce((b, s) => (s.omr < b.omr ? s : b), starts[0]);
+    const worst = starts.reduce((b, s) => (s.omr > b.omr ? s : b), starts[0]);
+    const nowOmr = omrAt(shiftStart);
+    return {
+      kwh: Math.round(kwh), nowOmr: Math.round(nowOmr),
+      bestH: best.h, bestOmr: Math.round(best.omr), worstOmr: Math.round(worst.omr),
+      saveIfBest: Math.round(nowOmr - best.omr), spread: Math.round(worst.omr - best.omr),
+      full24: hoursPerDay >= 24,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [smart, line, hoursPerDay, hourlyRates, medRate, shiftStart]);
 
   // Per-run breakdown: each run's expected scrap (this product's own benchmark) + energy priced by when it runs
   const detail = useMemo(() => {
@@ -109,25 +130,25 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       const p = products[it.productId];
       const reject = it.qty * (p?.kgPerUnit ?? 0) * (p?.meanRejection ?? 0);
       const startup = it.setupBeforeH > 0 ? scrapPerChg : 0;
-      const e = runEnergy(it.startH, it.runtimeH);
+      const e = priceRun(it.startH, it.runtimeH, shiftStart);
       return { it, scrap: reject + startup, reject, startup, kwh: e.kwh, omr: e.omr, band: e.peakFrac > 0.5 ? 'peak' : e.peakFrac > 0.05 ? 'mixed' : 'off-peak' };
     });
     return { rows, maxScrap: Math.max(...rows.map((r) => r.scrap), 1), maxOmr: Math.max(...rows.map((r) => r.omr), 1) };
-  }, [smart, products, scrapPerChg, hourlyRates, medRate, line]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [smart, products, scrapPerChg, hourlyRates, medRate, line, hoursPerDay, shiftStart]);
 
   // Biggest levers — what moves the finish date / risk most (so you know what to fix or measure)
   const levers = useMemo(() => {
     const base = smart.makespanDays;
-    const reRun = (m: number, h: number, fh: number, dh: number) =>
-      scheduleOrders(orders, products, horizon, m, line, econ, h, fh, dh, scrapPerChg, 'grouped').makespanDays;
+    const reRun = (h: number, fh: number, dh: number) =>
+      scheduleOrders(orders, products, horizon, machines, line, econ, h, fh, dh, scrapPerChg, strategy).makespanDays;
     const out = [
-      { t: 'Add a machine', save: base - reRun(machines + 1, hoursPerDay, famH, diaH) },
-      { t: 'Run +4 hours/day', save: base - reRun(machines, Math.min(24, hoursPerDay + 4), famH, diaH) },
-      { t: 'Halve changeover time', save: base - reRun(machines, hoursPerDay, famH / 2, diaH / 2) },
+      { t: 'Run +4 hours/day', save: base - reRun(Math.min(24, hoursPerDay + 4), famH, diaH) },
+      { t: 'Halve changeover time', save: base - reRun(hoursPerDay, famH / 2, diaH / 2) },
       { t: 'Stabilise run rates (less variability)', save: Math.max(0, (mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0) - (monteCarloOrders(smart, hoursPerDay, RATE_CV / 2, 600).samplesDays[Math.floor(0.9 * 599)] || 0)) },
     ].map((l) => ({ ...l, save: Math.max(0, Math.round(l.save * 10) / 10) })).sort((a, b) => b.save - a.save);
     return out;
-  }, [smart, orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, mc]);
+  }, [smart, orders, products, horizon, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy, mc]);
   const leverMax = Math.max(...levers.map((l) => l.save), 0.1);
 
   const field = 'rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-white';
@@ -144,8 +165,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           </button>
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Analyse</p>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Order Planner</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Your orders in, on-time confidence out. Add a rush order and watch it.</p>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Order Planner <span className="align-middle text-xs font-medium text-slate-400">· Machine 01</span></h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Your orders in, on-time confidence out. Flag the must-ship ones, dodge peak tariff, watch a rush order land.</p>
           </div>
         </div>
         <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
@@ -169,8 +190,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       <div className="card-surface flex flex-wrap items-end gap-x-6 gap-y-3 p-4">
         <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">You decide</span>
         <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Planning window</span><div className="mt-1 flex items-center gap-1"><input type="number" min={1} value={horizon} onChange={(e) => setHorizon(Math.max(1, Math.round(Number(e.target.value) || 1)))} className={`w-20 ${field}`} /><span className="text-xs text-slate-400">days</span></div></label>
-        <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Machines running</span><input type="number" min={1} max={6} value={machines} onChange={(e) => setMachines(Math.min(6, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
-        <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Hours / day</span><input type="number" min={1} max={24} value={hoursPerDay} onChange={(e) => setHoursPerDay(Math.min(24, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
+        <div className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Machine</span><div className="mt-1 flex h-[34px] items-center rounded-lg border border-slate-200/70 bg-slate-50 px-3 text-sm text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400" title="Pilot scope: MC01 is the only extruder we've calibrated. Others run different dies at different rates and power.">01 only</div></div>
+        <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Hours / day (shift length)</span><input type="number" min={1} max={24} value={hoursPerDay} onChange={(e) => setHoursPerDay(Math.min(24, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Balance</span>
           <div className="mt-1 inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
@@ -214,13 +235,16 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
-              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2 text-right">Qty</th><th className="px-4 py-2 text-right">Due (day)</th><th className="px-4 py-2 text-right">Finishes</th><th className="px-4 py-2">On time?</th><th className="px-4 py-2 text-right">Confidence</th><th className="px-4 py-2" /></tr>
+              <tr><th className="px-4 py-2" title="Must-ship: forces this order to the front of the line">★</th><th className="px-4 py-2">Product</th><th className="px-4 py-2 text-right">Qty</th><th className="px-4 py-2 text-right">Due (day)</th><th className="px-4 py-2 text-right">Finishes</th><th className="px-4 py-2">On time?</th><th className="px-4 py-2 text-right">Confidence</th><th className="px-4 py-2" /></tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
               {orders.filter((o) => match(products[o.productId]?.name ?? '')).map((o) => {
                 const it = itemByOrder[o.id]; const prob = mc.onTimeProb[o.id] ?? 1; const p = products[o.productId];
                 return (
-                  <tr key={o.id}>
+                  <tr key={o.id} className={o.priority ? 'bg-amber-50/60 dark:bg-amber-500/5' : ''}>
+                    <td className="px-4 py-2 text-center">
+                      <button type="button" onClick={() => editOrder(o.id, { priority: !o.priority })} aria-label={o.priority ? 'Remove priority' : 'Mark must-ship'} aria-pressed={!!o.priority} title={o.priority ? 'Must-ship — runs first' : 'Mark as must-ship'} className={`text-base leading-none transition ${o.priority ? 'text-amber-500' : 'text-slate-300 hover:text-amber-400 dark:text-slate-600'}`}>{o.priority ? '★' : '☆'}</button>
+                    </td>
                     <td className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <span className={`h-2 w-2 shrink-0 rounded-sm ${FAMILY_BG[p?.family] ?? 'bg-slate-400'}`} />
@@ -254,13 +278,24 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           </p>
         </div>
         <div className="card-surface p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy — time of use</h3>
-          <p className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(tou.kwh)} kWh</p>
-          <div className="mt-2 flex items-center gap-4 text-sm">
-            <span className="text-emerald-600 dark:text-emerald-400">Off-peak <span className="font-mono font-semibold">{num(tou.offCost)} OMR</span></span>
-            <span className="text-rose-600 dark:text-rose-400">Peak <span className="font-mono font-semibold">{num(tou.peakCost)} OMR</span></span>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy — run off-peak</h3>
+            <span className="text-[11px] text-slate-400">{num(tou.kwh)} kWh total</span>
           </div>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Timing runs into off-peak is worth up to <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{num(tou.spread)} OMR</span>. Priced on the live <span className="font-medium">CRT {TARIFF_SCHEDULE_VERSION}</span> tariff (0.415 kV, summer): off-peak <span className="font-mono">{tou.offRate.toFixed(3)}</span> vs peak <span className="font-mono">{tou.peakRate.toFixed(3)}</span> OMR/kWh.</p>
+          <p className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(tou.nowOmr)} OMR <span className="text-base font-normal text-slate-500">at this plan's energy</span></p>
+          <div className="mt-3 flex flex-wrap items-end gap-x-5 gap-y-2">
+            <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Shift starts</span>
+              <div className="mt-1 flex items-center gap-1"><input type="number" min={0} max={23} value={shiftStart} onChange={(e) => setShiftStart(((Math.round(Number(e.target.value) || 0)) % 24 + 24) % 24)} className={`w-16 ${field}`} /><span className="text-xs text-slate-400">:00</span></div>
+            </label>
+            {tou.full24 ? (
+              <span className="pb-1 text-xs text-slate-400">Running 24 h/day — the whole clock is used, so there's no off-peak window to shift into. Drop hours/day to free a choice.</span>
+            ) : tou.saveIfBest > 0 ? (
+              <button type="button" onClick={() => setShiftStart(tou.bestH)} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600">Start at {hhmm(tou.bestH)} → save {num(tou.saveIfBest)} OMR</button>
+            ) : (
+              <span className="pb-1 text-xs text-emerald-600 dark:text-emerald-400">Already on the cheapest start ({hhmm(tou.bestH)}).</span>
+            )}
+          </div>
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Best vs worst start hour is worth <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{num(tou.spread)} OMR</span> on this plan. Priced on the live <span className="font-medium">CRT {TARIFF_SCHEDULE_VERSION}</span> tariff (0.415 kV, summer) by the clock-hours each run lands on.</p>
         </div>
       </div>
 
@@ -284,8 +319,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">When will it finish? — {mc.samplesDays.length.toLocaleString()} simulated months</h3>
           <div className="flex gap-3 text-[11px]">
-            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" /> Smart (family-grouped)</span>
-            <span className="inline-flex items-center gap-1 text-slate-500"><span className="h-2.5 w-2.5 rounded-sm bg-slate-400" /> Current way</span>
+            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" /> {STRATEGY_LABEL[strategy]}</span>
+            <span className="inline-flex items-center gap-1 text-slate-500"><span className="h-2.5 w-2.5 rounded-sm bg-slate-400" /> Meet due dates (baseline)</span>
           </div>
         </div>
         <div className="mt-3 h-52">
@@ -370,7 +405,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       </div>
 
-      <p className="text-xs text-slate-400">Each product uses its own measured reject rate; startup scrap ≈ {scrapPerChg} kg/changeover and changeover times are estimates (see Model parameters). Energy priced on the CRT tariff by the hours each run occupies (start {START_HOUR}:00). Computed live; exact optimiser runs server-side.</p>
+      <p className="text-xs text-slate-400">Each product uses its own measured reject rate; startup scrap ≈ {scrapPerChg} kg/changeover and changeover times are estimates (see Model parameters). Energy priced on the CRT tariff by the clock-hours each run occupies (shift starts {hhmm(shiftStart)}). Plans Machine 01 only — other extruders aren't calibrated yet. Computed live; exact optimiser runs server-side.</p>
     </section>
   );
 };

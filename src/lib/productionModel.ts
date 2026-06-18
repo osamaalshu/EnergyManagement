@@ -333,7 +333,7 @@ export function buildSchedule(
 //  ORDER BOOK — the real-world input: orders with quantities and due dates
 // ════════════════════════════════════════════════════════════════════
 
-export interface Order { id: string; productId: string; qty: number; dueDay: number; }
+export interface Order { id: string; productId: string; qty: number; dueDay: number; priority?: boolean; }
 export interface OrderItem {
   orderId: string; machine: number; machineName: string; seq: number;
   productId: string; name: string; family: string; diameterMm: number;
@@ -391,7 +391,11 @@ export function scheduleOrders(
   }
 
   const items: OrderItem[] = [];
-  const lanes = machineSeqs.map((seq, mi) => {
+  const lanes = machineSeqs.map((rawSeq, mi) => {
+    // Priority orders jump to the front of the line (earliest-due first); the rest
+    // keep the strategy's ordering. Lets a manager protect must-ship corporate
+    // commitments even if it costs an extra changeover.
+    const seq = [...rawSeq.filter((o) => o.priority).sort((a, b) => a.dueDay - b.dueDay), ...rawSeq.filter((o) => !o.priority)];
     let t = 0; const laneItems: OrderItem[] = [];
     seq.forEach((o, idx) => {
       const p = products[o.productId]; const su = setup(idx === 0 ? null : seq[idx - 1], o); const rt = runtime(o);
