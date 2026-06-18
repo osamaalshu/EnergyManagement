@@ -17,6 +17,46 @@
     "monte_carlo_runs": 5000,
     "random_seed": 42
   },
+  "model": {
+    "line": {
+      "id": "EXT-01",
+      "name": "Extrusion Line 1",
+      "machineKw": 75.0,
+      "changeoverH": 2.0,
+      "changeoverKw": 75.0,
+      "operatingHoursPerYear": 6000,
+      "nMachines": 2,
+      "machineNames": [
+        "Machine 01",
+        "Machine 03"
+      ]
+    },
+    "economics": {
+      "elecOmrPerKwh": 0.025,
+      "materialOmrPerKg": 0.32,
+      "holdingRateAnnual": 0.2
+    },
+    "skus": [
+      {
+        "id": "DRAIN-SN2",
+        "name": "UPVC Drainage Pipe BS EN SN2 Blue 6x6m",
+        "demand": 12151,
+        "rateEffective": 9.3,
+        "rateMedian": 16.9,
+        "kgPerUnit": 14.37,
+        "meanRejection": 0.0197
+      },
+      {
+        "id": "PRESS-DIN-CL3",
+        "name": "UPVC Pressure Pipe DIN Class 3 Dark Grey 110mm x6m",
+        "demand": 45695,
+        "rateEffective": 20.0,
+        "rateMedian": 27.7,
+        "kgPerUnit": 9.13,
+        "meanRejection": 0.024300000000000002
+      }
+    ]
+  },
   "skus": [
     {
       "sku_id": "DRAIN-SN2",
@@ -40,6 +80,12 @@
           "unit": "units/h",
           "kind": "calculated",
           "note": "median of valid runs"
+        },
+        "effective_rate": {
+          "value": 9.3,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "DES-calibrated planning rate"
         },
         "mean_rejection_pct": {
           "value": 1.97,
@@ -205,12 +251,6 @@
         }
       },
       "delta_baseline_minus_optimal": {
-        "runs_per_year": {
-          "value": -8.5,
-          "unit": "runs",
-          "kind": "calculated",
-          "note": "baseline - optimal (improvement if > 0)"
-        },
         "total_cost_omr": {
           "value": 8.2,
           "unit": "OMR",
@@ -223,10 +263,16 @@
           "kind": "calculated",
           "note": "baseline - optimal (improvement if > 0)"
         },
-        "energy_cost_omr": {
-          "value": -32.0,
-          "unit": "OMR",
-          "kind": "inferred",
+        "machine_on_hours": {
+          "value": -17.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "runs_per_year": {
+          "value": -8.5,
+          "unit": "runs",
+          "kind": "calculated",
           "note": "baseline - optimal (improvement if > 0)"
         },
         "changeover_hours": {
@@ -241,10 +287,10 @@
           "kind": "inferred",
           "note": "baseline - optimal (improvement if > 0)"
         },
-        "machine_on_hours": {
-          "value": -17.1,
-          "unit": "h",
-          "kind": "calculated",
+        "energy_cost_omr": {
+          "value": -32.0,
+          "unit": "OMR",
+          "kind": "inferred",
           "note": "baseline - optimal (improvement if > 0)"
         }
       },
@@ -276,6 +322,12 @@
           "unit": "units/h",
           "kind": "calculated",
           "note": "median of valid runs"
+        },
+        "effective_rate": {
+          "value": 20.0,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "DES-calibrated planning rate"
         },
         "mean_rejection_pct": {
           "value": 2.43,
@@ -441,12 +493,6 @@
         }
       },
       "delta_baseline_minus_optimal": {
-        "runs_per_year": {
-          "value": 10.5,
-          "unit": "runs",
-          "kind": "calculated",
-          "note": "baseline - optimal (improvement if > 0)"
-        },
         "total_cost_omr": {
           "value": 7.5,
           "unit": "OMR",
@@ -459,10 +505,16 @@
           "kind": "calculated",
           "note": "baseline - optimal (improvement if > 0)"
         },
-        "energy_cost_omr": {
-          "value": 39.4,
-          "unit": "OMR",
-          "kind": "inferred",
+        "machine_on_hours": {
+          "value": 21.0,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "runs_per_year": {
+          "value": 10.5,
+          "unit": "runs",
+          "kind": "calculated",
           "note": "baseline - optimal (improvement if > 0)"
         },
         "changeover_hours": {
@@ -477,10 +529,10 @@
           "kind": "inferred",
           "note": "baseline - optimal (improvement if > 0)"
         },
-        "machine_on_hours": {
-          "value": 21.0,
-          "unit": "h",
-          "kind": "calculated",
+        "energy_cost_omr": {
+          "value": 39.4,
+          "unit": "OMR",
+          "kind": "inferred",
           "note": "baseline - optimal (improvement if > 0)"
         }
       },

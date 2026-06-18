@@ -92,9 +92,19 @@ export interface Configuration {
   notes: string[];
 }
 
+export interface ModelBlock {
+  line: {
+    id: string; name: string; machineKw: number; changeoverH: number; changeoverKw: number;
+    operatingHoursPerYear: number; nMachines: number; machineNames: string[] | null;
+  };
+  economics: { elecOmrPerKwh: number; materialOmrPerKg: number; holdingRateAnnual: number };
+  skus: { id: string; name: string; demand: number; rateEffective: number; kgPerUnit: number; meanRejection: number }[];
+}
+
 export interface ProductionData {
   meta: ProductionMeta;
   assumptions: Record<string, number>;
+  model: ModelBlock;
   skus: SkuScenario[];
   line: ProductionLine;
   configuration: Configuration | null;
