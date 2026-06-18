@@ -1,7 +1,7 @@
 {
   "meta": {
     "facility": "Nizwa Plastic Factory",
-    "machine": "MC01",
+    "machine": "Extrusion Line 1 (MC01+MC03)",
     "source": "production_clean.parquet",
     "periodStart": "2025-01-01",
     "periodEnd": "2026-05-09",
@@ -9,7 +9,7 @@
     "annualiseFactor": 0.7404,
     "products": 94,
     "overallRejectPct": 2.87,
-    "note": "Per-product reject, demand (annualised 365/spanDays), unit weight from real MC01 shift records. Reject is mass-basis. rateEffective not yet characterised per product. samples = shift-records behind the row (low = noisy).",
+    "note": "Per-product reject, demand (annualised 365/spanDays), unit weight from real line-level Extrusion Line 1 shift records (Machines 01 & 03). Reject is mass-basis. rateEffective not yet characterised per product. samples = shift-records behind the row (low = noisy).",
     "changeoversObservedTotal": 276,
     "changeoversObservedFamily": 113,
     "changeoversObservedDiameter": 163,
