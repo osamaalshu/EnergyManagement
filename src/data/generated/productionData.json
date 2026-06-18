@@ -1,0 +1,1725 @@
+{
+  "meta": {
+    "facility": "Nizwa Plastic Factory",
+    "site": "Al Hilal Plastic Industries",
+    "lineId": "EXT-01",
+    "generatedAt": "2026-06-18",
+    "mode": "demo",
+    "proxyStatus": "DEVELOPMENT_PROXY",
+    "note": "Pilot preview on REAL production records with ASSUMED changeover (2 h) / power (75 kW) / prices. Energy is a proxy; savings rest on those assumptions until measured. Not a control system."
+  },
+  "assumptions": {
+    "electricity_omr_per_kwh": 0.025,
+    "material_price_omr_per_kg": 0.32,
+    "holding_rate_annual": 0.2,
+    "labor_omr_per_hr": 0.0,
+    "startup_scrap_kg_per_run": 0.0,
+    "monte_carlo_runs": 5000,
+    "random_seed": 42
+  },
+  "model": {
+    "line": {
+      "id": "EXT-01",
+      "name": "Extrusion Line 1",
+      "machineKw": 75.0,
+      "changeoverH": 2.0,
+      "changeoverKw": 75.0,
+      "operatingHoursPerYear": 6000,
+      "nMachines": 2,
+      "machineNames": [
+        "Machine 01",
+        "Machine 03"
+      ]
+    },
+    "economics": {
+      "elecOmrPerKwh": 0.025,
+      "materialOmrPerKg": 0.32,
+      "holdingRateAnnual": 0.2
+    },
+    "skus": [
+      {
+        "id": "DRAIN-SN2",
+        "name": "UPVC Drainage Pipe BS EN SN2 Blue 6x6m",
+        "family": "Drainage",
+        "diameterMm": 160,
+        "demand": 12151,
+        "rateEffective": 9.3,
+        "rateMedian": 16.9,
+        "kgPerUnit": 14.37,
+        "meanRejection": 0.0197
+      },
+      {
+        "id": "PRESS-DIN-CL3",
+        "name": "UPVC Pressure Pipe DIN Class 3 Dark Grey 110mm x6m",
+        "family": "Pressure",
+        "diameterMm": 110,
+        "demand": 45695,
+        "rateEffective": 20.0,
+        "rateMedian": 27.7,
+        "kgPerUnit": 9.13,
+        "meanRejection": 0.024300000000000002
+      }
+    ]
+  },
+  "skus": [
+    {
+      "sku_id": "DRAIN-SN2",
+      "name": "UPVC Drainage Pipe BS EN SN2 Blue 6x6m",
+      "line_id": "EXT-01",
+      "measured": {
+        "annual_demand": {
+          "value": 12151,
+          "unit": "units/yr",
+          "kind": "calculated",
+          "note": "annualised from observed span"
+        },
+        "kg_per_unit": {
+          "value": 14.37,
+          "unit": "kg/unit",
+          "kind": "calculated",
+          "note": "median, tight"
+        },
+        "line_rate": {
+          "value": 16.9,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "median of valid runs"
+        },
+        "effective_rate": {
+          "value": 9.3,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "DES-calibrated planning rate"
+        },
+        "mean_rejection_pct": {
+          "value": 1.97,
+          "unit": "%",
+          "kind": "measured",
+          "note": "from records"
+        },
+        "observed_runs_per_year": {
+          "value": 28.3,
+          "unit": "runs/yr",
+          "kind": "measured",
+          "note": ""
+        },
+        "corrupt_hours_rows": 3,
+        "n_runs": 64
+      },
+      "baseline": {
+        "batch_size": {
+          "value": 429.37499999999994,
+          "unit": "units",
+          "kind": "calculated",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 28.3,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 717.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 56.6,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 773.7,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 58030.0,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 3435.1,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 189.0,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 1450.7,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 1099.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 173.8,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 2723.8,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "optimal": {
+        "batch_size": {
+          "value": 330.067080877762,
+          "unit": "units",
+          "kind": "inferred",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 36.8,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 717.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 73.6,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 790.8,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 59307.2,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 3435.1,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 145.3,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 1482.7,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 1099.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 133.6,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 2715.6,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "delta_baseline_minus_optimal": {
+        "total_cost_omr": {
+          "value": 8.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "scrap_kg": {
+          "value": 0.0,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "machine_on_hours": {
+          "value": -17.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "runs_per_year": {
+          "value": -8.5,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "changeover_hours": {
+          "value": -17.0,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_kwh": {
+          "value": -1277.2,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_cost_omr": {
+          "value": -32.0,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        }
+      },
+      "scrap_kg_bounds_p10_p50_p90": [
+        2262,
+        3307,
+        4664
+      ]
+    },
+    {
+      "sku_id": "PRESS-DIN-CL3",
+      "name": "UPVC Pressure Pipe DIN Class 3 Dark Grey 110mm x6m",
+      "line_id": "EXT-01",
+      "measured": {
+        "annual_demand": {
+          "value": 45695,
+          "unit": "units/yr",
+          "kind": "calculated",
+          "note": "annualised from observed span"
+        },
+        "kg_per_unit": {
+          "value": 9.13,
+          "unit": "kg/unit",
+          "kind": "calculated",
+          "note": "median, tight"
+        },
+        "line_rate": {
+          "value": 27.7,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "median of valid runs"
+        },
+        "effective_rate": {
+          "value": 20.0,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "DES-calibrated planning rate"
+        },
+        "mean_rejection_pct": {
+          "value": 2.43,
+          "unit": "%",
+          "kind": "measured",
+          "note": "from records"
+        },
+        "observed_runs_per_year": {
+          "value": 62.0,
+          "unit": "runs/yr",
+          "kind": "measured",
+          "note": ""
+        },
+        "corrupt_hours_rows": 9,
+        "n_runs": 63
+      },
+      "baseline": {
+        "batch_size": {
+          "value": 736.7301587301587,
+          "unit": "units",
+          "kind": "calculated",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 62.0,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 1647.0,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 124.0,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 1771.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 132831.4,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 10144.5,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 267.2,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 3320.8,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 3246.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 156.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 6723.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "optimal": {
+        "batch_size": {
+          "value": 886.6914255200121,
+          "unit": "units",
+          "kind": "inferred",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 51.5,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 1647.0,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 103.1,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 1750.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 131257.9,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 10144.5,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 321.6,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 3281.4,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 3246.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 188.0,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 6715.7,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "delta_baseline_minus_optimal": {
+        "total_cost_omr": {
+          "value": 7.5,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "scrap_kg": {
+          "value": 0.0,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "machine_on_hours": {
+          "value": 21.0,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "runs_per_year": {
+          "value": 10.5,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "changeover_hours": {
+          "value": 20.9,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_kwh": {
+          "value": 1573.5,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_cost_omr": {
+          "value": 39.4,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        }
+      },
+      "scrap_kg_bounds_p10_p50_p90": [
+        7388,
+        9948,
+        13079
+      ]
+    }
+  ],
+  "line": {
+    "baseline": {
+      "name": "baseline",
+      "line_id": "EXT-01",
+      "feasible": true,
+      "runs_by_sku": {
+        "DRAIN-SN2": 28,
+        "PRESS-DIN-CL3": 62
+      },
+      "batch_by_sku": {
+        "DRAIN-SN2": 434.0,
+        "PRESS-DIN-CL3": 737.0
+      },
+      "production_hours": 2364.2,
+      "changeover_hours": 180.0,
+      "total_hours": 2544.2,
+      "capacity_hours": 6000,
+      "energy_kwh": 190813,
+      "setup_cost_omr": 338,
+      "holding_cost_omr": 332,
+      "fixed_cost_omr": 8778,
+      "total_cost_omr": 9448,
+      "note": ""
+    },
+    "optimal": {
+      "name": "optimal",
+      "line_id": "EXT-01",
+      "feasible": true,
+      "runs_by_sku": {
+        "DRAIN-SN2": 36,
+        "PRESS-DIN-CL3": 51
+      },
+      "batch_by_sku": {
+        "DRAIN-SN2": 337.5,
+        "PRESS-DIN-CL3": 896.0
+      },
+      "production_hours": 2364.2,
+      "changeover_hours": 174.0,
+      "total_hours": 2538.2,
+      "capacity_hours": 6000,
+      "energy_kwh": 190363,
+      "setup_cost_omr": 326,
+      "holding_cost_omr": 327,
+      "fixed_cost_omr": 8778,
+      "total_cost_omr": 9431,
+      "note": "CP-SAT OPTIMAL; capacity slack (2538/6000 h). Each campaign = 1 setup (upper bound); sequence-dependent setups need Phase-0 matrix."
+    },
+    "saving_total_omr": 17,
+    "saving_decision_omr": 17,
+    "des_validation": {
+      "n_campaigns": 87,
+      "makespan_h_p10_p50_p90": [
+        3072.2,
+        3625.6,
+        4588.9
+      ],
+      "scrap_kg_p10_p50_p90": [
+        10672.2,
+        13020.8,
+        16637.4
+      ],
+      "analytical_total_hours": 2538.2,
+      "median_utilization": 0.952,
+      "mean_energy_kwh": 280175,
+      "reps": 400,
+      "dependence": "block-bootstrap of whole runs (rate+rejection drawn together)"
+    }
+  },
+  "configuration": {
+    "n_machines": 2,
+    "runs_by_sku": {
+      "DRAIN-SN2": 36,
+      "PRESS-DIN-CL3": 51
+    },
+    "batch_by_sku": {
+      "DRAIN-SN2": 337.5,
+      "PRESS-DIN-CL3": 896.0
+    },
+    "production_hours_median": 2364.2,
+    "production_hours_effective": 3586.6,
+    "makespan_h": 2281.6,
+    "total_changeover_h": 0.0,
+    "costs_omr": {
+      "holding": 327,
+      "setup": 326,
+      "fixed": 8778,
+      "total": 9431
+    },
+    "assignment": {
+      "DRAIN-SN2": 0,
+      "PRESS-DIN-CL3": 1
+    },
+    "per_machine": {
+      "0": {
+        "name": "Machine 01",
+        "sequence": [
+          "DRAIN-SN2"
+        ],
+        "load_h": 1305.0,
+        "setup_h": 0.0
+      },
+      "1": {
+        "name": "Machine 03",
+        "sequence": [
+          "PRESS-DIN-CL3"
+        ],
+        "load_h": 2281.6,
+        "setup_h": 0.0
+      }
+    },
+    "feasible": true,
+    "notes": [
+      "CP-SAT OPTIMAL; capacity slack (2538/6000 h). Each campaign = 1 setup (upper bound); sequence-dependent setups need Phase-0 matrix.",
+      "CP-SAT OPTIMAL; 2 machines, sequence-dependent setups.",
+      "hours use EFFECTIVE rate (median would understate by ~52%)",
+      "two-stage decomposition: lot-sizing then SKU-block sequencing (no sub-horizon interleaving yet)"
+    ]
+  },
+  "plant": {
+    "real": {
+      "machines": 2,
+      "makespan_h": 325.0,
+      "hours_by_state": {
+        "run": 616.0,
+        "setup": 5.0,
+        "idle": 59.0,
+        "down": 24.0
+      },
+      "downtime_h": 24.0,
+      "availability": 0.955,
+      "utilization_run": 0.875,
+      "energy_kwh": 47121,
+      "energy_by_state_kwh": {
+        "run": 46200,
+        "setup": 375,
+        "idle": 354,
+        "down": 192
+      },
+      "units": 15100,
+      "kwh_per_unit": 3.121
+    },
+    "ideal": {
+      "machines": 2,
+      "makespan_h": 311.0,
+      "hours_by_state": {
+        "run": 616.0,
+        "setup": 5.0,
+        "idle": 53.0,
+        "down": 0.0
+      },
+      "downtime_h": 0.0,
+      "availability": 0.992,
+      "utilization_run": 0.914,
+      "energy_kwh": 46893,
+      "energy_by_state_kwh": {
+        "run": 46200,
+        "setup": 375,
+        "idle": 318,
+        "down": 0
+      },
+      "units": 15100,
+      "kwh_per_unit": 3.105
+    },
+    "trace": [
+      {
+        "hour": 0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 0
+      },
+      {
+        "hour": 2.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 52
+      },
+      {
+        "hour": 5.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 135
+      },
+      {
+        "hour": 7.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 182
+      },
+      {
+        "hour": 10.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 270
+      },
+      {
+        "hour": 12.0,
+        "machine": "M2",
+        "state": "down",
+        "kw": 8.0,
+        "units": 260
+      },
+      {
+        "hour": 15.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 405
+      },
+      {
+        "hour": 17.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 364
+      },
+      {
+        "hour": 20.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 540
+      },
+      {
+        "hour": 22.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 494
+      },
+      {
+        "hour": 25.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 675
+      },
+      {
+        "hour": 27.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 624
+      },
+      {
+        "hour": 30.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 810
+      },
+      {
+        "hour": 32.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 754
+      },
+      {
+        "hour": 35.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 945
+      },
+      {
+        "hour": 37.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 884
+      },
+      {
+        "hour": 40.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1080
+      },
+      {
+        "hour": 42.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1014
+      },
+      {
+        "hour": 45.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1215
+      },
+      {
+        "hour": 47.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1144
+      },
+      {
+        "hour": 50.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1350
+      },
+      {
+        "hour": 52.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1274
+      },
+      {
+        "hour": 55.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1485
+      },
+      {
+        "hour": 57.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1404
+      },
+      {
+        "hour": 60.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1620
+      },
+      {
+        "hour": 62.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1534
+      },
+      {
+        "hour": 65.0,
+        "machine": "M1",
+        "state": "down",
+        "kw": 8.0,
+        "units": 1728
+      },
+      {
+        "hour": 67.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1664
+      },
+      {
+        "hour": 70.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1809
+      },
+      {
+        "hour": 72.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1794
+      },
+      {
+        "hour": 75.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1944
+      },
+      {
+        "hour": 77.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1924
+      },
+      {
+        "hour": 80.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2079
+      },
+      {
+        "hour": 82.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2054
+      },
+      {
+        "hour": 85.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2214
+      },
+      {
+        "hour": 87.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2184
+      },
+      {
+        "hour": 90.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2349
+      },
+      {
+        "hour": 92.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2314
+      },
+      {
+        "hour": 95.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2484
+      },
+      {
+        "hour": 97.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2444
+      },
+      {
+        "hour": 100.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2619
+      },
+      {
+        "hour": 102.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2540
+      },
+      {
+        "hour": 105.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2754
+      },
+      {
+        "hour": 107.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2640
+      },
+      {
+        "hour": 110.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2844
+      },
+      {
+        "hour": 112.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2740
+      },
+      {
+        "hour": 115.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2954
+      },
+      {
+        "hour": 117.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2840
+      },
+      {
+        "hour": 120.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3064
+      },
+      {
+        "hour": 122.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2940
+      },
+      {
+        "hour": 125.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3174
+      },
+      {
+        "hour": 127.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3040
+      },
+      {
+        "hour": 130.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3284
+      },
+      {
+        "hour": 132.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3140
+      },
+      {
+        "hour": 135.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3394
+      },
+      {
+        "hour": 137.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3240
+      },
+      {
+        "hour": 140.0,
+        "machine": "M1",
+        "state": "down",
+        "kw": 8.0,
+        "units": 3504
+      },
+      {
+        "hour": 142.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3340
+      },
+      {
+        "hour": 145.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3548
+      },
+      {
+        "hour": 147.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3440
+      },
+      {
+        "hour": 150.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3658
+      },
+      {
+        "hour": 152.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3540
+      },
+      {
+        "hour": 155.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3702
+      },
+      {
+        "hour": 157.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3640
+      },
+      {
+        "hour": 160.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3812
+      },
+      {
+        "hour": 162.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3740
+      },
+      {
+        "hour": 165.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3922
+      },
+      {
+        "hour": 167.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3840
+      },
+      {
+        "hour": 170.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4032
+      },
+      {
+        "hour": 172.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3940
+      },
+      {
+        "hour": 175.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4142
+      },
+      {
+        "hour": 177.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4040
+      },
+      {
+        "hour": 180.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4252
+      },
+      {
+        "hour": 182.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4140
+      },
+      {
+        "hour": 185.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4362
+      },
+      {
+        "hour": 187.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4240
+      },
+      {
+        "hour": 190.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4472
+      },
+      {
+        "hour": 192.0,
+        "machine": "M2",
+        "state": "down",
+        "kw": 8.0,
+        "units": 4340
+      },
+      {
+        "hour": 195.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4582
+      },
+      {
+        "hour": 197.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4380
+      },
+      {
+        "hour": 200.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4692
+      },
+      {
+        "hour": 202.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4480
+      },
+      {
+        "hour": 205.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4802
+      },
+      {
+        "hour": 207.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4536
+      },
+      {
+        "hour": 210.0,
+        "machine": "M1",
+        "state": "down",
+        "kw": 8.0,
+        "units": 4890
+      },
+      {
+        "hour": 212.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4716
+      },
+      {
+        "hour": 215.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4956
+      },
+      {
+        "hour": 217.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4896
+      },
+      {
+        "hour": 220.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5066
+      },
+      {
+        "hour": 222.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5076
+      },
+      {
+        "hour": 225.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5145
+      },
+      {
+        "hour": 227.0,
+        "machine": "M2",
+        "state": "down",
+        "kw": 8.0,
+        "units": 5256
+      },
+      {
+        "hour": 230.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5220
+      },
+      {
+        "hour": 232.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5328
+      },
+      {
+        "hour": 235.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5295
+      },
+      {
+        "hour": 237.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5508
+      },
+      {
+        "hour": 240.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5370
+      },
+      {
+        "hour": 242.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5688
+      },
+      {
+        "hour": 245.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5445
+      },
+      {
+        "hour": 247.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5868
+      },
+      {
+        "hour": 250.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5520
+      },
+      {
+        "hour": 252.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6048
+      },
+      {
+        "hour": 255.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5595
+      },
+      {
+        "hour": 257.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6228
+      },
+      {
+        "hour": 260.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5625
+      },
+      {
+        "hour": 262.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6408
+      },
+      {
+        "hour": 265.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5700
+      },
+      {
+        "hour": 267.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6588
+      },
+      {
+        "hour": 270.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5775
+      },
+      {
+        "hour": 272.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6768
+      },
+      {
+        "hour": 275.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5850
+      },
+      {
+        "hour": 277.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6948
+      },
+      {
+        "hour": 280.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5925
+      },
+      {
+        "hour": 282.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7128
+      },
+      {
+        "hour": 285.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6000
+      },
+      {
+        "hour": 287.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7308
+      },
+      {
+        "hour": 290.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6075
+      },
+      {
+        "hour": 292.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7488
+      },
+      {
+        "hour": 295.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6150
+      },
+      {
+        "hour": 297.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7668
+      },
+      {
+        "hour": 300.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6225
+      },
+      {
+        "hour": 302.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7848
+      },
+      {
+        "hour": 305.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6300
+      },
+      {
+        "hour": 307.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 8028
+      },
+      {
+        "hour": 310.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6375
+      },
+      {
+        "hour": 312.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 8208
+      },
+      {
+        "hour": 315.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6450
+      },
+      {
+        "hour": 317.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 8388
+      },
+      {
+        "hour": 320.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6525
+      },
+      {
+        "hour": 322.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 325.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 327.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 330.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 332.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 335.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 337.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 340.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 342.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 345.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 347.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 350.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      }
+    ]
+  },
+  "savings": {
+    "totalOmr": 17,
+    "decisionOmr": 17
+  },
+  "desValidation": {
+    "n_campaigns": 87,
+    "makespan_h_p10_p50_p90": [
+      3072.2,
+      3625.6,
+      4588.9
+    ],
+    "scrap_kg_p10_p50_p90": [
+      10672.2,
+      13020.8,
+      16637.4
+    ],
+    "analytical_total_hours": 2538.2,
+    "median_utilization": 0.952,
+    "mean_energy_kwh": 280175,
+    "reps": 400,
+    "dependence": "block-bootstrap of whole runs (rate+rejection drawn together)"
+  }
+}
