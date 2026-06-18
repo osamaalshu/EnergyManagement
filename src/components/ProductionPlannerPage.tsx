@@ -15,6 +15,8 @@ const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Other: 'bg-slate-400',
 };
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
+type Strategy = 'grouped' | 'balanced' | 'due';
+const STRATEGY_LABEL: Record<Strategy, string> = { grouped: 'Fewest changeovers', balanced: 'Balanced', due: 'Meet due dates' };
 let _uid = 0;
 const genOrders = (skus: SkuParam[], horizon: number): Order[] =>
   skus.map((s, i) => ({ id: `o${++_uid}`, productId: s.id, qty: Math.round((s.demand * horizon) / 365), dueDay: Math.max(2, Math.round(((i + 1) / skus.length) * horizon)) }));
@@ -46,6 +48,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [famH, setFamH] = useState(3);
   const [diaH, setDiaH] = useState(0.5);
   const [scrapPerChg, setScrapPerChg] = useState(10);
+  const [strategy, setStrategy] = useState<Strategy>('balanced');
   const [showParams, setShowParams] = useState(false);
   const [q, setQ] = useState('');
   const match = (name: string) => !q.trim() || name.toLowerCase().includes(q.toLowerCase());
@@ -60,8 +63,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const addOrder = () => setOrders((os) => [...os, { id: `o${++_uid}`, productId: skus[0].id, qty: 500, dueDay: horizon }]);
   const rmOrder = (id: string) => setOrders((os) => os.filter((o) => o.id !== id));
 
-  const smart = useMemo(() => scheduleOrders(orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, 'grouped'),
-    [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg]);
+  const smart = useMemo(() => scheduleOrders(orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy),
+    [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy]);
   const current = useMemo(() => scheduleOrders(orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, 'due'),
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg]);
   const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart, hoursPerDay]);
@@ -157,7 +160,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </p>
         <h3 className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">Last order finishes day <span className="font-mono">{num(smart.makespanDays, 1)}</span> (typical) · <span className="font-mono">{num(mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0, 1)}</span> on a bad run</h3>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Sequencing by family vs your current way saves <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedChg, 1)} h</span> changeover and <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedScrap)} kg</span> scrap (≈ {num(savedScrapOmr)} OMR).
+          <span className="font-medium">{STRATEGY_LABEL[strategy]}</span> · steady-state run time <span className="font-mono font-semibold">{Math.round(smart.steadyStatePct * 100)}%</span> · saves <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedChg, 1)} h</span> changeover &amp; <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedScrap)} kg</span> scrap vs running ungrouped.
           {smart.lateOrders.length > 0 && <span className="text-rose-600 dark:text-rose-400"> At risk: {smart.lateOrders.map((l) => l.name).slice(0, 3).join(', ')}{smart.lateOrders.length > 3 ? '…' : ''}.</span>}
         </p>
       </div>
@@ -168,7 +171,14 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Planning window</span><div className="mt-1 flex items-center gap-1"><input type="number" min={1} value={horizon} onChange={(e) => setHorizon(Math.max(1, Math.round(Number(e.target.value) || 1)))} className={`w-20 ${field}`} /><span className="text-xs text-slate-400">days</span></div></label>
         <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Machines running</span><input type="number" min={1} max={6} value={machines} onChange={(e) => setMachines(Math.min(6, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
         <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Hours / day</span><input type="number" min={1} max={24} value={hoursPerDay} onChange={(e) => setHoursPerDay(Math.min(24, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
-        <span className="text-xs text-slate-400">…and the order book below. Everything else is calibrated from your data.</span>
+        <div>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Balance</span>
+          <div className="mt-1 inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
+            {(['grouped', 'balanced', 'due'] as Strategy[]).map((s) => (
+              <button key={s} type="button" onClick={() => setStrategy(s)} className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${strategy === s ? 'bg-accent text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>{STRATEGY_LABEL[s]}</button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* MODEL PARAMETERS — calibrated from data, sensors fine-tune (collapsed) */}

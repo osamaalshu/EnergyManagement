@@ -342,11 +342,12 @@ export interface OrderItem {
   onTimeProb?: number;
 }
 export interface OrderSchedule {
-  mode: 'grouped' | 'due';
+  mode: 'grouped' | 'due' | 'balanced';
   items: OrderItem[];
   lanes: { machine: number; name: string; items: OrderItem[]; loadH: number }[];
   productionH: number; changeoverH: number; familyChanges: number; diameterChanges: number;
   makespanH: number; makespanDays: number; capacityPerMachineH: number; utilization: number; fits: boolean;
+  steadyStatePct: number;  // production time / (production + changeover) — higher = steadier runs
   onTime: number; total: number; lateOrders: OrderItem[];
   baseScrapKg: number; startupScrapKg: number; scrapKg: number; scrapOmr: number;
 }
@@ -354,7 +355,8 @@ export interface OrderSchedule {
 export function scheduleOrders(
   orders: Order[], products: Record<string, SkuParam>, days: number, machines: number,
   line: LineParam, econ: Econ, hoursPerDay: number,
-  famH = SETUP_FAMILY_H, diaH = SETUP_DIAMETER_H, startupScrapKgPerChangeover = 0, mode: 'grouped' | 'due' = 'grouped',
+  famH = SETUP_FAMILY_H, diaH = SETUP_DIAMETER_H, startupScrapKgPerChangeover = 0,
+  mode: 'grouped' | 'due' | 'balanced' = 'grouped',
 ): OrderSchedule {
   const valid = orders.filter((o) => o.qty > 0 && products[o.productId]);
   const runtime = (o: Order) => o.qty / Math.max(products[o.productId].rateEffective, 1e-9);
@@ -368,20 +370,23 @@ export function scheduleOrders(
 
   const m = Math.max(1, machines);
   const machineSeqs: Order[][] = Array.from({ length: m }, () => []);
-  if (mode === 'grouped') { // minimise changeover: whole families per machine, step diameters
-    const fams = [...new Set(valid.map((o) => products[o.productId].family))];
-    const famLoad = (f: string) => valid.filter((o) => products[o.productId].family === f).reduce((a, o) => a + runtime(o), 0);
-    fams.sort((a, b) => famLoad(b) - famLoad(a));
-    const load = new Array(m).fill(0);
-    for (const f of fams) {
-      const fo = valid.filter((o) => products[o.productId].family === f)
-        .sort((a, b) => products[a.productId].diameterMm - products[b.productId].diameterMm || a.dueDay - b.dueDay);
-      const lo = load.indexOf(Math.min(...load)); machineSeqs[lo].push(...fo); load[lo] += famLoad(f);
-    }
-  } else { // "current way": earliest due date, balanced — ignores family discipline
+  if (mode === 'due') { // EDD: hit due dates, ignore family discipline (most changeovers)
     const load = new Array(m).fill(0);
     for (const o of [...valid].sort((a, b) => a.dueDay - b.dueDay)) {
       const lo = load.indexOf(Math.min(...load)); machineSeqs[lo].push(o); load[lo] += runtime(o);
+    }
+  } else { // whole families per machine — 'grouped' (fewest changeovers) or 'balanced' (urgent families first)
+    const fams = [...new Set(valid.map((o) => products[o.productId].family))];
+    const famLoad = (f: string) => valid.filter((o) => products[o.productId].family === f).reduce((a, o) => a + runtime(o), 0);
+    const famDue = (f: string) => Math.min(...valid.filter((o) => products[o.productId].family === f).map((o) => o.dueDay));
+    fams.sort((a, b) => mode === 'balanced' ? famDue(a) - famDue(b) : famLoad(b) - famLoad(a));
+    const load = new Array(m).fill(0);
+    for (const f of fams) {
+      const fo = valid.filter((o) => products[o.productId].family === f).sort((a, b) =>
+        mode === 'balanced'
+          ? (a.dueDay - b.dueDay || products[a.productId].diameterMm - products[b.productId].diameterMm)
+          : (products[a.productId].diameterMm - products[b.productId].diameterMm || a.dueDay - b.dueDay));
+      const lo = load.indexOf(Math.min(...load)); machineSeqs[lo].push(...fo); load[lo] += famLoad(f);
     }
   }
 
@@ -420,6 +425,7 @@ export function scheduleOrders(
     makespanH: round(makespanH), makespanDays: round(makespanH / hoursPerDay, 1),
     capacityPerMachineH: round(capacityPerMachineH), utilization: round(capacityPerMachineH ? makespanH / capacityPerMachineH : 0, 3),
     fits: makespanH <= capacityPerMachineH,
+    steadyStatePct: round(productionH / (productionH + changeoverH || 1), 3),
     onTime: items.length - lateOrders.length, total: items.length, lateOrders,
     baseScrapKg: round(baseScrapKg), startupScrapKg: round(startupScrapKg), scrapKg: round(scrapKg), scrapOmr: round(scrapKg * econ.materialOmrPerKg),
   };
