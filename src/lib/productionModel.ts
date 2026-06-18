@@ -211,9 +211,13 @@ function mulberry32(seed: number) {
 export interface MonteCarlo {
   p50Days: number; p90Days: number; pFit: number; deadlineDays: number;
   hist: { day: number; count: number; over: boolean }[];
+  samplesDays: number[];
 }
 
-export function monteCarloFit(sched: ScheduleResult, capH: number, hoursPerDay: number,
+// structural: any schedule with lanes of run-times + setups (SKU- or order-based)
+type LanedSchedule = { lanes: { items: { runtimeH: number; setupBeforeH: number }[] }[] };
+
+export function monteCarloFit(sched: LanedSchedule, capH: number, hoursPerDay: number,
                               cv = RATE_CV, reps = 1500, seed = 42): MonteCarlo {
   const rng = mulberry32(seed);
   const gauss = () => { // Box–Muller
@@ -251,7 +255,7 @@ export function monteCarloFit(sched: ScheduleResult, capH: number, hoursPerDay: 
     const count = samples.filter((s) => { const d = s / hoursPerDay; return d >= lo && (i === nb - 1 ? d <= lo + w + 1e-9 : d < lo + w); }).length;
     return { day: round(center, 1), count, over: center > deadlineDays };
   });
-  return { p50Days: round(pct(50) / hoursPerDay, 1), p90Days: round(pct(90) / hoursPerDay, 1), pFit: round(pFit, 3), deadlineDays: round(deadlineDays, 1), hist };
+  return { p50Days: round(pct(50) / hoursPerDay, 1), p90Days: round(pct(90) / hoursPerDay, 1), pFit: round(pFit, 3), deadlineDays: round(deadlineDays, 1), hist, samplesDays: samples.map((s) => s / hoursPerDay) };
 }
 
 /** Build the changeover-minimising schedule: group products by family, step
@@ -323,4 +327,129 @@ export function buildSchedule(
     naiveChangeoverH: round(naiveChangeoverH, 1), savedH: round(naiveChangeoverH - changeoverH, 1),
     energyKwh: round(energyKwh), costOmr: round(costOmr),
   };
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  ORDER BOOK — the real-world input: orders with quantities and due dates
+// ════════════════════════════════════════════════════════════════════
+
+export interface Order { id: string; productId: string; qty: number; dueDay: number; }
+export interface OrderItem {
+  orderId: string; machine: number; machineName: string; seq: number;
+  productId: string; name: string; family: string; diameterMm: number;
+  qty: number; runtimeH: number; setupBeforeH: number; setupType: SetupType;
+  startH: number; endH: number; finishDay: number; dueDay: number; onTime: boolean; lateDays: number;
+  onTimeProb?: number;
+}
+export interface OrderSchedule {
+  mode: 'grouped' | 'due';
+  items: OrderItem[];
+  lanes: { machine: number; name: string; items: OrderItem[]; loadH: number }[];
+  productionH: number; changeoverH: number; familyChanges: number; diameterChanges: number;
+  makespanH: number; makespanDays: number; capacityPerMachineH: number; utilization: number; fits: boolean;
+  onTime: number; total: number; lateOrders: OrderItem[];
+  baseScrapKg: number; startupScrapKg: number; scrapKg: number; scrapOmr: number;
+}
+
+export function scheduleOrders(
+  orders: Order[], products: Record<string, SkuParam>, days: number, machines: number,
+  line: LineParam, econ: Econ, hoursPerDay: number,
+  famH = SETUP_FAMILY_H, diaH = SETUP_DIAMETER_H, startupScrapKgPerChangeover = 0, mode: 'grouped' | 'due' = 'grouped',
+): OrderSchedule {
+  const valid = orders.filter((o) => o.qty > 0 && products[o.productId]);
+  const runtime = (o: Order) => o.qty / Math.max(products[o.productId].rateEffective, 1e-9);
+  const setup = (prev: Order | null, cur: Order): { h: number; type: SetupType } => {
+    if (!prev) return { h: 0, type: 'none' };
+    const a = products[prev.productId], b = products[cur.productId];
+    if (a.family !== b.family) return { h: famH, type: 'family' };
+    if (a.diameterMm !== b.diameterMm) return { h: diaH, type: 'diameter' };
+    return { h: 0, type: 'none' };
+  };
+
+  const m = Math.max(1, machines);
+  const machineSeqs: Order[][] = Array.from({ length: m }, () => []);
+  if (mode === 'grouped') { // minimise changeover: whole families per machine, step diameters
+    const fams = [...new Set(valid.map((o) => products[o.productId].family))];
+    const famLoad = (f: string) => valid.filter((o) => products[o.productId].family === f).reduce((a, o) => a + runtime(o), 0);
+    fams.sort((a, b) => famLoad(b) - famLoad(a));
+    const load = new Array(m).fill(0);
+    for (const f of fams) {
+      const fo = valid.filter((o) => products[o.productId].family === f)
+        .sort((a, b) => products[a.productId].diameterMm - products[b.productId].diameterMm || a.dueDay - b.dueDay);
+      const lo = load.indexOf(Math.min(...load)); machineSeqs[lo].push(...fo); load[lo] += famLoad(f);
+    }
+  } else { // "current way": earliest due date, balanced — ignores family discipline
+    const load = new Array(m).fill(0);
+    for (const o of [...valid].sort((a, b) => a.dueDay - b.dueDay)) {
+      const lo = load.indexOf(Math.min(...load)); machineSeqs[lo].push(o); load[lo] += runtime(o);
+    }
+  }
+
+  const items: OrderItem[] = [];
+  const lanes = machineSeqs.map((seq, mi) => {
+    let t = 0; const laneItems: OrderItem[] = [];
+    seq.forEach((o, idx) => {
+      const p = products[o.productId]; const su = setup(idx === 0 ? null : seq[idx - 1], o); const rt = runtime(o);
+      const endH = t + su.h + rt; const finishDay = endH / hoursPerDay;
+      const it: OrderItem = {
+        orderId: o.id, machine: mi, machineName: line.machineNames?.[mi] ?? `Machine ${mi + 1}`, seq: idx + 1,
+        productId: o.productId, name: p.name, family: p.family, diameterMm: p.diameterMm,
+        qty: o.qty, runtimeH: rt, setupBeforeH: su.h, setupType: su.type,
+        startH: t + su.h, endH, finishDay: round(finishDay, 1), dueDay: o.dueDay,
+        onTime: finishDay <= o.dueDay + 1e-9, lateDays: round(Math.max(0, finishDay - o.dueDay), 1),
+      };
+      t = endH; laneItems.push(it); items.push(it);
+    });
+    return { machine: mi, name: line.machineNames?.[mi] ?? `Machine ${mi + 1}`, items: laneItems, loadH: t };
+  });
+
+  const productionH = valid.reduce((a, o) => a + runtime(o), 0);
+  const changeoverH = items.reduce((a, it) => a + it.setupBeforeH, 0);
+  const familyChanges = items.filter((it) => it.setupType === 'family').length;
+  const diameterChanges = items.filter((it) => it.setupType === 'diameter').length;
+  const makespanH = Math.max(0, ...lanes.map((l) => l.loadH));
+  const capacityPerMachineH = days * hoursPerDay;
+  const baseScrapKg = valid.reduce((a, o) => a + o.qty * products[o.productId].kgPerUnit * products[o.productId].meanRejection, 0);
+  const startupScrapKg = (familyChanges + diameterChanges) * startupScrapKgPerChangeover;
+  const scrapKg = baseScrapKg + startupScrapKg;
+  const lateOrders = items.filter((it) => !it.onTime);
+
+  return {
+    mode, items, lanes,
+    productionH: round(productionH), changeoverH: round(changeoverH, 1), familyChanges, diameterChanges,
+    makespanH: round(makespanH), makespanDays: round(makespanH / hoursPerDay, 1),
+    capacityPerMachineH: round(capacityPerMachineH), utilization: round(capacityPerMachineH ? makespanH / capacityPerMachineH : 0, 3),
+    fits: makespanH <= capacityPerMachineH,
+    onTime: items.length - lateOrders.length, total: items.length, lateOrders,
+    baseScrapKg: round(baseScrapKg), startupScrapKg: round(startupScrapKg), scrapKg: round(scrapKg), scrapOmr: round(scrapKg * econ.materialOmrPerKg),
+  };
+}
+
+/** Monte-Carlo over the order schedule: per-order on-time PROBABILITY + the
+ *  chance ALL orders ship on time + makespan samples (for the distribution graph). */
+export function monteCarloOrders(sched: OrderSchedule, hoursPerDay: number, cv = RATE_CV, reps = 1500, seed = 42) {
+  const rng = mulberry32(seed);
+  const gauss = () => { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const sigma = Math.sqrt(Math.log(1 + cv * cv)); const mu = -sigma * sigma / 2;
+  const mult = () => Math.exp(mu + sigma * gauss());
+  const onTimeCount: Record<string, number> = {};
+  const samplesDays: number[] = []; let allOnTime = 0;
+  for (let r = 0; r < reps; r++) {
+    let mk = 0; let everyOnTime = true;
+    for (const lane of sched.lanes) {
+      let t = 0;
+      for (const it of lane.items) {
+        t += it.setupBeforeH + it.runtimeH * mult();
+        const ok = t / hoursPerDay <= it.dueDay + 1e-9;
+        if (ok) onTimeCount[it.orderId] = (onTimeCount[it.orderId] || 0) + 1; else everyOnTime = false;
+      }
+      if (t > mk) mk = t;
+    }
+    if (everyOnTime) allOnTime++;
+    samplesDays.push(mk / hoursPerDay);
+  }
+  const onTimeProb: Record<string, number> = {};
+  for (const it of sched.items) onTimeProb[it.orderId] = round((onTimeCount[it.orderId] || 0) / reps, 3);
+  samplesDays.sort((a, b) => a - b);
+  return { onTimeProb, pAllOnTime: round(allOnTime / reps, 3), samplesDays };
 }
