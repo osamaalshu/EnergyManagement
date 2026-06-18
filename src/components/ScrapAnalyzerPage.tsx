@@ -1,42 +1,50 @@
 import { type FC, useMemo, useState } from 'react';
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, Cell } from 'recharts';
-import { productionData } from '../data/productionData';
-import {
-  scheduleOrders, DEMO_SKUS, DEMO_ECON, DEMO_LINE, type SkuParam, type Econ, type Order,
-} from '../lib/productionModel';
+import { DEMO_SKUS, DEMO_ECON, type Econ } from '../lib/productionModel';
+import { scrapCatalog, type ScrapProduct } from '../data/scrapCatalog';
 
 const FAMILY_BG: Record<string, string> = {
-  Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Other: 'bg-slate-400',
+  Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Duct: 'bg-sky-500', Other: 'bg-slate-400',
 };
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
+const MIN_SAMPLES = 5; // fewer shift-records than this → reject rate is noisy, flag it
+
+// Demo catalogue shaped like the real one, so the illustrative view still works.
+const DEMO_PRODUCTS: ScrapProduct[] = DEMO_SKUS.map((s) => ({
+  id: s.id, name: s.name, family: s.family, diameterMm: s.diameterMm,
+  demand: s.demand, kgPerUnit: s.kgPerUnit, meanRejection: s.meanRejection, rateEffective: s.rateEffective,
+  samples: 60, scrapKgObs: Math.round(s.demand * s.kgPerUnit * s.meanRejection),
+}));
 
 const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { model } = productionData;
-  const [dataset, setDataset] = useState<'pilot' | 'demo'>('demo');
-  const skus: SkuParam[] = dataset === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
-  const econ: Econ = dataset === 'demo' ? DEMO_ECON : model.economics;
-  const line = dataset === 'demo' ? DEMO_LINE : { machineKw: model.line.machineKw, changeoverH: model.line.changeoverH, changeoverKw: model.line.changeoverKw, nMachines: model.line.nMachines, machineNames: model.line.machineNames };
+  const [dataset, setDataset] = useState<'real' | 'demo'>('real');
+  const meta = scrapCatalog.meta;
+  const products: ScrapProduct[] = dataset === 'real' ? scrapCatalog.products : DEMO_PRODUCTS;
+  const econ: Econ = DEMO_ECON; // material price / holding — same economics either way
 
   const [famFilter, setFamFilter] = useState('All');
-  const [machineFilter, setMachineFilter] = useState('All');
+  const [confidentOnly, setConfidentOnly] = useState(false);
+  const [scrapPerChg, setScrapPerChg] = useState(10); // kg purge per changeover (estimate)
   const [q, setQ] = useState('');
   const [drill, setDrill] = useState<string | null>(null);
 
   const a = useMemo(() => {
-    const products = Object.fromEntries(skus.map((s) => [s.id, s]));
-    // dominant machine per product, from the family-grouped schedule
-    const orders: Order[] = skus.map((s) => ({ id: s.id, productId: s.id, qty: s.demand, dueDay: 30 }));
-    const sch = scheduleOrders(orders, products, 365, line.nMachines, line, econ, 24, 3, 0.5, 10, 'grouped');
-    const machineOf: Record<string, string> = {}; sch.items.forEach((it) => { machineOf[it.orderId] = it.machineName; });
+    // benchmark = best-demonstrated reject, taken from WELL-SAMPLED products only so a
+    // 2-record outlier can't define the target. P25 of the confident set.
+    const confident = products.filter((p) => p.samples >= MIN_SAMPLES);
+    const pool = (confident.length >= 4 ? confident : products).map((p) => p.meanRejection).sort((x, y) => x - y);
+    const benchmark = pool[Math.floor(0.25 * (pool.length - 1))] ?? 0;
 
-    const rejects = skus.map((s) => s.meanRejection).sort((x, y) => x - y);
-    const benchmark = rejects[Math.floor(0.25 * (rejects.length - 1))]; // best-demonstrated (P25)
-
-    const base = skus.map((s) => {
+    const base = products.map((s) => {
       const scrapKg = s.demand * s.kgPerUnit * s.meanRejection;
       const gap = Math.max(0, s.meanRejection - benchmark);
       const saving = gap * s.demand * s.kgPerUnit * econ.materialOmrPerKg;
-      return { id: s.id, name: s.name, family: s.family, machine: machineOf[s.id] ?? '—', reject: s.meanRejection * 100, target: benchmark * 100, demand: s.demand, kgPerUnit: s.kgPerUnit, scrapKg, scrapOmr: scrapKg * econ.materialOmrPerKg, saving };
+      const lowData = s.samples < MIN_SAMPLES;
+      return {
+        id: s.id, name: s.name, family: s.family, samples: s.samples, lowData,
+        reject: s.meanRejection * 100, target: benchmark * 100, demand: s.demand, kgPerUnit: s.kgPerUnit,
+        scrapKg, scrapOmr: scrapKg * econ.materialOmrPerKg, saving,
+      };
     }).sort((x, y) => y.scrapKg - x.scrapKg);
 
     const totalKg = base.reduce((s, r) => s + r.scrapKg, 0) || 1;
@@ -44,17 +52,30 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     const rows = base.map((r) => { cum += r.scrapKg; return { ...r, cumPct: (cum / totalKg) * 100 }; });
     const to80 = rows.findIndex((r) => r.cumPct >= 80) + 1;
     const totalOmr = rows.reduce((s, r) => s + r.scrapOmr, 0);
-    const recoverable = rows.reduce((s, r) => s + r.saving, 0);
-    const machines = [...new Set(rows.map((r) => r.machine))];
-    return { rows, totalKg, totalOmr, recoverable, to80, benchmark: benchmark * 100, maxKg: rows[0]?.scrapKg || 1, machines };
-  }, [skus, econ, line]);
+    // recoverable counts only confident products — never promise savings off a noisy outlier
+    const recoverable = rows.filter((r) => !r.lowData).reduce((s, r) => s + r.saving, 0);
+
+    // changeover purge — modeled from the REAL switch frequency on MC01 (count is
+    // measured; only kg/changeover is the estimate). Decomposes the loss above; not additive.
+    const chgPerYear = dataset === 'real' ? meta.changeoversPerYear : Math.round(products.length * 6);
+    const changeoverKg = chgPerYear * scrapPerChg;
+    const changeoverShare = totalKg > 0 ? changeoverKg / totalKg : 0;
+
+    return {
+      rows, totalKg, totalOmr, recoverable, to80, benchmark: benchmark * 100, maxKg: rows[0]?.scrapKg || 1,
+      lowDataCount: rows.filter((r) => r.lowData).length,
+      chgPerYear, changeoverKg, changeoverOmr: changeoverKg * econ.materialOmrPerKg, changeoverShare,
+    };
+  }, [products, econ, dataset, meta, scrapPerChg]);
 
   const top10 = a.rows.slice(0, 10);
-  const recs = a.rows.filter((r) => r.saving > 0).sort((x, y) => y.saving - x.saving).slice(0, 5);
+  const recs = a.rows.filter((r) => r.saving > 0 && !r.lowData).sort((x, y) => y.saving - x.saving).slice(0, 5);
   const driver = (r: typeof a.rows[number]) =>
     r.reject >= a.benchmark * 1.6 ? 'high variability' : r.demand > 25000 ? 'high-runner volume' : 'process tuning';
-  const tableRows = (q.trim() ? a.rows : top10).filter((r) => (famFilter === 'All' || r.family === famFilter) && (machineFilter === 'All' || r.machine === machineFilter) && r.name.toLowerCase().includes(q.toLowerCase()));
+  const tableRows = (q.trim() ? a.rows : top10)
+    .filter((r) => (famFilter === 'All' || r.family === famFilter) && (!confidentOnly || !r.lowData) && r.name.toLowerCase().includes(q.toLowerCase()));
   const drillRow = a.rows.find((r) => r.id === drill);
+  const families = [...new Set(products.map((s) => s.family))];
 
   return (
     <section className="space-y-5">
@@ -65,22 +86,33 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           </button>
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Analyse</p>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Scrap Focus</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Which products are worth attacking first — and what you'd save.</p>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Scrap Focus <span className="align-middle text-xs font-medium text-slate-400">· Machine 01</span></h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">How much you're losing to scrap, which products drive it, and what's worth fixing.</p>
           </div>
         </div>
         <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
-          {([['pilot', 'Pilot · 2'], ['demo', 'Full catalog · 12']] as const).map(([ds, label]) => (
-            <button key={ds} type="button" onClick={() => { setDataset(ds); setFamFilter('All'); setMachineFilter('All'); }} className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${dataset === ds ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>{label}</button>
+          {([['real', `Real · ${scrapCatalog.products.length}`], ['demo', 'Illustrative · 12']] as const).map(([ds, label]) => (
+            <button key={ds} type="button" onClick={() => { setDataset(ds); setFamFilter('All'); }} className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${dataset === ds ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>{label}</button>
           ))}
         </div>
       </div>
 
+      {/* Provenance banner */}
+      {dataset === 'real' ? (
+        <div className="rounded-xl border border-slate-200/70 bg-slate-50 px-4 py-2.5 text-xs text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+          Real MC01 records · {meta.periodStart} → {meta.periodEnd} ({meta.spanDays} days) · {meta.products} products · overall reject <span className="font-mono font-semibold text-slate-700 dark:text-slate-200">{meta.overallRejectPct}%</span>. Demand &amp; scrap annualised (×{(1 / meta.annualiseFactor).toFixed(2)} period → year). Reject &amp; weight measured; <span className="text-amber-600 dark:text-amber-400">{a.lowDataCount} products have &lt;{MIN_SAMPLES} records</span> — their rates are noisy and flagged.
+        </div>
+      ) : (
+        <div className="rounded-xl border border-amber-300/50 bg-amber-50 px-4 py-2.5 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
+          Illustrative catalogue — synthetic products, made-up demand &amp; reject rates. Use the <span className="font-semibold">Real</span> view for decisions.
+        </div>
+      )}
+
       {/* Top bar — loss summary */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Annual scrap</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.totalKg)} kg</p><p className="text-xs text-slate-500 dark:text-slate-400">≈ {num(a.totalOmr)} OMR</p></div>
-        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Concentration</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">Top {a.to80}</p><p className="text-xs text-slate-500 dark:text-slate-400">= 80% of the loss</p></div>
-        <div className="rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10"><p className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">Recoverable</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.recoverable)} OMR</p><p className="text-xs text-slate-500 dark:text-slate-400">if each hits your best rate ({a.benchmark.toFixed(1)}%)</p></div>
+        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Scrap / year</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.totalKg)} kg</p><p className="text-xs text-slate-500 dark:text-slate-400">≈ {num(a.totalOmr)} OMR lost</p></div>
+        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Concentration</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">Top {a.to80}</p><p className="text-xs text-slate-500 dark:text-slate-400">products = 80% of the loss</p></div>
+        <div className="rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10"><p className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">Recoverable</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.recoverable)} OMR</p><p className="text-xs text-slate-500 dark:text-slate-400">if each well-measured product hits your best rate ({a.benchmark.toFixed(1)}%)</p></div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -94,12 +126,12 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
                 <YAxis yAxisId="l" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={40} />
                 <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `${v}%`} />
                 <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number, n: string) => n === 'cumPct' ? [`${v.toFixed(0)}%`, 'cumulative'] : [`${num(v)} kg`, 'scrap']} />
-                <Bar yAxisId="l" dataKey="scrapKg" radius={[2, 2, 0, 0]}>{top10.map((r, i) => (<Cell key={i} fill={`rgba(244,63,94,${0.35 + 0.6 * (r.scrapKg / a.maxKg)})`} />))}</Bar>
+                <Bar yAxisId="l" dataKey="scrapKg" radius={[2, 2, 0, 0]}>{top10.map((r, i) => (<Cell key={i} fill={r.lowData ? 'rgba(148,163,184,0.55)' : `rgba(244,63,94,${0.35 + 0.6 * (r.scrapKg / a.maxKg)})`} />))}</Bar>
                 <Line yAxisId="r" type="monotone" dataKey="cumPct" stroke="#1A365D" strokeWidth={2} dot={false} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <p className="mt-1 text-[11px] text-slate-400">Top 10 SKUs by annual scrap (darker = worse); navy line = cumulative share. Focus range: SKUs 1–{a.to80} ({80}% of loss).</p>
+          <p className="mt-1 text-[11px] text-slate-400">Top 10 by annual scrap (darker red = worse; grey = too few records to trust). Navy line = cumulative share — first {a.to80} products are 80% of the loss.</p>
         </div>
 
         {/* Focus recommendations */}
@@ -108,7 +140,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           {recs.map((r) => (
             <button key={r.id} type="button" onClick={() => setDrill(r.id)} className="card-surface w-full p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold text-slate-900 dark:text-white">{r.name} <span className="text-xs font-normal text-slate-400">· {r.machine}</span></span>
+                <span className="font-semibold text-slate-900 dark:text-white">{r.name}</span>
                 <span className="shrink-0 font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">save {num(r.saving)} OMR</span>
               </div>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -117,7 +149,26 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               <span className="mt-2 inline-block rounded-full bg-amber-50 px-2 py-0.5 text-[0.6rem] font-semibold uppercase text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">likely: {driver(r)}</span>
             </button>
           ))}
-          {recs.length === 0 && <div className="card-surface p-4 text-sm text-slate-500 dark:text-slate-400">All products are already near your best reject rate.</div>}
+          {recs.length === 0 && <div className="card-surface p-4 text-sm text-slate-500 dark:text-slate-400">No well-measured product is above your best reject rate.</div>}
+        </div>
+      </div>
+
+      {/* Changeover scrap — modeled from real switch frequency */}
+      <div className="card-surface p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Changeover scrap <span className="font-normal normal-case text-amber-600 dark:text-amber-400">· estimate</span></h3>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              Of the {num(a.totalKg)} kg above, an estimated <span className="font-mono font-semibold text-slate-900 dark:text-white">{num(a.changeoverKg)} kg</span> (<span className="font-mono font-semibold">{(a.changeoverShare * 100).toFixed(1)}%</span> ≈ {num(a.changeoverOmr)} OMR) is changeover purge — {dataset === 'real' ? <>from a <span className="font-medium">measured</span> {num(a.chgPerYear)} product-switches/yr on MC01 ({meta.changeoversObservedFamily} family, {meta.changeoversObservedDiameter} diameter over the period)</> : <>{num(a.chgPerYear)} modeled switches/yr</>}.
+            </p>
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+              The switch count is real; only the kg-per-switch is assumed. Your records log <em>total</em> scrap and don't tag startup vs in-run, so this is a decomposition estimate — not extra scrap. It's the slice the <span className="font-medium">Order Planner</span>'s family-grouping directly removes. The rest is in-run reject, which is concentrated in the few products above — so scrap here is <span className="font-medium">reject-driven, not changeover-driven</span>.
+            </p>
+          </div>
+          <label className="block shrink-0">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">kg / changeover</span>
+            <input type="number" min={0} step={1} value={scrapPerChg} onChange={(e) => setScrapPerChg(Math.max(0, Number(e.target.value) || 0))} className="mt-1 block w-24 rounded-lg border border-amber-300/50 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-amber-500/20 dark:bg-card-dark dark:text-white" />
+          </label>
         </div>
       </div>
 
@@ -125,23 +176,23 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       <div className="card-surface overflow-hidden p-0">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{q.trim() ? 'Search results' : 'Top 10 — investigate'}</h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search product…" className="rounded-lg border border-slate-200/70 bg-white px-2.5 py-1 text-xs text-slate-700 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-slate-200" />
-            <select value={famFilter} onChange={(e) => setFamFilter(e.target.value)} className="rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-xs text-slate-700 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"><option>All</option>{[...new Set(skus.map((s) => s.family))].map((f) => <option key={f}>{f}</option>)}</select>
-            <select value={machineFilter} onChange={(e) => setMachineFilter(e.target.value)} className="rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-xs text-slate-700 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"><option>All</option>{a.machines.map((m) => <option key={m}>{m}</option>)}</select>
+            <select value={famFilter} onChange={(e) => setFamFilter(e.target.value)} className="rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-xs text-slate-700 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"><option>All</option>{families.map((f) => <option key={f}>{f}</option>)}</select>
+            <label className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"><input type="checkbox" checked={confidentOnly} onChange={(e) => setConfidentOnly(e.target.checked)} className="accent-accent" />well-measured only</label>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
-              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2">Machine</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
+              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2 text-right">Records</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
               {tableRows.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.id} className={r.lowData ? 'opacity-60' : ''}>
                   <td className="px-4 py-1.5 font-medium text-slate-900 dark:text-white">{r.name}</td>
                   <td className="px-4 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[r.family] ?? 'bg-slate-400'}`} />{r.family}</span></td>
-                  <td className="px-4 py-1.5 text-xs">{r.machine}</td>
+                  <td className="px-4 py-1.5 text-right font-mono">{r.lowData ? <span className="text-amber-600 dark:text-amber-400" title="Too few records — reject rate is noisy">{r.samples} ⚠</span> : r.samples}</td>
                   <td className="px-4 py-1.5 text-right font-mono">{r.reject.toFixed(1)}</td>
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.demand)}</td>
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.scrapKg)}</td>
@@ -155,7 +206,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       </div>
 
-      <p className="text-xs text-slate-400">Scrap = demand × kg/unit × each product's own measured reject rate. "Best rate" benchmark = the 25th-percentile reject across your catalogue. Machine from the schedule; shift / material-batch / trend attribution unlocks once MES + historical data connect.</p>
+      <p className="text-xs text-slate-400">Scrap = demand × kg/unit × each product's own measured reject rate (mass-basis). "Best rate" = 25th-percentile reject across well-measured products ({'≥'}{MIN_SAMPLES} records). Plant = MC01 only. Changeover scrap is modeled from the real switch count; per-shift / per-batch / per-cause attribution unlocks once the MES is connected.</p>
 
       {/* Drill-down */}
       {drillRow && (
@@ -163,9 +214,13 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           <div className="card-surface max-w-md w-full p-5" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between"><h3 className="text-lg font-semibold text-slate-900 dark:text-white">{drillRow.name}</h3><button onClick={() => setDrill(null)} className="text-slate-400 hover:text-slate-700 dark:hover:text-white">✕</button></div>
             <div className="mt-3 space-y-1.5 text-sm text-slate-600 dark:text-slate-300">
-              <p>Family {drillRow.family} · runs on <span className="font-medium">{drillRow.machine}</span> · demand <span className="font-mono">{num(drillRow.demand)}</span>/yr</p>
+              <p>Family {drillRow.family} · demand <span className="font-mono">{num(drillRow.demand)}</span>/yr · <span className="font-mono">{drillRow.samples}</span> shift-records{drillRow.lowData && <span className="text-amber-600 dark:text-amber-400"> ⚠ noisy</span>}</p>
               <p>Reject <span className="font-mono">{drillRow.reject.toFixed(1)}%</span> vs best <span className="font-mono">{drillRow.target.toFixed(1)}%</span> → annual scrap <span className="font-mono">{num(drillRow.scrapKg)} kg ≈ {num(drillRow.scrapOmr)} OMR</span></p>
-              <p className="font-medium text-emerald-600 dark:text-emerald-400">Close the gap → save {num(drillRow.saving)} OMR/yr ({num(drillRow.saving / econ.materialOmrPerKg)} kg)</p>
+              {drillRow.saving > 0 && !drillRow.lowData
+                ? <p className="font-medium text-emerald-600 dark:text-emerald-400">Close the gap → save {num(drillRow.saving)} OMR/yr ({num(drillRow.saving / econ.materialOmrPerKg)} kg)</p>
+                : drillRow.lowData
+                  ? <p className="text-amber-600 dark:text-amber-400">Too few records to size a reliable saving — collect more runs before acting.</p>
+                  : <p className="text-slate-500">Already at/below your best reject rate.</p>}
               <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs dark:bg-white/5">Likely lever: <span className="font-medium">{driver(drillRow)}</span>. To pinpoint it, connect shift / material-batch / changeover logs — then this panel shows the by-shift and by-batch breakdown.</p>
             </div>
           </div>
