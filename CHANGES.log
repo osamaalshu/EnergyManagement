@@ -1,0 +1,32 @@
+# CHANGES.log
+
+## 2026-06-18 — Analyse workspace critical audit + reconciliation
+
+Goal: terminate noise, keep only defensible signal; every feature must change a real
+decision for the better. Methodology: Claude (architect) owned the audit + logic spec
++ review; Codex (executor) implemented the Scrap reframe + wrote the Vitest suite.
+See docs/ANALYSE_PRD.md §0 (Goal & Methodology) and §1–§4 for equations/provenance.
+
+Audit findings acted on:
+- Scrap is DIFFUSE, not Pareto (32/94 products = 80%, top is ~9.7%) → killed the
+  "vital few" framing; relabelled the concentration card as "Spread … no vital few";
+  Pareto caption now states the honest top-10 cumulative ("scrap is diffuse").
+- The P25 "recoverable" was an arbitrary vanity number → replaced with gap-to-plant-
+  average (overall reject 2.87%) summed over a FOCUS SET (material ≥2% of loss AND
+  well-measured ≥5 records). Low-sample products excluded from savings.
+- Removed cosmetic driver() "likely lever" guesses.
+- Scrap data relabelled line-level (Extrusion Line 1 / Machines 01 & 03), not MC01.
+- Planner: false "Rate variability: measured from history" label → adjustable estimate
+  (rateCv), wired through Monte-Carlo + levers. TOU made season-honest (summer/winter
+  toggle; winter bands flat → lever only pays in summer). Default dataset → pilot (real).
+- Delivery View reconciled to the system: MC01 single machine (was 3 + "add a machine"
+  recommendation), 16 h/day, pilot/demo toggle defaulting to real.
+- Dead code removed from productionModel.ts (planStrategy, planAll, buildSchedule,
+  monteCarloFit, EPQ/MTS-MTO strategy engine).
+
+Tests (Codex, src/lib/__tests__/productionModel.test.ts, Vitest): scheduleOrders
+single-lane + priority-first + bounded steady-state + additive scrap; monteCarloOrders
+bounded probs + sorted samples; scrap Pareto cumulative monotonic & ≤100 & first-80
+index (locks out the cumulative-line bug); recoverable excludes <5-record products;
+dead exports absent; source guards (no "Add a machine"/"machines + 1" in Delivery, no
+"driver(" in Scrap). Result: 6/6 pass. tsc -b clean. npm run build PROVENANCE CHECK PASSED.
