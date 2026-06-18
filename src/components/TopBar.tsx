@@ -35,6 +35,7 @@ const pageLabel: Record<ActivePage, string> = {
   tariff: 'Tariff Structure',
   compressor: 'Compressor',
   production: 'Production Planner',
+  scrap: 'Scrap Analyzer',
 };
 
 const TopBar: FC<TopBarProps> = ({

@@ -1,7 +1,7 @@
 import { type FC, useEffect, useState } from 'react';
 import { navSites, type LeafRoute } from '../lib/portfolioNav';
 
-export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'production';
+export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'production' | 'scrap';
 
 interface SidebarProps {
   open: boolean;
@@ -16,6 +16,7 @@ interface SidebarProps {
   onSubsystem: (siteId: string, subId: string) => void;
   onEquip: (equipId: string, route: LeafRoute) => void;
   onProduction: () => void;
+  onScrap: () => void;
 }
 
 // "Analyse" is a live workspace (it hosts the Production Planner); the rest are upcoming.
@@ -33,7 +34,7 @@ const statusDot: Record<string, string> = { running: 'bg-emerald-400', off: 'bg-
 const Sidebar: FC<SidebarProps> = ({
   open, onClose, activePage,
   selectedSiteId, selectedSubsystemId, selectedEquipmentId,
-  onOverview, onPortfolio, onSite, onSubsystem, onEquip, onProduction,
+  onOverview, onPortfolio, onSite, onSubsystem, onEquip, onProduction, onScrap,
 }) => {
   const translateClass = open ? 'translate-x-0' : '-translate-x-full';
   const desktopTranslate = open ? 'lg:translate-x-0' : 'lg:-translate-x-full';
@@ -149,7 +150,7 @@ const Sidebar: FC<SidebarProps> = ({
             ))}
 
             <div>
-              <div className={`${rowBase} pl-3 ${activePage === 'production' ? activeRow : idleRow}`}>
+              <div className={`${rowBase} pl-3 ${activePage === 'production' || activePage === 'scrap' ? activeRow : idleRow}`}>
                 <button type="button" onClick={() => setAnalyseOpen((o) => !o)} aria-label="Expand" className="flex h-5 w-5 items-center justify-center">
                   <Chevron open={analyseOpen} />
                 </button>
@@ -163,6 +164,10 @@ const Sidebar: FC<SidebarProps> = ({
                   <button type="button" onClick={onProduction} className={`${rowBase} pl-8 ${activePage === 'production' ? activeRow : idleRow}`}>
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                     <span className="truncate">Production Planner</span>
+                  </button>
+                  <button type="button" onClick={onScrap} className={`${rowBase} pl-8 ${activePage === 'scrap' ? activeRow : idleRow}`}>
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
+                    <span className="truncate">Scrap Analyzer</span>
                   </button>
                   <div className={`${rowBase} cursor-default pl-8 text-slate-400`} aria-disabled="true">
                     <span className="text-xs">More coming soon</span>
