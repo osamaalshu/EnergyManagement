@@ -8,7 +8,8 @@ import {
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '../lib/tariffEngine';
 
 // Representative day for Time-of-Use pricing — Oman summer (peak season), factory LV.
-const TOU_DATE = '2025-07-15', TOU_VOLTAGE = '0.415kV';
+const TOU_DATE = '2025-07-15', TOU_VOLTAGE = '0.415kV', START_HOUR = 6;
+const heat = (v: number, max: number, rgb: string) => ({ background: `rgba(${rgb},${0.06 + 0.5 * (max > 0 ? v / max : 0)})` });
 
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Other: 'bg-slate-400',
@@ -72,20 +73,42 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const onTimePct = Math.round(mc.pAllOnTime * 100);
 
   // Energy & Time-of-Use: total machine-on energy, priced peak vs off-peak (the timing lever)
+  // real CRT rate for each hour of the representative day
+  const hourlyRates = useMemo(() => Array.from({ length: 24 }, (_, h) => effectiveRateOmrPerKwh(`${TOU_DATE}T${String(h).padStart(2, '0')}:00:00`, TOU_VOLTAGE)), []);
+  const medRate = useMemo(() => [...hourlyRates].sort((a, b) => a - b)[12], [hourlyRates]);
+
+  // energy + tariff cost for a single run, priced by the clock-hours it occupies
+  const runEnergy = (startH: number, runtimeH: number) => {
+    let kwh = 0, omr = 0, peakH = 0, t = startH, rem = runtimeH;
+    while (rem > 1e-9) {
+      const step = Math.min(1, rem); const hod = Math.floor(START_HOUR + t) % 24; const r = hourlyRates[hod];
+      kwh += line.machineKw * step; omr += line.machineKw * step * r; if (r > medRate) peakH += step;
+      t += step; rem -= step;
+    }
+    return { kwh, omr, peakFrac: runtimeH ? peakH / runtimeH : 0 };
+  };
+
   const tou = useMemo(() => {
-    // real CRT rates across the representative day, then the cheapest vs dearest run-window
-    const hourly = Array.from({ length: 24 }, (_, h) => effectiveRateOmrPerKwh(`${TOU_DATE}T${String(h).padStart(2, '0')}:00:00`, TOU_VOLTAGE));
-    const sorted = [...hourly].sort((a, b) => a - b);
+    const sorted = [...hourlyRates].sort((a, b) => a - b);
     const k = Math.min(Math.max(hoursPerDay, 1), 24);
     const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / a.length;
     const offRate = mean(sorted.slice(0, k)), peakRate = mean(sorted.slice(24 - k));
-    const machineHours = smart.lanes.reduce((a, l) => a + l.loadH, 0);
-    const kwh = machineHours * line.machineKw;
-    return {
-      kwh: Math.round(kwh), offRate, peakRate,
-      offCost: Math.round(kwh * offRate), peakCost: Math.round(kwh * peakRate), spread: Math.round(kwh * (peakRate - offRate)),
-    };
-  }, [smart, line, hoursPerDay]);
+    const kwh = smart.lanes.reduce((a, l) => a + l.loadH, 0) * line.machineKw;
+    return { kwh: Math.round(kwh), offRate, peakRate, offCost: Math.round(kwh * offRate), peakCost: Math.round(kwh * peakRate), spread: Math.round(kwh * (peakRate - offRate)) };
+  }, [smart, line, hoursPerDay, hourlyRates]);
+
+  // Per-run breakdown: each run's expected scrap (this product's own benchmark) + energy priced by when it runs
+  const detail = useMemo(() => {
+    const items = [...smart.items].sort((a, b) => a.machine - b.machine || a.seq - b.seq);
+    const rows = items.map((it) => {
+      const p = products[it.productId];
+      const reject = it.qty * (p?.kgPerUnit ?? 0) * (p?.meanRejection ?? 0);
+      const startup = it.setupBeforeH > 0 ? scrapPerChg : 0;
+      const e = runEnergy(it.startH, it.runtimeH);
+      return { it, scrap: reject + startup, reject, startup, kwh: e.kwh, omr: e.omr, band: e.peakFrac > 0.5 ? 'peak' : e.peakFrac > 0.05 ? 'mixed' : 'off-peak' };
+    });
+    return { rows, maxScrap: Math.max(...rows.map((r) => r.scrap), 1), maxOmr: Math.max(...rows.map((r) => r.omr), 1) };
+  }, [smart, products, scrapPerChg, hourlyRates, medRate, line]);
 
   // Biggest levers — what moves the finish date / risk most (so you know what to fix or measure)
   const levers = useMemo(() => {
@@ -294,7 +317,45 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       </div>
 
-      <p className="text-xs text-slate-400">Family change ≈ {famH} h, Ø ≈ {diaH} h, scrap ≈ {scrapPerChg} kg/changeover, rate variability assumed — edit above with your real numbers. Computed live; exact optimiser runs server-side.</p>
+      {/* PER-RUN DETAIL — every run: scrap (this product's benchmark) + energy by time-of-use */}
+      <div className="card-surface overflow-hidden p-0">
+        <div className="flex items-center justify-between border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Run-by-run detail</h3>
+          <span className="text-[11px] text-slate-400">scrap = each product's own benchmark · energy priced by when it runs · shaded = bigger</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
+              <tr>
+                <th className="px-3 py-2">#</th><th className="px-3 py-2">Product</th><th className="px-3 py-2">Machine</th>
+                <th className="px-3 py-2 text-right">Qty</th><th className="px-3 py-2 text-right">Run h</th>
+                <th className="px-3 py-2">Changeover</th><th className="px-3 py-2 text-right">Finish d</th>
+                <th className="px-3 py-2 text-right">Scrap kg</th><th className="px-3 py-2 text-right">Energy kWh</th>
+                <th className="px-3 py-2">When</th><th className="px-3 py-2 text-right">Energy OMR</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
+              {detail.rows.map(({ it, scrap, reject, startup, kwh, omr, band }) => (
+                <tr key={it.machine + '-' + it.orderId}>
+                  <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
+                  <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
+                  <td className="px-3 py-1.5 text-xs">{it.machineName}</td>
+                  <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
+                  <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
+                  <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
+                  <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
+                  <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
+                  <td className="px-3 py-1.5 text-right font-mono tabular-nums">{num(kwh)}</td>
+                  <td className="px-3 py-1.5 text-xs">{band === 'peak' ? <span className="text-rose-600 dark:text-rose-400">peak</span> : band === 'mixed' ? <span className="text-amber-600 dark:text-amber-400">mixed</span> : <span className="text-emerald-600 dark:text-emerald-400">off-peak</span>}</td>
+                  <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(omr, detail.maxOmr, '245,158,11')}>{num(omr, 1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p className="text-xs text-slate-400">Each product uses its own measured reject rate; startup scrap ≈ {scrapPerChg} kg/changeover and changeover times are estimates (see Model parameters). Energy priced on the CRT tariff by the hours each run occupies (start {START_HOUR}:00). Computed live; exact optimiser runs server-side.</p>
     </section>
   );
 };
