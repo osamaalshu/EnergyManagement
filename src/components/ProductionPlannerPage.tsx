@@ -7,8 +7,9 @@ import {
 } from '../lib/productionModel';
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '../lib/tariffEngine';
 
-// Representative day for Time-of-Use pricing — Oman summer (peak season), factory LV.
-const TOU_DATE = '2025-07-15', TOU_VOLTAGE = '0.415kV';
+// Representative days for Time-of-Use pricing — Oman summer/winter, factory LV.
+const TOU_VOLTAGE = '0.415kV';
+const TOU_SEASON_DATE: Record<'summer' | 'winter', string> = { summer: '2025-07-15', winter: '2025-12-15' };
 const hhmm = (h: number) => `${String(((h % 24) + 24) % 24).padStart(2, '0')}:00`;
 const heat = (v: number, max: number, rgb: string) => ({ background: `rgba(${rgb},${0.06 + 0.5 * (max > 0 ? v / max : 0)})` });
 
@@ -34,7 +35,7 @@ const binTwo = (a: number[], b: number[], n = 20) => {
 
 const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const { model } = productionData;
-  const [dataset, setDataset] = useState<'pilot' | 'demo'>('demo');
+  const [dataset, setDataset] = useState<'pilot' | 'demo'>('pilot');
   const skus: SkuParam[] = dataset === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
   const products = useMemo(() => Object.fromEntries(skus.map((s) => [s.id, s])), [skus]);
   const line: LineParam = dataset === 'demo' ? DEMO_LINE : {
@@ -50,6 +51,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   // with MC01's numbers would be a guess dressed up as data. One machine, honest.
   const machines = 1;
   const [shiftStart, setShiftStart] = useState(22); // hour the daily shift begins (TOU lever)
+  const [season, setSeason] = useState<'summer' | 'winter'>('summer');
+  const [rateCv, setRateCv] = useState(RATE_CV);
   const [famH, setFamH] = useState(3);
   const [diaH, setDiaH] = useState(0.5);
   const [scrapPerChg, setScrapPerChg] = useState(10);
@@ -57,7 +60,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [showParams, setShowParams] = useState(false);
   const [q, setQ] = useState('');
   const match = (name: string) => !q.trim() || name.toLowerCase().includes(q.toLowerCase());
-  const [orders, setOrders] = useState<Order[]>(() => genOrders(DEMO_SKUS, 30));
+  const [orders, setOrders] = useState<Order[]>(() => genOrders(model.skus as SkuParam[], 30));
 
   const chooseDataset = (ds: 'pilot' | 'demo') => {
     const list = ds === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
@@ -72,8 +75,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy]);
   const current = useMemo(() => scheduleOrders(orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, 'due'),
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg]);
-  const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart, hoursPerDay]);
-  const mcCur = useMemo(() => monteCarloOrders(current, hoursPerDay), [current, hoursPerDay]);
+  const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay, rateCv), [smart, hoursPerDay, rateCv]);
+  const mcCur = useMemo(() => monteCarloOrders(current, hoursPerDay, rateCv), [current, hoursPerDay, rateCv]);
   const overlay = useMemo(() => (mc.samplesDays.length && mcCur.samplesDays.length ? binTwo(mc.samplesDays, mcCur.samplesDays) : []), [mc, mcCur]);
 
   const itemByOrder = useMemo(() => { const map: Record<string, OrderItem> = {}; smart.items.forEach((it) => { map[it.orderId] = it; }); return map; }, [smart]);
@@ -84,7 +87,10 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   // Energy & Time-of-Use: total machine-on energy, priced peak vs off-peak (the timing lever)
   // real CRT rate for each hour of the representative day
-  const hourlyRates = useMemo(() => Array.from({ length: 24 }, (_, h) => effectiveRateOmrPerKwh(`${TOU_DATE}T${String(h).padStart(2, '0')}:00:00`, TOU_VOLTAGE)), []);
+  const hourlyRates = useMemo(() => {
+    const date = TOU_SEASON_DATE[season];
+    return Array.from({ length: 24 }, (_, h) => effectiveRateOmrPerKwh(`${date}T${String(h).padStart(2, '0')}:00:00`, TOU_VOLTAGE));
+  }, [season]);
   const medRate = useMemo(() => [...hourlyRates].sort((a, b) => a - b)[12], [hourlyRates]);
 
   // Price one run by WHEN it actually runs. The machine works a daily shift of
@@ -145,10 +151,10 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     const out = [
       { t: 'Run +4 hours/day', save: base - reRun(Math.min(24, hoursPerDay + 4), famH, diaH) },
       { t: 'Halve changeover time', save: base - reRun(hoursPerDay, famH / 2, diaH / 2) },
-      { t: 'Stabilise run rates (less variability)', save: Math.max(0, (mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0) - (monteCarloOrders(smart, hoursPerDay, RATE_CV / 2, 600).samplesDays[Math.floor(0.9 * 599)] || 0)) },
+      { t: 'Stabilise run rates (less variability)', save: Math.max(0, (mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0) - (monteCarloOrders(smart, hoursPerDay, rateCv / 2, 600).samplesDays[Math.floor(0.9 * 599)] || 0)) },
     ].map((l) => ({ ...l, save: Math.max(0, Math.round(l.save * 10) / 10) })).sort((a, b) => b.save - a.save);
     return out;
-  }, [smart, orders, products, horizon, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy, mc]);
+  }, [smart, orders, products, horizon, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy, mc, rateCv]);
   const leverMax = Math.max(...levers.map((l) => l.save), 0.1);
 
   const field = 'rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-white';
@@ -213,12 +219,12 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Param label="Run rate (per product)" value="measured from history" measured />
               <Param label="Reject rate (per product)" value="measured from history" measured />
-              <Param label="Rate variability" value="measured from history" measured />
+              <ParamInput label="Rate variability (CV)" value={rateCv} step={0.05} onChange={setRateCv} />
               <ParamInput label="Changeover — family (h)" value={famH} step={0.5} onChange={setFamH} />
               <ParamInput label="Changeover — diameter (h)" value={diaH} step={0.25} onChange={setDiaH} />
               <ParamInput label="Scrap per changeover (kg)" value={scrapPerChg} step={1} onChange={setScrapPerChg} />
             </div>
-            <p className="mt-3 text-[11px] text-slate-400">Run rates and reject rates come straight from your records. Changeover times and startup scrap are <span className="text-amber-600 dark:text-amber-400">estimates today</span> — when the line's changeover log and sensors are connected, these calibrate automatically and turn measured. You never type these as a manager; they're shown here for transparency.</p>
+            <p className="mt-3 text-[11px] text-slate-400">Run rates and reject rates come straight from your records. Rate variability (CV), changeover times and startup scrap are <span className="text-amber-600 dark:text-amber-400">estimates today</span> — when the line's changeover log and sensors are connected, these calibrate automatically and turn measured. You never type these as a manager; they're shown here for transparency.</p>
           </div>
         )}
       </div>
@@ -282,6 +288,11 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy — run off-peak</h3>
             <span className="text-[11px] text-slate-400">{num(tou.kwh)} kWh total</span>
           </div>
+          <div className="mt-3 inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
+            {(['summer', 'winter'] as const).map((s) => (
+              <button key={s} type="button" onClick={() => setSeason(s)} className={chip(season === s)}>{s === 'summer' ? 'Summer' : 'Winter'}</button>
+            ))}
+          </div>
           <p className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(tou.nowOmr)} OMR <span className="text-base font-normal text-slate-500">at this plan's energy</span></p>
           <div className="mt-3 flex flex-wrap items-end gap-x-5 gap-y-2">
             <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Shift starts</span>
@@ -295,7 +306,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               <span className="pb-1 text-xs text-emerald-600 dark:text-emerald-400">Already on the cheapest start ({hhmm(tou.bestH)}).</span>
             )}
           </div>
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Best vs worst start hour is worth <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{num(tou.spread)} OMR</span> on this plan. Priced on the live <span className="font-medium">CRT {TARIFF_SCHEDULE_VERSION}</span> tariff (0.415 kV, summer) by the clock-hours each run lands on.</p>
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">Best vs worst start hour is worth <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{num(tou.spread)} OMR</span> on this plan. Priced on the live <span className="font-medium">CRT {TARIFF_SCHEDULE_VERSION}</span> tariff (0.415 kV, {season}) by the clock-hours each run lands on. In winter the CRT tariff bands are flat, with no peak/off-peak spread, so this lever only saves money in summer.</p>
         </div>
       </div>
 

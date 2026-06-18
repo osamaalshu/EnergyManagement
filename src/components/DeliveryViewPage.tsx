@@ -1,4 +1,5 @@
 import { type FC, useMemo, useState } from 'react';
+import { productionData } from '../data/productionData';
 import {
   scheduleOrders, monteCarloOrders, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
   type SkuParam, type LineParam, type Econ, type Order, type OrderSchedule, type OrderItem,
@@ -12,11 +13,16 @@ const genOrders = (skus: SkuParam[], horizon: number): Order[] =>
 const pctl = (sorted: number[], q: number) => sorted.length ? sorted[Math.floor((q / 100) * (sorted.length - 1))] : 0;
 
 const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
-  const skus: SkuParam[] = DEMO_SKUS;                       // full catalogue view
+  const { model } = productionData;
+  const [dataset, setDataset] = useState<'pilot' | 'demo'>('pilot');
+  const skus: SkuParam[] = dataset === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
   const products = useMemo(() => Object.fromEntries(skus.map((s) => [s.id, s])), [skus]);
-  const line: LineParam = DEMO_LINE;
-  const econ: Econ = DEMO_ECON;
-  const machines = line.nMachines, hoursPerDay = 24;
+  const line: LineParam = dataset === 'demo' ? DEMO_LINE : {
+    machineKw: model.line.machineKw, changeoverH: model.line.changeoverH, changeoverKw: model.line.changeoverKw,
+    nMachines: model.line.nMachines, machineNames: model.line.machineNames,
+  };
+  const econ: Econ = dataset === 'demo' ? DEMO_ECON : model.economics;
+  const machines = 1, hoursPerDay = 16;
 
   const [range, setRange] = useState(30);
   const [showAll, setShowAll] = useState(false);
@@ -63,7 +69,6 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     const cand = [
       { title: 'Run earliest-due-date first', desc: 'Prioritise urgent orders over family grouping on the line.', s: sched('due'), cost: 'more changeovers' },
       { title: 'Add 2 h/day overtime', desc: 'Extend the shift across the horizon.', s: sched('grouped', machines, Math.min(24, hoursPerDay + 2)), cost: 'overtime + energy' },
-      { title: 'Add a machine for the horizon', desc: 'Bring an idle extruder online.', s: sched('grouped', machines + 1), cost: 'setup + labour' },
     ].map((c) => {
       const fixed = [...onSet(c.s)].filter((id) => !baseSet.has(id));
       const otifNew = Math.round((c.s.onTime / tot) * 100);
@@ -79,7 +84,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   return (
     <section className="space-y-5">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <button onClick={onBack} aria-label="Back" className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/70 text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5">
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </button>
@@ -90,6 +95,11 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
         <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
           {[7, 14, 30].map((d) => (<button key={d} type="button" onClick={() => setRange(d)} className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${range === d ? 'bg-accent text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>{d}d</button>))}
+        </div>
+        <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
+          {([['pilot', `Pilot · ${model.skus.length}`], ['demo', 'Illustrative · 12']] as const).map(([ds, label]) => (
+            <button key={ds} type="button" onClick={() => { setDataset(ds); setShowAll(false); setQ(''); setDrill(null); setPreview(null); }} className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${dataset === ds ? 'bg-accent text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>{label}</button>
+          ))}
         </div>
       </div>
 
@@ -197,7 +207,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       )}
 
-      <p className="text-xs text-slate-400">OTIF, confidence and finish windows from the production simulation (rate variability bootstrapped); recommendations are model heuristics, read-only in this MVP. Demo catalogue; real orders plug in when the order book connects.</p>
+      <p className="text-xs text-slate-400">OTIF, confidence and finish windows from the production simulation (rate variability bootstrapped), using 16 h/day on Machine 01. Pilot view uses measured line EXT-01 product rates from the Al Hilal / Nizwa pilot; Illustrative view uses synthetic demo products. Real order-book integration plugs in next.</p>
     </section>
   );
 };

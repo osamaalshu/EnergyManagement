@@ -15,6 +15,21 @@ Notation:
 
 ---
 
+## 0. Goal & Methodology
+
+### Goal
+Build the smallest set of features that let a plant manager make **materially better decisions** — not a monitoring dashboard. The bar for any element on screen is: *if the client sat here, would this change a real choice for the better?* If not, it is cut. We optimise for **signal-to-noise**: terminate noise (synthetic numbers presented as real, vanity metrics, low-sample outliers, cosmetic "insights", dead code), keep only strong, defensible signal. Each feature answers **exactly one decision** and labels every number as *measured*, *estimated*, or *simulated* so nothing is mistaken for live data.
+
+### Methodology
+1. **Decision-first design.** Start from the one decision a feature must change; derive inputs, equations and outputs from it. Reject anything that doesn't move that decision.
+2. **Ground in real data, refuse to fabricate.** Use the actual MC01/line records where they exist (per-product reject, demand, switch frequency). Where data doesn't support a quantity (e.g. per-product run rates for the full catalogue), we say so and do **not** invent it — fabricated precision is noise.
+3. **Provenance discipline.** Measured vs estimated vs simulated is explicit in the UI and here. A single tariff authority (`tariffEngine.ts`); a build-time provenance check gates merges.
+4. **Critical audit, challenge every assumption.** Each equation and default is interrogated against the data as if delivery depended on it (e.g. the scrap distribution is *diffuse*, not Pareto; the P25 "recoverable" was an arbitrary vanity number and was replaced with gap-to-plant-average over a material, well-measured focus set; `RATE_CV` is an assumption, not "measured", and is labelled and made adjustable; the TOU lever only pays in summer).
+5. **Two-agent workflow.** **Claude (architect)** owns system design, business logic, the decision/equation spec, and review sign-off. **Codex (executor)** implements specs, writes the tests, runs them, and fixes failures — Claude never writes test files. Flow: architect brief → `/codex:rescue` → `/reviewer` → `CHANGES.log` → commit. (Where this slipped into solo implementation, it was corrected back to this flow.)
+6. **Honest scoping.** Decision features are scoped to a single calibrated machine (MC01); scrap analysis is line-level (Machines 01 & 03) because the records can't be split. Scope is stated, not blurred.
+
+---
+
 ## 1. Order Planner
 
 **Decision:** *For next week's order book, will every order ship on time — and how do I balance corporate due dates against steady runs and energy cost, on MC01?*
