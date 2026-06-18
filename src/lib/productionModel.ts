@@ -192,6 +192,68 @@ export interface ScheduleResult {
   energyKwh: number; costOmr: number;
 }
 
+// ── Monte-Carlo CONFIDENCE band. The schedule itself is deterministic; MC only
+//    quantifies risk: rates vary run-to-run, so "finishes in N days" becomes a
+//    distribution and "fits" becomes a probability. RATE_CV is the assumed
+//    run-time variability (replace with the per-product spread once exposed).
+export const RATE_CV = 0.35;
+
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export interface MonteCarlo {
+  p50Days: number; p90Days: number; pFit: number; deadlineDays: number;
+  hist: { day: number; count: number; over: boolean }[];
+}
+
+export function monteCarloFit(sched: ScheduleResult, capH: number, hoursPerDay: number,
+                              cv = RATE_CV, reps = 1500, seed = 42): MonteCarlo {
+  const rng = mulberry32(seed);
+  const gauss = () => { // Box–Muller
+    let u = 0, v = 0;
+    while (u === 0) u = rng();
+    while (v === 0) v = rng();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  };
+  const sigma = Math.sqrt(Math.log(1 + cv * cv)); const mu = -sigma * sigma / 2;
+  const mult = () => Math.exp(mu + sigma * gauss()); // mean 1, CV = cv
+  const lanes = sched.lanes.map((l) => ({
+    setup: l.items.reduce((a, it) => a + it.setupBeforeH, 0),
+    runs: l.items.map((it) => it.runtimeH),
+  }));
+
+  const samples: number[] = [];
+  for (let r = 0; r < reps; r++) {
+    let mk = 0;
+    for (const lane of lanes) {
+      let t = lane.setup;
+      for (const rt of lane.runs) t += rt * mult();
+      if (t > mk) mk = t;
+    }
+    samples.push(mk);
+  }
+  samples.sort((a, b) => a - b);
+  const pct = (q: number) => samples[Math.floor((q / 100) * (samples.length - 1))] || 0;
+  const pFit = samples.filter((s) => s <= capH).length / samples.length;
+
+  const minD = samples[0] / hoursPerDay, maxD = samples[samples.length - 1] / hoursPerDay;
+  const deadlineDays = capH / hoursPerDay;
+  const nb = 16; const w = (maxD - minD) / nb || 1;
+  const hist = Array.from({ length: nb }, (_, i) => {
+    const lo = minD + i * w, center = lo + w / 2;
+    const count = samples.filter((s) => { const d = s / hoursPerDay; return d >= lo && (i === nb - 1 ? d <= lo + w + 1e-9 : d < lo + w); }).length;
+    return { day: round(center, 1), count, over: center > deadlineDays };
+  });
+  return { p50Days: round(pct(50) / hoursPerDay, 1), p90Days: round(pct(90) / hoursPerDay, 1), pFit: round(pFit, 3), deadlineDays: round(deadlineDays, 1), hist };
+}
+
 function setupBetween(prev: SkuParam | null, cur: SkuParam): { h: number; type: SetupType } {
   if (!prev) return { h: 0, type: 'none' };
   if (prev.family !== cur.family) return { h: SETUP_FAMILY_H, type: 'family' };
