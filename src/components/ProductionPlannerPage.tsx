@@ -1,7 +1,8 @@
 import { type FC, useMemo, useState } from 'react';
 import { productionData } from '../data/productionData';
 import {
-  planAll, STRATEGIES, STRATEGY_LABEL, type Strategy, type SkuParam,
+  planAll, STRATEGIES, STRATEGY_LABEL, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
+  type Strategy, type SkuParam, type LineParam, type Econ,
 } from '../lib/productionModel';
 
 const LANE_COLORS = ['bg-accent', 'bg-emerald-500', 'bg-amber-500', 'bg-sky-500', 'bg-violet-500'];
@@ -15,18 +16,30 @@ const STRATEGY_BLURB: Record<Strategy, string> = {
 
 const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const { meta, model } = productionData;
-  const skus: SkuParam[] = model.skus;
-  const line = model.line;
+  const [dataset, setDataset] = useState<'pilot' | 'demo'>('pilot');
+  const skus: SkuParam[] = dataset === 'demo' ? DEMO_SKUS : model.skus;
+  const line: LineParam = dataset === 'demo' ? DEMO_LINE : {
+    machineKw: model.line.machineKw, changeoverH: model.line.changeoverH, changeoverKw: model.line.changeoverKw,
+    nMachines: model.line.nMachines, machineNames: model.line.machineNames,
+  };
+  const econ: Econ = dataset === 'demo' ? DEMO_ECON : model.economics;
 
-  const [demands, setDemands] = useState<Record<string, number>>(
-    () => Object.fromEntries(skus.map((s) => [s.id, s.demand])));
+  const [demands, setDemands] = useState<Record<string, number>>({});
   const [days, setDays] = useState(365);
-  const [machines, setMachines] = useState(line.nMachines || 1);
+  const [hoursPerDay, setHoursPerDay] = useState(24);
+  const [machines, setMachines] = useState(model.line.nMachines || 1);
   const [selected, setSelected] = useState<Strategy>('balanced');
 
+  const chooseDataset = (ds: 'pilot' | 'demo') => {
+    setDataset(ds);
+    setMachines((ds === 'demo' ? DEMO_LINE.nMachines : model.line.nMachines) || 1);
+    setDemands({});
+    setSelected('balanced');
+  };
+
   const plans = useMemo(
-    () => planAll(skus, demands, days, machines, line, model.economics),
-    [skus, demands, days, machines, line, model.economics]);
+    () => planAll(skus, demands, days, machines, line, econ, hoursPerDay),
+    [skus, demands, days, machines, line, econ, hoursPerDay]);
   const plan = plans[selected];
   const colorFor = (id: string) => LANE_COLORS[skus.findIndex((s) => s.id === id) % LANE_COLORS.length];
 
@@ -57,22 +70,41 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
       {/* ── INPUTS ───────────────────────────────────────────────── */}
       <div className="card-surface p-5">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">1 · What do you need to produce?</h3>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">1 · What do you need to produce?</h3>
+          <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
+            {([['pilot', 'Pilot · 2 products'], ['demo', 'Full operation · 12 (demo)']] as const).map(([ds, label]) => (
+              <button key={ds} type="button" onClick={() => chooseDataset(ds)}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${dataset === ds ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {skus.map((s) => (
             <label key={s.id} className="block">
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{s.name}</span>
               <div className="mt-1 flex items-center gap-2">
-                <input type="number" min={0} value={demands[s.id]} onChange={(e) => setDemand(s.id, e.target.value)} className={field} />
+                <input type="number" min={0} value={demands[s.id] ?? s.demand} onChange={(e) => setDemand(s.id, e.target.value)} className={field} />
                 <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">units</span>
               </div>
             </label>
           ))}
+        </div>
+        <div className="mt-4 grid gap-4 border-t border-slate-200/60 pt-4 sm:grid-cols-3 dark:border-white/10">
           <label className="block">
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Time available</span>
             <div className="mt-1 flex items-center gap-2">
               <input type="number" min={1} value={days} onChange={(e) => setDays(Math.max(1, Math.round(Number(e.target.value) || 1)))} className={field} />
               <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">days</span>
+            </div>
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Hours run per day</span>
+            <div className="mt-1 flex items-center gap-2">
+              <input type="number" min={1} max={24} value={hoursPerDay} onChange={(e) => setHoursPerDay(Math.min(24, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={field} />
+              <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">h/day</span>
             </div>
           </label>
           <label className="block">
@@ -121,6 +153,16 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Finishes in <strong>{num(plan.makespanDays, 1)} days</strong> ({num(plan.makespanH)} h of run-time across {machines} machine{machines > 1 ? 's' : ''}).</p>
         </div>
         <div className="space-y-5 p-6">
+          {/* does it fit in the time available? */}
+          <div className={`rounded-xl px-4 py-3 text-sm ${plan.fits ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-200' : 'bg-red-50 text-red-800 dark:bg-red-500/10 dark:text-red-200'}`}>
+            <span className="font-semibold">Run-time: {num(plan.makespanH)} h on the busiest machine</span> · {num(plan.totalMachineH)} machine-hours total.
+            At {hoursPerDay} h/day → <strong>{num(plan.daysNeeded, 1)} days</strong>; you have {num(days)} →{' '}
+            {plan.fits
+              ? `fits, ${num(days - plan.daysNeeded, 1)} days to spare`
+              : `short by ${num(plan.daysNeeded - days, 1)} days — add machines, hours, or time`}.
+            {' '}Busiest machine {Math.round(plan.utilization * 100)}% utilised.
+          </div>
+
           {/* machine lanes */}
           <div className="space-y-3">
             {plan.lanes.map((lane) => {
