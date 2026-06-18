@@ -5,9 +5,10 @@ import {
   scheduleOrders, monteCarloOrders, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '../lib/productionModel';
+import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '../lib/tariffEngine';
 
-// Time-of-Use tariff (Oman APSR-style; would come from the CRT engine). Peak hours cost more.
-const PEAK_OMR_PER_KWH = 0.040, OFFPEAK_OMR_PER_KWH = 0.020;
+// Representative day for Time-of-Use pricing — Oman summer (peak season), factory LV.
+const TOU_DATE = '2025-07-15', TOU_VOLTAGE = '0.415kV';
 
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Other: 'bg-slate-400',
@@ -72,10 +73,19 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   // Energy & Time-of-Use: total machine-on energy, priced peak vs off-peak (the timing lever)
   const tou = useMemo(() => {
+    // real CRT rates across the representative day, then the cheapest vs dearest run-window
+    const hourly = Array.from({ length: 24 }, (_, h) => effectiveRateOmrPerKwh(`${TOU_DATE}T${String(h).padStart(2, '0')}:00:00`, TOU_VOLTAGE));
+    const sorted = [...hourly].sort((a, b) => a - b);
+    const k = Math.min(Math.max(hoursPerDay, 1), 24);
+    const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / a.length;
+    const offRate = mean(sorted.slice(0, k)), peakRate = mean(sorted.slice(24 - k));
     const machineHours = smart.lanes.reduce((a, l) => a + l.loadH, 0);
     const kwh = machineHours * line.machineKw;
-    return { kwh: Math.round(kwh), offCost: Math.round(kwh * OFFPEAK_OMR_PER_KWH), peakCost: Math.round(kwh * PEAK_OMR_PER_KWH), spread: Math.round(kwh * (PEAK_OMR_PER_KWH - OFFPEAK_OMR_PER_KWH)) };
-  }, [smart, line]);
+    return {
+      kwh: Math.round(kwh), offRate, peakRate,
+      offCost: Math.round(kwh * offRate), peakCost: Math.round(kwh * peakRate), spread: Math.round(kwh * (peakRate - offRate)),
+    };
+  }, [smart, line, hoursPerDay]);
 
   // Biggest levers — what moves the finish date / risk most (so you know what to fix or measure)
   const levers = useMemo(() => {
@@ -212,7 +222,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
             <span className="text-emerald-600 dark:text-emerald-400">Off-peak <span className="font-mono font-semibold">{num(tou.offCost)} OMR</span></span>
             <span className="text-rose-600 dark:text-rose-400">Peak <span className="font-mono font-semibold">{num(tou.peakCost)} OMR</span></span>
           </div>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Timing runs into off-peak hours is worth up to <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{num(tou.spread)} OMR</span>. TOU rates from the CRT tariff engine; hour-by-hour scheduling is next.</p>
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Timing runs into off-peak is worth up to <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{num(tou.spread)} OMR</span>. Priced on the live <span className="font-medium">CRT {TARIFF_SCHEDULE_VERSION}</span> tariff (0.415 kV, summer): off-peak <span className="font-mono">{tou.offRate.toFixed(3)}</span> vs peak <span className="font-mono">{tou.peakRate.toFixed(3)}</span> OMR/kWh.</p>
         </div>
       </div>
 
