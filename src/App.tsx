@@ -11,6 +11,7 @@ import CompressorPage from './components/CompressorPage';
 import ProductionPlannerPage from './components/ProductionPlannerPage';
 import ScrapAnalyzerPage from './components/ScrapAnalyzerPage';
 import PlantTelemetryPage from './components/PlantTelemetryPage';
+import DeliveryViewPage from './components/DeliveryViewPage';
 import SystemSummaryModal from './components/SystemSummaryModal';
 import { type Crumb } from './components/Breadcrumb';
 import {
@@ -62,6 +63,7 @@ function App() {
   const goProduction = () => { setActivePage('production'); closeMobileSidebar(); };
   const goScrap = () => { setActivePage('scrap'); closeMobileSidebar(); };
   const goPlant = () => { setActivePage('plant'); closeMobileSidebar(); };
+  const goDelivery = () => { setActivePage('delivery'); closeMobileSidebar(); };
 
   const goSite = (siteId: string) => {
     const site = getSite(siteId);
@@ -160,6 +162,8 @@ function App() {
         return <ScrapAnalyzerPage onBack={goOverview} />;
       case 'plant':
         return <PlantTelemetryPage onBack={goOverview} />;
+      case 'delivery':
+        return <DeliveryViewPage onBack={goOverview} />;
       case 'portfolio':
         return <PortfolioPage onNavigateToBuilding={goSite} />;
       case 'building':
@@ -218,6 +222,7 @@ function App() {
         onProduction={goProduction}
         onScrap={goScrap}
         onPlant={goPlant}
+        onDelivery={goDelivery}
       />
       <div className={`flex min-h-screen flex-col transition-[padding] duration-300 ${sidebarOpen ? 'lg:pl-72' : 'lg:pl-0'}`}>
         <TopBar

@@ -1,7 +1,7 @@
 import { type FC, useEffect, useState } from 'react';
 import { navSites, type LeafRoute } from '../lib/portfolioNav';
 
-export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'production' | 'scrap' | 'plant';
+export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'production' | 'scrap' | 'plant' | 'delivery';
 
 interface SidebarProps {
   open: boolean;
@@ -18,6 +18,7 @@ interface SidebarProps {
   onProduction: () => void;
   onScrap: () => void;
   onPlant: () => void;
+  onDelivery: () => void;
 }
 
 // "Analyse" is a live workspace (it hosts the Production Planner); the rest are upcoming.
@@ -35,7 +36,7 @@ const statusDot: Record<string, string> = { running: 'bg-emerald-400', off: 'bg-
 const Sidebar: FC<SidebarProps> = ({
   open, onClose, activePage,
   selectedSiteId, selectedSubsystemId, selectedEquipmentId,
-  onOverview, onPortfolio, onSite, onSubsystem, onEquip, onProduction, onScrap, onPlant,
+  onOverview, onPortfolio, onSite, onSubsystem, onEquip, onProduction, onScrap, onPlant, onDelivery,
 }) => {
   const translateClass = open ? 'translate-x-0' : '-translate-x-full';
   const desktopTranslate = open ? 'lg:translate-x-0' : 'lg:-translate-x-full';
@@ -151,7 +152,7 @@ const Sidebar: FC<SidebarProps> = ({
             ))}
 
             <div>
-              <div className={`${rowBase} pl-3 ${activePage === 'production' || activePage === 'scrap' || activePage === 'plant' ? activeRow : idleRow}`}>
+              <div className={`${rowBase} pl-3 ${['production', 'scrap', 'plant', 'delivery'].includes(activePage) ? activeRow : idleRow}`}>
                 <button type="button" onClick={() => setAnalyseOpen((o) => !o)} aria-label="Expand" className="flex h-5 w-5 items-center justify-center">
                   <Chevron open={analyseOpen} />
                 </button>
@@ -162,6 +163,10 @@ const Sidebar: FC<SidebarProps> = ({
               </div>
               {analyseOpen && (
                 <>
+                  <button type="button" onClick={onDelivery} className={`${rowBase} pl-8 ${activePage === 'delivery' ? activeRow : idleRow}`}>
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+                    <span className="truncate">Delivery View</span>
+                  </button>
                   <button type="button" onClick={onProduction} className={`${rowBase} pl-8 ${activePage === 'production' ? activeRow : idleRow}`}>
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                     <span className="truncate">Production Planner</span>

@@ -37,6 +37,7 @@ const pageLabel: Record<ActivePage, string> = {
   production: 'Production Planner',
   scrap: 'Scrap Analyzer',
   plant: 'Plant Telemetry',
+  delivery: 'Delivery View',
 };
 
 const TopBar: FC<TopBarProps> = ({
