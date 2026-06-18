@@ -18,7 +18,9 @@ interface SidebarProps {
   onProduction: () => void;
 }
 
-const SOON = ['Detect', 'Analyse', 'Optimise', 'Account Settings', 'Apps Market'];
+// "Analyse" is a live workspace (it hosts the Production Planner); the rest are upcoming.
+const SOON_BEFORE = ['Detect'];
+const SOON_AFTER = ['Optimise', 'Account Settings', 'Apps Market'];
 
 const Chevron: FC<{ open: boolean }> = ({ open }) => (
   <svg className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition ${open ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,6 +40,7 @@ const Sidebar: FC<SidebarProps> = ({
 
   const [expandedSites, setExpandedSites] = useState<Set<string>>(new Set());
   const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
+  const [analyseOpen, setAnalyseOpen] = useState(true);  // Analyse hosts the live Production Planner
 
   // Auto-expand the active path so you always see where you are.
   useEffect(() => {
@@ -79,12 +82,6 @@ const Sidebar: FC<SidebarProps> = ({
           {/* Portfolio → Sites → Subsystems → Equipment */}
           <button type="button" onClick={onPortfolio} className={`${rowBase} px-3 ${activePage === 'portfolio' ? activeRow : idleRow}`}>
             <span>Portfolio</span>
-          </button>
-
-          {/* Production Planner — manufacturing pilot (separate domain from the energy portfolio) */}
-          <button type="button" onClick={onProduction} className={`${rowBase} px-3 ${activePage === 'production' ? activeRow : idleRow}`}>
-            <span>Production Planner</span>
-            <span className="ml-auto rounded-full bg-amber-50 px-1.5 py-0.5 text-[0.6rem] font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">Pilot</span>
           </button>
 
           <div className="space-y-0.5 pb-2">
@@ -142,9 +139,39 @@ const Sidebar: FC<SidebarProps> = ({
             })}
           </div>
 
-          {/* Not yet available */}
+          {/* Workspaces — Analyse is live (Production Planner); the rest are upcoming */}
           <div className="space-y-1 border-t border-slate-200/70 pt-2 dark:border-white/5">
-            {SOON.map((label) => (
+            {SOON_BEFORE.map((label) => (
+              <div key={label} className={`${rowBase} cursor-default px-3 text-slate-400`} aria-disabled="true">
+                <span>{label}</span>
+                <span className="ml-auto text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">Soon</span>
+              </div>
+            ))}
+
+            <div>
+              <div className={`${rowBase} pl-3 ${activePage === 'production' ? activeRow : idleRow}`}>
+                <button type="button" onClick={() => setAnalyseOpen((o) => !o)} aria-label="Expand" className="flex h-5 w-5 items-center justify-center">
+                  <Chevron open={analyseOpen} />
+                </button>
+                <button type="button" onClick={onProduction} className="flex flex-1 items-center justify-between gap-2">
+                  <span>Analyse</span>
+                  <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[0.6rem] font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">New</span>
+                </button>
+              </div>
+              {analyseOpen && (
+                <>
+                  <button type="button" onClick={onProduction} className={`${rowBase} pl-8 ${activePage === 'production' ? activeRow : idleRow}`}>
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    <span className="truncate">Production Planner</span>
+                  </button>
+                  <div className={`${rowBase} cursor-default pl-8 text-slate-400`} aria-disabled="true">
+                    <span className="text-xs">More coming soon</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {SOON_AFTER.map((label) => (
               <div key={label} className={`${rowBase} cursor-default px-3 text-slate-400`} aria-disabled="true">
                 <span>{label}</span>
                 <span className="ml-auto text-[0.65rem] uppercase tracking-[0.3em] text-slate-400">Soon</span>

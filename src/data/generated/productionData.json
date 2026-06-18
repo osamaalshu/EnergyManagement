@@ -559,6 +559,56 @@
       "dependence": "block-bootstrap of whole runs (rate+rejection drawn together)"
     }
   },
+  "configuration": {
+    "n_machines": 2,
+    "runs_by_sku": {
+      "DRAIN-SN2": 36,
+      "PRESS-DIN-CL3": 51
+    },
+    "batch_by_sku": {
+      "DRAIN-SN2": 337.5,
+      "PRESS-DIN-CL3": 896.0
+    },
+    "production_hours_median": 2364.2,
+    "production_hours_effective": 3586.6,
+    "makespan_h": 2281.6,
+    "total_changeover_h": 0.0,
+    "costs_omr": {
+      "holding": 327,
+      "setup": 326,
+      "fixed": 8778,
+      "total": 9431
+    },
+    "assignment": {
+      "DRAIN-SN2": 0,
+      "PRESS-DIN-CL3": 1
+    },
+    "per_machine": {
+      "0": {
+        "name": "Machine 01",
+        "sequence": [
+          "DRAIN-SN2"
+        ],
+        "load_h": 1305.0,
+        "setup_h": 0.0
+      },
+      "1": {
+        "name": "Machine 03",
+        "sequence": [
+          "PRESS-DIN-CL3"
+        ],
+        "load_h": 2281.6,
+        "setup_h": 0.0
+      }
+    },
+    "feasible": true,
+    "notes": [
+      "CP-SAT OPTIMAL; capacity slack (2538/6000 h). Each campaign = 1 setup (upper bound); sequence-dependent setups need Phase-0 matrix.",
+      "CP-SAT OPTIMAL; 2 machines, sequence-dependent setups.",
+      "hours use EFFECTIVE rate (median would understate by ~52%)",
+      "two-stage decomposition: lot-sizing then SKU-block sequencing (no sub-horizon interleaving yet)"
+    ]
+  },
   "savings": {
     "totalOmr": 17,
     "decisionOmr": 17

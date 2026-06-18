@@ -30,9 +30,12 @@ RESULTS = Path(REPO) / "layer3_production" / "results"
 def main() -> None:
     phase1 = json.loads((RESULTS / "results.json").read_text())
     phase2 = json.loads((RESULTS / "line_plan.json").read_text())
+    full_path = RESULTS / "full_plan.json"
+    phase2c = json.loads(full_path.read_text()) if full_path.exists() else {}
 
     # Phase-2 is keyed by line id; the pilot has one line.
     line_id, line = next(iter(phase2["lines"].items()))
+    configuration = phase2c.get(line_id)  # Phase 2c: combined lot-sizing × sequencing
 
     out = {
         "meta": {
@@ -49,6 +52,7 @@ def main() -> None:
         "assumptions": phase1["assumptions"],
         "skus": phase1["skus"],         # per-SKU baseline/optimal with measured/calculated/inferred/assumed labels
         "line": line,                   # Phase-2 baseline vs optimal plan + DES validation
+        "configuration": configuration, # Phase-2c combined lot-sizing × sequencing (best config to run all products)
         "savings": {
             "totalOmr": line["saving_total_omr"],
             "decisionOmr": line["saving_decision_omr"],

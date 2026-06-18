@@ -69,11 +69,35 @@ export interface ProductionLine {
   des_validation: DesValidation;
 }
 
+export interface MachineLane {
+  name: string;
+  sequence: string[];
+  load_h: number;
+  setup_h: number;
+}
+
+/** Phase 2c — combined lot-sizing × sequencing: the best configuration to run all products. */
+export interface Configuration {
+  n_machines: number;
+  runs_by_sku: Record<string, number>;
+  batch_by_sku: Record<string, number>;
+  production_hours_median: number;
+  production_hours_effective: number;
+  makespan_h: number;
+  total_changeover_h: number;
+  costs_omr: { holding: number; setup: number; fixed: number; total: number };
+  assignment: Record<string, number>;
+  per_machine: Record<string, MachineLane>;
+  feasible: boolean;
+  notes: string[];
+}
+
 export interface ProductionData {
   meta: ProductionMeta;
   assumptions: Record<string, number>;
   skus: SkuScenario[];
   line: ProductionLine;
+  configuration: Configuration | null;
   savings: { totalOmr: number; decisionOmr: number };
   desValidation: DesValidation;
 }
