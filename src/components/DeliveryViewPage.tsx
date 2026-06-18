@@ -20,6 +20,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const [range, setRange] = useState(30);
   const [showAll, setShowAll] = useState(false);
+  const [q, setQ] = useState('');
   const [drill, setDrill] = useState<OrderItem | null>(null);
   const [preview, setPreview] = useState<{ title: string; affected: Set<string>; otif: number } | null>(null);
   const orders = useMemo(() => genOrders(skus, 30), [skus]);
@@ -47,7 +48,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     .map((it) => ({ it, conf: mc.onTimeProb[it.orderId] ?? 1, cause: rootCause(it), kg: it.qty * (products[it.productId]?.kgPerUnit ?? 0) }))
     .sort((a, b) => (b.it.lateDays - a.it.lateDays) || (a.conf - b.conf)), [smart, mc, range]);
   const atRisk = rows.filter((r) => !r.it.onTime || r.conf < 0.95);
-  const shown = showAll ? rows : atRisk;
+  const shown = (q.trim() ? rows : (showAll ? rows : atRisk)).filter((r) => r.it.name.toLowerCase().includes(q.toLowerCase()));
 
   const otif = rows.length ? Math.round((rows.filter((r) => r.it.onTime).length / rows.length) * 100) : 100;
   const atRiskKg = atRisk.reduce((a, r) => a + r.kg, 0);
@@ -115,8 +116,11 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         {/* Left — orders at risk */}
         <div className="card-surface overflow-hidden p-0 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{showAll ? 'All orders' : 'Orders at risk'} <span className="font-normal normal-case text-slate-400">· next {range} days</span></h3>
-            <button type="button" onClick={() => setShowAll((v) => !v)} className="text-xs font-medium text-accent">{showAll ? 'show at-risk only' : 'show all'}</button>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{q.trim() ? 'Search results' : showAll ? 'All orders' : 'Orders at risk'} <span className="font-normal normal-case text-slate-400">· next {range} days</span></h3>
+            <div className="flex items-center gap-3">
+              <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search product…" className="rounded-lg border border-slate-200/70 bg-white px-2.5 py-1 text-xs text-slate-700 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-slate-200" />
+              <button type="button" onClick={() => setShowAll((v) => !v)} className="text-xs font-medium text-accent">{showAll ? 'at-risk only' : 'show all'}</button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

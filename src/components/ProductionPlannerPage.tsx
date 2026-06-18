@@ -47,6 +47,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [diaH, setDiaH] = useState(0.5);
   const [scrapPerChg, setScrapPerChg] = useState(10);
   const [showParams, setShowParams] = useState(false);
+  const [q, setQ] = useState('');
+  const match = (name: string) => !q.trim() || name.toLowerCase().includes(q.toLowerCase());
   const [orders, setOrders] = useState<Order[]>(() => genOrders(DEMO_SKUS, 30));
 
   const chooseDataset = (ds: 'pilot' | 'demo') => {
@@ -194,7 +196,10 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       <div className="card-surface overflow-hidden p-0">
         <div className="flex items-center justify-between border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Order book</h3>
-          <button type="button" onClick={addOrder} className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-accent/90">+ Add order</button>
+          <div className="flex items-center gap-2">
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search product…" className="rounded-lg border border-slate-200/70 bg-white px-2.5 py-1 text-xs text-slate-700 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-slate-200" />
+            <button type="button" onClick={addOrder} className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-accent/90">+ Add order</button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -202,7 +207,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2 text-right">Qty</th><th className="px-4 py-2 text-right">Due (day)</th><th className="px-4 py-2 text-right">Finishes</th><th className="px-4 py-2">On time?</th><th className="px-4 py-2 text-right">Confidence</th><th className="px-4 py-2" /></tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
-              {orders.map((o) => {
+              {orders.filter((o) => match(products[o.productId]?.name ?? '')).map((o) => {
                 const it = itemByOrder[o.id]; const prob = mc.onTimeProb[o.id] ?? 1; const p = products[o.productId];
                 return (
                   <tr key={o.id}>
@@ -335,7 +340,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
-              {detail.rows.map(({ it, scrap, reject, startup, kwh, omr, band }) => (
+              {detail.rows.filter(({ it }) => match(it.name)).map(({ it, scrap, reject, startup, kwh, omr, band }) => (
                 <tr key={it.machine + '-' + it.orderId}>
                   <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
                   <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>

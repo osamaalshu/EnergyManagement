@@ -19,6 +19,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const [famFilter, setFamFilter] = useState('All');
   const [machineFilter, setMachineFilter] = useState('All');
+  const [q, setQ] = useState('');
   const [drill, setDrill] = useState<string | null>(null);
 
   const a = useMemo(() => {
@@ -52,7 +53,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const recs = a.rows.filter((r) => r.saving > 0).sort((x, y) => y.saving - x.saving).slice(0, 5);
   const driver = (r: typeof a.rows[number]) =>
     r.reject >= a.benchmark * 1.6 ? 'high variability' : r.demand > 25000 ? 'high-runner volume' : 'process tuning';
-  const tableRows = top10.filter((r) => (famFilter === 'All' || r.family === famFilter) && (machineFilter === 'All' || r.machine === machineFilter));
+  const tableRows = (q.trim() ? a.rows : top10).filter((r) => (famFilter === 'All' || r.family === famFilter) && (machineFilter === 'All' || r.machine === machineFilter) && r.name.toLowerCase().includes(q.toLowerCase()));
   const drillRow = a.rows.find((r) => r.id === drill);
 
   return (
@@ -123,8 +124,9 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       {/* Investigator table */}
       <div className="card-surface overflow-hidden p-0">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Top 10 — investigate</h3>
-          <div className="flex gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{q.trim() ? 'Search results' : 'Top 10 — investigate'}</h3>
+          <div className="flex flex-wrap gap-2">
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search product…" className="rounded-lg border border-slate-200/70 bg-white px-2.5 py-1 text-xs text-slate-700 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-slate-200" />
             <select value={famFilter} onChange={(e) => setFamFilter(e.target.value)} className="rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-xs text-slate-700 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"><option>All</option>{[...new Set(skus.map((s) => s.family))].map((f) => <option key={f}>{f}</option>)}</select>
             <select value={machineFilter} onChange={(e) => setMachineFilter(e.target.value)} className="rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-xs text-slate-700 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"><option>All</option>{a.machines.map((m) => <option key={m}>{m}</option>)}</select>
           </div>
