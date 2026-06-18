@@ -41,6 +41,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [famH, setFamH] = useState(3);
   const [diaH, setDiaH] = useState(0.5);
   const [scrapPerChg, setScrapPerChg] = useState(10);
+  const [showParams, setShowParams] = useState(false);
   const [orders, setOrders] = useState<Order[]>(() => genOrders(DEMO_SKUS, 30));
 
   const chooseDataset = (ds: 'pilot' | 'demo') => {
@@ -101,16 +102,34 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </p>
       </div>
 
-      {/* WHAT-IF */}
-      <div className="card-surface flex flex-wrap items-end gap-x-5 gap-y-3 p-4">
+      {/* YOUR DECISIONS — only what a manager controls */}
+      <div className="card-surface flex flex-wrap items-end gap-x-6 gap-y-3 p-4">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">You decide</span>
         <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Planning window</span><div className="mt-1 flex items-center gap-1"><input type="number" min={1} value={horizon} onChange={(e) => setHorizon(Math.max(1, Math.round(Number(e.target.value) || 1)))} className={`w-20 ${field}`} /><span className="text-xs text-slate-400">days</span></div></label>
-        <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Machines</span><input type="number" min={1} max={6} value={machines} onChange={(e) => setMachines(Math.min(6, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
+        <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Machines running</span><input type="number" min={1} max={6} value={machines} onChange={(e) => setMachines(Math.min(6, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
         <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Hours / day</span><input type="number" min={1} max={24} value={hoursPerDay} onChange={(e) => setHoursPerDay(Math.min(24, Math.max(1, Math.round(Number(e.target.value) || 1))))} className={`mt-1 block w-20 ${field}`} /></label>
-        <div className="flex items-end gap-2 border-l border-slate-200/60 pl-4 dark:border-white/10">
-          <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Family Δ (h)</span><input type="number" min={0} step={0.5} value={famH} onChange={(e) => setFamH(Math.max(0, Number(e.target.value) || 0))} className={`mt-1 block w-16 ${field}`} /></label>
-          <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Ø Δ (h)</span><input type="number" min={0} step={0.25} value={diaH} onChange={(e) => setDiaH(Math.max(0, Number(e.target.value) || 0))} className={`mt-1 block w-16 ${field}`} /></label>
-          <label className="block"><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Scrap / change (kg)</span><input type="number" min={0} value={scrapPerChg} onChange={(e) => setScrapPerChg(Math.max(0, Number(e.target.value) || 0))} className={`mt-1 block w-20 ${field}`} /></label>
-        </div>
+        <span className="text-xs text-slate-400">…and the order book below. Everything else is calibrated from your data.</span>
+      </div>
+
+      {/* MODEL PARAMETERS — calibrated from data, sensors fine-tune (collapsed) */}
+      <div className="card-surface p-0">
+        <button type="button" onClick={() => setShowParams((v) => !v)} className="flex w-full items-center justify-between px-5 py-3 text-left">
+          <span className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Model parameters <span className="font-normal normal-case text-slate-400">· calibrated from your production data · live sensors will fine-tune</span></span>
+          <span className="text-xs text-slate-400">{showParams ? 'hide ▲' : 'show ▼'}</span>
+        </button>
+        {showParams && (
+          <div className="border-t border-slate-200/60 px-5 py-4 dark:border-white/10">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <Param label="Run rate (per product)" value="measured from history" measured />
+              <Param label="Reject rate (per product)" value="measured from history" measured />
+              <Param label="Rate variability" value="measured from history" measured />
+              <ParamInput label="Changeover — family (h)" value={famH} step={0.5} onChange={setFamH} />
+              <ParamInput label="Changeover — diameter (h)" value={diaH} step={0.25} onChange={setDiaH} />
+              <ParamInput label="Scrap per changeover (kg)" value={scrapPerChg} step={1} onChange={setScrapPerChg} />
+            </div>
+            <p className="mt-3 text-[11px] text-slate-400">Run rates and reject rates come straight from your records. Changeover times and startup scrap are <span className="text-amber-600 dark:text-amber-400">estimates today</span> — when the line's changeover log and sensors are connected, these calibrate automatically and turn measured. You never type these as a manager; they're shown here for transparency.</p>
+          </div>
+        )}
       </div>
 
       {/* ORDER BOOK — input + outcome per order */}
@@ -208,5 +227,22 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     </section>
   );
 };
+
+const Param: FC<{ label: string; value: string; measured?: boolean }> = ({ label, value, measured }) => (
+  <div className="rounded-lg border border-slate-200/70 px-3 py-2 dark:border-white/10">
+    <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300">{label}</p>
+    <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-200">
+      <span className={`h-1.5 w-1.5 rounded-full ${measured ? 'bg-emerald-500' : 'bg-amber-500'}`} />{value}
+    </p>
+  </div>
+);
+
+const ParamInput: FC<{ label: string; value: number; step: number; onChange: (v: number) => void }> = ({ label, value, step, onChange }) => (
+  <div className="rounded-lg border border-amber-300/50 px-3 py-2 dark:border-amber-500/20">
+    <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300">{label} <span className="text-amber-600 dark:text-amber-400">· estimate</span></p>
+    <input type="number" min={0} step={step} value={value} onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
+      className="mt-1 w-full rounded border border-slate-200/70 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-white" />
+  </div>
+);
 
 export default ProductionPlannerPage;
