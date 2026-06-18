@@ -1,4 +1,4 @@
-import { type FC, useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { type FC, useState, useEffect, useRef, useMemo } from 'react';
 import {
   PieChart,
   Pie,
@@ -22,6 +22,7 @@ import {
   buildingDetails,
 } from '../data/mockPortfolioData';
 import { getBandColor, BAND_BG_CLASS, BAND_TEXT_CLASS } from '../lib/performanceBands';
+import { navSites } from '../lib/portfolioNav';
 import TimeResolutionSelector from './TimeResolutionSelector';
 import ExportExcelButton from './ExportExcelButton';
 import type { PerformanceBand, TimeResolution } from '../types/portfolio';
@@ -73,17 +74,13 @@ interface PortfolioPageProps {
 }
 
 const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
-  const [buildingDropdownOpen, setBuildingDropdownOpen] = useState(false);
   const [comparisonResolution, setComparisonResolution] = useState<TimeResolution>('monthly');
   const [scatterSize, setScatterSize] = useState({ width: 800, height: 320 });
   const [pieSize, setPieSize] = useState({ width: 200, height: 160 });
   const [barSize, setBarSize] = useState({ width: 800, height: 288 });
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const scatterContainerRef = useRef<HTMLDivElement>(null);
   const pieContainerRef = useRef<HTMLDivElement>(null);
   const barContainerRef = useRef<HTMLDivElement>(null);
-
-  const closeDropdown = useCallback(() => setBuildingDropdownOpen(false), []);
 
   // Measure scatter container; only update with valid dimensions so chart never receives 0 or -1
   useEffect(() => {
@@ -125,17 +122,6 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
     return () => ro.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (!buildingDropdownOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) closeDropdown();
-    };
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeDropdown(); };
-    document.addEventListener('mousedown', handleClick);
-    document.addEventListener('keydown', handleKey);
-    return () => { document.removeEventListener('mousedown', handleClick); document.removeEventListener('keydown', handleKey); };
-  }, [buildingDropdownOpen, closeDropdown]);
-
   const comparisonData = comparisonsByResolution[comparisonResolution];
 
   const scatterData = buildings.map((b) => ({
@@ -167,40 +153,44 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
 
   return (
     <section className="space-y-8">
-      {/* ── Page header with building quick-nav ────────────────── */}
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Portfolio</p>
-        </div>
-        <div className="relative" ref={dropdownRef}>
-          <button
-            type="button"
-            onClick={() => setBuildingDropdownOpen((p) => !p)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200/70 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-accent/50 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"
-          >
-            <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            Go to Building
-            <svg className={`h-4 w-4 text-slate-400 transition ${buildingDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {buildingDropdownOpen && (
-            <div className="card-surface absolute right-0 z-50 mt-2 w-64 space-y-1 p-2 shadow-2xl">
-              {buildings.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  onClick={() => { onNavigateToBuilding(b.id); setBuildingDropdownOpen(false); }}
-                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5"
-                >
-                  <span>{b.name}</span>
-                  <span className="text-xs text-slate-400">{b.sector}</span>
-                </button>
-              ))}
-            </div>
-          )}
+      {/* ── Page header ────────────────────────────────────────── */}
+      <div>
+        <p className="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Portfolio</p>
+        <h2 className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Your sites &amp; performance</h2>
+      </div>
+
+      {/* ── Sites: the landing list — pick where to go ─────────── */}
+      <div>
+        <SectionTitle>Sites</SectionTitle>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {navSites.map((site) => {
+            const units = site.subsystems.reduce((n, s) => n + s.equipment.length, 0);
+            const warnings = site.subsystems.reduce((n, s) => n + s.warnings, 0);
+            const isPilot = site.kind === 'compressor';
+            return (
+              <button
+                key={site.id}
+                type="button"
+                onClick={() => onNavigateToBuilding(site.id)}
+                className={`card-surface flex flex-col gap-3 p-5 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-xl ${warnings > 0 ? 'border-red-400/30' : ''}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-base font-semibold text-slate-900 dark:text-white">{site.name}</p>
+                    <span className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium ${isPilot ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300' : 'bg-accent/15 text-accent'}`}>{site.sector}</span>
+                  </div>
+                  <svg className="h-5 w-5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                  <span>{site.subsystems.length} subsystem{site.subsystems.length === 1 ? '' : 's'}</span>
+                  <span>{units} unit{units === 1 ? '' : 's'}</span>
+                  {warnings > 0
+                    ? <span className="font-medium text-red-400">{warnings} warning{warnings === 1 ? '' : 's'}</span>
+                    : <span className="font-medium text-emerald-500">Healthy</span>}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -397,19 +387,6 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
           </div>
         )}
 
-        {/* Building labels */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {buildings.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              onClick={() => onNavigateToBuilding(b.id)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition hover:opacity-80 ${BAND_BG_CLASS[b.performanceBand]} ${BAND_TEXT_CLASS[b.performanceBand]}`}
-            >
-              {b.name}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* ═══════════════ SECTION D: Building-Level Performance ═══════════════ */}

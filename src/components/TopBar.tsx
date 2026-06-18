@@ -30,8 +30,10 @@ const pageLabel: Record<ActivePage, string> = {
   dashboard: 'Overview',
   portfolio: 'Portfolio',
   building: 'Building',
+  subsystem: 'Subsystem',
   equipment: 'Equipment',
   tariff: 'Tariff Structure',
+  compressor: 'Compressor',
 };
 
 const TopBar: FC<TopBarProps> = ({
