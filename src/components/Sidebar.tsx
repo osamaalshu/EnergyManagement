@@ -173,7 +173,7 @@ const Sidebar: FC<SidebarProps> = ({
                   </button>
                   <button type="button" onClick={onScrap} className={`${rowBase} pl-8 ${activePage === 'scrap' ? activeRow : idleRow}`}>
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
-                    <span className="truncate">Scrap Analyzer</span>
+                    <span className="truncate">Scrap Focus</span>
                   </button>
                   <button type="button" onClick={onPlant} className={`${rowBase} pl-8 ${activePage === 'plant' ? activeRow : idleRow}`}>
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
