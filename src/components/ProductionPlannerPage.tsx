@@ -2,9 +2,12 @@ import { type FC, useMemo, useState } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
 import { productionData } from '../data/productionData';
 import {
-  scheduleOrders, monteCarloOrders, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
+  scheduleOrders, monteCarloOrders, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '../lib/productionModel';
+
+// Time-of-Use tariff (Oman APSR-style; would come from the CRT engine). Peak hours cost more.
+const PEAK_OMR_PER_KWH = 0.040, OFFPEAK_OMR_PER_KWH = 0.020;
 
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Other: 'bg-slate-400',
@@ -66,6 +69,28 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const savedScrap = Math.round(current.scrapKg - smart.scrapKg);
   const savedScrapOmr = Math.round(savedScrap * econ.materialOmrPerKg);
   const onTimePct = Math.round(mc.pAllOnTime * 100);
+
+  // Energy & Time-of-Use: total machine-on energy, priced peak vs off-peak (the timing lever)
+  const tou = useMemo(() => {
+    const machineHours = smart.lanes.reduce((a, l) => a + l.loadH, 0);
+    const kwh = machineHours * line.machineKw;
+    return { kwh: Math.round(kwh), offCost: Math.round(kwh * OFFPEAK_OMR_PER_KWH), peakCost: Math.round(kwh * PEAK_OMR_PER_KWH), spread: Math.round(kwh * (PEAK_OMR_PER_KWH - OFFPEAK_OMR_PER_KWH)) };
+  }, [smart, line]);
+
+  // Biggest levers — what moves the finish date / risk most (so you know what to fix or measure)
+  const levers = useMemo(() => {
+    const base = smart.makespanDays;
+    const reRun = (m: number, h: number, fh: number, dh: number) =>
+      scheduleOrders(orders, products, horizon, m, line, econ, h, fh, dh, scrapPerChg, 'grouped').makespanDays;
+    const out = [
+      { t: 'Add a machine', save: base - reRun(machines + 1, hoursPerDay, famH, diaH) },
+      { t: 'Run +4 hours/day', save: base - reRun(machines, Math.min(24, hoursPerDay + 4), famH, diaH) },
+      { t: 'Halve changeover time', save: base - reRun(machines, hoursPerDay, famH / 2, diaH / 2) },
+      { t: 'Stabilise run rates (less variability)', save: Math.max(0, (mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0) - (monteCarloOrders(smart, hoursPerDay, RATE_CV / 2, 600).samplesDays[Math.floor(0.9 * 599)] || 0)) },
+    ].map((l) => ({ ...l, save: Math.max(0, Math.round(l.save * 10) / 10) })).sort((a, b) => b.save - a.save);
+    return out;
+  }, [smart, orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, mc]);
+  const leverMax = Math.max(...levers.map((l) => l.save), 0.1);
 
   const field = 'rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-white';
   const chip = (on: boolean) => `rounded-md px-2.5 py-1 text-xs font-medium transition ${on ? 'bg-accent text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`;
@@ -168,6 +193,42 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* ENERGY & SCRAP — schedule linked to the two cost drivers (Track B v1) */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="card-surface p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Expected scrap — from this plan's run-time &amp; changeovers</h3>
+          <p className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(smart.scrapKg)} kg <span className="text-base font-normal text-slate-500">≈ {num(smart.scrapOmr)} OMR</span></p>
+          <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">−{num(savedScrap)} kg (≈ {num(savedScrapOmr)} OMR) vs your current way</p>
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-mono">{num(smart.baseScrapKg)} kg</span> in-run reject + <span className="font-mono">{num(smart.startupScrapKg)} kg</span> startup scrap from <span className="font-mono">{smart.familyChanges + smart.diameterChanges}</span> changeovers. Fewer/cleaner changeovers → less scrap.
+          </p>
+        </div>
+        <div className="card-surface p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy — time of use</h3>
+          <p className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(tou.kwh)} kWh</p>
+          <div className="mt-2 flex items-center gap-4 text-sm">
+            <span className="text-emerald-600 dark:text-emerald-400">Off-peak <span className="font-mono font-semibold">{num(tou.offCost)} OMR</span></span>
+            <span className="text-rose-600 dark:text-rose-400">Peak <span className="font-mono font-semibold">{num(tou.peakCost)} OMR</span></span>
+          </div>
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Timing runs into off-peak hours is worth up to <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{num(tou.spread)} OMR</span>. TOU rates from the CRT tariff engine; hour-by-hour scheduling is next.</p>
+        </div>
+      </div>
+
+      {/* BIGGEST LEVERS — sensitivity */}
+      <div className="card-surface p-5">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Biggest levers — what cuts your finish date most</h3>
+        <div className="mt-3 space-y-2">
+          {levers.map((l) => (
+            <div key={l.t} className="flex items-center gap-3">
+              <span className="w-56 shrink-0 text-sm text-slate-700 dark:text-slate-300">{l.t}</span>
+              <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><div className="h-full rounded-full bg-accent" style={{ width: `${(l.save / leverMax) * 100}%` }} /></div>
+              <span className="w-20 shrink-0 text-right font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">−{num(l.save, 1)} d</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] text-slate-400">Days off the finish date if you made each change — tells you what to invest in, or which signal to measure first.</p>
       </div>
 
       {/* MONTE-CARLO REPRESENTATION — smart vs current finish distributions */}
