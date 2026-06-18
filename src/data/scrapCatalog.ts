@@ -8,6 +8,9 @@ export interface ScrapProduct {
   id: string; name: string; family: string; diameterMm: number;
   demand: number; kgPerUnit: number; meanRejection: number; rateEffective: number;
   samples: number; scrapKgObs: number;
+  // Own best-demonstrated reject = this product's P25 across its own shift records
+  // (achievable, because it has hit it). null when <5 records (too few to trust).
+  bestRejectOwn: number | null;
 }
 export interface ScrapCatalog {
   meta: {

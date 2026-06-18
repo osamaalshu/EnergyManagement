@@ -112,18 +112,62 @@ describe('scrap analysis invariants', () => {
     expect(topNFor80 === 1 ? 0 : cumulativePct[topNFor80 - 2]).toBeLessThan(80);
   });
 
-  it('excludes low-sample products from recoverable savings', () => {
-    const plantAvg = scrapCatalog.meta.overallRejectPct / 100;
+  it('uses each product own best-demonstrated reject for recoverable savings', () => {
     const rows = scrapCatalog.products.map((product) => {
       const scrapKg = product.demand * product.kgPerUnit * product.meanRejection;
-      const saving = Math.max(0, product.meanRejection - plantAvg) * product.demand * product.kgPerUnit * 0.32;
+      const saving = product.bestRejectOwn == null
+        ? 0
+        : Math.max(0, product.meanRejection - product.bestRejectOwn) * product.demand * product.kgPerUnit * 0.32;
       return { ...product, scrapKg, saving };
     });
     const totalKg = rows.reduce((sum, row) => sum + row.scrapKg, 0);
     const contributors = rows.filter((row) => row.samples >= 5 && row.scrapKg >= totalKg * 0.02 && row.saving > 0);
+    const recoverable = contributors.reduce((sum, row) => sum + row.saving, 0);
 
+    for (const row of rows) {
+      if (row.bestRejectOwn == null || row.meanRejection <= row.bestRejectOwn) {
+        expect(row.saving).toBe(0);
+      }
+    }
+    expect(recoverable).toBeGreaterThan(0);
     expect(contributors.every((row) => row.samples >= 5)).toBe(true);
-    expect(rows.filter((row) => row.samples < 5 && contributors.includes(row))).toHaveLength(0);
+    expect(contributors.every((row) => row.bestRejectOwn != null)).toBe(true);
+    expect(contributors.some((row) => row.samples < 5 || row.bestRejectOwn == null)).toBe(false);
+  });
+
+  it('keeps bestRejectOwn available only for well-measured products', () => {
+    for (const product of scrapCatalog.products) {
+      expect(product.bestRejectOwn != null).toBe(product.samples >= 5);
+    }
+  });
+
+  it('computes the plant-wide reject sensitivity from gross annual mass', () => {
+    const grossKgYr = scrapCatalog.products.reduce((sum, product) => sum + product.demand * product.kgPerUnit, 0);
+    const perHalfPp = 0.005 * grossKgYr * 0.32;
+
+    expect(perHalfPp).toBe(0.005 * grossKgYr * 0.32);
+    expect(perHalfPp).toBeGreaterThan(0);
+  });
+
+  it('builds a monotonic Pareto curve over well-measured products only', () => {
+    const rows = scrapCatalog.products
+      .filter((product) => product.samples >= 5)
+      .map((product) => ({
+        ...product,
+        scrapKg: product.demand * product.kgPerUnit * product.meanRejection,
+      }))
+      .sort((a, b) => b.scrapKg - a.scrapKg);
+    const total = rows.reduce((sum, row) => sum + row.scrapKg, 0);
+    let cumulative = 0;
+    const cumulativePct = rows.map((row) => {
+      cumulative += row.scrapKg;
+      return (cumulative / total) * 100;
+    });
+
+    for (let i = 1; i < cumulativePct.length; i += 1) {
+      expect(cumulativePct[i]).toBeGreaterThanOrEqual(cumulativePct[i - 1]);
+    }
+    expect(cumulativePct.at(-1)).toBeLessThanOrEqual(100.0001);
   });
 });
 

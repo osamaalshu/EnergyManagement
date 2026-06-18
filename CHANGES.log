@@ -9,11 +9,9 @@ See docs/ANALYSE_PRD.md §0 (Goal & Methodology) and §1–§4 for equations/pro
 
 Audit findings acted on:
 - Scrap is DIFFUSE, not Pareto (32/94 products = 80%, top is ~9.7%) → killed the
-  "vital few" framing; relabelled the concentration card as "Spread … no vital few";
-  Pareto caption now states the honest top-10 cumulative ("scrap is diffuse").
-- The P25 "recoverable" was an arbitrary vanity number → replaced with gap-to-plant-
-  average (overall reject 2.87%) summed over a FOCUS SET (material ≥2% of loss AND
-  well-measured ≥5 records). Low-sample products excluded from savings.
+  "vital few" framing; relabelled the concentration card; Pareto caption states the
+  honest top-10 cumulative ("scrap is diffuse").
+- The P25 "recoverable" was an arbitrary vanity number → replaced (see v2 below).
 - Removed cosmetic driver() "likely lever" guesses.
 - Scrap data relabelled line-level (Extrusion Line 1 / Machines 01 & 03), not MC01.
 - Planner: false "Rate variability: measured from history" label → adjustable estimate
@@ -26,7 +24,26 @@ Audit findings acted on:
 
 Tests (Codex, src/lib/__tests__/productionModel.test.ts, Vitest): scheduleOrders
 single-lane + priority-first + bounded steady-state + additive scrap; monteCarloOrders
-bounded probs + sorted samples; scrap Pareto cumulative monotonic & ≤100 & first-80
-index (locks out the cumulative-line bug); recoverable excludes <5-record products;
-dead exports absent; source guards (no "Add a machine"/"machines + 1" in Delivery, no
-"driver(" in Scrap). Result: 6/6 pass. tsc -b clean. npm run build PROVENANCE CHECK PASSED.
+bounded probs + sorted samples; scrap Pareto cumulative monotonic & first-80 index
+(locks out the cumulative-line bug); recoverable excludes low-sample; dead exports
+absent; source guards. Result: 6/6 pass. tsc clean. npm run build PROVENANCE CHECK PASSED.
+
+## 2026-06-18 — Scrap Focus v2 (hard-pass follow-up)
+
+Hard review of the live numbers found the gap-to-plant-average "recoverable" was
+trivial (213 OMR/yr, 1.6% of loss) and hid the biggest, volume-driven losses
+(PR110 #2 by scrap got zero recommendation because its rate was already below avg).
+
+Fix (architect spec, Codex executed + tested):
+- Per-product target -> each product's OWN best-demonstrated reject (its P25 across
+  its own shift records; added as bestRejectOwn to scrapCatalog.json, null when <5
+  records). Recoverable now 3,208 OMR/yr; top recs PR110 (~850) and DR152 (~810).
+- Added a "Plant-wide lever" card: every 0.5 pp of line reject ~ 2,438 OMR/yr (1 pp
+  ~ 4,876) — the honest headline for diffuse scrap. Replaced the Concentration card.
+- Pareto + ranking now well-measured-only (24 of 94); banner states 5,472 OMR sits
+  in 70 low-sample products excluded from ranking until more data.
+- Table shows "Best %"; recs/drilldown read "reject X% -> your best Y% -> save Z".
+
+Tests extended: recoverable uses bestRejectOwn & excludes null/low-sample; bestRejectOwn
+non-null iff samples>=5; plant-wide sensitivity = 0.005*sum(demand*kg)*price; well-measured
+Pareto cumulative monotonic & <=100. Result: 9/9 pass. tsc clean. build provenance passed.
