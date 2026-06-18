@@ -254,27 +254,20 @@ export function monteCarloFit(sched: ScheduleResult, capH: number, hoursPerDay: 
   return { p50Days: round(pct(50) / hoursPerDay, 1), p90Days: round(pct(90) / hoursPerDay, 1), pFit: round(pFit, 3), deadlineDays: round(deadlineDays, 1), hist };
 }
 
-function setupBetween(prev: SkuParam | null, cur: SkuParam): { h: number; type: SetupType } {
-  if (!prev) return { h: 0, type: 'none' };
-  if (prev.family !== cur.family) return { h: SETUP_FAMILY_H, type: 'family' };
-  if (prev.diameterMm !== cur.diameterMm) return { h: SETUP_DIAMETER_H, type: 'diameter' };
-  return { h: 0, type: 'none' };
-}
-
-function changeoverHoursForOrder(order: SkuParam[]): number {
-  let h = 0;
-  for (let i = 1; i < order.length; i++) h += setupBetween(order[i - 1], order[i]).h;
-  return h;
-}
-
 /** Build the changeover-minimising schedule: group products by family, step
  *  diameters within each family, balance whole families across machines. */
 export function buildSchedule(
   skus: SkuParam[], pieces: Record<string, number>, days: number, machines: number,
   line: LineParam, econ: Econ, hoursPerDay: number,
+  setupFamilyH: number = SETUP_FAMILY_H, setupDiameterH: number = SETUP_DIAMETER_H,
 ): ScheduleResult {
   const active = skus.filter((s) => (pieces[s.id] ?? 0) > 0);
   const runtime = (s: SkuParam) => (pieces[s.id] ?? 0) / Math.max(s.rateEffective, 1e-9);
+  const setup = (prev: SkuParam | null, cur: SkuParam): { h: number; type: SetupType } =>
+    !prev ? { h: 0, type: 'none' }
+      : prev.family !== cur.family ? { h: setupFamilyH, type: 'family' }
+        : prev.diameterMm !== cur.diameterMm ? { h: setupDiameterH, type: 'diameter' }
+          : { h: 0, type: 'none' };
 
   // group by family → assign whole families to the least-loaded machine
   const families = [...new Set(active.map((s) => s.family))];
@@ -294,7 +287,7 @@ export function buildSchedule(
   const lanes = machineFamilies.map((seq, mi) => {
     let t = 0; const laneItems: ScheduleItem[] = [];
     seq.forEach((s, idx) => {
-      const su = setupBetween(idx === 0 ? null : seq[idx - 1], s);
+      const su = setup(idx === 0 ? null : seq[idx - 1], s);
       const rt = runtime(s);
       const item: ScheduleItem = {
         machine: mi, machineName: line.machineNames?.[mi] ?? `Machine ${mi + 1}`, seq: idx + 1,
@@ -313,8 +306,9 @@ export function buildSchedule(
   const diameterChanges = items.filter((it) => it.setupType === 'diameter').length;
   const makespanH = Math.max(0, ...lanes.map((l) => l.loadH));
   const capacityPerMachineH = days * hoursPerDay;
-  // naive = run in catalogue/entry order on one notional line (no grouping)
-  const naiveChangeoverH = changeoverHoursForOrder(active);
+  // naive = run ungrouped (entry order) — the reference the smart schedule beats
+  let naiveChangeoverH = 0;
+  for (let i = 1; i < active.length; i++) naiveChangeoverH += setup(active[i - 1], active[i]).h;
 
   const energyKwh = productionH * line.machineKw + changeoverH * line.changeoverKw;
   const costOmr = energyKwh * econ.elecOmrPerKwh;
