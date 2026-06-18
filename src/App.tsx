@@ -8,6 +8,7 @@ import SubsystemPage from './components/SubsystemPage';
 import EquipmentPage from './components/EquipmentPage';
 import TariffPage from './components/TariffPage';
 import CompressorPage from './components/CompressorPage';
+import ProductionPlannerPage from './components/ProductionPlannerPage';
 import SystemSummaryModal from './components/SystemSummaryModal';
 import { type Crumb } from './components/Breadcrumb';
 import {
@@ -56,6 +57,7 @@ function App() {
   const goOverview = () => { setActivePage('dashboard'); setSelectedSiteId(null); setSelectedSubsystemId(null); setSelectedEquipmentId(null); closeMobileSidebar(); };
   const goPortfolio = () => { setActivePage('portfolio'); setSelectedSiteId(null); setSelectedSubsystemId(null); setSelectedEquipmentId(null); closeMobileSidebar(); };
   const goTariff = () => { setActivePage('tariff'); closeMobileSidebar(); };
+  const goProduction = () => { setActivePage('production'); closeMobileSidebar(); };
 
   const goSite = (siteId: string) => {
     const site = getSite(siteId);
@@ -148,6 +150,8 @@ function App() {
         return <TariffPage onBack={goOverview} />;
       case 'compressor':
         return <CompressorPage crumbs={makeCrumbs(COMPRESSOR_SITE_ID, 'gas', COMPRESSOR_EQUIP_ID)} onBack={goPortfolio} />;
+      case 'production':
+        return <ProductionPlannerPage onBack={goOverview} />;
       case 'portfolio':
         return <PortfolioPage onNavigateToBuilding={goSite} />;
       case 'building':
@@ -203,6 +207,7 @@ function App() {
         onSite={goSite}
         onSubsystem={goSubsystem}
         onEquip={goEquip}
+        onProduction={goProduction}
       />
       <div className={`flex min-h-screen flex-col transition-[padding] duration-300 ${sidebarOpen ? 'lg:pl-72' : 'lg:pl-0'}`}>
         <TopBar

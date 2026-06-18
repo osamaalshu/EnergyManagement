@@ -1,7 +1,7 @@
 import { type FC, useEffect, useState } from 'react';
 import { navSites, type LeafRoute } from '../lib/portfolioNav';
 
-export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor';
+export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'production';
 
 interface SidebarProps {
   open: boolean;
@@ -15,6 +15,7 @@ interface SidebarProps {
   onSite: (siteId: string) => void;
   onSubsystem: (siteId: string, subId: string) => void;
   onEquip: (equipId: string, route: LeafRoute) => void;
+  onProduction: () => void;
 }
 
 const SOON = ['Detect', 'Analyse', 'Optimise', 'Account Settings', 'Apps Market'];
@@ -30,7 +31,7 @@ const statusDot: Record<string, string> = { running: 'bg-emerald-400', off: 'bg-
 const Sidebar: FC<SidebarProps> = ({
   open, onClose, activePage,
   selectedSiteId, selectedSubsystemId, selectedEquipmentId,
-  onOverview, onPortfolio, onSite, onSubsystem, onEquip,
+  onOverview, onPortfolio, onSite, onSubsystem, onEquip, onProduction,
 }) => {
   const translateClass = open ? 'translate-x-0' : '-translate-x-full';
   const desktopTranslate = open ? 'lg:translate-x-0' : 'lg:-translate-x-full';
@@ -78,6 +79,12 @@ const Sidebar: FC<SidebarProps> = ({
           {/* Portfolio → Sites → Subsystems → Equipment */}
           <button type="button" onClick={onPortfolio} className={`${rowBase} px-3 ${activePage === 'portfolio' ? activeRow : idleRow}`}>
             <span>Portfolio</span>
+          </button>
+
+          {/* Production Planner — manufacturing pilot (separate domain from the energy portfolio) */}
+          <button type="button" onClick={onProduction} className={`${rowBase} px-3 ${activePage === 'production' ? activeRow : idleRow}`}>
+            <span>Production Planner</span>
+            <span className="ml-auto rounded-full bg-amber-50 px-1.5 py-0.5 text-[0.6rem] font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">Pilot</span>
           </button>
 
           <div className="space-y-0.5 pb-2">

@@ -1,0 +1,584 @@
+{
+  "meta": {
+    "facility": "Nizwa Plastic Factory",
+    "site": "Al Hilal Plastic Industries",
+    "lineId": "EXT-01",
+    "generatedAt": "2026-06-18",
+    "mode": "demo",
+    "proxyStatus": "DEVELOPMENT_PROXY",
+    "note": "Pilot preview on REAL production records with ASSUMED changeover (2 h) / power (75 kW) / prices. Energy is a proxy; savings rest on those assumptions until measured. Not a control system."
+  },
+  "assumptions": {
+    "electricity_omr_per_kwh": 0.025,
+    "material_price_omr_per_kg": 0.32,
+    "holding_rate_annual": 0.2,
+    "labor_omr_per_hr": 0.0,
+    "startup_scrap_kg_per_run": 0.0,
+    "monte_carlo_runs": 5000,
+    "random_seed": 42
+  },
+  "skus": [
+    {
+      "sku_id": "DRAIN-SN2",
+      "name": "UPVC Drainage Pipe BS EN SN2 Blue 6x6m",
+      "line_id": "EXT-01",
+      "measured": {
+        "annual_demand": {
+          "value": 12151,
+          "unit": "units/yr",
+          "kind": "calculated",
+          "note": "annualised from observed span"
+        },
+        "kg_per_unit": {
+          "value": 14.37,
+          "unit": "kg/unit",
+          "kind": "calculated",
+          "note": "median, tight"
+        },
+        "line_rate": {
+          "value": 16.9,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "median of valid runs"
+        },
+        "mean_rejection_pct": {
+          "value": 1.97,
+          "unit": "%",
+          "kind": "measured",
+          "note": "from records"
+        },
+        "observed_runs_per_year": {
+          "value": 28.3,
+          "unit": "runs/yr",
+          "kind": "measured",
+          "note": ""
+        },
+        "corrupt_hours_rows": 3,
+        "n_runs": 64
+      },
+      "baseline": {
+        "batch_size": {
+          "value": 429.37499999999994,
+          "unit": "units",
+          "kind": "calculated",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 28.3,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 717.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 56.6,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 773.7,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 58030.0,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 3435.1,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 189.0,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 1450.7,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 1099.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 173.8,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 2723.8,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "optimal": {
+        "batch_size": {
+          "value": 330.067080877762,
+          "unit": "units",
+          "kind": "inferred",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 36.8,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 717.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 73.6,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 790.8,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 59307.2,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 3435.1,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 145.3,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 1482.7,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 1099.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 133.6,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 2715.6,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "delta_baseline_minus_optimal": {
+        "runs_per_year": {
+          "value": -8.5,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "total_cost_omr": {
+          "value": 8.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "scrap_kg": {
+          "value": 0.0,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_cost_omr": {
+          "value": -32.0,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "changeover_hours": {
+          "value": -17.0,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_kwh": {
+          "value": -1277.2,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "machine_on_hours": {
+          "value": -17.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        }
+      },
+      "scrap_kg_bounds_p10_p50_p90": [
+        2262,
+        3307,
+        4664
+      ]
+    },
+    {
+      "sku_id": "PRESS-DIN-CL3",
+      "name": "UPVC Pressure Pipe DIN Class 3 Dark Grey 110mm x6m",
+      "line_id": "EXT-01",
+      "measured": {
+        "annual_demand": {
+          "value": 45695,
+          "unit": "units/yr",
+          "kind": "calculated",
+          "note": "annualised from observed span"
+        },
+        "kg_per_unit": {
+          "value": 9.13,
+          "unit": "kg/unit",
+          "kind": "calculated",
+          "note": "median, tight"
+        },
+        "line_rate": {
+          "value": 27.7,
+          "unit": "units/h",
+          "kind": "calculated",
+          "note": "median of valid runs"
+        },
+        "mean_rejection_pct": {
+          "value": 2.43,
+          "unit": "%",
+          "kind": "measured",
+          "note": "from records"
+        },
+        "observed_runs_per_year": {
+          "value": 62.0,
+          "unit": "runs/yr",
+          "kind": "measured",
+          "note": ""
+        },
+        "corrupt_hours_rows": 9,
+        "n_runs": 63
+      },
+      "baseline": {
+        "batch_size": {
+          "value": 736.7301587301587,
+          "unit": "units",
+          "kind": "calculated",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 62.0,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 1647.0,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 124.0,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 1771.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 132831.4,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 10144.5,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 267.2,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 3320.8,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 3246.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 156.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 6723.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "optimal": {
+        "batch_size": {
+          "value": 886.6914255200121,
+          "unit": "units",
+          "kind": "inferred",
+          "note": ""
+        },
+        "runs_per_year": {
+          "value": 51.5,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "from demand / batch"
+        },
+        "production_hours": {
+          "value": 1647.0,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "demand / measured line rate"
+        },
+        "changeover_hours": {
+          "value": 103.1,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "runs x ASSUMED changeover time"
+        },
+        "machine_on_hours": {
+          "value": 1750.1,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "production + changeover"
+        },
+        "energy_kwh": {
+          "value": 131257.9,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "PROXY: hours x ASSUMED machine kW"
+        },
+        "scrap_kg": {
+          "value": 10144.5,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "measured rejection x output (+assumed startup)"
+        },
+        "avg_inventory_units": {
+          "value": 321.6,
+          "unit": "units",
+          "kind": "calculated",
+          "note": "EPQ average inventory"
+        },
+        "energy_cost_omr": {
+          "value": 3281.4,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED tariff"
+        },
+        "scrap_cost_omr": {
+          "value": 3246.2,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED material price"
+        },
+        "holding_cost_omr": {
+          "value": 188.0,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "ASSUMED holding rate"
+        },
+        "total_cost_omr": {
+          "value": 6715.7,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "sum of assumed-priced terms"
+        }
+      },
+      "delta_baseline_minus_optimal": {
+        "runs_per_year": {
+          "value": 10.5,
+          "unit": "runs",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "total_cost_omr": {
+          "value": 7.5,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "scrap_kg": {
+          "value": 0.0,
+          "unit": "kg",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_cost_omr": {
+          "value": 39.4,
+          "unit": "OMR",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "changeover_hours": {
+          "value": 20.9,
+          "unit": "h",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "energy_kwh": {
+          "value": 1573.5,
+          "unit": "kWh",
+          "kind": "inferred",
+          "note": "baseline - optimal (improvement if > 0)"
+        },
+        "machine_on_hours": {
+          "value": 21.0,
+          "unit": "h",
+          "kind": "calculated",
+          "note": "baseline - optimal (improvement if > 0)"
+        }
+      },
+      "scrap_kg_bounds_p10_p50_p90": [
+        7388,
+        9948,
+        13079
+      ]
+    }
+  ],
+  "line": {
+    "baseline": {
+      "name": "baseline",
+      "line_id": "EXT-01",
+      "feasible": true,
+      "runs_by_sku": {
+        "DRAIN-SN2": 28,
+        "PRESS-DIN-CL3": 62
+      },
+      "batch_by_sku": {
+        "DRAIN-SN2": 434.0,
+        "PRESS-DIN-CL3": 737.0
+      },
+      "production_hours": 2364.2,
+      "changeover_hours": 180.0,
+      "total_hours": 2544.2,
+      "capacity_hours": 6000,
+      "energy_kwh": 190813,
+      "setup_cost_omr": 338,
+      "holding_cost_omr": 332,
+      "fixed_cost_omr": 8778,
+      "total_cost_omr": 9448,
+      "note": ""
+    },
+    "optimal": {
+      "name": "optimal",
+      "line_id": "EXT-01",
+      "feasible": true,
+      "runs_by_sku": {
+        "DRAIN-SN2": 36,
+        "PRESS-DIN-CL3": 51
+      },
+      "batch_by_sku": {
+        "DRAIN-SN2": 337.5,
+        "PRESS-DIN-CL3": 896.0
+      },
+      "production_hours": 2364.2,
+      "changeover_hours": 174.0,
+      "total_hours": 2538.2,
+      "capacity_hours": 6000,
+      "energy_kwh": 190363,
+      "setup_cost_omr": 326,
+      "holding_cost_omr": 327,
+      "fixed_cost_omr": 8778,
+      "total_cost_omr": 9431,
+      "note": "CP-SAT OPTIMAL; capacity slack (2538/6000 h). Each campaign = 1 setup (upper bound); sequence-dependent setups need Phase-0 matrix."
+    },
+    "saving_total_omr": 17,
+    "saving_decision_omr": 17,
+    "des_validation": {
+      "n_campaigns": 87,
+      "makespan_h_p10_p50_p90": [
+        3072.2,
+        3625.6,
+        4588.9
+      ],
+      "scrap_kg_p10_p50_p90": [
+        10672.2,
+        13020.8,
+        16637.4
+      ],
+      "analytical_total_hours": 2538.2,
+      "median_utilization": 0.952,
+      "mean_energy_kwh": 280175,
+      "reps": 400,
+      "dependence": "block-bootstrap of whole runs (rate+rejection drawn together)"
+    }
+  },
+  "savings": {
+    "totalOmr": 17,
+    "decisionOmr": 17
+  },
+  "desValidation": {
+    "n_campaigns": 87,
+    "makespan_h_p10_p50_p90": [
+      3072.2,
+      3625.6,
+      4588.9
+    ],
+    "scrap_kg_p10_p50_p90": [
+      10672.2,
+      13020.8,
+      16637.4
+    ],
+    "analytical_total_hours": 2538.2,
+    "median_utilization": 0.952,
+    "mean_energy_kwh": 280175,
+    "reps": 400,
+    "dependence": "block-bootstrap of whole runs (rate+rejection drawn together)"
+  }
+}

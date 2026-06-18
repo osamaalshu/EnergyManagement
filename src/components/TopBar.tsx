@@ -34,6 +34,7 @@ const pageLabel: Record<ActivePage, string> = {
   equipment: 'Equipment',
   tariff: 'Tariff Structure',
   compressor: 'Compressor',
+  production: 'Production Planner',
 };
 
 const TopBar: FC<TopBarProps> = ({
