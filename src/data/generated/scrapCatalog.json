@@ -26,7 +26,8 @@
       "meanRejection": 0.02973,
       "rateEffective": 0,
       "samples": 36,
-      "scrapKgObs": 5736
+      "scrapKgObs": 5736,
+      "bestRejectOwn": 0.01146
     },
     {
       "id": "PR110",
@@ -38,7 +39,8 @@
       "meanRejection": 0.01492,
       "rateEffective": 0,
       "samples": 56,
-      "scrapKgObs": 5309
+      "scrapKgObs": 5309,
+      "bestRejectOwn": 0.00469
     },
     {
       "id": "DU203",
@@ -50,7 +52,8 @@
       "meanRejection": 0.03158,
       "rateEffective": 0,
       "samples": 28,
-      "scrapKgObs": 4214
+      "scrapKgObs": 4214,
+      "bestRejectOwn": 0.01928
     },
     {
       "id": "DR152.2",
@@ -62,7 +65,8 @@
       "meanRejection": 0.01482,
       "rateEffective": 0,
       "samples": 29,
-      "scrapKgObs": 2719
+      "scrapKgObs": 2719,
+      "bestRejectOwn": 0.00815
     },
     {
       "id": "DU305",
@@ -74,7 +78,8 @@
       "meanRejection": 0.15192,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 2528
+      "scrapKgObs": 2528,
+      "bestRejectOwn": null
     },
     {
       "id": "PR305",
@@ -86,7 +91,8 @@
       "meanRejection": 0.08985,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 2123
+      "scrapKgObs": 2123,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.3",
@@ -98,7 +104,8 @@
       "meanRejection": 0.03059,
       "rateEffective": 0,
       "samples": 19,
-      "scrapKgObs": 1850
+      "scrapKgObs": 1850,
+      "bestRejectOwn": 0.0088
     },
     {
       "id": "DU305.2",
@@ -110,7 +117,8 @@
       "meanRejection": 0.0612,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 1435
+      "scrapKgObs": 1435,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102",
@@ -122,7 +130,8 @@
       "meanRejection": 0.02043,
       "rateEffective": 0,
       "samples": 16,
-      "scrapKgObs": 1409
+      "scrapKgObs": 1409,
+      "bestRejectOwn": 0.00624
     },
     {
       "id": "DU305.3",
@@ -134,7 +143,8 @@
       "meanRejection": 0.11011,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 1351
+      "scrapKgObs": 1351,
+      "bestRejectOwn": null
     },
     {
       "id": "DU152",
@@ -146,7 +156,8 @@
       "meanRejection": 0.03481,
       "rateEffective": 0,
       "samples": 10,
-      "scrapKgObs": 1324
+      "scrapKgObs": 1324,
+      "bestRejectOwn": 0.01531
     },
     {
       "id": "DR203",
@@ -158,7 +169,8 @@
       "meanRejection": 0.08175,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 1300
+      "scrapKgObs": 1300,
+      "bestRejectOwn": null
     },
     {
       "id": "PR110.2",
@@ -170,7 +182,8 @@
       "meanRejection": 0.01902,
       "rateEffective": 0,
       "samples": 15,
-      "scrapKgObs": 1232
+      "scrapKgObs": 1232,
+      "bestRejectOwn": 0.00628
     },
     {
       "id": "DR152.4",
@@ -182,7 +195,8 @@
       "meanRejection": 0.0272,
       "rateEffective": 0,
       "samples": 13,
-      "scrapKgObs": 1176
+      "scrapKgObs": 1176,
+      "bestRejectOwn": 0.01097
     },
     {
       "id": "DR203.2",
@@ -194,7 +208,8 @@
       "meanRejection": 0.03811,
       "rateEffective": 0,
       "samples": 7,
-      "scrapKgObs": 1162
+      "scrapKgObs": 1162,
+      "bestRejectOwn": 0.02523
     },
     {
       "id": "DR152.5",
@@ -206,7 +221,8 @@
       "meanRejection": 0.01964,
       "rateEffective": 0,
       "samples": 12,
-      "scrapKgObs": 1113
+      "scrapKgObs": 1113,
+      "bestRejectOwn": 0.01052
     },
     {
       "id": "OT315",
@@ -218,7 +234,8 @@
       "meanRejection": 0.03464,
       "rateEffective": 0,
       "samples": 6,
-      "scrapKgObs": 1095
+      "scrapKgObs": 1095,
+      "bestRejectOwn": 0.00174
     },
     {
       "id": "DR102.2",
@@ -230,7 +247,8 @@
       "meanRejection": 0.02481,
       "rateEffective": 0,
       "samples": 9,
-      "scrapKgObs": 1050
+      "scrapKgObs": 1050,
+      "bestRejectOwn": 0.00963
     },
     {
       "id": "DU203.2",
@@ -242,7 +260,8 @@
       "meanRejection": 0.10774,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 985
+      "scrapKgObs": 985,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.6",
@@ -254,7 +273,8 @@
       "meanRejection": 0.0219,
       "rateEffective": 0,
       "samples": 14,
-      "scrapKgObs": 958
+      "scrapKgObs": 958,
+      "bestRejectOwn": 0.00084
     },
     {
       "id": "DR102.3",
@@ -266,7 +286,8 @@
       "meanRejection": 0.03205,
       "rateEffective": 0,
       "samples": 9,
-      "scrapKgObs": 855
+      "scrapKgObs": 855,
+      "bestRejectOwn": 0.01908
     },
     {
       "id": "DR203.3",
@@ -278,7 +299,8 @@
       "meanRejection": 0.03675,
       "rateEffective": 0,
       "samples": 8,
-      "scrapKgObs": 853
+      "scrapKgObs": 853,
+      "bestRejectOwn": 0.01866
     },
     {
       "id": "DU305.4",
@@ -290,7 +312,8 @@
       "meanRejection": 0.09714,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 842
+      "scrapKgObs": 842,
+      "bestRejectOwn": null
     },
     {
       "id": "DR305",
@@ -302,7 +325,8 @@
       "meanRejection": 0.03899,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 755
+      "scrapKgObs": 755,
+      "bestRejectOwn": null
     },
     {
       "id": "DR305.2",
@@ -314,7 +338,8 @@
       "meanRejection": 0.10124,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 755
+      "scrapKgObs": 755,
+      "bestRejectOwn": null
     },
     {
       "id": "PR160",
@@ -326,7 +351,8 @@
       "meanRejection": 0.03866,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 715
+      "scrapKgObs": 715,
+      "bestRejectOwn": null
     },
     {
       "id": "DR254",
@@ -338,7 +364,8 @@
       "meanRejection": 0.02858,
       "rateEffective": 0,
       "samples": 6,
-      "scrapKgObs": 696
+      "scrapKgObs": 696,
+      "bestRejectOwn": 0.01676
     },
     {
       "id": "DR254.2",
@@ -350,7 +377,8 @@
       "meanRejection": 0.03969,
       "rateEffective": 0,
       "samples": 5,
-      "scrapKgObs": 690
+      "scrapKgObs": 690,
+      "bestRejectOwn": 0.02439
     },
     {
       "id": "DR305.3",
@@ -362,7 +390,8 @@
       "meanRejection": 0.28245,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 680
+      "scrapKgObs": 680,
+      "bestRejectOwn": null
     },
     {
       "id": "PR110.3",
@@ -374,7 +403,8 @@
       "meanRejection": 0.00932,
       "rateEffective": 0,
       "samples": 17,
-      "scrapKgObs": 678
+      "scrapKgObs": 678,
+      "bestRejectOwn": 0.0
     },
     {
       "id": "DU254",
@@ -386,7 +416,8 @@
       "meanRejection": 0.13333,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 624
+      "scrapKgObs": 624,
+      "bestRejectOwn": null
     },
     {
       "id": "OT315.2",
@@ -398,7 +429,8 @@
       "meanRejection": 0.16407,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 610
+      "scrapKgObs": 610,
+      "bestRejectOwn": null
     },
     {
       "id": "DR203.4",
@@ -410,7 +442,8 @@
       "meanRejection": 0.02772,
       "rateEffective": 0,
       "samples": 5,
-      "scrapKgObs": 531
+      "scrapKgObs": 531,
+      "bestRejectOwn": 0.02288
     },
     {
       "id": "DR203.5",
@@ -422,7 +455,8 @@
       "meanRejection": 0.04445,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 475
+      "scrapKgObs": 475,
+      "bestRejectOwn": null
     },
     {
       "id": "DU203.3",
@@ -434,7 +468,8 @@
       "meanRejection": 0.0592,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 475
+      "scrapKgObs": 475,
+      "bestRejectOwn": null
     },
     {
       "id": "DR203.6",
@@ -446,7 +481,8 @@
       "meanRejection": 0.06267,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 455
+      "scrapKgObs": 455,
+      "bestRejectOwn": null
     },
     {
       "id": "DR254.3",
@@ -458,7 +494,8 @@
       "meanRejection": 0.48767,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 445
+      "scrapKgObs": 445,
+      "bestRejectOwn": null
     },
     {
       "id": "OT200",
@@ -470,7 +507,8 @@
       "meanRejection": 0.11178,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 444
+      "scrapKgObs": 444,
+      "bestRejectOwn": null
     },
     {
       "id": "DU152.2",
@@ -482,7 +520,8 @@
       "meanRejection": 0.0559,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 387
+      "scrapKgObs": 387,
+      "bestRejectOwn": null
     },
     {
       "id": "DR254.4",
@@ -494,7 +533,8 @@
       "meanRejection": 0.06422,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 378
+      "scrapKgObs": 378,
+      "bestRejectOwn": null
     },
     {
       "id": "DR203.7",
@@ -506,7 +546,8 @@
       "meanRejection": 0.06331,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 376
+      "scrapKgObs": 376,
+      "bestRejectOwn": null
     },
     {
       "id": "PR110.4",
@@ -518,7 +559,8 @@
       "meanRejection": 0.02115,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 349
+      "scrapKgObs": 349,
+      "bestRejectOwn": null
     },
     {
       "id": "PR152",
@@ -530,7 +572,8 @@
       "meanRejection": 0.04753,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 335
+      "scrapKgObs": 335,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.7",
@@ -542,7 +585,8 @@
       "meanRejection": 0.17778,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 320
+      "scrapKgObs": 320,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.8",
@@ -554,7 +598,8 @@
       "meanRejection": 0.02577,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 311
+      "scrapKgObs": 311,
+      "bestRejectOwn": null
     },
     {
       "id": "DR254.5",
@@ -566,7 +611,8 @@
       "meanRejection": 0.05319,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 305
+      "scrapKgObs": 305,
+      "bestRejectOwn": null
     },
     {
       "id": "PR160.2",
@@ -578,7 +624,8 @@
       "meanRejection": 0.04221,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 299
+      "scrapKgObs": 299,
+      "bestRejectOwn": null
     },
     {
       "id": "DU152.3",
@@ -590,7 +637,8 @@
       "meanRejection": 0.04432,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 272
+      "scrapKgObs": 272,
+      "bestRejectOwn": null
     },
     {
       "id": "PR160.3",
@@ -602,7 +650,8 @@
       "meanRejection": 0.03579,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 265
+      "scrapKgObs": 265,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.9",
@@ -614,7 +663,8 @@
       "meanRejection": 0.03865,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 255
+      "scrapKgObs": 255,
+      "bestRejectOwn": null
     },
     {
       "id": "DR254.6",
@@ -626,7 +676,8 @@
       "meanRejection": 0.02803,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 250
+      "scrapKgObs": 250,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.10",
@@ -638,7 +689,8 @@
       "meanRejection": 0.03872,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 235
+      "scrapKgObs": 235,
+      "bestRejectOwn": null
     },
     {
       "id": "OT102",
@@ -650,7 +702,8 @@
       "meanRejection": 0.03174,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 232
+      "scrapKgObs": 232,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.4",
@@ -662,7 +715,8 @@
       "meanRejection": 0.01271,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 219
+      "scrapKgObs": 219,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.11",
@@ -674,7 +728,8 @@
       "meanRejection": 0.17239,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 210
+      "scrapKgObs": 210,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.12",
@@ -686,7 +741,8 @@
       "meanRejection": 0.0101,
       "rateEffective": 0,
       "samples": 5,
-      "scrapKgObs": 205
+      "scrapKgObs": 205,
+      "bestRejectOwn": 0.00227
     },
     {
       "id": "PR110.5",
@@ -698,7 +754,8 @@
       "meanRejection": 0.04343,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 205
+      "scrapKgObs": 205,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.13",
@@ -710,7 +767,8 @@
       "meanRejection": 0.01707,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 201
+      "scrapKgObs": 201,
+      "bestRejectOwn": null
     },
     {
       "id": "DR254.7",
@@ -722,7 +780,8 @@
       "meanRejection": 0.12821,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 200
+      "scrapKgObs": 200,
+      "bestRejectOwn": null
     },
     {
       "id": "DU152.4",
@@ -734,7 +793,8 @@
       "meanRejection": 0.05927,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 195
+      "scrapKgObs": 195,
+      "bestRejectOwn": null
     },
     {
       "id": "PR110.6",
@@ -746,7 +806,8 @@
       "meanRejection": 0.00454,
       "rateEffective": 0,
       "samples": 7,
-      "scrapKgObs": 194
+      "scrapKgObs": 194,
+      "bestRejectOwn": 0.00206
     },
     {
       "id": "PR110.7",
@@ -758,7 +819,8 @@
       "meanRejection": 0.00539,
       "rateEffective": 0,
       "samples": 8,
-      "scrapKgObs": 193
+      "scrapKgObs": 193,
+      "bestRejectOwn": 0.00154
     },
     {
       "id": "OT152",
@@ -770,7 +832,8 @@
       "meanRejection": 0.08268,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 183
+      "scrapKgObs": 183,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.5",
@@ -782,7 +845,8 @@
       "meanRejection": 0.01057,
       "rateEffective": 0,
       "samples": 5,
-      "scrapKgObs": 154
+      "scrapKgObs": 154,
+      "bestRejectOwn": 0.0065
     },
     {
       "id": "DR152.14",
@@ -794,7 +858,8 @@
       "meanRejection": 0.01174,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 150
+      "scrapKgObs": 150,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.6",
@@ -806,7 +871,8 @@
       "meanRejection": 0.01403,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 146
+      "scrapKgObs": 146,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.15",
@@ -818,7 +884,8 @@
       "meanRejection": 0.02104,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 146
+      "scrapKgObs": 146,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.7",
@@ -830,7 +897,8 @@
       "meanRejection": 0.02465,
       "rateEffective": 0,
       "samples": 3,
-      "scrapKgObs": 135
+      "scrapKgObs": 135,
+      "bestRejectOwn": null
     },
     {
       "id": "DU203.4",
@@ -842,7 +910,8 @@
       "meanRejection": 0.08719,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 134
+      "scrapKgObs": 134,
+      "bestRejectOwn": null
     },
     {
       "id": "DR203.8",
@@ -854,7 +923,8 @@
       "meanRejection": 0.21463,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 132
+      "scrapKgObs": 132,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.8",
@@ -866,7 +936,8 @@
       "meanRejection": 0.03598,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 131
+      "scrapKgObs": 131,
+      "bestRejectOwn": null
     },
     {
       "id": "PR152.2",
@@ -878,7 +949,8 @@
       "meanRejection": 0.03538,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 130
+      "scrapKgObs": 130,
+      "bestRejectOwn": null
     },
     {
       "id": "DR203.9",
@@ -890,7 +962,8 @@
       "meanRejection": 0.02738,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 120
+      "scrapKgObs": 120,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.9",
@@ -902,7 +975,8 @@
       "meanRejection": 0.01193,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 115
+      "scrapKgObs": 115,
+      "bestRejectOwn": null
     },
     {
       "id": "DR203.10",
@@ -914,7 +988,8 @@
       "meanRejection": 0.05651,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 112
+      "scrapKgObs": 112,
+      "bestRejectOwn": null
     },
     {
       "id": "OT102.2",
@@ -926,7 +1001,8 @@
       "meanRejection": 0.0101,
       "rateEffective": 0,
       "samples": 4,
-      "scrapKgObs": 106
+      "scrapKgObs": 106,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.16",
@@ -938,7 +1014,8 @@
       "meanRejection": 0.04542,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 97
+      "scrapKgObs": 97,
+      "bestRejectOwn": null
     },
     {
       "id": "OT152.2",
@@ -950,7 +1027,8 @@
       "meanRejection": 0.12048,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 95
+      "scrapKgObs": 95,
+      "bestRejectOwn": null
     },
     {
       "id": "DU102",
@@ -962,7 +1040,8 @@
       "meanRejection": 0.0306,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 95
+      "scrapKgObs": 95,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.17",
@@ -974,7 +1053,8 @@
       "meanRejection": 0.05405,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 87
+      "scrapKgObs": 87,
+      "bestRejectOwn": null
     },
     {
       "id": "PR102",
@@ -986,7 +1066,8 @@
       "meanRejection": 0.03059,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 85
+      "scrapKgObs": 85,
+      "bestRejectOwn": null
     },
     {
       "id": "PR110.8",
@@ -998,7 +1079,8 @@
       "meanRejection": 0.09189,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 85
+      "scrapKgObs": 85,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.10",
@@ -1010,7 +1092,8 @@
       "meanRejection": 0.01639,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 84
+      "scrapKgObs": 84,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.18",
@@ -1022,7 +1105,8 @@
       "meanRejection": 0.01634,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 71
+      "scrapKgObs": 71,
+      "bestRejectOwn": null
     },
     {
       "id": "DU102.2",
@@ -1034,7 +1118,8 @@
       "meanRejection": 0.075,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 60
+      "scrapKgObs": 60,
+      "bestRejectOwn": null
     },
     {
       "id": "PR110.9",
@@ -1046,7 +1131,8 @@
       "meanRejection": 0.01485,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 50
+      "scrapKgObs": 50,
+      "bestRejectOwn": null
     },
     {
       "id": "PR110.10",
@@ -1058,7 +1144,8 @@
       "meanRejection": 0.00297,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 50
+      "scrapKgObs": 50,
+      "bestRejectOwn": null
     },
     {
       "id": "DR102.11",
@@ -1070,7 +1157,8 @@
       "meanRejection": 0.03257,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 50
+      "scrapKgObs": 50,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.19",
@@ -1082,7 +1170,8 @@
       "meanRejection": 0.01639,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 30
+      "scrapKgObs": 30,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.20",
@@ -1094,7 +1183,8 @@
       "meanRejection": 0.00757,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 20
+      "scrapKgObs": 20,
+      "bestRejectOwn": null
     },
     {
       "id": "DU102.3",
@@ -1106,7 +1196,8 @@
       "meanRejection": 0.01859,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 15
+      "scrapKgObs": 15,
+      "bestRejectOwn": null
     },
     {
       "id": "DR152.21",
@@ -1118,7 +1209,8 @@
       "meanRejection": 0.00275,
       "rateEffective": 0,
       "samples": 2,
-      "scrapKgObs": 14
+      "scrapKgObs": 14,
+      "bestRejectOwn": null
     },
     {
       "id": "PR102.2",
@@ -1130,7 +1222,8 @@
       "meanRejection": 0.0,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 0
+      "scrapKgObs": 0,
+      "bestRejectOwn": null
     },
     {
       "id": "DU315",
@@ -1142,7 +1235,8 @@
       "meanRejection": 0.0,
       "rateEffective": 0,
       "samples": 1,
-      "scrapKgObs": 0
+      "scrapKgObs": 0,
+      "bestRejectOwn": null
     }
   ]
 }
