@@ -101,10 +101,29 @@ export interface ModelBlock {
   skus: { id: string; name: string; family: string; diameterMm: number; demand: number; rateEffective: number; kgPerUnit: number; meanRejection: number }[];
 }
 
+export interface PlantKpis {
+  machines: number;
+  makespan_h: number;
+  hours_by_state: Record<string, number>;
+  downtime_h: number;
+  availability: number;
+  utilization_run: number;
+  energy_kwh: number;
+  energy_by_state_kwh: Record<string, number>;
+  units: number;
+  kwh_per_unit: number | null;
+}
+export interface PlantData {
+  real: PlantKpis;
+  ideal: PlantKpis;
+  trace: { hour: number; machine: string; state: string; kw: number; units: number }[];
+}
+
 export interface ProductionData {
   meta: ProductionMeta;
   assumptions: Record<string, number>;
   model: ModelBlock;
+  plant: PlantData | null;
   skus: SkuScenario[];
   line: ProductionLine;
   configuration: Configuration | null;

@@ -34,6 +34,8 @@ def main() -> None:
     phase2 = json.loads((RESULTS / "line_plan.json").read_text())
     full_path = RESULTS / "full_plan.json"
     phase2c = json.loads(full_path.read_text()) if full_path.exists() else {}
+    plant_path = RESULTS / "plant_kpis.json"
+    plant = json.loads(plant_path.read_text()) if plant_path.exists() else None  # Track B telemetry/KPIs
 
     # Phase-2 is keyed by line id; the pilot has one line.
     line_id, line = next(iter(phase2["lines"].items()))
@@ -95,6 +97,7 @@ def main() -> None:
         "skus": phase1["skus"],         # per-SKU baseline/optimal with measured/calculated/inferred/assumed labels
         "line": line,                   # Phase-2 baseline vs optimal plan + DES validation
         "configuration": configuration, # Phase-2c combined lot-sizing × sequencing (best config to run all products)
+        "plant": plant,                 # Track B: SimPy plant-state telemetry + KPIs (simulated digital twin)
         "savings": {
             "totalOmr": line["saving_total_omr"],
             "decisionOmr": line["saving_decision_omr"],

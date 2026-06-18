@@ -665,6 +665,1041 @@
       "two-stage decomposition: lot-sizing then SKU-block sequencing (no sub-horizon interleaving yet)"
     ]
   },
+  "plant": {
+    "real": {
+      "machines": 2,
+      "makespan_h": 325.0,
+      "hours_by_state": {
+        "run": 616.0,
+        "setup": 5.0,
+        "idle": 59.0,
+        "down": 24.0
+      },
+      "downtime_h": 24.0,
+      "availability": 0.955,
+      "utilization_run": 0.875,
+      "energy_kwh": 47121,
+      "energy_by_state_kwh": {
+        "run": 46200,
+        "setup": 375,
+        "idle": 354,
+        "down": 192
+      },
+      "units": 15100,
+      "kwh_per_unit": 3.121
+    },
+    "ideal": {
+      "machines": 2,
+      "makespan_h": 311.0,
+      "hours_by_state": {
+        "run": 616.0,
+        "setup": 5.0,
+        "idle": 53.0,
+        "down": 0.0
+      },
+      "downtime_h": 0.0,
+      "availability": 0.992,
+      "utilization_run": 0.914,
+      "energy_kwh": 46893,
+      "energy_by_state_kwh": {
+        "run": 46200,
+        "setup": 375,
+        "idle": 318,
+        "down": 0
+      },
+      "units": 15100,
+      "kwh_per_unit": 3.105
+    },
+    "trace": [
+      {
+        "hour": 0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 0
+      },
+      {
+        "hour": 2.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 52
+      },
+      {
+        "hour": 5.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 135
+      },
+      {
+        "hour": 7.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 182
+      },
+      {
+        "hour": 10.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 270
+      },
+      {
+        "hour": 12.0,
+        "machine": "M2",
+        "state": "down",
+        "kw": 8.0,
+        "units": 260
+      },
+      {
+        "hour": 15.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 405
+      },
+      {
+        "hour": 17.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 364
+      },
+      {
+        "hour": 20.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 540
+      },
+      {
+        "hour": 22.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 494
+      },
+      {
+        "hour": 25.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 675
+      },
+      {
+        "hour": 27.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 624
+      },
+      {
+        "hour": 30.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 810
+      },
+      {
+        "hour": 32.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 754
+      },
+      {
+        "hour": 35.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 945
+      },
+      {
+        "hour": 37.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 884
+      },
+      {
+        "hour": 40.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1080
+      },
+      {
+        "hour": 42.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1014
+      },
+      {
+        "hour": 45.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1215
+      },
+      {
+        "hour": 47.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1144
+      },
+      {
+        "hour": 50.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1350
+      },
+      {
+        "hour": 52.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1274
+      },
+      {
+        "hour": 55.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1485
+      },
+      {
+        "hour": 57.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1404
+      },
+      {
+        "hour": 60.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1620
+      },
+      {
+        "hour": 62.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1534
+      },
+      {
+        "hour": 65.0,
+        "machine": "M1",
+        "state": "down",
+        "kw": 8.0,
+        "units": 1728
+      },
+      {
+        "hour": 67.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1664
+      },
+      {
+        "hour": 70.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1809
+      },
+      {
+        "hour": 72.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1794
+      },
+      {
+        "hour": 75.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1944
+      },
+      {
+        "hour": 77.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 1924
+      },
+      {
+        "hour": 80.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2079
+      },
+      {
+        "hour": 82.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2054
+      },
+      {
+        "hour": 85.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2214
+      },
+      {
+        "hour": 87.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2184
+      },
+      {
+        "hour": 90.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2349
+      },
+      {
+        "hour": 92.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2314
+      },
+      {
+        "hour": 95.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2484
+      },
+      {
+        "hour": 97.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2444
+      },
+      {
+        "hour": 100.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2619
+      },
+      {
+        "hour": 102.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2540
+      },
+      {
+        "hour": 105.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2754
+      },
+      {
+        "hour": 107.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2640
+      },
+      {
+        "hour": 110.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2844
+      },
+      {
+        "hour": 112.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2740
+      },
+      {
+        "hour": 115.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2954
+      },
+      {
+        "hour": 117.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2840
+      },
+      {
+        "hour": 120.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3064
+      },
+      {
+        "hour": 122.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 2940
+      },
+      {
+        "hour": 125.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3174
+      },
+      {
+        "hour": 127.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3040
+      },
+      {
+        "hour": 130.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3284
+      },
+      {
+        "hour": 132.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3140
+      },
+      {
+        "hour": 135.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3394
+      },
+      {
+        "hour": 137.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3240
+      },
+      {
+        "hour": 140.0,
+        "machine": "M1",
+        "state": "down",
+        "kw": 8.0,
+        "units": 3504
+      },
+      {
+        "hour": 142.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3340
+      },
+      {
+        "hour": 145.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3548
+      },
+      {
+        "hour": 147.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3440
+      },
+      {
+        "hour": 150.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3658
+      },
+      {
+        "hour": 152.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3540
+      },
+      {
+        "hour": 155.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3702
+      },
+      {
+        "hour": 157.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3640
+      },
+      {
+        "hour": 160.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3812
+      },
+      {
+        "hour": 162.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3740
+      },
+      {
+        "hour": 165.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3922
+      },
+      {
+        "hour": 167.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3840
+      },
+      {
+        "hour": 170.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4032
+      },
+      {
+        "hour": 172.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 3940
+      },
+      {
+        "hour": 175.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4142
+      },
+      {
+        "hour": 177.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4040
+      },
+      {
+        "hour": 180.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4252
+      },
+      {
+        "hour": 182.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4140
+      },
+      {
+        "hour": 185.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4362
+      },
+      {
+        "hour": 187.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4240
+      },
+      {
+        "hour": 190.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4472
+      },
+      {
+        "hour": 192.0,
+        "machine": "M2",
+        "state": "down",
+        "kw": 8.0,
+        "units": 4340
+      },
+      {
+        "hour": 195.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4582
+      },
+      {
+        "hour": 197.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4380
+      },
+      {
+        "hour": 200.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4692
+      },
+      {
+        "hour": 202.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4480
+      },
+      {
+        "hour": 205.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4802
+      },
+      {
+        "hour": 207.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4536
+      },
+      {
+        "hour": 210.0,
+        "machine": "M1",
+        "state": "down",
+        "kw": 8.0,
+        "units": 4890
+      },
+      {
+        "hour": 212.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4716
+      },
+      {
+        "hour": 215.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4956
+      },
+      {
+        "hour": 217.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 4896
+      },
+      {
+        "hour": 220.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5066
+      },
+      {
+        "hour": 222.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5076
+      },
+      {
+        "hour": 225.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5145
+      },
+      {
+        "hour": 227.0,
+        "machine": "M2",
+        "state": "down",
+        "kw": 8.0,
+        "units": 5256
+      },
+      {
+        "hour": 230.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5220
+      },
+      {
+        "hour": 232.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5328
+      },
+      {
+        "hour": 235.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5295
+      },
+      {
+        "hour": 237.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5508
+      },
+      {
+        "hour": 240.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5370
+      },
+      {
+        "hour": 242.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5688
+      },
+      {
+        "hour": 245.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5445
+      },
+      {
+        "hour": 247.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5868
+      },
+      {
+        "hour": 250.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5520
+      },
+      {
+        "hour": 252.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6048
+      },
+      {
+        "hour": 255.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5595
+      },
+      {
+        "hour": 257.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6228
+      },
+      {
+        "hour": 260.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5625
+      },
+      {
+        "hour": 262.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6408
+      },
+      {
+        "hour": 265.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5700
+      },
+      {
+        "hour": 267.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6588
+      },
+      {
+        "hour": 270.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5775
+      },
+      {
+        "hour": 272.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6768
+      },
+      {
+        "hour": 275.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5850
+      },
+      {
+        "hour": 277.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6948
+      },
+      {
+        "hour": 280.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 5925
+      },
+      {
+        "hour": 282.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7128
+      },
+      {
+        "hour": 285.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6000
+      },
+      {
+        "hour": 287.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7308
+      },
+      {
+        "hour": 290.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6075
+      },
+      {
+        "hour": 292.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7488
+      },
+      {
+        "hour": 295.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6150
+      },
+      {
+        "hour": 297.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7668
+      },
+      {
+        "hour": 300.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6225
+      },
+      {
+        "hour": 302.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 7848
+      },
+      {
+        "hour": 305.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6300
+      },
+      {
+        "hour": 307.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 8028
+      },
+      {
+        "hour": 310.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6375
+      },
+      {
+        "hour": 312.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 8208
+      },
+      {
+        "hour": 315.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6450
+      },
+      {
+        "hour": 317.0,
+        "machine": "M2",
+        "state": "run",
+        "kw": 75.0,
+        "units": 8388
+      },
+      {
+        "hour": 320.0,
+        "machine": "M1",
+        "state": "run",
+        "kw": 75.0,
+        "units": 6525
+      },
+      {
+        "hour": 322.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 325.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 327.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 330.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 332.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 335.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 337.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 340.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 342.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 345.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      },
+      {
+        "hour": 347.0,
+        "machine": "M2",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 8500
+      },
+      {
+        "hour": 350.0,
+        "machine": "M1",
+        "state": "idle",
+        "kw": 6.0,
+        "units": 6600
+      }
+    ]
+  },
   "savings": {
     "totalOmr": 17,
     "decisionOmr": 17
