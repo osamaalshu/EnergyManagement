@@ -15,6 +15,8 @@ export interface Econ { elecOmrPerKwh: number; materialOmrPerKg: number; holding
 
 const round = (v: number, d = 0) => { const p = 10 ** d; return Math.round(v * p) / p; };
 
+export const energyIntensityKwhPerKg = (machineKw: number, rateEffective: number, kgPerUnit: number): number => { const d = rateEffective * kgPerUnit; return d > 0 ? machineKw / d : 0; };
+
 // ── A synthetic full-catalogue plant, kept ONLY for the clearly-labelled
 // "Illustrative" toggle. Not the client's data. Real decisions use the pilot data.
 export const DEMO_LINE: LineParam = {

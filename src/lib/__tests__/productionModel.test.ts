@@ -8,6 +8,7 @@ import {
   type LineParam,
   type Order,
   type SkuParam,
+  energyIntensityKwhPerKg,
   monteCarloOrders,
   scheduleOrders,
 } from '../productionModel';
@@ -84,6 +85,14 @@ describe('monteCarloOrders', () => {
   });
 });
 
+describe('energyIntensityKwhPerKg', () => {
+  it('computes machine kWh per kg and guards zero denominators', () => {
+    expect(energyIntensityKwhPerKg(75, 20, 9.13)).toBeCloseTo(0.4107, 3);
+    expect(energyIntensityKwhPerKg(75, 0, 9.13)).toBe(0);
+    expect(energyIntensityKwhPerKg(75, 20, 0)).toBe(0);
+  });
+});
+
 describe('scrap analysis invariants', () => {
   it('builds a monotonic cumulative scrap curve and finds the first 80 percent row', () => {
     const rows = scrapCatalog.products
@@ -147,6 +156,25 @@ describe('scrap analysis invariants', () => {
 
     expect(perHalfPp).toBe(0.005 * grossKgYr * 0.32);
     expect(perHalfPp).toBeGreaterThan(0);
+  });
+
+  it('keeps per-product diagnostic shift and monthly data well-formed', () => {
+    for (const product of scrapCatalog.products) {
+      expect(product).toHaveProperty('shift1Reject');
+      expect(product.shift1Reject == null || typeof product.shift1Reject === 'number').toBe(true);
+      expect(product).toHaveProperty('shift2Reject');
+      expect(product.shift2Reject == null || typeof product.shift2Reject === 'number').toBe(true);
+      expect(Array.isArray(product.monthly)).toBe(true);
+      for (const entry of product.monthly) {
+        expect(entry.r).toBeGreaterThanOrEqual(0);
+        expect(entry.r).toBeLessThanOrEqual(1);
+      }
+    }
+
+    const du203 = scrapCatalog.products.find((product) => product.id === 'DU203');
+    expect(du203).toBeDefined();
+    expect(du203!.shift2Reject).toBeGreaterThan(du203!.shift1Reject!);
+    expect(du203!.monthly.length).toBeGreaterThanOrEqual(2);
   });
 
   it('builds a monotonic Pareto curve over well-measured products only', () => {
@@ -231,5 +259,16 @@ describe('source guards', () => {
     expect(analyse).toContain(text);
     expect(scrap).not.toContain(text);
     expect(scrap).not.toContain('ScenarioBanner');
+  });
+
+  it('keeps planner energy-intensity and scrap diagnostic UI wired', () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+    const planner = readFileSync(resolve(root, 'src/components/ProductionPlannerPage.tsx'), 'utf8');
+    const scrap = readFileSync(resolve(root, 'src/components/ScrapAnalyzerPage.tsx'), 'utf8');
+
+    expect(planner).toContain('kWh/kg');
+    expect(planner).toContain('Energy intensity');
+    expect(scrap).toContain('shift1Reject');
+    expect(scrap).toContain('monthly');
   });
 });

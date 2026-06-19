@@ -13,7 +13,8 @@
     "changeoversObservedTotal": 276,
     "changeoversObservedFamily": 113,
     "changeoversObservedDiameter": 163,
-    "changeoversPerYear": 204
+    "changeoversPerYear": 204,
+    "diagnosticNote": "Within-product cause dimensions available: shift (1 vs 2) and month only. remarks_raw empty; color/class/wall constant per product. No process settings (temp/speed/vacuum/material lot) in records."
   },
   "products": [
     {
@@ -27,7 +28,47 @@
       "rateEffective": 0,
       "samples": 36,
       "scrapKgObs": 5736,
-      "bestRejectOwn": 0.01146
+      "bestRejectOwn": 0.01146,
+      "shift1Reject": 0.0181,
+      "shift2Reject": 0.015,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.022
+        },
+        {
+          "m": "2025-02",
+          "r": 0.1025
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0341
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0172
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0193
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0331
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0103
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0276
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0174
+        }
+      ]
     },
     {
       "id": "PR110",
@@ -40,7 +81,43 @@
       "rateEffective": 0,
       "samples": 56,
       "scrapKgObs": 5309,
-      "bestRejectOwn": 0.00469
+      "bestRejectOwn": 0.00469,
+      "shift1Reject": 0.0173,
+      "shift2Reject": 0.0127,
+      "monthly": [
+        {
+          "m": "2025-07",
+          "r": 0.0126
+        },
+        {
+          "m": "2025-08",
+          "r": 0.0157
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0088
+        },
+        {
+          "m": "2025-10",
+          "r": 0.1783
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0124
+        },
+        {
+          "m": "2025-12",
+          "r": 0.0426
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0243
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0327
+        }
+      ]
     },
     {
       "id": "DU203",
@@ -53,7 +130,55 @@
       "rateEffective": 0,
       "samples": 28,
       "scrapKgObs": 4214,
-      "bestRejectOwn": 0.01928
+      "bestRejectOwn": 0.01928,
+      "shift1Reject": 0.0169,
+      "shift2Reject": 0.0301,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0292
+        },
+        {
+          "m": "2025-02",
+          "r": 0.0454
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0086
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0219
+        },
+        {
+          "m": "2025-08",
+          "r": 0.0383
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0193
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0268
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0663
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0472
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0352
+        },
+        {
+          "m": "2026-05",
+          "r": 0.0323
+        }
+      ]
     },
     {
       "id": "DR152.2",
@@ -66,7 +191,43 @@
       "rateEffective": 0,
       "samples": 29,
       "scrapKgObs": 2719,
-      "bestRejectOwn": 0.00815
+      "bestRejectOwn": 0.00815,
+      "shift1Reject": 0.0094,
+      "shift2Reject": 0.0084,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0113
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0158
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0133
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0088
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0163
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0343
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0251
+        }
+      ]
     },
     {
       "id": "DU305",
@@ -79,7 +240,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 2528,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.1519
+        }
+      ]
     },
     {
       "id": "PR305",
@@ -92,7 +261,19 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 2123,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.2293,
+      "shift2Reject": 0.0193,
+      "monthly": [
+        {
+          "m": "2025-09",
+          "r": 0.0562
+        },
+        {
+          "m": "2026-03",
+          "r": 0.1071
+        }
+      ]
     },
     {
       "id": "DR152.3",
@@ -105,7 +286,43 @@
       "rateEffective": 0,
       "samples": 19,
       "scrapKgObs": 1850,
-      "bestRejectOwn": 0.0088
+      "bestRejectOwn": 0.0088,
+      "shift1Reject": 0.0059,
+      "shift2Reject": 0.0161,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0338
+        },
+        {
+          "m": "2025-02",
+          "r": 0.0413
+        },
+        {
+          "m": "2025-05",
+          "r": 0.028
+        },
+        {
+          "m": "2025-08",
+          "r": 0.0319
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0086
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0585
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0126
+        }
+      ]
     },
     {
       "id": "DU305.2",
@@ -118,7 +335,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 1435,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.1134
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0425
+        }
+      ]
     },
     {
       "id": "DR102",
@@ -131,7 +360,27 @@
       "rateEffective": 0,
       "samples": 16,
       "scrapKgObs": 1409,
-      "bestRejectOwn": 0.00624
+      "bestRejectOwn": 0.00624,
+      "shift1Reject": 0.0077,
+      "shift2Reject": 0.0026,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0306
+        },
+        {
+          "m": "2025-02",
+          "r": 0.0123
+        },
+        {
+          "m": "2025-12",
+          "r": 0.0197
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0125
+        }
+      ]
     },
     {
       "id": "DU305.3",
@@ -144,7 +393,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 1351,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0626,
+      "shift2Reject": 0.1498,
+      "monthly": [
+        {
+          "m": "2025-07",
+          "r": 0.1166
+        },
+        {
+          "m": "2025-12",
+          "r": 0.098
+        }
+      ]
     },
     {
       "id": "DU152",
@@ -157,7 +418,35 @@
       "rateEffective": 0,
       "samples": 10,
       "scrapKgObs": 1324,
-      "bestRejectOwn": 0.01531
+      "bestRejectOwn": 0.01531,
+      "shift1Reject": 0.0138,
+      "shift2Reject": 0.0373,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0496
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0163
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0422
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0309
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0174
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0429
+        }
+      ]
     },
     {
       "id": "DR203",
@@ -170,7 +459,15 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 1300,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-06",
+          "r": 0.0817
+        }
+      ]
     },
     {
       "id": "PR110.2",
@@ -183,7 +480,35 @@
       "rateEffective": 0,
       "samples": 15,
       "scrapKgObs": 1232,
-      "bestRejectOwn": 0.00628
+      "bestRejectOwn": 0.00628,
+      "shift1Reject": 0.0108,
+      "shift2Reject": 0.0263,
+      "monthly": [
+        {
+          "m": "2025-06",
+          "r": 0.0065
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0499
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0099
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0286
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0179
+        },
+        {
+          "m": "2026-05",
+          "r": 0.0151
+        }
+      ]
     },
     {
       "id": "DR152.4",
@@ -196,7 +521,39 @@
       "rateEffective": 0,
       "samples": 13,
       "scrapKgObs": 1176,
-      "bestRejectOwn": 0.01097
+      "bestRejectOwn": 0.01097,
+      "shift1Reject": 0.0408,
+      "shift2Reject": 0.0134,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0196
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0033
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0614
+        },
+        {
+          "m": "2025-09",
+          "r": 0.1083
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0411
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0316
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0123
+        }
+      ]
     },
     {
       "id": "DR203.2",
@@ -209,7 +566,27 @@
       "rateEffective": 0,
       "samples": 7,
       "scrapKgObs": 1162,
-      "bestRejectOwn": 0.02523
+      "bestRejectOwn": 0.02523,
+      "shift1Reject": 0.0182,
+      "shift2Reject": 0.0019,
+      "monthly": [
+        {
+          "m": "2025-05",
+          "r": 0.0132
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0694
+        },
+        {
+          "m": "2025-12",
+          "r": 0.0267
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0281
+        }
+      ]
     },
     {
       "id": "DR152.5",
@@ -222,7 +599,19 @@
       "rateEffective": 0,
       "samples": 12,
       "scrapKgObs": 1113,
-      "bestRejectOwn": 0.01052
+      "bestRejectOwn": 0.01052,
+      "shift1Reject": 0.0233,
+      "shift2Reject": 0.0153,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0182
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0231
+        }
+      ]
     },
     {
       "id": "OT315",
@@ -235,7 +624,19 @@
       "rateEffective": 0,
       "samples": 6,
       "scrapKgObs": 1095,
-      "bestRejectOwn": 0.00174
+      "bestRejectOwn": 0.00174,
+      "shift1Reject": 0.044,
+      "shift2Reject": 0.0195,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.03
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0425
+        }
+      ]
     },
     {
       "id": "DR102.2",
@@ -248,7 +649,35 @@
       "rateEffective": 0,
       "samples": 9,
       "scrapKgObs": 1050,
-      "bestRejectOwn": 0.00963
+      "bestRejectOwn": 0.00963,
+      "shift1Reject": 0.0264,
+      "shift2Reject": 0.0065,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0195
+        },
+        {
+          "m": "2025-02",
+          "r": 0.0728
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0072
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0472
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0168
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0106
+        }
+      ]
     },
     {
       "id": "DU203.2",
@@ -261,7 +690,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 985,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.1546,
+      "shift2Reject": 0.054,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.4468
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0333
+        }
+      ]
     },
     {
       "id": "DR152.6",
@@ -274,7 +715,35 @@
       "rateEffective": 0,
       "samples": 14,
       "scrapKgObs": 958,
-      "bestRejectOwn": 0.00084
+      "bestRejectOwn": 0.00084,
+      "shift1Reject": 0.0137,
+      "shift2Reject": 0.0051,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.0307
+        },
+        {
+          "m": "2025-05",
+          "r": 0.018
+        },
+        {
+          "m": "2025-06",
+          "r": 0.009
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0285
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0366
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0141
+        }
+      ]
     },
     {
       "id": "DR102.3",
@@ -287,7 +756,31 @@
       "rateEffective": 0,
       "samples": 9,
       "scrapKgObs": 855,
-      "bestRejectOwn": 0.01908
+      "bestRejectOwn": 0.01908,
+      "shift1Reject": 0.0315,
+      "shift2Reject": 0.0162,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0331
+        },
+        {
+          "m": "2025-06",
+          "r": 0.027
+        },
+        {
+          "m": "2025-08",
+          "r": 0.0428
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0333
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0236
+        }
+      ]
     },
     {
       "id": "DR203.3",
@@ -300,7 +793,35 @@
       "rateEffective": 0,
       "samples": 8,
       "scrapKgObs": 853,
-      "bestRejectOwn": 0.01866
+      "bestRejectOwn": 0.01866,
+      "shift1Reject": 0.0342,
+      "shift2Reject": 0.008,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.0677
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0557
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0243
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0193
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0383
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0324
+        }
+      ]
     },
     {
       "id": "DU305.4",
@@ -313,7 +834,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 842,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0356,
+      "shift2Reject": 0.1687,
+      "monthly": [
+        {
+          "m": "2025-07",
+          "r": 0.0971
+        }
+      ]
     },
     {
       "id": "DR305",
@@ -326,7 +855,19 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 755,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0434,
+      "shift2Reject": 0.024,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0071
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0602
+        }
+      ]
     },
     {
       "id": "DR305.2",
@@ -339,7 +880,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 755,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.1012
+        }
+      ]
     },
     {
       "id": "PR160",
@@ -352,7 +901,15 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 715,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-05",
+          "r": 0.0387
+        }
+      ]
     },
     {
       "id": "DR254",
@@ -365,7 +922,23 @@
       "rateEffective": 0,
       "samples": 6,
       "scrapKgObs": 696,
-      "bestRejectOwn": 0.01676
+      "bestRejectOwn": 0.01676,
+      "shift1Reject": 0.0118,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0409
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0313
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0165
+        }
+      ]
     },
     {
       "id": "DR254.2",
@@ -378,7 +951,23 @@
       "rateEffective": 0,
       "samples": 5,
       "scrapKgObs": 690,
-      "bestRejectOwn": 0.02439
+      "bestRejectOwn": 0.02439,
+      "shift1Reject": 0.0222,
+      "shift2Reject": 0.0123,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.0673
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0157
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0567
+        }
+      ]
     },
     {
       "id": "DR305.3",
@@ -391,7 +980,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 680,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.3666,
+      "shift2Reject": 0.2127,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.2825
+        }
+      ]
     },
     {
       "id": "PR110.3",
@@ -404,7 +1001,35 @@
       "rateEffective": 0,
       "samples": 17,
       "scrapKgObs": 678,
-      "bestRejectOwn": 0.0
+      "bestRejectOwn": 0.0,
+      "shift1Reject": 0.0055,
+      "shift2Reject": 0.0131,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.0062
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0054
+        },
+        {
+          "m": "2025-10",
+          "r": 0.017
+        },
+        {
+          "m": "2026-02",
+          "r": 0.022
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0069
+        },
+        {
+          "m": "2026-05",
+          "r": 0.0092
+        }
+      ]
     },
     {
       "id": "DU254",
@@ -417,7 +1042,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 624,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 1.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.1333
+        }
+      ]
     },
     {
       "id": "OT315.2",
@@ -430,7 +1063,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 610,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": null,
+      "shift2Reject": 0.1641,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.1641
+        }
+      ]
     },
     {
       "id": "DR203.4",
@@ -443,7 +1084,27 @@
       "rateEffective": 0,
       "samples": 5,
       "scrapKgObs": 531,
-      "bestRejectOwn": 0.02288
+      "bestRejectOwn": 0.02288,
+      "shift1Reject": 0.0191,
+      "shift2Reject": 0.0052,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0229
+        },
+        {
+          "m": "2025-02",
+          "r": 0.0308
+        },
+        {
+          "m": "2025-05",
+          "r": 0.0391
+        },
+        {
+          "m": "2025-07",
+          "r": 0.0229
+        }
+      ]
     },
     {
       "id": "DR203.5",
@@ -456,7 +1117,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 475,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0781,
+      "shift2Reject": 0.0345,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.0435
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0453
+        }
+      ]
     },
     {
       "id": "DU203.3",
@@ -469,7 +1142,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 475,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0476,
+      "shift2Reject": 0.0825,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.0592
+        }
+      ]
     },
     {
       "id": "DR203.6",
@@ -482,7 +1163,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 455,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0528,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.0589
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0711
+        }
+      ]
     },
     {
       "id": "DR254.3",
@@ -495,7 +1188,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 445,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.4877,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.4877
+        }
+      ]
     },
     {
       "id": "OT200",
@@ -508,7 +1209,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 444,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.1654,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.1118
+        }
+      ]
     },
     {
       "id": "DU152.2",
@@ -521,7 +1230,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 387,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.1193,
+      "shift2Reject": 0.0367,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.0559
+        }
+      ]
     },
     {
       "id": "DR254.4",
@@ -534,7 +1251,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 378,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.3941,
+      "shift2Reject": 0.0244,
+      "monthly": [
+        {
+          "m": "2025-07",
+          "r": 0.0642
+        }
+      ]
     },
     {
       "id": "DR203.7",
@@ -547,7 +1272,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 376,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.1127,
+      "shift2Reject": 0.0265,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.1784
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0373
+        }
+      ]
     },
     {
       "id": "PR110.4",
@@ -560,7 +1297,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 349,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-05",
+          "r": 0.029
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0062
+        }
+      ]
     },
     {
       "id": "PR152",
@@ -573,7 +1322,19 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 335,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0521,
+      "shift2Reject": 0.008,
+      "monthly": [
+        {
+          "m": "2025-06",
+          "r": 0.0612
+        },
+        {
+          "m": "2026-02",
+          "r": 0.0386
+        }
+      ]
     },
     {
       "id": "DR152.7",
@@ -586,7 +1347,19 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 320,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": null,
+      "shift2Reject": 0.1778,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.2115
+        },
+        {
+          "m": "2026-04",
+          "r": 0.1641
+        }
+      ]
     },
     {
       "id": "DR152.8",
@@ -599,7 +1372,27 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 311,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0144,
+      "shift2Reject": 0.0194,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.0265
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0205
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0164
+        },
+        {
+          "m": "2026-04",
+          "r": 0.035
+        }
+      ]
     },
     {
       "id": "DR254.5",
@@ -612,7 +1405,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 305,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.171,
+      "shift2Reject": 0.0061,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0532
+        }
+      ]
     },
     {
       "id": "PR160.2",
@@ -625,7 +1426,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 299,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0293,
+      "shift2Reject": 0.0482,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.0488
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0357
+        }
+      ]
     },
     {
       "id": "DU152.3",
@@ -638,7 +1451,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 272,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.1472,
+      "shift2Reject": 0.0112,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.0443
+        }
+      ]
     },
     {
       "id": "PR160.3",
@@ -651,7 +1472,19 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 265,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-05",
+          "r": 0.029
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0437
+        }
+      ]
     },
     {
       "id": "DR152.9",
@@ -664,7 +1497,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 255,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.031,
+      "shift2Reject": 0.0959,
+      "monthly": [
+        {
+          "m": "2025-07",
+          "r": 0.0387
+        }
+      ]
     },
     {
       "id": "DR254.6",
@@ -677,7 +1518,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 250,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0471,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.028
+        }
+      ]
     },
     {
       "id": "DR152.10",
@@ -690,7 +1539,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 235,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0868,
+      "shift2Reject": 0.0238,
+      "monthly": [
+        {
+          "m": "2025-11",
+          "r": 0.0387
+        }
+      ]
     },
     {
       "id": "OT102",
@@ -703,7 +1560,19 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 232,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0124,
+      "shift2Reject": 0.0356,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.0222
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0346
+        }
+      ]
     },
     {
       "id": "DR102.4",
@@ -716,7 +1585,19 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 219,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0346,
+      "shift2Reject": 0.0025,
+      "monthly": [
+        {
+          "m": "2025-11",
+          "r": 0.0183
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0017
+        }
+      ]
     },
     {
       "id": "DR152.11",
@@ -729,7 +1610,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 210,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.1724,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.1724
+        }
+      ]
     },
     {
       "id": "DR152.12",
@@ -742,7 +1631,19 @@
       "rateEffective": 0,
       "samples": 5,
       "scrapKgObs": 205,
-      "bestRejectOwn": 0.00227
+      "bestRejectOwn": 0.00227,
+      "shift1Reject": 0.0023,
+      "shift2Reject": 0.0161,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.0092
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0108
+        }
+      ]
     },
     {
       "id": "PR110.5",
@@ -755,7 +1656,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 205,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0434
+        }
+      ]
     },
     {
       "id": "DR152.13",
@@ -768,7 +1677,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 201,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.029,
+      "shift2Reject": 0.0087,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0171
+        }
+      ]
     },
     {
       "id": "DR254.7",
@@ -781,7 +1698,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 200,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.1282,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.1282
+        }
+      ]
     },
     {
       "id": "DU152.4",
@@ -794,7 +1719,19 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 195,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": null,
+      "shift2Reject": 0.0593,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.1042
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0408
+        }
+      ]
     },
     {
       "id": "PR110.6",
@@ -807,7 +1744,15 @@
       "rateEffective": 0,
       "samples": 7,
       "scrapKgObs": 194,
-      "bestRejectOwn": 0.00206
+      "bestRejectOwn": 0.00206,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0045
+        }
+      ]
     },
     {
       "id": "PR110.7",
@@ -820,7 +1765,19 @@
       "rateEffective": 0,
       "samples": 8,
       "scrapKgObs": 193,
-      "bestRejectOwn": 0.00154
+      "bestRejectOwn": 0.00154,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-05",
+          "r": 0.008
+        },
+        {
+          "m": "2025-06",
+          "r": 0.004
+        }
+      ]
     },
     {
       "id": "OT152",
@@ -833,7 +1790,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 183,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0827,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0827
+        }
+      ]
     },
     {
       "id": "DR102.5",
@@ -846,7 +1811,27 @@
       "rateEffective": 0,
       "samples": 5,
       "scrapKgObs": 154,
-      "bestRejectOwn": 0.0065
+      "bestRejectOwn": 0.0065,
+      "shift1Reject": 0.0058,
+      "shift2Reject": 0.0102,
+      "monthly": [
+        {
+          "m": "2025-06",
+          "r": 0.0109
+        },
+        {
+          "m": "2025-09",
+          "r": 0.0065
+        },
+        {
+          "m": "2026-03",
+          "r": 0.0161
+        },
+        {
+          "m": "2026-04",
+          "r": 0.0073
+        }
+      ]
     },
     {
       "id": "DR152.14",
@@ -859,7 +1844,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 150,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0024,
+      "shift2Reject": 0.0294,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.0117
+        }
+      ]
     },
     {
       "id": "DR102.6",
@@ -872,7 +1865,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 146,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0053,
+      "shift2Reject": 0.0246,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.014
+        }
+      ]
     },
     {
       "id": "DR152.15",
@@ -885,7 +1886,19 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 146,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.062,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.0
+        },
+        {
+          "m": "2025-10",
+          "r": 0.0219
+        }
+      ]
     },
     {
       "id": "DR102.7",
@@ -898,7 +1911,15 @@
       "rateEffective": 0,
       "samples": 3,
       "scrapKgObs": 135,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0445,
+      "shift2Reject": 0.013,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0246
+        }
+      ]
     },
     {
       "id": "DU203.4",
@@ -911,7 +1932,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 134,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0872,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.0872
+        }
+      ]
     },
     {
       "id": "DR203.8",
@@ -924,7 +1953,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 132,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": null,
+      "shift2Reject": 0.2146,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.2146
+        }
+      ]
     },
     {
       "id": "DR102.8",
@@ -937,7 +1974,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 131,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0326,
+      "shift2Reject": 0.0448,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.036
+        }
+      ]
     },
     {
       "id": "PR152.2",
@@ -950,7 +1995,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 130,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-06",
+          "r": 0.0354
+        }
+      ]
     },
     {
       "id": "DR203.9",
@@ -963,7 +2016,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 120,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0339,
+      "shift2Reject": 0.0186,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0274
+        }
+      ]
     },
     {
       "id": "DR102.9",
@@ -976,7 +2037,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 115,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0265,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.0119
+        }
+      ]
     },
     {
       "id": "DR203.10",
@@ -989,7 +2058,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 112,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0565,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2025-12",
+          "r": 0.0565
+        }
+      ]
     },
     {
       "id": "OT102.2",
@@ -1002,7 +2079,23 @@
       "rateEffective": 0,
       "samples": 4,
       "scrapKgObs": 106,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0061,
+      "shift2Reject": 0.0038,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0312
+        },
+        {
+          "m": "2025-06",
+          "r": 0.0
+        },
+        {
+          "m": "2025-11",
+          "r": 0.0121
+        }
+      ]
     },
     {
       "id": "DR152.16",
@@ -1015,7 +2108,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 97,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0454,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0454
+        }
+      ]
     },
     {
       "id": "OT152.2",
@@ -1028,7 +2129,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 95,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": null,
+      "shift2Reject": 0.1205,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.1205
+        }
+      ]
     },
     {
       "id": "DU102",
@@ -1041,7 +2150,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 95,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0306,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.0306
+        }
+      ]
     },
     {
       "id": "DR152.17",
@@ -1054,7 +2171,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 87,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0871,
+      "shift2Reject": 0.0255,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.0541
+        }
+      ]
     },
     {
       "id": "PR102",
@@ -1067,7 +2192,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 85,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-06",
+          "r": 0.0306
+        }
+      ]
     },
     {
       "id": "PR110.8",
@@ -1080,7 +2213,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 85,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2025-01",
+          "r": 0.0919
+        }
+      ]
     },
     {
       "id": "DR102.10",
@@ -1093,7 +2234,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 84,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0321,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.0164
+        }
+      ]
     },
     {
       "id": "DR152.18",
@@ -1106,7 +2255,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 71,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0117,
+      "shift2Reject": 0.0237,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0163
+        }
+      ]
     },
     {
       "id": "DU102.2",
@@ -1119,7 +2276,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 60,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.075,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.075
+        }
+      ]
     },
     {
       "id": "PR110.9",
@@ -1132,7 +2297,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 50,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 1.0,
+      "monthly": [
+        {
+          "m": "2025-09",
+          "r": 0.0148
+        }
+      ]
     },
     {
       "id": "PR110.10",
@@ -1145,7 +2318,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 50,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-02",
+          "r": 0.003
+        }
+      ]
     },
     {
       "id": "DR102.11",
@@ -1158,7 +2339,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 50,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0326,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2026-03",
+          "r": 0.0326
+        }
+      ]
     },
     {
       "id": "DR152.19",
@@ -1171,7 +2360,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 30,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": null,
+      "shift2Reject": 0.0164,
+      "monthly": [
+        {
+          "m": "2025-10",
+          "r": 0.0164
+        }
+      ]
     },
     {
       "id": "DR152.20",
@@ -1184,7 +2381,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 20,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0076,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2026-04",
+          "r": 0.0076
+        }
+      ]
     },
     {
       "id": "DU102.3",
@@ -1197,7 +2402,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 15,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0186,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.0186
+        }
+      ]
     },
     {
       "id": "DR152.21",
@@ -1210,7 +2423,15 @@
       "rateEffective": 0,
       "samples": 2,
       "scrapKgObs": 14,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0043,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2026-02",
+          "r": 0.0028
+        }
+      ]
     },
     {
       "id": "PR102.2",
@@ -1223,7 +2444,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 0,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": null,
+      "shift2Reject": 0.0,
+      "monthly": [
+        {
+          "m": "2025-06",
+          "r": 0.0
+        }
+      ]
     },
     {
       "id": "DU315",
@@ -1236,7 +2465,15 @@
       "rateEffective": 0,
       "samples": 1,
       "scrapKgObs": 0,
-      "bestRejectOwn": null
+      "bestRejectOwn": null,
+      "shift1Reject": 0.0,
+      "shift2Reject": null,
+      "monthly": [
+        {
+          "m": "2025-08",
+          "r": 0.0
+        }
+      ]
     }
   ]
 }

@@ -7,6 +7,7 @@ const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Duct: 'bg-sky-500', Other: 'bg-slate-400',
 };
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
+const pct = (v: number | null, d = 1) => v == null ? '—' : `${(v * 100).toFixed(d)}%`;
 const MIN_SAMPLES = 5; // fewer shift-records than this → reject rate is noisy, flag it
 
 // Demo catalogue shaped like the real one, so the illustrative view still works.
@@ -15,6 +16,7 @@ const DEMO_PRODUCTS: ScrapProduct[] = DEMO_SKUS.map((s) => ({
   demand: s.demand, kgPerUnit: s.kgPerUnit, meanRejection: s.meanRejection, rateEffective: s.rateEffective,
   samples: 60, scrapKgObs: Math.round(s.demand * s.kgPerUnit * s.meanRejection),
   bestRejectOwn: null,
+  shift1Reject: null, shift2Reject: null, monthly: [],
 }));
 
 const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -39,6 +41,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         id: s.id, name: s.name, family: s.family, samples: s.samples, lowData,
         reject: s.meanRejection * 100, bestPct: target == null ? null : target * 100, demand: s.demand, kgPerUnit: s.kgPerUnit,
         scrapKg, scrapOmr: scrapKg * econ.materialOmrPerKg, saving,
+        bestRejectOwn: s.bestRejectOwn, shift1Reject: s.shift1Reject, shift2Reject: s.shift2Reject, monthly: s.monthly,
       };
     }).sort((x, y) => y.scrapKg - x.scrapKg);
 
@@ -237,6 +240,50 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
                   : drillRow.saving > 0
                     ? <p className="text-slate-500">Above its own best, but below the 2% materiality threshold for recoverable sizing.</p>
                     : <p className="text-slate-500">Already at/below its own best, or no own-best target is available.</p>}
+              <div className="mt-4 border-t border-slate-200/60 pt-3 dark:border-white/10">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Where the loss is</h4>
+                {drillRow.lowData && <p className="mt-2 font-medium text-amber-600 dark:text-amber-400">Too few records to diagnose reliably</p>}
+                <div className="mt-2 rounded-lg bg-slate-50 p-3 dark:bg-white/5">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Shift</p>
+                  <p className="mt-1">Shift 1 <span className="font-mono">{pct(drillRow.shift1Reject)}</span> · Shift 2 <span className="font-mono">{pct(drillRow.shift2Reject)}</span></p>
+                  {drillRow.shift1Reject != null && drillRow.shift2Reject != null && Math.abs(drillRow.shift1Reject - drillRow.shift2Reject) >= 0.005
+                    ? (() => {
+                      const worseShift = drillRow.shift2Reject! > drillRow.shift1Reject! ? 2 : 1;
+                      const worse = Math.max(drillRow.shift1Reject!, drillRow.shift2Reject!);
+                      const better = Math.min(drillRow.shift1Reject!, drillRow.shift2Reject!);
+                      const ratio = better > 0 ? `${(worse / better).toFixed(1)}` : '∞';
+                      return <p className="mt-1 font-medium text-rose-600 dark:text-rose-400">Shift {worseShift} runs {ratio}× worse ({worseShift === 2 ? `${pct(drillRow.shift2Reject)} vs ${pct(drillRow.shift1Reject)}` : `${pct(drillRow.shift1Reject)} vs ${pct(drillRow.shift2Reject)}`}) — investigate shift-{worseShift} practice.</p>;
+                    })()
+                    : <p className="mt-1 text-slate-500">No material shift difference.</p>}
+                </div>
+                <div className="mt-2 rounded-lg bg-slate-50 p-3 dark:bg-white/5">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Monthly trend</p>
+                  {drillRow.monthly.length >= 2
+                    ? (() => {
+                      const best = drillRow.monthly.reduce((m, r) => (r.r < m.r ? r : m), drillRow.monthly[0]);
+                      const worst = drillRow.monthly.reduce((m, r) => (r.r > m.r ? r : m), drillRow.monthly[0]);
+                      const maxR = Math.max(1e-9, ...drillRow.monthly.map((r) => r.r));
+                      return (
+                        <>
+                          <div className="mt-2 flex h-14 items-end gap-1" aria-label="Monthly reject sparkline">
+                            {drillRow.monthly.map((point) => {
+                              const hitOwnBest = drillRow.bestRejectOwn != null && point.r <= drillRow.bestRejectOwn + 0.0005;
+                              return (
+                                <div key={point.m} title={`${point.m}: ${pct(point.r)}${hitOwnBest ? ' · own best' : ''}`} className="flex h-full flex-1 items-end">
+                                  <div className={`w-full rounded-t-sm ${hitOwnBest ? 'bg-emerald-500' : 'bg-accent'}`} style={{ height: `${Math.max(4, (point.r / maxR) * 100)}%` }} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <p className="mt-2">Best month <span className="font-mono">{pct(best.r)}</span> · worst <span className="font-mono">{pct(worst.r)}</span> — you have already hit <span className="font-mono">{pct(best.r)}</span>, so the gap is consistency, not capability.</p>
+                          {drillRow.bestRejectOwn != null && <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">Green marks months at or below own-best target ({pct(drillRow.bestRejectOwn)}).</p>}
+                        </>
+                      );
+                    })()
+                    : <p className="mt-1 text-slate-500">Not enough monthly data to show a trend.</p>}
+                </div>
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Cause attribution is limited to shift and month — the records hold no process settings (line speed, melt temp, vacuum, material lot). Log those per run to pinpoint the exact setting and quantify the fix.</p>
+              </div>
             </div>
           </div>
         </div>
