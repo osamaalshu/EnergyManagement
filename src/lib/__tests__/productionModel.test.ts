@@ -15,6 +15,7 @@ import {
 import { energyKpi } from '../../data/energyKpi';
 import { scrapCatalog as typedScrapCatalog } from '../../data/scrapCatalog';
 import scrapCatalog from '../../data/generated/scrapCatalog.json';
+import { GRANULARITY_POINTS, placeholderKwhKgSeries, type Granularity } from '../energyPlaceholder';
 
 const products: Record<string, SkuParam> = {
   a: {
@@ -104,6 +105,24 @@ describe('energy KPI dataset', () => {
     expect(energyKpi.summary.bestKwhPerKg).toBeLessThanOrEqual(energyKpi.summary.worstKwhPerKg);
     expect(energyKpi.summary.bestKwhPerKg).toBe(Math.min(...monthValues));
     expect(energyKpi.summary.worstKwhPerKg).toBe(Math.max(...monthValues));
+  });
+});
+
+describe('placeholderKwhKgSeries', () => {
+  it('is deterministic for the same input', () => {
+    const first = placeholderKwhKgSeries(0.42, 'month', 'DU203');
+    const second = placeholderKwhKgSeries(0.42, 'month', 'DU203');
+
+    expect(second).toEqual(first);
+  });
+
+  it('uses the expected point count for each granularity and keeps values positive', () => {
+    for (const granularity of Object.keys(GRANULARITY_POINTS) as Granularity[]) {
+      const series = placeholderKwhKgSeries(0.42, granularity, 'DU203');
+
+      expect(series).toHaveLength(GRANULARITY_POINTS[granularity]);
+      expect(series.every((point) => point.v > 0)).toBe(true);
+    }
   });
 });
 
@@ -304,6 +323,13 @@ describe('source guards', () => {
     expect(scrap).toContain('kWh/kg');
     expect(scrap).toContain('kwhPerKgPlaceholder');
     expect(scrap).toContain("kwhPerKgProvenance === 'PLACEHOLDER'");
+    expect(scrap).toContain('placeholderKwhKgSeries');
+    expect(scrap).toContain('LineChart');
+    expect(scrap).toContain("'day'");
+    expect(scrap).toContain("'week'");
+    expect(scrap).toContain("'month'");
+    expect(scrap).toContain("'year'");
+    expect(scrap).toContain('>kWh/kg<');
   });
 
   it('wires the energy KPI card in Analyse hub source', () => {

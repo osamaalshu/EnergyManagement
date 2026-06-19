@@ -137,3 +137,20 @@ provenance per-dataset not per-field; heavy compute -> server tier at scale.
 
 Tests: 19/19 (placeholder finite>0 + flag=PLACEHOLDER; gated-badge source guard). tsc
 clean; build provenance passed.
+
+## 2026-06-19 — kWh/kg line chart over time + Day/Week/Month/Year toggle
+
+Founder feedback: clean the table header ("kWh/kg*"→"kWh/kg"); make the energy chart a
+LINE chart of ALL products over TIME with a day/week/month/year selector. No real
+per-product energy-over-time data exists, so the time series is a synthesized PLACEHOLDER
+(loudly flagged), same swap-ready pattern.
+
+- New pure helper src/lib/energyPlaceholder.ts: placeholderKwhKgSeries(base, granularity,
+  seedKey) — deterministic seeded series (~±20% wiggle, >0), GRANULARITY_POINTS
+  day=30/week=12/month=12/year=3.
+- ScrapAnalyzerPage: bar chart → Recharts LineChart, one thin faint line per product (all
+  94), highlight-on-search; Day/Week/Month/Year segmented toggle (default month); amber
+  PLACEHOLDER caption gated on meta.kwhPerKgProvenance==='PLACEHOLDER'. Header now "kWh/kg".
+
+Tests: 21/21 (placeholderKwhKgSeries determinism + length-per-granularity + v>0; line-chart
++ toggle + clean-header source guards). tsc clean; build provenance passed.
