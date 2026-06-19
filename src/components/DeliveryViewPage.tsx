@@ -4,8 +4,10 @@ import {
   scheduleOrders, monteCarloOrders, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
   type SkuParam, type LineParam, type Econ, type Order, type OrderSchedule, type OrderItem,
 } from '../lib/productionModel';
+import ScenarioBanner from './ScenarioBanner';
 
 const OTIF_TARGET = 95;
+const SCENARIO_BANNER_TEXT = 'Scenario — figures use a generated order book, not your live orders. Connect the order book to make this operational.';
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
 let _uid = 0;
 const genOrders = (skus: SkuParam[], horizon: number): Order[] =>
@@ -83,6 +85,8 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <section className="space-y-5">
+      <ScenarioBanner text={SCENARIO_BANNER_TEXT} />
+
       {/* Header */}
       <div className="flex flex-wrap items-center gap-4">
         <button onClick={onBack} aria-label="Back" className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/70 text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5">

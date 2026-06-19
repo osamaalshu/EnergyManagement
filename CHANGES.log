@@ -47,3 +47,27 @@ Fix (architect spec, Codex executed + tested):
 Tests extended: recoverable uses bestRejectOwn & excludes null/low-sample; bestRejectOwn
 non-null iff samples>=5; plant-wide sensitivity = 0.005*sum(demand*kg)*price; well-measured
 Pareto cumulative monotonic & <=100. Result: 9/9 pass. tsc clean. build provenance passed.
+
+## 2026-06-18 — Analyse journey: decision hub + scenario honesty + Validation Lab
+
+Open-ended red-team (Codex) against the goal "simple journey -> confident decision"
+surfaced: four analyst screens, no guided entry, generated orders shown as operational,
+Plant Telemetry with no manager action. Founder decisions: scenario-mode (honest), one
+"What do I do today?" hub as the entry, move Telemetry out of Analyse, keep demo toggles.
+
+Implemented (architect spec, Codex executed + tested):
+- New AnalyseHubPage = the Analyse landing. Two decision cards: "Will we ship on time?"
+  (pAllOnTime% from the pilot order scenario, colour-coded, routes to Planner/Delivery)
+  and "Where am I losing money to scrap?" (total scrap OMR + own-best recoverable, routes
+  to Scrap Focus).
+- ScenarioBanner (persistent, honest "generated order book, not live orders") on the hub,
+  Planner, and Delivery. NOT on Scrap (real records) or Telemetry.
+- Plant Telemetry moved OUT of Analyse into a top-level "Validation Lab" sidebar entry;
+  Analyse children = Delivery, Planner, Scrap; Analyse parent opens the hub.
+- Residual-bug fixes (architect): scrapCatalog.ts comment relabelled line-level; Scrap
+  changeover card no longer contradicts the "diffuse" framing; changeover line says
+  "on the line (MC01+03)".
+
+Tests: 3 source guards added (Telemetry not an Analyse child + Validation Lab exists;
+App has the analyse route + hub; ScenarioBanner text present on hub/Planner/Delivery and
+absent from Scrap). Result: 12/12 pass. tsc clean. npm run build PROVENANCE CHECK PASSED.
