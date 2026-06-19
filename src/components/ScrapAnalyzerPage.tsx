@@ -1,11 +1,16 @@
 import { type FC, useMemo, useState } from 'react';
-import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { ResponsiveContainer, ComposedChart, Bar, Line, LineChart, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { DEMO_SKUS, DEMO_ECON, type Econ } from '../lib/productionModel';
 import { scrapCatalog, type ScrapProduct } from '../data/scrapCatalog';
+import { placeholderKwhKgSeries, type Granularity } from '../lib/energyPlaceholder';
 
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Duct: 'bg-sky-500', Other: 'bg-slate-400',
 };
+const FAMILY_STROKE: Record<string, string> = {
+  Drainage: '#1A365D', Pressure: '#FAB005', Conduit: '#10b981', Waste: '#8b5cf6', Duct: '#0ea5e9', Other: '#94a3b8',
+};
+const GRANULARITY_OPTIONS: Granularity[] = ['day', 'week', 'month', 'year'];
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
 const pct = (v: number | null, d = 1) => v == null ? '—' : `${(v * 100).toFixed(d)}%`;
 const MIN_SAMPLES = 5; // fewer shift-records than this → reject rate is noisy, flag it
@@ -31,6 +36,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [scrapPerChg, setScrapPerChg] = useState(10); // kg purge per changeover (estimate)
   const [q, setQ] = useState('');
   const [drill, setDrill] = useState<string | null>(null);
+  const [energyGranularity, setEnergyGranularity] = useState<Granularity>('month');
 
   const a = useMemo(() => {
     const base = products.map((s) => {
@@ -88,10 +94,22 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const top10 = a.wellMeasured.slice(0, 10);
   const top10Cum = top10.at(-1)?.cumPct ?? 0;
-  const energyRows = (a.wellMeasured.length > 0 ? a.wellMeasured : a.rows)
-    .slice()
-    .sort((x, y) => y.kwhPerKgPlaceholder - x.kwhPerKgPlaceholder)
-    .slice(0, 15);
+  const energyChartRows = useMemo(() => {
+    const productSeries = a.rows.map((product) => ({
+      product,
+      series: placeholderKwhKgSeries(product.kwhPerKgPlaceholder, energyGranularity, product.id),
+    }));
+    const pointCount = productSeries[0]?.series.length ?? 0;
+
+    return Array.from({ length: pointCount }, (_, i) => {
+      const row: Record<string, string | number> = { t: productSeries[0]?.series[i]?.t ?? '' };
+      for (const { product, series } of productSeries) {
+        row[product.id] = series[i]?.v ?? 0.05;
+      }
+      return row;
+    });
+  }, [a.rows, energyGranularity]);
+  const energySearch = q.trim().toLowerCase();
   const recs = a.rows.filter((r) => r.focus && r.saving > 0).sort((x, y) => y.saving - x.saving).slice(0, 5);
   const tableRows = (q.trim() ? a.rows : top10)
     .filter((r) => (famFilter === 'All' || r.family === famFilter) && (!confidentOnly || !r.lowData) && r.name.toLowerCase().includes(q.toLowerCase()));
@@ -176,22 +194,45 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       <div className="card-surface p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity — kWh/kg by product</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity over time — kWh/kg by product</h3>
             {meta.kwhPerKgProvenance === 'PLACEHOLDER' && (
               <p title={meta.kwhPerKgNote} className="mt-2 max-w-4xl rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-300">
-                PLACEHOLDER — illustrative energy intensity (nameplate power ÷ real output), not measured. Real per-product kWh/kg needs machine sub-metering.
+                PLACEHOLDER — illustrative per-product energy intensity over time; no real per-product energy-over-time data exists yet (needs machine sub-metering).
               </p>
             )}
+          </div>
+          <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity granularity">
+            {GRANULARITY_OPTIONS.map((granularity) => (
+              <button key={granularity} type="button" onClick={() => setEnergyGranularity(granularity)} className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${energyGranularity === granularity ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
+                {granularity}
+              </button>
+            ))}
           </div>
         </div>
         <div className="mt-3 h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={energyRows} margin={{ top: 8, right: 18, left: 0, bottom: 46 }}>
-              <XAxis dataKey="id" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} angle={-45} textAnchor="end" height={56} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+            <LineChart data={energyChartRows} margin={{ top: 8, right: 18, left: 0, bottom: 18 }}>
+              <XAxis dataKey="t" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
               <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={42} />
-              <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number) => [`${v.toFixed(2)} kWh/kg`, 'energy intensity']} />
-              <Bar dataKey="kwhPerKgPlaceholder" fill="#FAB005" radius={[2, 2, 0, 0]} />
-            </ComposedChart>
+              <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem', maxHeight: 240, overflowY: 'auto' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [`${Number(value).toFixed(2)} kWh/kg`, name]} />
+              {a.rows.map((product) => {
+                const isMatch = energySearch.length > 0 && `${product.id} ${product.name} ${product.family}`.toLowerCase().includes(energySearch);
+                return (
+                  <Line
+                    key={product.id}
+                    type="monotone"
+                    dataKey={product.id}
+                    name={product.name}
+                    stroke={isMatch ? '#1A365D' : (FAMILY_STROKE[product.family] ?? FAMILY_STROKE.Other)}
+                    strokeWidth={isMatch ? 2.25 : 1}
+                    strokeOpacity={isMatch ? 1 : 0.25}
+                    dot={false}
+                    activeDot={isMatch ? { r: 3 } : false}
+                    isAnimationActive={false}
+                  />
+                );
+              })}
+            </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -235,7 +276,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
-              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2 text-right">Records</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Best %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">kWh/kg*</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
+              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2 text-right">Records</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Best %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">kWh/kg</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
               {tableRows.map((r) => (
