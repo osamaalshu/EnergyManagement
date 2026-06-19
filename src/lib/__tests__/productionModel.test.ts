@@ -13,6 +13,7 @@ import {
   scheduleOrders,
 } from '../productionModel';
 import { energyKpi } from '../../data/energyKpi';
+import { scrapCatalog as typedScrapCatalog } from '../../data/scrapCatalog';
 import scrapCatalog from '../../data/generated/scrapCatalog.json';
 
 const products: Record<string, SkuParam> = {
@@ -163,6 +164,17 @@ describe('scrap analysis invariants', () => {
     }
   });
 
+  it('keeps scrap catalog energy placeholders complete and explicitly marked', () => {
+    const { products: catalog, meta } = typedScrapCatalog;
+
+    expect(catalog.length).toBeGreaterThan(0);
+    for (const product of catalog) {
+      expect(Number.isFinite(product.kwhPerKgPlaceholder)).toBe(true);
+      expect(product.kwhPerKgPlaceholder).toBeGreaterThan(0);
+    }
+    expect(meta.kwhPerKgProvenance).toBe('PLACEHOLDER');
+  });
+
   it('computes the plant-wide reject sensitivity from gross annual mass', () => {
     const grossKgYr = scrapCatalog.products.reduce((sum, product) => sum + product.demand * product.kgPerUnit, 0);
     const perHalfPp = 0.005 * grossKgYr * 0.32;
@@ -283,6 +295,15 @@ describe('source guards', () => {
     expect(planner).toContain('Energy intensity');
     expect(scrap).toContain('shift1Reject');
     expect(scrap).toContain('monthly');
+  });
+
+  it('keeps scrap analyzer energy intensity and placeholder badge wired', () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+    const scrap = readFileSync(resolve(root, 'src/components/ScrapAnalyzerPage.tsx'), 'utf8');
+
+    expect(scrap).toContain('kWh/kg');
+    expect(scrap).toContain('kwhPerKgPlaceholder');
+    expect(scrap).toContain("kwhPerKgProvenance === 'PLACEHOLDER'");
   });
 
   it('wires the energy KPI card in Analyse hub source', () => {

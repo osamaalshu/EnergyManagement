@@ -18,6 +18,10 @@ export interface ScrapProduct {
   shift1Reject: number | null;
   shift2Reject: number | null;
   monthly: { m: string; r: number }[];
+  // PLACEHOLDER kWh/kg — illustrative only (nameplate power over real daily output),
+  // NOT measured energy. Swap-ready: when sub-metering arrives, refill this field and
+  // flip meta.kwhPerKgProvenance to 'measured'; the UI badge keys off that flag.
+  kwhPerKgPlaceholder: number;
 }
 export interface ScrapCatalog {
   meta: {
@@ -26,6 +30,7 @@ export interface ScrapCatalog {
     annualiseFactor: number; products: number; overallRejectPct: number; note: string;
     changeoversObservedTotal: number; changeoversObservedFamily: number;
     changeoversObservedDiameter: number; changeoversPerYear: number;
+    kwhPerKgProvenance: 'PLACEHOLDER' | 'measured'; kwhPerKgNote: string;
   };
   products: ScrapProduct[];
 }
