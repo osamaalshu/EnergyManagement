@@ -34,9 +34,10 @@ const pageLabel: Record<ActivePage, string> = {
   equipment: 'Equipment',
   tariff: 'Tariff Structure',
   compressor: 'Compressor',
+  analyse: 'Analyse',
   production: 'Production Planner',
   scrap: 'Scrap Focus',
-  plant: 'Plant Telemetry',
+  plant: 'Validation Lab',
   delivery: 'Delivery View',
 };
 

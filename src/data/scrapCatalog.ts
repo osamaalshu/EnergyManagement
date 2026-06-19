@@ -1,6 +1,7 @@
 import raw from './generated/scrapCatalog.json';
 
-// Real per-product scrap catalogue, aggregated from MC01 shift records.
+// Real per-product scrap catalogue, aggregated from Extrusion Line 1 shift records
+// (Machines 01 & 03 — the records can't be split by machine).
 // `samples` = how many shift-records back the row (low → noisy, flag it).
 // `scrapKgObs` = scrap actually recorded over the period (real, total — includes
 // any startup/purge scrap; the records don't tag startup vs in-run separately).

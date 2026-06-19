@@ -191,4 +191,45 @@ describe('source guards', () => {
     expect(delivery).not.toContain('machines + 1');
     expect(scrap).not.toContain('driver(');
   });
+
+  it('moves Plant Telemetry out of the Analyse section and exposes Validation Lab', () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+    const sidebar = readFileSync(resolve(root, 'src/components/Sidebar.tsx'), 'utf8');
+    const analyseStart = sidebar.indexOf('<span>Analyse</span>');
+    const validationStart = sidebar.indexOf('<span>Validation Lab</span>');
+    const validationButtonStart = sidebar.lastIndexOf('<button type="button" onClick={onPlant}', validationStart);
+    const analyseSection = sidebar.slice(analyseStart, validationButtonStart);
+
+    expect(analyseStart).toBeGreaterThan(-1);
+    expect(validationStart).toBeGreaterThan(analyseStart);
+    expect(validationButtonStart).toBeGreaterThan(analyseStart);
+    expect(analyseSection).not.toContain('Plant Telemetry');
+    expect(analyseSection).not.toContain('onPlant');
+    expect(sidebar).toContain('<span>Validation Lab</span>');
+    expect(sidebar).toContain('onClick={onPlant}');
+  });
+
+  it('wires the Analyse hub route in App source', () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+    const app = readFileSync(resolve(root, 'src/App.tsx'), 'utf8');
+
+    expect(app).toContain('AnalyseHubPage');
+    expect(app).toContain("setActivePage('analyse')");
+    expect(app).toContain("case 'analyse'");
+  });
+
+  it('keeps the scenario banner on generated-order pages only', () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+    const text = 'Scenario — figures use a generated order book, not your live orders. Connect the order book to make this operational.';
+    const planner = readFileSync(resolve(root, 'src/components/ProductionPlannerPage.tsx'), 'utf8');
+    const delivery = readFileSync(resolve(root, 'src/components/DeliveryViewPage.tsx'), 'utf8');
+    const analyse = readFileSync(resolve(root, 'src/components/AnalyseHubPage.tsx'), 'utf8');
+    const scrap = readFileSync(resolve(root, 'src/components/ScrapAnalyzerPage.tsx'), 'utf8');
+
+    expect(planner).toContain(text);
+    expect(delivery).toContain(text);
+    expect(analyse).toContain(text);
+    expect(scrap).not.toContain(text);
+    expect(scrap).not.toContain('ScenarioBanner');
+  });
 });

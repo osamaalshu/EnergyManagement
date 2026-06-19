@@ -6,6 +6,7 @@ import {
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '../lib/productionModel';
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '../lib/tariffEngine';
+import ScenarioBanner from './ScenarioBanner';
 
 // Representative days for Time-of-Use pricing — Oman summer/winter, factory LV.
 const TOU_VOLTAGE = '0.415kV';
@@ -16,6 +17,7 @@ const heat = (v: number, max: number, rgb: string) => ({ background: `rgba(${rgb
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Other: 'bg-slate-400',
 };
+const SCENARIO_BANNER_TEXT = 'Scenario — figures use a generated order book, not your live orders. Connect the order book to make this operational.';
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
 type Strategy = 'grouped' | 'balanced' | 'due';
 const STRATEGY_LABEL: Record<Strategy, string> = { grouped: 'Fewest changeovers', balanced: 'Balanced', due: 'Meet due dates' };
@@ -163,6 +165,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <section className="space-y-6">
+      <ScenarioBanner text={SCENARIO_BANNER_TEXT} />
+
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">

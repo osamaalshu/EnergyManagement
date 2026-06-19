@@ -8,6 +8,7 @@ import SubsystemPage from './components/SubsystemPage';
 import EquipmentPage from './components/EquipmentPage';
 import TariffPage from './components/TariffPage';
 import CompressorPage from './components/CompressorPage';
+import AnalyseHubPage from './components/AnalyseHubPage';
 import ProductionPlannerPage from './components/ProductionPlannerPage';
 import ScrapAnalyzerPage from './components/ScrapAnalyzerPage';
 import PlantTelemetryPage from './components/PlantTelemetryPage';
@@ -60,6 +61,7 @@ function App() {
   const goOverview = () => { setActivePage('dashboard'); setSelectedSiteId(null); setSelectedSubsystemId(null); setSelectedEquipmentId(null); closeMobileSidebar(); };
   const goPortfolio = () => { setActivePage('portfolio'); setSelectedSiteId(null); setSelectedSubsystemId(null); setSelectedEquipmentId(null); closeMobileSidebar(); };
   const goTariff = () => { setActivePage('tariff'); closeMobileSidebar(); };
+  const goAnalyse = () => { setActivePage('analyse'); closeMobileSidebar(); };
   const goProduction = () => { setActivePage('production'); closeMobileSidebar(); };
   const goScrap = () => { setActivePage('scrap'); closeMobileSidebar(); };
   const goPlant = () => { setActivePage('plant'); closeMobileSidebar(); };
@@ -156,6 +158,8 @@ function App() {
         return <TariffPage onBack={goOverview} />;
       case 'compressor':
         return <CompressorPage crumbs={makeCrumbs(COMPRESSOR_SITE_ID, 'gas', COMPRESSOR_EQUIP_ID)} onBack={goPortfolio} />;
+      case 'analyse':
+        return <AnalyseHubPage onPlanner={goProduction} onDelivery={goDelivery} onScrap={goScrap} />;
       case 'production':
         return <ProductionPlannerPage onBack={goOverview} />;
       case 'scrap':
@@ -219,6 +223,7 @@ function App() {
         onSite={goSite}
         onSubsystem={goSubsystem}
         onEquip={goEquip}
+        onAnalyse={goAnalyse}
         onProduction={goProduction}
         onScrap={goScrap}
         onPlant={goPlant}
