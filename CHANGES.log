@@ -154,3 +154,16 @@ per-product energy-over-time data exists, so the time series is a synthesized PL
 
 Tests: 21/21 (placeholderKwhKgSeries determinism + length-per-granularity + v>0; line-chart
 + toggle + clean-header source guards). tsc clean; build provenance passed.
+
+## 2026-06-19 — kWh/kg chart: Top-15 default + Top/All toggle (de-spaghetti)
+
+94 lines was too condensed. Default the energy-intensity line chart to the TOP 15 by kWh/kg,
+with a manager Top-15/All toggle; search always pulls a specific product in even if outside
+the top 15. New pure helper selectChartProducts(products, scope, query) in energyPlaceholder.ts
+(top = sort by kwhPerKgPlaceholder desc slice 15; all = everyone; query union; dedup by id).
+ScrapAnalyzerPage: chartScope state + Top/All toggle; chart dataset built from the selected
+subset only. (Note: the kWh/kg viz is the LINE chart; the only remaining bar chart on the
+page is the scrap 'Worst offenders' Pareto — a different metric.)
+
+Tests: 26/26 (selectChartProducts top/all/query/dedup + scope-toggle source guard). tsc
+clean; build provenance passed.

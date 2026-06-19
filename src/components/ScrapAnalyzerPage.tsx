@@ -2,7 +2,7 @@ import { type FC, useMemo, useState } from 'react';
 import { ResponsiveContainer, ComposedChart, Bar, Line, LineChart, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { DEMO_SKUS, DEMO_ECON, type Econ } from '../lib/productionModel';
 import { scrapCatalog, type ScrapProduct } from '../data/scrapCatalog';
-import { placeholderKwhKgSeries, type Granularity } from '../lib/energyPlaceholder';
+import { CHART_TOP_N, placeholderKwhKgSeries, selectChartProducts, type ChartScope, type Granularity } from '../lib/energyPlaceholder';
 
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Duct: 'bg-sky-500', Other: 'bg-slate-400',
@@ -37,6 +37,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [q, setQ] = useState('');
   const [drill, setDrill] = useState<string | null>(null);
   const [energyGranularity, setEnergyGranularity] = useState<Granularity>('month');
+  const [chartScope, setChartScope] = useState<ChartScope>('top');
 
   const a = useMemo(() => {
     const base = products.map((s) => {
@@ -94,8 +95,12 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const top10 = a.wellMeasured.slice(0, 10);
   const top10Cum = top10.at(-1)?.cumPct ?? 0;
+  const energyChartProducts = useMemo(
+    () => selectChartProducts(a.rows, chartScope, q),
+    [a.rows, chartScope, q],
+  );
   const energyChartRows = useMemo(() => {
-    const productSeries = a.rows.map((product) => ({
+    const productSeries = energyChartProducts.map((product) => ({
       product,
       series: placeholderKwhKgSeries(product.kwhPerKgPlaceholder, energyGranularity, product.id),
     }));
@@ -108,7 +113,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       }
       return row;
     });
-  }, [a.rows, energyGranularity]);
+  }, [energyChartProducts, energyGranularity]);
   const energySearch = q.trim().toLowerCase();
   const recs = a.rows.filter((r) => r.focus && r.saving > 0).sort((x, y) => y.saving - x.saving).slice(0, 5);
   const tableRows = (q.trim() ? a.rows : top10)
@@ -200,13 +205,26 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
                 PLACEHOLDER — illustrative per-product energy intensity over time; no real per-product energy-over-time data exists yet (needs machine sub-metering).
               </p>
             )}
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Showing top {CHART_TOP_N} by energy intensity — switch to All, or search a product to add it.</p>
           </div>
-          <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity granularity">
-            {GRANULARITY_OPTIONS.map((granularity) => (
-              <button key={granularity} type="button" onClick={() => setEnergyGranularity(granularity)} className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${energyGranularity === granularity ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
-                {granularity}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity chart scope">
+              {([
+                ['top', `Top ${CHART_TOP_N}`],
+                ['all', 'All'],
+              ] as const).map(([scope, label]) => (
+                <button key={scope} type="button" onClick={() => setChartScope(scope)} className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${chartScope === scope ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity granularity">
+              {GRANULARITY_OPTIONS.map((granularity) => (
+                <button key={granularity} type="button" onClick={() => setEnergyGranularity(granularity)} className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${energyGranularity === granularity ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
+                  {granularity}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="mt-3 h-64">
@@ -215,8 +233,8 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               <XAxis dataKey="t" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
               <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={42} />
               <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem', maxHeight: 240, overflowY: 'auto' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [`${Number(value).toFixed(2)} kWh/kg`, name]} />
-              {a.rows.map((product) => {
-                const isMatch = energySearch.length > 0 && `${product.id} ${product.name} ${product.family}`.toLowerCase().includes(energySearch);
+              {energyChartProducts.map((product) => {
+                const isMatch = energySearch.length > 0 && product.name.toLowerCase().includes(energySearch);
                 return (
                   <Line
                     key={product.id}

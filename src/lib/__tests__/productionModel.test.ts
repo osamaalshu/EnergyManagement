@@ -15,7 +15,13 @@ import {
 import { energyKpi } from '../../data/energyKpi';
 import { scrapCatalog as typedScrapCatalog } from '../../data/scrapCatalog';
 import scrapCatalog from '../../data/generated/scrapCatalog.json';
-import { GRANULARITY_POINTS, placeholderKwhKgSeries, type Granularity } from '../energyPlaceholder';
+import {
+  CHART_TOP_N,
+  GRANULARITY_POINTS,
+  placeholderKwhKgSeries,
+  selectChartProducts,
+  type Granularity,
+} from '../energyPlaceholder';
 
 const products: Record<string, SkuParam> = {
   a: {
@@ -123,6 +129,51 @@ describe('placeholderKwhKgSeries', () => {
       expect(series).toHaveLength(GRANULARITY_POINTS[granularity]);
       expect(series.every((point) => point.v > 0)).toBe(true);
     }
+  });
+});
+
+describe('selectChartProducts', () => {
+  const chartProducts = Array.from({ length: 20 }, (_, index) => ({
+    id: `p-${index + 1}`,
+    name: `Product ${index + 1}`,
+    kwhPerKgPlaceholder: index + 1,
+  }));
+
+  it('returns min(15, n) products sorted by kWh/kg descending in top scope', () => {
+    const selected = selectChartProducts(chartProducts, 'top', '');
+
+    expect(selected).toHaveLength(Math.min(CHART_TOP_N, chartProducts.length));
+    expect(selected.map((product) => product.kwhPerKgPlaceholder)).toEqual(
+      [...selected].map((product) => product.kwhPerKgPlaceholder).sort((a, b) => b - a),
+    );
+  });
+
+  it('returns all products in all scope', () => {
+    const selected = selectChartProducts(chartProducts, 'all', '');
+
+    expect(selected).toEqual(chartProducts);
+  });
+
+  it('includes a query match outside the top products in top scope', () => {
+    const selected = selectChartProducts(chartProducts, 'top', 'Product 1');
+
+    expect(selected.some((product) => product.id === 'p-1')).toBe(true);
+    expect(selected.length).toBe(CHART_TOP_N + 1);
+  });
+
+  it('deduplicates ids while preserving the selected order', () => {
+    const selected = selectChartProducts(
+      [
+        { id: 'dup', name: 'High duplicate', kwhPerKgPlaceholder: 9 },
+        { id: 'unique', name: 'Unique', kwhPerKgPlaceholder: 8 },
+        { id: 'dup', name: 'Low duplicate', kwhPerKgPlaceholder: 1 },
+      ],
+      'all',
+      'duplicate',
+    );
+
+    expect(selected.map((product) => product.id)).toEqual(['dup', 'unique']);
+    expect(new Set(selected.map((product) => product.id)).size).toBe(selected.length);
   });
 });
 
@@ -330,6 +381,16 @@ describe('source guards', () => {
     expect(scrap).toContain("'month'");
     expect(scrap).toContain("'year'");
     expect(scrap).toContain('>kWh/kg<');
+  });
+
+  it('wires scrap analyzer chart product scope controls', () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+    const scrap = readFileSync(resolve(root, 'src/components/ScrapAnalyzerPage.tsx'), 'utf8');
+
+    expect(scrap).toContain('selectChartProducts');
+    expect(scrap).toContain('chartScope');
+    expect(scrap).toContain("'top'");
+    expect(scrap).toContain("'all'");
   });
 
   it('wires the energy KPI card in Analyse hub source', () => {
