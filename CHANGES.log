@@ -95,3 +95,21 @@ Implemented (Codex + tests):
 
 Tests: 15/15 (energyIntensityKwhPerKg value+zero-guard; diagnostic fields present +
 DU203 shift2>shift1 + monthly bounds; source guards). tsc clean; build provenance passed.
+
+## 2026-06-19 — kWh/kg KPI on the decision hub (measured, line-level)
+
+Founder wanted kWh/kg as a flagship KPI, benchmarked. Data check killed the per-product
+version honestly: 0/94 products have a run rate, and there is NO per-machine/per-product
+energy meter — only monthly whole-factory bills + MC01 production. Extruder specific energy
+is also ~constant per material, so per-product variance is tiny; the real signal is
+line×time utilization. Building 94 per-product kWh/kg would be fabrication.
+
+Built instead (measured, honest): line×month kWh/kg from nizwa bills ÷ MC01 production
+(energyKpi.json + energyKpi.ts). Range 1.14 (Mar-2026, best) .. 13.59 (Dec-2025, near-idle)
+— electricity is ~fixed (~250-300k kWh/mo) so kWh/kg is a UTILIZATION metric. Added as the
+3rd decision card on the Analyse hub: latest kWh/kg + best/worst benchmark + monthly
+sparkline (best month highlighted) + driver caption + honest "factory bills, not yet
+sub-metered" footnote. Per-product kWh/kg is now a headline data-request item.
+
+Tests: 17/17 (energyKpi sanity: kwhPerKg>0, best=min, worst=max; hub source guard). tsc
+clean; build provenance passed.

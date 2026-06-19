@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { energyKpi } from '../data/energyKpi';
 import { productionData } from '../data/productionData';
 import { scrapCatalog } from '../data/scrapCatalog';
 import {
@@ -33,6 +34,7 @@ const buildOrders = (skus: SkuParam[]): Order[] =>
   }));
 
 const num = (value: number, digits = 0) => value.toLocaleString(undefined, { maximumFractionDigits: digits });
+const energyTrendMax = Math.max(...energyKpi.months.map((month) => month.kwhPerKg));
 
 const verdictClasses = (pct: number) => {
   if (pct >= 85) return 'border-emerald-300/60 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10';
@@ -92,7 +94,7 @@ const AnalyseHubPage = ({ onPlanner, onDelivery, onScrap }: AnalyseHubPageProps)
 
       <ScenarioBanner text={SCENARIO_BANNER_TEXT} />
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-3">
         <article className={`rounded-2xl border p-5 ${verdictClasses(deliveryDecision.percent)}`}>
           <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${verdictTextClasses(deliveryDecision.percent)}`}>Will we ship on time?</p>
           <p className="mt-3 font-mono text-5xl font-semibold text-slate-900 dark:text-white">{deliveryDecision.percent}%</p>
@@ -118,6 +120,34 @@ const AnalyseHubPage = ({ onPlanner, onDelivery, onScrap }: AnalyseHubPageProps)
               Open Scrap Focus
             </button>
           </div>
+        </article>
+
+        <article className="card-surface p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">How efficient are we? — energy per kg</p>
+          <p className="mt-3 font-mono text-5xl font-semibold text-slate-900 dark:text-white">{energyKpi.summary.latestKwhPerKg} kWh/kg</p>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            best month {energyKpi.summary.bestKwhPerKg} ({energyKpi.summary.bestYm}) · worst {energyKpi.summary.worstKwhPerKg} ({energyKpi.summary.worstYm})
+          </p>
+          <div className="mt-5 flex h-12 items-end gap-1.5" aria-label="Energy intensity trend">
+            {energyKpi.months.map((month) => {
+              const isBestMonth = month.ym === energyKpi.summary.bestYm;
+              const height = `${Math.max(16, Math.round((month.kwhPerKg / energyTrendMax) * 100))}%`;
+              return (
+                <div
+                  key={month.ym}
+                  className={`w-full rounded-t-sm ${isBestMonth ? 'bg-accent' : 'bg-slate-300 dark:bg-slate-600'}`}
+                  style={{ height }}
+                  title={`${month.ym}: ${month.kwhPerKg} kWh/kg`}
+                />
+              );
+            })}
+          </div>
+          <p className="mt-4 text-xs font-medium text-slate-600 dark:text-slate-300" title={energyKpi.meta.driver}>
+            Electricity is ~fixed, so kWh/kg is a UTILIZATION metric — idle months spike it.
+          </p>
+          <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
+            Factory bills (all loads) ÷ MC01 production — not yet sub-metered; trend & benchmark are the signal. Per-product kWh/kg needs machine sub-metering.
+          </p>
         </article>
       </div>
     </section>
