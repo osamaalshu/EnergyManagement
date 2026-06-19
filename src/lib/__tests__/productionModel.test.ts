@@ -380,7 +380,7 @@ describe('source guards', () => {
     expect(scrap).toContain("'week'");
     expect(scrap).toContain("'month'");
     expect(scrap).toContain("'year'");
-    expect(scrap).toContain('>kWh/kg<');
+    expect(scrap).toContain('Energy intensity');
   });
 
   it('wires scrap analyzer chart product scope controls', () => {

@@ -294,7 +294,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
-              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2 text-right">Records</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Best %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">kWh/kg</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
+              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2 text-right">Records</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Best %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
               {tableRows.map((r) => (
@@ -307,7 +307,6 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.demand)}</td>
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.scrapKg)}</td>
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.scrapOmr)}</td>
-                  <td className="px-4 py-1.5 text-right font-mono">{r.kwhPerKgPlaceholder.toFixed(2)}</td>
                   <td className="px-4 py-1.5 text-right font-mono text-slate-400">{r.cumPct.toFixed(0)}%</td>
                   <td className="px-4 py-1.5 text-right"><button type="button" onClick={() => setDrill(r.id)} className="text-xs text-accent">details</button></td>
                 </tr>
