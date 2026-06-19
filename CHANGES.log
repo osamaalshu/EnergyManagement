@@ -167,3 +167,9 @@ page is the scrap 'Worst offenders' Pareto — a different metric.)
 
 Tests: 26/26 (selectChartProducts top/all/query/dedup + scope-toggle source guard). tsc
 clean; build provenance passed.
+
+## 2026-06-19 — remove kWh/kg table column (chart only)
+
+Founder: drop the kWh/kg column from the Scrap investigator table; keep the line chart.
+Removed the th + td; updated the source-guard test (>kWh/kg< header → 'Energy intensity'
+chart-title assertion). kWh/kg now lives only in the line chart. Tests 26/26; build green.
