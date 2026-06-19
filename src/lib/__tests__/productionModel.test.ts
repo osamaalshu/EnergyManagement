@@ -12,6 +12,7 @@ import {
   monteCarloOrders,
   scheduleOrders,
 } from '../productionModel';
+import { energyKpi } from '../../data/energyKpi';
 import scrapCatalog from '../../data/generated/scrapCatalog.json';
 
 const products: Record<string, SkuParam> = {
@@ -90,6 +91,18 @@ describe('energyIntensityKwhPerKg', () => {
     expect(energyIntensityKwhPerKg(75, 20, 9.13)).toBeCloseTo(0.4107, 3);
     expect(energyIntensityKwhPerKg(75, 0, 9.13)).toBe(0);
     expect(energyIntensityKwhPerKg(75, 20, 0)).toBe(0);
+  });
+});
+
+describe('energy KPI dataset', () => {
+  it('keeps monthly kWh per kg values positive and summary extremes consistent', () => {
+    const monthValues = energyKpi.months.map((month) => month.kwhPerKg);
+
+    expect(energyKpi.months.length).toBeGreaterThan(0);
+    expect(energyKpi.months.every((month) => month.kwhPerKg > 0)).toBe(true);
+    expect(energyKpi.summary.bestKwhPerKg).toBeLessThanOrEqual(energyKpi.summary.worstKwhPerKg);
+    expect(energyKpi.summary.bestKwhPerKg).toBe(Math.min(...monthValues));
+    expect(energyKpi.summary.worstKwhPerKg).toBe(Math.max(...monthValues));
   });
 });
 
@@ -270,5 +283,13 @@ describe('source guards', () => {
     expect(planner).toContain('Energy intensity');
     expect(scrap).toContain('shift1Reject');
     expect(scrap).toContain('monthly');
+  });
+
+  it('wires the energy KPI card in Analyse hub source', () => {
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+    const analyse = readFileSync(resolve(root, 'src/components/AnalyseHubPage.tsx'), 'utf8');
+
+    expect(analyse).toContain('energyKpi');
+    expect(analyse).toContain('kWh/kg');
   });
 });

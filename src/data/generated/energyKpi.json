@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "source": "nizwa_bills_2025_2026.csv (whole-factory electricity) + mc01_monthly_kg.csv (MC01 production)",
+    "scope": "Factory-level: bill kWh covers ALL site loads (MC01+MC03+ancillaries), divided by MC01 production. Not yet sub-metered per machine/product \u2014 absolute level overstates the extruder; trend & benchmark are the signal.",
+    "driver": "Electricity draw is roughly fixed month to month (~250-300k kWh) regardless of output, so kWh/kg is driven by UTILIZATION: idle/low-output months spike. Lever = produce more against fixed energy + cut idle/setup energy.",
+    "unit": "kWh per kg produced"
+  },
+  "months": [
+    {
+      "ym": "2025-01",
+      "productionKg": 156303,
+      "kwh": 278774,
+      "kwhPerKg": 1.78
+    },
+    {
+      "ym": "2025-02",
+      "productionKg": 111279,
+      "kwh": 249938,
+      "kwhPerKg": 2.25
+    },
+    {
+      "ym": "2025-05",
+      "productionKg": 176752,
+      "kwh": 290999,
+      "kwhPerKg": 1.65
+    },
+    {
+      "ym": "2025-06",
+      "productionKg": 180582,
+      "kwh": 248616,
+      "kwhPerKg": 1.38
+    },
+    {
+      "ym": "2025-07",
+      "productionKg": 199150,
+      "kwh": 304493,
+      "kwhPerKg": 1.53
+    },
+    {
+      "ym": "2025-08",
+      "productionKg": 148931,
+      "kwh": 237499,
+      "kwhPerKg": 1.59
+    },
+    {
+      "ym": "2025-09",
+      "productionKg": 211679,
+      "kwh": 285923,
+      "kwhPerKg": 1.35
+    },
+    {
+      "ym": "2025-10",
+      "productionKg": 102898,
+      "kwh": 272355,
+      "kwhPerKg": 2.65
+    },
+    {
+      "ym": "2025-11",
+      "productionKg": 120384,
+      "kwh": 250831,
+      "kwhPerKg": 2.08
+    },
+    {
+      "ym": "2025-12",
+      "productionKg": 20512,
+      "kwh": 278774,
+      "kwhPerKg": 13.59
+    },
+    {
+      "ym": "2026-02",
+      "productionKg": 178487,
+      "kwh": 308764,
+      "kwhPerKg": 1.73
+    },
+    {
+      "ym": "2026-03",
+      "productionKg": 249900,
+      "kwh": 284140,
+      "kwhPerKg": 1.14
+    },
+    {
+      "ym": "2026-04",
+      "productionKg": 167848,
+      "kwh": 286729,
+      "kwhPerKg": 1.71
+    }
+  ],
+  "summary": {
+    "latestYm": "2026-04",
+    "latestKwhPerKg": 1.71,
+    "bestYm": "2026-03",
+    "bestKwhPerKg": 1.14,
+    "worstYm": "2025-12",
+    "worstKwhPerKg": 13.59,
+    "medianKwhPerKg": 1.71
+  }
+}
