@@ -113,3 +113,27 @@ sub-metered" footnote. Per-product kWh/kg is now a headline data-request item.
 
 Tests: 17/17 (energyKpi sanity: kwhPerKg>0, best=min, worst=max; hub source guard). tsc
 clean; build provenance passed.
+
+## 2026-06-19 — Per-product kWh/kg PLACEHOLDER (swap-ready) in Scrap Focus
+
+Founder wants per-product kWh/kg visualised now (table + graph); real data later. Honest
+constraint: 0/94 have a run rate, no per-machine energy meter (only 2 product Excels on
+Desktop), so a real per-product kWh/kg is impossible today and a naive all-94 estimate is
+confounded (reflects throughput, not efficiency). Built a clearly-labelled PLACEHOLDER.
+
+Swap-ready as a worked example of the live-data pattern:
+- Data: per-product kwhPerKgPlaceholder (nameplate 75kW x16h / real mean daily output,
+  clamped 0.25-1.10; deterministic) + meta kwhPerKgProvenance:'PLACEHOLDER' + kwhPerKgNote.
+- UI: "kWh/kg*" table column + "Energy intensity - kWh/kg by product" bar chart, both with
+  an amber PLACEHOLDER badge GATED on meta.kwhPerKgProvenance === 'PLACEHOLDER'. When
+  sub-metering arrives: refill the field + flip the flag to 'measured' -> badge auto-hides,
+  zero component change.
+
+Integration architecture (for the record): each data domain = generated JSON + typed
+wrapper + provenance meta; components depend on type+flag, not source, so live data =
+regenerate JSON + flip flag. Live gaps: orders generated in-component (extract to a data
+provider = #1 seam); no ingestion/API layer (batch JSON); telemetry batch not streaming;
+provenance per-dataset not per-field; heavy compute -> server tier at scale.
+
+Tests: 19/19 (placeholder finite>0 + flag=PLACEHOLDER; gated-badge source guard). tsc
+clean; build provenance passed.

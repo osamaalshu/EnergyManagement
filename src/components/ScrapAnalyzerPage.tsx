@@ -17,6 +17,7 @@ const DEMO_PRODUCTS: ScrapProduct[] = DEMO_SKUS.map((s) => ({
   samples: 60, scrapKgObs: Math.round(s.demand * s.kgPerUnit * s.meanRejection),
   bestRejectOwn: null,
   shift1Reject: null, shift2Reject: null, monthly: [],
+  kwhPerKgPlaceholder: 0.45,
 }));
 
 const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -40,7 +41,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       return {
         id: s.id, name: s.name, family: s.family, samples: s.samples, lowData,
         reject: s.meanRejection * 100, bestPct: target == null ? null : target * 100, demand: s.demand, kgPerUnit: s.kgPerUnit,
-        scrapKg, scrapOmr: scrapKg * econ.materialOmrPerKg, saving,
+        scrapKg, scrapOmr: scrapKg * econ.materialOmrPerKg, saving, kwhPerKgPlaceholder: s.kwhPerKgPlaceholder,
         bestRejectOwn: s.bestRejectOwn, shift1Reject: s.shift1Reject, shift2Reject: s.shift2Reject, monthly: s.monthly,
       };
     }).sort((x, y) => y.scrapKg - x.scrapKg);
@@ -87,6 +88,10 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const top10 = a.wellMeasured.slice(0, 10);
   const top10Cum = top10.at(-1)?.cumPct ?? 0;
+  const energyRows = (a.wellMeasured.length > 0 ? a.wellMeasured : a.rows)
+    .slice()
+    .sort((x, y) => y.kwhPerKgPlaceholder - x.kwhPerKgPlaceholder)
+    .slice(0, 15);
   const recs = a.rows.filter((r) => r.focus && r.saving > 0).sort((x, y) => y.saving - x.saving).slice(0, 5);
   const tableRows = (q.trim() ? a.rows : top10)
     .filter((r) => (famFilter === 'All' || r.family === famFilter) && (!confidentOnly || !r.lowData) && r.name.toLowerCase().includes(q.toLowerCase()));
@@ -168,6 +173,29 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       </div>
 
+      <div className="card-surface p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity — kWh/kg by product</h3>
+            {meta.kwhPerKgProvenance === 'PLACEHOLDER' && (
+              <p title={meta.kwhPerKgNote} className="mt-2 max-w-4xl rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-300">
+                PLACEHOLDER — illustrative energy intensity (nameplate power ÷ real output), not measured. Real per-product kWh/kg needs machine sub-metering.
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="mt-3 h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={energyRows} margin={{ top: 8, right: 18, left: 0, bottom: 46 }}>
+              <XAxis dataKey="id" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} angle={-45} textAnchor="end" height={56} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+              <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={42} />
+              <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number) => [`${v.toFixed(2)} kWh/kg`, 'energy intensity']} />
+              <Bar dataKey="kwhPerKgPlaceholder" fill="#FAB005" radius={[2, 2, 0, 0]} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
       {/* Changeover scrap — modeled from real switch frequency */}
       <div className="card-surface p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -190,7 +218,14 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       {/* Investigator table */}
       <div className="card-surface overflow-hidden p-0">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{q.trim() ? 'Search results' : 'Top 10 — investigate'}</h3>
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{q.trim() ? 'Search results' : 'Top 10 — investigate'}</h3>
+            {meta.kwhPerKgProvenance === 'PLACEHOLDER' && (
+              <p title={meta.kwhPerKgNote} className="mt-1 max-w-4xl rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-300">
+                PLACEHOLDER — illustrative energy intensity (nameplate power ÷ real output), not measured. Real per-product kWh/kg needs machine sub-metering.
+              </p>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search product…" className="rounded-lg border border-slate-200/70 bg-white px-2.5 py-1 text-xs text-slate-700 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-slate-200" />
             <select value={famFilter} onChange={(e) => setFamFilter(e.target.value)} className="rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-xs text-slate-700 dark:border-white/10 dark:bg-card-dark dark:text-slate-200"><option>All</option>{families.map((f) => <option key={f}>{f}</option>)}</select>
@@ -200,7 +235,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
-              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2 text-right">Records</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Best %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
+              <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2">Family</th><th className="px-4 py-2 text-right">Records</th><th className="px-4 py-2 text-right">Reject %</th><th className="px-4 py-2 text-right">Best %</th><th className="px-4 py-2 text-right">Demand/yr</th><th className="px-4 py-2 text-right">Scrap kg</th><th className="px-4 py-2 text-right">Scrap OMR</th><th className="px-4 py-2 text-right">kWh/kg*</th><th className="px-4 py-2 text-right">Cum %</th><th className="px-4 py-2" /></tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
               {tableRows.map((r) => (
@@ -213,6 +248,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.demand)}</td>
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.scrapKg)}</td>
                   <td className="px-4 py-1.5 text-right font-mono">{num(r.scrapOmr)}</td>
+                  <td className="px-4 py-1.5 text-right font-mono">{r.kwhPerKgPlaceholder.toFixed(2)}</td>
                   <td className="px-4 py-1.5 text-right font-mono text-slate-400">{r.cumPct.toFixed(0)}%</td>
                   <td className="px-4 py-1.5 text-right"><button type="button" onClick={() => setDrill(r.id)} className="text-xs text-accent">details</button></td>
                 </tr>
