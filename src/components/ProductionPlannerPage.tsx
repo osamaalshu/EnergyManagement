@@ -1,8 +1,8 @@
 import { type FC, useMemo, useState } from 'react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
 import { productionData } from '../data/productionData';
 import {
-  scheduleOrders, monteCarloOrders, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
+  scheduleOrders, monteCarloOrders, energyIntensityKwhPerKg, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '../lib/productionModel';
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '../lib/tariffEngine';
@@ -80,6 +80,9 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay, rateCv), [smart, hoursPerDay, rateCv]);
   const mcCur = useMemo(() => monteCarloOrders(current, hoursPerDay, rateCv), [current, hoursPerDay, rateCv]);
   const overlay = useMemo(() => (mc.samplesDays.length && mcCur.samplesDays.length ? binTwo(mc.samplesDays, mcCur.samplesDays) : []), [mc, mcCur]);
+  const intensityData = useMemo(() => skus
+    .map((s) => ({ id: s.id, name: s.name || s.id, kwhPerKg: energyIntensityKwhPerKg(line.machineKw, s.rateEffective, s.kgPerUnit) }))
+    .sort((a, b) => b.kwhPerKg - a.kwhPerKg), [skus, line]);
 
   const itemByOrder = useMemo(() => { const map: Record<string, OrderItem> = {}; smart.items.forEach((it) => { map[it.orderId] = it; }); return map; }, [smart]);
   const savedChg = Math.round((current.changeoverH - smart.changeoverH) * 10) / 10;
@@ -395,28 +398,46 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
                 <th className="px-3 py-2">#</th><th className="px-3 py-2">Product</th><th className="px-3 py-2">Machine</th>
                 <th className="px-3 py-2 text-right">Qty</th><th className="px-3 py-2 text-right">Run h</th>
                 <th className="px-3 py-2">Changeover</th><th className="px-3 py-2 text-right">Finish d</th>
-                <th className="px-3 py-2 text-right">Scrap kg</th><th className="px-3 py-2 text-right">Energy kWh</th>
+                <th className="px-3 py-2 text-right">Scrap kg</th><th className="px-3 py-2 text-right">Energy kWh</th><th className="px-3 py-2 text-right">kWh/kg</th>
                 <th className="px-3 py-2">When</th><th className="px-3 py-2 text-right">Energy OMR</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
-              {detail.rows.filter(({ it }) => match(it.name)).map(({ it, scrap, reject, startup, kwh, omr, band }) => (
-                <tr key={it.machine + '-' + it.orderId}>
-                  <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
-                  <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
-                  <td className="px-3 py-1.5 text-xs">{it.machineName}</td>
-                  <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
-                  <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
-                  <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
-                  <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
-                  <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
-                  <td className="px-3 py-1.5 text-right font-mono tabular-nums">{num(kwh)}</td>
-                  <td className="px-3 py-1.5 text-xs">{band === 'peak' ? <span className="text-rose-600 dark:text-rose-400">peak</span> : band === 'mixed' ? <span className="text-amber-600 dark:text-amber-400">mixed</span> : <span className="text-emerald-600 dark:text-emerald-400">off-peak</span>}</td>
-                  <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(omr, detail.maxOmr, '245,158,11')}>{num(omr, 1)}</td>
-                </tr>
-              ))}
+              {detail.rows.filter(({ it }) => match(it.name)).map(({ it, scrap, reject, startup, kwh, omr, band }) => {
+                const kg = it.qty * (products[it.productId]?.kgPerUnit ?? 0);
+                return (
+                  <tr key={it.machine + '-' + it.orderId}>
+                    <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
+                    <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
+                    <td className="px-3 py-1.5 text-xs">{it.machineName}</td>
+                    <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
+                    <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
+                    <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
+                    <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
+                    <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
+                    <td className="px-3 py-1.5 text-right font-mono tabular-nums">{num(kwh)}</td>
+                    <td className="px-3 py-1.5 text-right font-mono tabular-nums">{kg > 0 ? (kwh / kg).toFixed(2) : '—'}</td>
+                    <td className="px-3 py-1.5 text-xs">{band === 'peak' ? <span className="text-rose-600 dark:text-rose-400">peak</span> : band === 'mixed' ? <span className="text-amber-600 dark:text-amber-400">mixed</span> : <span className="text-emerald-600 dark:text-emerald-400">off-peak</span>}</td>
+                    <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(omr, detail.maxOmr, '245,158,11')}>{num(omr, 1)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+        <div className="border-t border-slate-200/60 px-5 py-4 dark:border-white/10">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity — kWh per kg by product</h3>
+          <div className="mt-3 h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={intensityData} margin={{ top: 8, right: 16, left: 0, bottom: 50 }}>
+                <XAxis dataKey="name" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} angle={-35} textAnchor="end" height={56} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+                <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={34} />
+                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number) => [v.toFixed(2), 'kWh/kg']} />
+                <Bar dataKey="kwhPerKg" fill="#1A365D" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-400">Run energy only — excludes changeover and time-of-use pricing. Higher = more energy per kg produced.</p>
         </div>
       </div>
 

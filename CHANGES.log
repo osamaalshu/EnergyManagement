@@ -71,3 +71,27 @@ Implemented (architect spec, Codex executed + tested):
 Tests: 3 source guards added (Telemetry not an Analyse child + Validation Lab exists;
 App has the analyse route + hub; ScenarioBanner text present on hub/Planner/Delivery and
 absent from Scrap). Result: 12/12 pass. tsc clean. npm run build PROVENANCE CHECK PASSED.
+
+## 2026-06-19 — Energy intensity (Planner) + Scrap diagnostic drill-down
+
+Founder asked: make scrap recs prescriptive (where/why, not just "you have a problem"),
+and add kWh/kg to the Planner. Data check: records have NO process settings
+(temp/speed/vacuum/material lot), remarks_raw empty, color/class/wall constant per
+product — so the ONLY within-product cause dimensions are shift (1 vs 2) and month.
+The quantified "do Z -> cut X" engine is a DATA gap (process logging), not a hard model;
+extrusion reject is process-empirical, not closed-form physics. Built the honest
+diagnostic we CAN support today.
+
+Architect data prep: added per-product shift1Reject, shift2Reject, monthly[] to
+scrapCatalog.json (from shift1/2 scrap split + monthly aggregation) + types.
+
+Implemented (Codex + tests):
+- Planner: `energyIntensityKwhPerKg` helper; "kWh/kg" column in run-by-run detail;
+  "Energy intensity — kWh per kg by product" bar chart (run energy only).
+- Scrap drill-down "Where the loss is": shift-1 vs shift-2 reject with worse-shift
+  callout (>=0.5pp); monthly trend sparkline (best vs worst month, capability-vs-
+  consistency framing, bestRejectOwn marked); honest footer that exact-knob attribution
+  needs run-level process logging.
+
+Tests: 15/15 (energyIntensityKwhPerKg value+zero-guard; diagnostic fields present +
+DU203 shift2>shift1 + monthly bounds; source guards). tsc clean; build provenance passed.

@@ -12,6 +12,12 @@ export interface ScrapProduct {
   // Own best-demonstrated reject = this product's P25 across its own shift records
   // (achievable, because it has hit it). null when <5 records (too few to trust).
   bestRejectOwn: number | null;
+  // Diagnostic decomposition (the only within-product cause dimensions in the records):
+  // shift-1 vs shift-2 reject (mass-basis; null if no production that shift), and the
+  // month-by-month reject trend. No process settings exist in the data.
+  shift1Reject: number | null;
+  shift2Reject: number | null;
+  monthly: { m: string; r: number }[];
 }
 export interface ScrapCatalog {
   meta: {
