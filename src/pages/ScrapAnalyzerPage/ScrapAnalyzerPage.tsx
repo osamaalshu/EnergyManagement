@@ -3,6 +3,7 @@ import { ResponsiveContainer, ComposedChart, Bar, Line, LineChart, XAxis, YAxis,
 import { DEMO_SKUS, DEMO_ECON, type Econ } from '@/features/production-planning/productionModel';
 import { scrapCatalog, type ScrapProduct } from '@/data/scrapCatalog';
 import { CHART_TOP_N, placeholderKwhKgSeries, selectChartProducts, type ChartScope, type Granularity } from '@/features/production-planning/energyPlaceholder';
+import { startupKpis } from '@/features/production-planning/startupKpis';
 
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Duct: 'bg-sky-500', Other: 'bg-slate-400',
@@ -13,6 +14,7 @@ const FAMILY_STROKE: Record<string, string> = {
 const GRANULARITY_OPTIONS: Granularity[] = ['day', 'week', 'month', 'year'];
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
 const pct = (v: number | null, d = 1) => v == null ? '—' : `${(v * 100).toFixed(d)}%`;
+const dateFmt = (v: string) => new Date(`${v}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 const MIN_SAMPLES = 5; // fewer shift-records than this → reject rate is noisy, flag it
 
 // Demo catalogue shaped like the real one, so the illustrative view still works.
@@ -122,6 +124,28 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     .filter((r) => (famFilter === 'All' || r.family === famFilter) && (!confidentOnly || !r.lowData) && r.name.toLowerCase().includes(q.toLowerCase()));
   const drillRow = a.rows.find((r) => r.id === drill);
   const families = [...new Set(products.map((s) => s.family))];
+  const latestStartupWeek = startupKpis.weekly.at(-1) ?? {
+    week: '—',
+    startups: startupKpis.summary.startups,
+    coldStarts: startupKpis.summary.coldStarts,
+    subEconomicRuns: startupKpis.summary.subEconomicRuns,
+    subEconomicPct: startupKpis.summary.subEconomicPct,
+    scrapPerStartupKg: startupKpis.summary.scrapPerStartupKg,
+    totalScrapKg: startupKpis.summary.totalScrapKg,
+  };
+  const startupTrend = startupKpis.weekly.slice(-16);
+  const startupTrendMax = Math.max(1, ...startupTrend.map((point) => point.startups));
+  const startupKpiCards = [
+    { label: 'startups', value: num(latestStartupWeek.startups), detail: latestStartupWeek.week },
+    {
+      label: 'cold-starts',
+      value: num(latestStartupWeek.coldStarts),
+      detail: `idle gap >= ${startupKpis.meta.coldStartGapDays} days`,
+      title: `Measured idle-gap cold-starts from ERP run episodes; threshold is ${startupKpis.meta.coldStartGapDays} days.`,
+    },
+    { label: 'sub-economic runs', value: pct(latestStartupWeek.subEconomicPct), detail: `${num(latestStartupWeek.subEconomicRuns)} below ${num(startupKpis.meta.minEconomicRunKg)} kg` },
+    { label: 'scrap per startup', value: `${num(latestStartupWeek.scrapPerStartupKg, 1)} kg`, detail: `${num(latestStartupWeek.totalScrapKg)} kg total` },
+  ];
 
   return (
     <section className="space-y-5">
@@ -153,6 +177,64 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           Illustrative catalogue — synthetic products, made-up demand &amp; reject rates. Use the <span className="font-semibold">Real</span> view for decisions.
         </div>
       )}
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.95fr)]">
+        <div className="rounded-2xl border border-emerald-300/70 bg-emerald-50/80 p-5 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10" aria-label="This week measured startup KPIs">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">This week (measured)</h3>
+                <span className="rounded-full border border-emerald-400/70 bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-200">MEASURED</span>
+              </div>
+              <p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-200/80">Startup KPIs from real ERP run episodes for {latestStartupWeek.week}.</p>
+            </div>
+            <div className="min-w-44">
+              <p className="text-right text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70 dark:text-emerald-200/70">weekly startup trend</p>
+              <div className="mt-2 flex h-12 items-end gap-1" aria-label="Weekly startup trend">
+                {startupTrend.map((point) => (
+                  <div key={point.week} className="flex h-full flex-1 items-end" title={`${point.week}: ${num(point.startups)} startups`}>
+                    <div className="w-full rounded-t-sm bg-emerald-500 dark:bg-emerald-300" style={{ height: `${Math.max(8, (point.startups / startupTrendMax) * 100)}%` }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {startupKpiCards.map((card) => (
+              <div key={card.label} title={card.title} className="rounded-xl border border-emerald-200/80 bg-white/75 p-3 dark:border-emerald-400/15 dark:bg-slate-950/20">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70 dark:text-emerald-200/70">{card.label}</p>
+                <p className="mt-1 font-mono text-2xl font-semibold text-slate-950 dark:text-white">{card.value}</p>
+                <p className="mt-1 text-xs text-emerald-800/75 dark:text-emerald-200/75">{card.detail}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-[11px] text-emerald-900/70 dark:text-emerald-200/75">
+            Provenance: {startupKpis.meta.provenance} · window {startupKpis.meta.window[0]} → {startupKpis.meta.window[1]} · source {startupKpis.meta.source}.
+          </p>
+        </div>
+
+        <div className="card-surface p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">This period's 5 worst startup-only runs</h3>
+            <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
+          </div>
+          <div className="mt-3 divide-y divide-slate-100 dark:divide-white/5">
+            {startupKpis.worstStartupRuns.map((run) => (
+              <div key={`${run.startDate}-${run.product}`} className="py-3">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 text-sm font-medium text-slate-900 dark:text-white">{run.product}</p>
+                  {run.coldStart && (
+                    <span title={`Measured idle-gap cold-start: at least ${startupKpis.meta.coldStartGapDays} days since the prior run.`} className="shrink-0 rounded-full border border-sky-300/70 bg-sky-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700 dark:border-sky-400/25 dark:bg-sky-400/10 dark:text-sky-200">cold-start</span>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {dateFmt(run.startDate)} · run <span className="font-mono text-slate-700 dark:text-slate-200">{num(run.runKg, 1)} kg</span> · scrap <span className="font-mono text-rose-600 dark:text-rose-300">{num(run.scrapKg, 1)} kg</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Top bar — loss summary */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

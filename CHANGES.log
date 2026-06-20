@@ -198,3 +198,23 @@ Spec: docs/CODEX_BRIEF_P0_STARTUP_LEDGER.md. Implemented by Codex; architect-rev
 (engine semantics + honesty contract verified). Tests 36/36 pass (incl. new
 ProductionPlannerPage.test.tsx); `npm run build` clean (provenance gate + tsc + Vite);
 no new deps; tariffEngine.ts untouched. P1 (wire measured weekly KPIs + floor-walk) pending.
+
+## 2026-06-21 — Analyse v2 P1: measured startup KPIs + floor-walk on Scrap Focus
+
+Wires the real run-episode KPIs (src/data/startupKpis.json, measured from the cleaned
+ERP, 2025-26) into Scrap Focus, alongside P0's plan-level estimates.
+
+- New typed loader src/lib/startupKpis.ts (StartupKpis interface; pure JSON cast, no
+  recomputation).
+- ScrapAnalyzerPage: "This week (measured)" KPI panel (startups, REAL idle-gap
+  cold-starts, % sub-economic, scrap/startup) + 16-week trend sparkline; "This period's
+  5 worst startup-only runs" floor-walk card with cold-start badges; provenance footer
+  (meta.provenance/window/source).
+
+Honesty: measured panel uses an emerald MEASURED chip, visually distinct from P0's amber
+"estimated"; cold-starts labelled real (no "proxy"). Tests assert the measured panel
+contains "MEASURED" and NOT "estimated"/"proxy" — the distinction is locked by test.
+
+Implemented by Codex; architect-reviewed (scope + honesty contract). Tests 39/39 pass
+(4 files); npm run build clean (provenance gate + tsc + Vite); no new deps; engine/
+tariff/P0-strip untouched. Spec: docs/CODEX_BRIEF_P1_MEASURED_KPIS.md.
