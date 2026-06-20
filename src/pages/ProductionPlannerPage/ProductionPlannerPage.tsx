@@ -5,6 +5,7 @@ import {
   scheduleOrders, monteCarloOrders, energyIntensityKwhPerKg, computeStartupLedger, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '@/features/production-planning/productionModel';
+import { applyBatchSuggestion, suggestBatches, type BatchSuggestion } from '@/features/production-planning/batchingAdvisor';
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '@/features/tariff-engine/tariffEngine';
 import ScenarioBanner from '@/shared/ScenarioBanner';
 
@@ -63,15 +64,37 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
   const [q, setQ] = useState('');
   const match = (name: string) => !q.trim() || name.toLowerCase().includes(q.toLowerCase());
   const [orders, setOrders] = useState<Order[]>(() => initialOrders ?? genOrders(model.skus as SkuParam[], 30));
+  const [batchPreviewBase, setBatchPreviewBase] = useState<Order[] | null>(null);
+  const batchDueWindowDays = 7;
 
   const chooseDataset = (ds: 'pilot' | 'demo') => {
     const list = ds === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
     setDataset(ds);
+    setBatchPreviewBase(null);
     setOrders(genOrders(list, horizon));
   };
-  const editOrder = (id: string, patch: Partial<Order>) => setOrders((os) => os.map((o) => (o.id === id ? { ...o, ...patch } : o)));
-  const addOrder = () => setOrders((os) => [...os, { id: `o${++_uid}`, productId: skus[0].id, qty: 500, dueDay: horizon }]);
-  const rmOrder = (id: string) => setOrders((os) => os.filter((o) => o.id !== id));
+  const editOrder = (id: string, patch: Partial<Order>) => {
+    setBatchPreviewBase(null);
+    setOrders((os) => os.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+  };
+  const addOrder = () => {
+    setBatchPreviewBase(null);
+    setOrders((os) => [...os, { id: `o${++_uid}`, productId: skus[0].id, qty: 500, dueDay: horizon }]);
+  };
+  const rmOrder = (id: string) => {
+    setBatchPreviewBase(null);
+    setOrders((os) => os.filter((o) => o.id !== id));
+  };
+  const applyBatchPreview = (suggestion: BatchSuggestion) => {
+    setBatchPreviewBase((base) => base ?? orders);
+    setOrders((os) => applyBatchSuggestion(os, suggestion));
+  };
+  const revertBatchPreview = () => {
+    if (batchPreviewBase) {
+      setOrders(batchPreviewBase);
+      setBatchPreviewBase(null);
+    }
+  };
 
   const smart = useMemo(() => scheduleOrders(orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy),
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy]);
@@ -80,6 +103,11 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
   const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay, rateCv), [smart, hoursPerDay, rateCv]);
   const mcCur = useMemo(() => monteCarloOrders(current, hoursPerDay, rateCv), [current, hoursPerDay, rateCv]);
   const ledger = useMemo(() => computeStartupLedger(smart, products, econ.materialOmrPerKg), [smart, products, econ.materialOmrPerKg]);
+  const batchSuggestions = useMemo(() => suggestBatches(orders, products, line, econ, hoursPerDay, {
+    dueWindowDays: batchDueWindowDays,
+    maxAddedLateDays: 1,
+    topN: 3,
+  }), [orders, products, line, econ, hoursPerDay]);
   const overlay = useMemo(() => (mc.samplesDays.length && mcCur.samplesDays.length ? binTwo(mc.samplesDays, mcCur.samplesDays) : []), [mc, mcCur]);
   const intensityData = useMemo(() => skus
     .map((s) => ({ id: s.id, name: s.name || s.id, kwhPerKg: energyIntensityKwhPerKg(line.machineKw, s.rateEffective, s.kgPerUnit) }))
@@ -220,6 +248,42 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
           <PlanKpi label="Scrap per startup" value={`${num(ledger.scrapPerStartupKg)} kg`} sub={`${num(ledger.scrapPerStartupKg * econ.materialOmrPerKg)} OMR`} chip={estimatedChip} />
         </div>
         <p className="mt-3 text-[11px] text-slate-400">Plan-level estimates; historical weekly figures arrive with the run-level export.</p>
+      </div>
+
+      {/* BATCHING ADVISOR — save-vs-risk action preview */}
+      <div className="card-surface p-5" aria-label="Batching Advisor">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Batching Advisor</h3>
+              {estimatedChip}
+            </div>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Startup scrap savings are estimated from the Startup Ledger basis. Energy saving appears when metered; no kWh claimed here.</p>
+          </div>
+          {batchPreviewBase && (
+            <button type="button" onClick={revertBatchPreview} aria-label="Revert batch preview" className="rounded-lg border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5">Revert</button>
+          )}
+        </div>
+        {batchSuggestions.length > 0 ? (
+          <div className="mt-4 space-y-2">
+            {batchSuggestions.map((suggestion, index) => {
+              const product = products[suggestion.productId];
+              return (
+                <div key={suggestion.id} className={`rounded-lg border px-3 py-2 ${suggestion.feasible ? 'border-slate-200/70 dark:border-white/10' : 'border-slate-200/50 bg-slate-50/70 opacity-70 dark:border-white/10 dark:bg-white/5'}`}>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="min-w-0 flex-1 text-sm text-slate-700 dark:text-slate-300">
+                      <span className="font-mono text-xs text-slate-400">#{index + 1}</span> Batch {suggestion.orderIds.length} {suggestion.family} orders of <span className="font-medium text-slate-900 dark:text-white">{product?.name ?? suggestion.productId}</span> → save <span className="font-mono font-semibold">{num(suggestion.startupsSaved)}</span> startups, ≈<span className="font-mono font-semibold">{num(suggestion.scrapSavedKg)}</span> kg (<span className="font-mono font-semibold">{num(suggestion.scrapSavedOmr, 1)}</span> OMR) startup scrap · +<span className="font-mono font-semibold">{num(suggestion.addedLateDays, 1)}</span>d max lateness · OTIF <span className="font-mono">{num(suggestion.otifBefore * 100)}%→{num(suggestion.otifAfter * 100)}%</span>.
+                      {!suggestion.feasible && <span className="ml-2 text-amber-700 dark:text-amber-300">override — costs {num(suggestion.addedLateDays, 1)}d lateness</span>}
+                    </p>
+                    <button type="button" onClick={() => applyBatchPreview(suggestion)} aria-label={`Apply batch preview ${suggestion.productId}`} className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-accent/90">Apply (preview)</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-4 rounded-lg border border-dashed border-slate-200/70 px-3 py-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">No sub-economic same-product orders due within {batchDueWindowDays} days to batch.</p>
+        )}
       </div>
 
       {/* YOUR DECISIONS — only what a manager controls */}
