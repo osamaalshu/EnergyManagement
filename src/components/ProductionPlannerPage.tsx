@@ -40,10 +40,10 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [dataset, setDataset] = useState<'pilot' | 'demo'>('pilot');
   const skus: SkuParam[] = dataset === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
   const products = useMemo(() => Object.fromEntries(skus.map((s) => [s.id, s])), [skus]);
-  const line: LineParam = dataset === 'demo' ? DEMO_LINE : {
+  const line: LineParam = useMemo(() => (dataset === 'demo' ? DEMO_LINE : {
     machineKw: model.line.machineKw, changeoverH: model.line.changeoverH, changeoverKw: model.line.changeoverKw,
     nMachines: model.line.nMachines, machineNames: model.line.machineNames,
-  };
+  }), [dataset, model.line]);
   const econ: Econ = dataset === 'demo' ? DEMO_ECON : model.economics;
 
   const [horizon, setHorizon] = useState(30);
