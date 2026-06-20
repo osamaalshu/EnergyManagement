@@ -1,5 +1,5 @@
 node_modules
-dist
+dist/
 build
 coverage
 .playwright
@@ -7,3 +7,10 @@ coverage
 .DS_Store
 .env
 .env.*
+
+# Raw plant CSVs (~12.6 MB) — keep out of agent context
+src/data/raw/*.csv
+src/data/hourly_data_*.csv
+
+test-results/
+*.json.bak

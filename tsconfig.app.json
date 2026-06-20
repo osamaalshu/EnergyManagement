@@ -9,6 +9,10 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
 
+    /* Path alias */
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -26,5 +30,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
-  "exclude": ["src/**/__tests__/**", "src/**/*.test.ts"]
+  "exclude": ["src/**/__tests__/**", "src/**/*.test.ts", "src/**/*.test.tsx", "src/test/**"]
 }

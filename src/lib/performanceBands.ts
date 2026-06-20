@@ -1,4 +1,4 @@
-import type { PerformanceBand } from '../types/portfolio';
+import type { PerformanceBand } from '@/types/portfolio';
 
 /**
  * Centralized performance-band color map.

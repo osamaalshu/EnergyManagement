@@ -18,7 +18,7 @@ import type {
   DecompositionMonth,
   PhysicsRuleResult,
   TariffOptionTotal,
-} from '../types/portfolio';
+} from '@/types/portfolio';
 
 import enriched from './generated/enrichedData.json';
 
