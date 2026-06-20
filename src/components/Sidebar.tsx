@@ -1,4 +1,4 @@
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useMemo, useState } from 'react';
 import { navSites, type LeafRoute } from '../lib/portfolioNav';
 
 export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'analyse' | 'production' | 'scrap' | 'plant' | 'delivery';
@@ -46,14 +46,30 @@ const Sidebar: FC<SidebarProps> = ({
   const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
   const [analyseOpen, setAnalyseOpen] = useState(true);
 
-  // Auto-expand the active path so you always see where you are.
-  useEffect(() => {
-    if (selectedSiteId) setExpandedSites((prev) => new Set(prev).add(selectedSiteId));
-    if (selectedSiteId && selectedSubsystemId) setExpandedSubs((prev) => new Set(prev).add(`${selectedSiteId}:${selectedSubsystemId}`));
-  }, [selectedSiteId, selectedSubsystemId]);
+  // Merge user toggles with the active path so you always see where you are.
+  const visibleExpandedSites = useMemo(() => {
+    const next = new Set(expandedSites);
+    if (selectedSiteId) next.add(selectedSiteId);
+    return next;
+  }, [expandedSites, selectedSiteId]);
+  const visibleExpandedSubs = useMemo(() => {
+    const next = new Set(expandedSubs);
+    if (selectedSiteId && selectedSubsystemId) next.add(`${selectedSiteId}:${selectedSubsystemId}`);
+    return next;
+  }, [expandedSubs, selectedSiteId, selectedSubsystemId]);
 
-  const toggleSite = (id: string) => setExpandedSites((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const toggleSub = (key: string) => setExpandedSubs((prev) => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
+  const toggleSite = (id: string) => setExpandedSites((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
+  const toggleSub = (key: string) => setExpandedSubs((prev) => {
+    const next = new Set(prev);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    return next;
+  });
 
   const onSitePage = activePage === 'building' || activePage === 'subsystem' || activePage === 'equipment' || activePage === 'compressor';
 
@@ -90,7 +106,7 @@ const Sidebar: FC<SidebarProps> = ({
 
           <div className="space-y-0.5 pb-2">
             {navSites.map((site) => {
-              const siteOpen = expandedSites.has(site.id);
+              const siteOpen = visibleExpandedSites.has(site.id);
               const siteActive = onSitePage && selectedSiteId === site.id;
               const siteWarnings = site.subsystems.reduce((n, s) => n + s.warnings, 0);
               return (
@@ -107,7 +123,7 @@ const Sidebar: FC<SidebarProps> = ({
 
                   {siteOpen && site.subsystems.map((sub) => {
                     const key = `${site.id}:${sub.id}`;
-                    const subOpen = expandedSubs.has(key);
+                    const subOpen = visibleExpandedSubs.has(key);
                     const subActive = siteActive && selectedSubsystemId === sub.id;
                     return (
                       <div key={key}>

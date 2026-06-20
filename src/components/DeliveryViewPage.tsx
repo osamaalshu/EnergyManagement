@@ -1,4 +1,4 @@
-import { type FC, useMemo, useState } from 'react';
+import { type FC, useCallback, useMemo, useState } from 'react';
 import { productionData } from '../data/productionData';
 import {
   scheduleOrders, monteCarloOrders, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
@@ -19,10 +19,10 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [dataset, setDataset] = useState<'pilot' | 'demo'>('pilot');
   const skus: SkuParam[] = dataset === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
   const products = useMemo(() => Object.fromEntries(skus.map((s) => [s.id, s])), [skus]);
-  const line: LineParam = dataset === 'demo' ? DEMO_LINE : {
+  const line: LineParam = useMemo(() => (dataset === 'demo' ? DEMO_LINE : {
     machineKw: model.line.machineKw, changeoverH: model.line.changeoverH, changeoverKw: model.line.changeoverKw,
     nMachines: model.line.nMachines, machineNames: model.line.machineNames,
-  };
+  }), [dataset, model.line]);
   const econ: Econ = dataset === 'demo' ? DEMO_ECON : model.economics;
   const machines = 1, hoursPerDay = 16;
 
@@ -33,28 +33,32 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [preview, setPreview] = useState<{ title: string; affected: Set<string>; otif: number } | null>(null);
   const orders = useMemo(() => genOrders(skus, 30), [skus]);
 
-  const sched = (mode: 'grouped' | 'due', m = machines, h = hoursPerDay) =>
-    scheduleOrders(orders, products, 30, m, line, econ, h, 3, 0.5, 10, mode);
-  const smart = useMemo(() => sched('grouped'), [orders, products, machines]);
-  const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart]);
+  const sched = useCallback((mode: 'grouped' | 'due', m = machines, h = hoursPerDay) =>
+    scheduleOrders(orders, products, 30, m, line, econ, h, 3, 0.5, 10, mode),
+    [orders, products, line, econ, machines, hoursPerDay]);
+  const smart = useMemo(() => sched('grouped'), [sched]);
+  const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart, hoursPerDay]);
   const smartSamples = useMemo(() => [...mc.samplesDays].sort((a, b) => a - b), [mc]);
-  const curSamples = useMemo(() => { const c = sched('due'); return [...monteCarloOrders(c, hoursPerDay).samplesDays].sort((a, b) => a - b); }, [orders, products]);
+  const curSamples = useMemo(() => {
+    const c = sched('due');
+    return [...monteCarloOrders(c, hoursPerDay).samplesDays].sort((a, b) => a - b);
+  }, [sched, hoursPerDay]);
 
   const bottleneck = smart.lanes.reduce((a, l) => (l.loadH > a.loadH ? l : a), smart.lanes[0]);
   const medReject = useMemo(() => { const r = skus.map((s) => s.meanRejection).sort((a, b) => a - b); return r[Math.floor(r.length / 2)]; }, [skus]);
-  const rootCause = (it: OrderItem): string => {
+  const rootCause = useCallback((it: OrderItem): string => {
     const p = products[it.productId];
     if (it.machineName === bottleneck?.name && (!it.onTime || (mc.onTimeProb[it.orderId] ?? 1) < 0.95)) return `${it.machineName} capacity`;
     if (p && p.meanRejection >= medReject * 1.25) return `High scrap · ${it.name}`;
     if (it.setupType === 'family') return 'Changeover cluster';
     return 'Sequence / due date';
-  };
+  }, [products, bottleneck?.name, mc, medReject]);
 
   // rows within the date range, enriched
   const rows = useMemo(() => smart.items
     .filter((it) => it.dueDay <= range)
     .map((it) => ({ it, conf: mc.onTimeProb[it.orderId] ?? 1, cause: rootCause(it), kg: it.qty * (products[it.productId]?.kgPerUnit ?? 0) }))
-    .sort((a, b) => (b.it.lateDays - a.it.lateDays) || (a.conf - b.conf)), [smart, mc, range]);
+    .sort((a, b) => (b.it.lateDays - a.it.lateDays) || (a.conf - b.conf)), [smart, mc, range, products, rootCause]);
   const atRisk = rows.filter((r) => !r.it.onTime || r.conf < 0.95);
   const shown = (q.trim() ? rows : (showAll ? rows : atRisk)).filter((r) => r.it.name.toLowerCase().includes(q.toLowerCase()));
 
@@ -77,7 +81,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       return { ...c, affected: new Set(fixed), dOtif: otifNew - Math.round((baseOn / tot) * 100), fixed: fixed.length, otifNew };
     }).filter((c) => c.dOtif > 0).sort((a, b) => b.dOtif - a.dOtif).slice(0, 3);
     return cand;
-  }, [smart, orders, products, machines]);
+  }, [smart, sched]);
 
   const lateStyle = (it: OrderItem) => it.onTime ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400';
   const confStyle = (c: number) => c >= 0.95 ? 'text-emerald-600 dark:text-emerald-400' : c >= 0.7 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400';

@@ -54,21 +54,23 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     }).sort((x, y) => y.scrapKg - x.scrapKg);
 
     const totalKg = base.reduce((s, r) => s + r.scrapKg, 0) || 1;
+    const rows = [];
     let cum = 0;
-    const rows = base.map((r) => {
+    for (const r of base) {
       cum += r.scrapKg;
       const material = r.scrapKg >= totalKg * 0.02;
       const focus = material && !r.lowData && r.saving > 0;
-      return { ...r, material, focus, cumPct: (cum / totalKg) * 100 };
-    });
+      rows.push({ ...r, material, focus, cumPct: (cum / totalKg) * 100 });
+    }
     const wellMeasuredBase = base.filter((r) => !r.lowData);
     const wellMeasuredTotalKg = wellMeasuredBase.reduce((s, r) => s + r.scrapKg, 0) || 1;
+    const wellMeasured = [];
     let wellMeasuredCum = 0;
-    const wellMeasured = wellMeasuredBase.map((r) => {
+    for (const r of wellMeasuredBase) {
       wellMeasuredCum += r.scrapKg;
       const row = rows.find((candidate) => candidate.id === r.id)!;
-      return { ...row, cumPct: (wellMeasuredCum / wellMeasuredTotalKg) * 100 };
-    });
+      wellMeasured.push({ ...row, cumPct: (wellMeasuredCum / wellMeasuredTotalKg) * 100 });
+    }
     const totalOmr = rows.reduce((s, r) => s + r.scrapOmr, 0);
     const grossKgYr = rows.reduce((s, r) => s + r.demand * r.kgPerUnit, 0);
     const recoverable = rows.filter((r) => r.focus).reduce((s, r) => s + r.saving, 0);
