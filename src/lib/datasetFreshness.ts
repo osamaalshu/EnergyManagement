@@ -1,4 +1,4 @@
-import type { DatasetMeta } from '../types/portfolio';
+import type { DatasetMeta } from '@/types/portfolio';
 
 // How recent a `live` feed must be before it's considered stale.
 export const LIVE_MAX_AGE_HOURS = 6;

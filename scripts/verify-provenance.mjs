@@ -22,6 +22,18 @@ const failures = [];
 const ok = (msg) => console.log(`  ✓ ${msg}`);
 const bad = (id, msg) => { failures.push(`[${id}] ${msg}`); console.log(`  ✗ [${id}] ${msg}`); };
 
+// Recursively collect *.tsx under the given dirs (UI now lives in pages/shared/features).
+const walkTsx = (dir) => {
+  let out = [];
+  for (const ent of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, ent.name);
+    if (ent.isDirectory()) out = out.concat(walkTsx(full));
+    else if (ent.name.endsWith('.tsx')) out.push(full);
+  }
+  return out;
+};
+const UI_DIRS = ['src/pages', 'src/shared', 'src/features'];
+
 // ── T9 — no non-finite numbers in the committed JSON ────────────────────────
 function scanFinite(obj, path, hits) {
   if (typeof obj === 'number') {
@@ -77,13 +89,14 @@ const FORBIDDEN = /Today['’]s|Today&apos;s|\bLIVE\b|\bReal[-\s]?time\b/;
 const ALLOW_FILES = new Set(['Provenance.tsx']);
 console.log('FH — freshness honesty (no Today/LIVE/Real-time in UI)');
 {
-  const dir = join(ROOT, 'src/components');
+  const uiFiles = UI_DIRS.flatMap((d) => walkTsx(join(ROOT, d)));
   let flagged = 0;
-  for (const file of readdirSync(dir)) {
-    if (!file.endsWith('.tsx') || ALLOW_FILES.has(file)) continue;
-    const text = readFileSync(join(dir, file), 'utf8');
-    text.split('\n').forEach((line, i) => {
-      if (FORBIDDEN.test(line)) { flagged++; bad('FH', `${file}:${i + 1} → ${line.trim().slice(0, 80)}`); }
+  for (const full of uiFiles) {
+    const base = full.slice(full.lastIndexOf('/') + 1);
+    if (ALLOW_FILES.has(base)) continue;
+    const rel = full.slice(ROOT.length + 1);
+    readFileSync(full, 'utf8').split('\n').forEach((line, i) => {
+      if (FORBIDDEN.test(line)) { flagged++; bad('FH', `${rel}:${i + 1} → ${line.trim().slice(0, 80)}`); }
     });
   }
   if (!flagged) ok('no Today/LIVE/Real-time claims in client UI');
@@ -104,8 +117,11 @@ console.log('P1/PB — provenance propagation');
   }
   // Every page showing a CRT bill/cost must render the basis from `tariffBasis`
   // (the single sourced disclosure) rather than hand-authoring the tariff wording.
-  for (const file of ['TariffPage.tsx', 'DashboardPage.tsx']) {
-    const text = readFileSync(join(ROOT, 'src/components', file), 'utf8');
+  for (const [file, rel] of [
+    ['TariffPage.tsx', 'src/pages/TariffPage/TariffPage.tsx'],
+    ['DashboardPage.tsx', 'src/pages/DashboardPage/DashboardPage.tsx'],
+  ]) {
+    const text = readFileSync(join(ROOT, rel), 'utf8');
     if (!text.includes('tariffBasis')) bad('PB', `${file}: CRT cost shown without a sourced tariff basis (tariffBasis)`);
     else ok(`${file} → renders sourced tariffBasis`);
   }
@@ -128,10 +144,13 @@ console.log('P2/P3/P5 — single tariff source of truth');
     else ok(`tariff schedule in sync (${sched.scheduleVersion})`);
   }
   // P3 — only the runtime engine may read the rate schedule; no component re-implements rates.
-  const compDir = join(ROOT, 'src/components');
-  const offenders = readdirSync(compDir).filter((f) => f.endsWith('.tsx') && readFileSync(join(compDir, f), 'utf8').includes('tariffSchedule.json'));
-  if (offenders.length) bad('P3', `tariffSchedule.json read by components (${offenders.join(', ')}); only lib/tariffEngine.ts may`);
-  else ok('one runtime rate authority (lib/tariffEngine.ts)');
+  // The engine (features/tariff-engine/tariffEngine.ts) is .ts, so the .tsx scan excludes it.
+  const offenders = UI_DIRS
+    .flatMap((d) => walkTsx(join(ROOT, d)))
+    .filter((f) => readFileSync(f, 'utf8').includes('tariffSchedule.json'))
+    .map((f) => f.slice(ROOT.length + 1));
+  if (offenders.length) bad('P3', `tariffSchedule.json read by components (${offenders.join(', ')}); only features/tariff-engine/tariffEngine.ts may`);
+  else ok('one runtime rate authority (features/tariff-engine/tariffEngine.ts)');
 }
 
 // ── result ──────────────────────────────────────────────────────────────────
