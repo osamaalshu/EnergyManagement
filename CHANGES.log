@@ -218,3 +218,23 @@ contains "MEASURED" and NOT "estimated"/"proxy" — the distinction is locked by
 Implemented by Codex; architect-reviewed (scope + honesty contract). Tests 39/39 pass
 (4 files); npm run build clean (provenance gate + tsc + Vite); no new deps; engine/
 tariff/P0-strip untouched. Spec: docs/CODEX_BRIEF_P1_MEASURED_KPIS.md.
+
+## 2026-06-21 — Batching Advisor (action engine) on the Order Planner
+
+Turns the startup-scrap finding into an action: proposes consolidating small same-product
+orders into campaigns and quantifies save-vs-risk.
+
+- New pure module src/features/production-planning/batchingAdvisor.ts: suggestBatches()
+  + applyBatchSuggestion(). Candidates = >=2 sub-economic same-productId orders due within
+  a window (default 7d); merges each into one run (qty summed, due = earliest); re-simulates
+  and derives startupsSaved/scrapSavedKg/scrapSavedOmr/addedLateDays/OTIF from
+  computeStartupLedger (single source of truth — reconciliation is a test). Ranks by OMR
+  saved, tie-break id; feasible = addedLateDays <= 1; deterministic (no Date.now/random).
+- Planner: Batching Advisor card with ranked suggestions, amber "estimated" chip + explicit
+  "no kWh claimed" note, Apply(preview)+Revert, infeasible rows muted with override cost.
+  energySavedKwh left as undefined placeholder.
+
+Implemented by Codex; architect-reviewed (engine reuse + honesty contract). Tests 54/54
+pass (6 files); npm run build clean (provenance gate + tsc + Vite); no new deps;
+scheduleOrders/computeStartupLedger/Scrap/Delivery/tariff untouched. Spec:
+docs/CODEX_BRIEF_BATCHING_ADVISOR.md.
