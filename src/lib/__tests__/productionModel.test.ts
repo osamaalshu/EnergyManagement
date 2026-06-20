@@ -8,8 +8,11 @@ import {
   type LineParam,
   type Order,
   type SkuParam,
+  MIN_ECONOMIC_RUN_KG,
+  computeStartupLedger,
   energyIntensityKwhPerKg,
   monteCarloOrders,
+  rootCauseForOrderItem,
   scheduleOrders,
 } from '../productionModel';
 import { energyKpi } from '../../data/energyKpi';
@@ -44,6 +47,16 @@ const products: Record<string, SkuParam> = {
     kgPerUnit: 5,
     meanRejection: 0.2,
   },
+  c: {
+    id: 'c',
+    name: 'Drainage 160',
+    family: 'Drainage',
+    diameterMm: 160,
+    demand: 0,
+    rateEffective: 8,
+    kgPerUnit: 10,
+    meanRejection: 0.12,
+  },
 };
 
 const orders: Order[] = [
@@ -75,6 +88,140 @@ describe('scheduleOrders', () => {
       expect(schedule.steadyStatePct).toBeLessThanOrEqual(1);
       expect(schedule.scrapKg).toBe(schedule.baseScrapKg + schedule.startupScrapKg);
     }
+  });
+});
+
+describe('computeStartupLedger', () => {
+  it('returns an all-zero ledger for an empty order book', () => {
+    const schedule = scheduleOrders([], products, 30, 1, line, econ, 16, 3, 0.5, 7, 'grouped');
+    const ledger = computeStartupLedger(schedule, products, econ.materialOmrPerKg);
+
+    expect(ledger).toEqual({
+      startups: 0,
+      familyChangeStarts: 0,
+      subEconomicRuns: 0,
+      totalRuns: 0,
+      subEconomicPct: 0,
+      startupScrapKg: 0,
+      startupScrapOmr: 0,
+      scrapPerStartupKg: 0,
+    });
+  });
+
+  it('counts a single order as one startup and flags it sub-economic only below the kg threshold', () => {
+    const small = scheduleOrders([{ id: 'small', productId: 'a', qty: 299, dueDay: 10 }], products, 30, 1, line, econ, 16);
+    const boundary = scheduleOrders([{ id: 'boundary', productId: 'a', qty: 300, dueDay: 10 }], products, 30, 1, line, econ, 16);
+
+    expect(computeStartupLedger(small, products, econ.materialOmrPerKg)).toMatchObject({
+      startups: 1,
+      totalRuns: 1,
+      subEconomicRuns: 1,
+    });
+    expect(computeStartupLedger(boundary, products, econ.materialOmrPerKg)).toMatchObject({
+      startups: 1,
+      totalRuns: 1,
+      subEconomicRuns: 0,
+    });
+  });
+
+  it('keeps startups equal to familyChanges plus diameterChanges plus one for non-empty schedules', () => {
+    const fixtures: Order[][] = [
+      [
+        { id: 'a1', productId: 'a', qty: 400, dueDay: 2 },
+        { id: 'b1', productId: 'b', qty: 400, dueDay: 3 },
+        { id: 'c1', productId: 'c', qty: 400, dueDay: 4 },
+      ],
+      [
+        { id: 'a1', productId: 'a', qty: 120, dueDay: 2 },
+        { id: 'c1', productId: 'c', qty: 120, dueDay: 3 },
+      ],
+    ];
+
+    for (const fixture of fixtures) {
+      for (const strategy of ['grouped', 'due'] as const) {
+        const schedule = scheduleOrders(fixture, products, 30, 1, line, econ, 16, 3, 0.5, 9, strategy);
+        const ledger = computeStartupLedger(schedule, products, econ.materialOmrPerKg);
+        expect(ledger.startups).toBe(schedule.familyChanges + schedule.diameterChanges + 1);
+      }
+    }
+  });
+
+  it('does not create more startups in grouped mode than due mode on a multi-family fixture', () => {
+    const fixture: Order[] = [
+      { id: 'a1', productId: 'a', qty: 200, dueDay: 1 },
+      { id: 'b1', productId: 'b', qty: 200, dueDay: 2 },
+      { id: 'c1', productId: 'c', qty: 200, dueDay: 3 },
+      { id: 'b2', productId: 'b', qty: 200, dueDay: 4 },
+    ];
+    const grouped = scheduleOrders(fixture, products, 30, 1, line, econ, 16, 3, 0.5, 9, 'grouped');
+    const due = scheduleOrders(fixture, products, 30, 1, line, econ, 16, 3, 0.5, 9, 'due');
+
+    expect(computeStartupLedger(grouped, products, econ.materialOmrPerKg).startups)
+      .toBeLessThanOrEqual(computeStartupLedger(due, products, econ.materialOmrPerKg).startups);
+  });
+
+  it('re-exposes schedule startup scrap as the single source of truth', () => {
+    const schedule = scheduleOrders([
+      { id: 'a1', productId: 'a', qty: 400, dueDay: 2 },
+      { id: 'b1', productId: 'b', qty: 400, dueDay: 3 },
+    ], products, 30, 1, line, econ, 16, 3, 0.5, 13, 'due');
+
+    expect(computeStartupLedger(schedule, products, econ.materialOmrPerKg).startupScrapKg).toBe(schedule.startupScrapKg);
+  });
+
+  it('flags isSubEconomic exactly when run kg is below MIN_ECONOMIC_RUN_KG and honors the boundary', () => {
+    const schedule = scheduleOrders([
+      { id: 'below', productId: 'a', qty: MIN_ECONOMIC_RUN_KG / products.a.kgPerUnit - 1, dueDay: 10 },
+      { id: 'boundary', productId: 'a', qty: MIN_ECONOMIC_RUN_KG / products.a.kgPerUnit, dueDay: 10 },
+    ], products, 30, 1, line, econ, 16);
+    const byId = Object.fromEntries(schedule.items.map((item) => [item.orderId, item]));
+
+    expect(byId.below.runKg).toBe(MIN_ECONOMIC_RUN_KG - products.a.kgPerUnit);
+    expect(byId.below.isSubEconomic).toBe(true);
+    expect(byId.boundary.runKg).toBe(MIN_ECONOMIC_RUN_KG);
+    expect(byId.boundary.isSubEconomic).toBe(false);
+  });
+
+  it('computes scrap per startup as startup scrap divided by startups and zero when no startups exist', () => {
+    const schedule = scheduleOrders([
+      { id: 'a1', productId: 'a', qty: 400, dueDay: 2 },
+      { id: 'b1', productId: 'b', qty: 400, dueDay: 3 },
+    ], products, 30, 1, line, econ, 16, 3, 0.5, 12, 'due');
+    const ledger = computeStartupLedger(schedule, products, econ.materialOmrPerKg);
+
+    expect(ledger.scrapPerStartupKg).toBe(schedule.startupScrapKg / ledger.startups);
+    expect(computeStartupLedger(scheduleOrders([], products, 30, 1, line, econ, 16), products, econ.materialOmrPerKg).scrapPerStartupKg).toBe(0);
+  });
+
+  it('applies root-cause priority before lower-priority capacity tags', () => {
+    const familySchedule = scheduleOrders([
+      { id: 'large', productId: 'a', qty: 1000, dueDay: 100 },
+      { id: 'family-late', productId: 'b', qty: 100, dueDay: 0.1 },
+    ], products, 30, 1, line, econ, 16, 3, 0.5, 10, 'grouped');
+    const familyLate = familySchedule.items.find((item) => item.orderId === 'family-late');
+
+    expect(familyLate?.setupType).toBe('family');
+    expect(rootCauseForOrderItem(familyLate!)).toBe('Cold-start penalty');
+
+    const smallSchedule = scheduleOrders([
+      { id: 'large', productId: 'a', qty: 1000, dueDay: 100 },
+      { id: 'small-late', productId: 'a', qty: 1, dueDay: 0.1 },
+    ], products, 30, 1, line, econ, 16);
+    const smallLate = smallSchedule.items.find((item) => item.orderId === 'small-late');
+
+    expect(smallLate?.setupType).toBe('none');
+    expect(smallLate?.isSubEconomic).toBe(true);
+    expect(rootCauseForOrderItem(smallLate!)).toBe('Sub-economic run');
+  });
+
+  it('is deterministic for identical startup ledger inputs', () => {
+    const schedule = scheduleOrders([
+      { id: 'a1', productId: 'a', qty: 400, dueDay: 2 },
+      { id: 'b1', productId: 'b', qty: 400, dueDay: 3 },
+    ], products, 30, 1, line, econ, 16, 3, 0.5, 11, 'due');
+
+    expect(computeStartupLedger(schedule, products, econ.materialOmrPerKg))
+      .toEqual(computeStartupLedger(schedule, products, econ.materialOmrPerKg));
   });
 });
 

@@ -173,3 +173,28 @@ clean; build provenance passed.
 Founder: drop the kWh/kg column from the Scrap investigator table; keep the line chart.
 Removed the th + td; updated the source-guard test (>kWh/kg< header → 'Energy intensity'
 chart-title assertion). kWh/kg now lives only in the line chart. Tests 26/26; build green.
+
+## 2026-06-21 — Analyse v2 P0: Startup Ledger + startup-first Planner + root-cause taxonomy
+
+Driven by the validated ERP finding that the dominant controllable loss is startup/purge
+scrap (first-day run scraps ~3x continuation; small runs ~4x; both are the same startup-only
+run). Reorganises the Analyse workspace around startups.
+
+Engine (productionModel.ts): new `computeStartupLedger()` + `StartupLedger` type +
+`MIN_ECONOMIC_RUN_KG` (3000, ESTIMATE); `runKg`/`isSubEconomic` added to `OrderItem`
+(strict `<` boundary); `rootCauseForOrderItem()` + 5-tag `RootCause` union with fixed
+priority (Cold-start > Startup overload > Sub-economic > Due-date compression > Pure
+capacity). `startups = familyChanges + diameterChanges + 1` (first run's setupType is
+'none'); `startupScrapKg` reused as single source of truth.
+
+UI: Planner verdict card reframed startup-first (OTIF retained, secondary); new Startup
+Ledger card; "This plan (estimated)" 4-tile KPI strip; per-run startup?/sub-economic
+flags; strategy options relabeled to manager language (mode values unchanged); TOU lever
+kept but demoted. Delivery View wired to the new RootCause taxonomy. Every new number
+carries an amber "estimated" chip; cold-start shown as "family-change / cold-start proxy"
+(the real idle-gap cold-start arrives in P1 via startupKpis.json).
+
+Spec: docs/CODEX_BRIEF_P0_STARTUP_LEDGER.md. Implemented by Codex; architect-reviewed
+(engine semantics + honesty contract verified). Tests 36/36 pass (incl. new
+ProductionPlannerPage.test.tsx); `npm run build` clean (provenance gate + tsc + Vite);
+no new deps; tariffEngine.ts untouched. P1 (wire measured weekly KPIs + floor-walk) pending.
