@@ -48,6 +48,23 @@ export const SETUP_FAMILY_H = 3.0;
 export const SETUP_DIAMETER_H = 0.5;
 export type SetupType = 'none' | 'diameter' | 'family';
 
+// ESTIMATE — adjustable. Runs below this mass are flagged because fixed startup
+// scrap dominates their economics.
+export const MIN_ECONOMIC_RUN_KG = 3000;
+
+export interface StartupLedger {
+  startups: number;
+  familyChangeStarts: number;
+  subEconomicRuns: number;
+  totalRuns: number;
+  subEconomicPct: number;
+  startupScrapKg: number;
+  startupScrapOmr: number;
+  scrapPerStartupKg: number;
+}
+
+export type RootCause = 'Startup overload' | 'Cold-start penalty' | 'Sub-economic run' | 'Pure capacity shortfall' | 'Due-date compression';
+
 // ── Monte-Carlo CONFIDENCE band. The schedule is deterministic; MC only quantifies
 //    risk: run rates vary run-to-run, so "finishes in N days" becomes a distribution
 //    and "ships on time" becomes a probability. RATE_CV is an ASSUMED run-time
@@ -74,7 +91,7 @@ export interface Order { id: string; productId: string; qty: number; dueDay: num
 export interface OrderItem {
   orderId: string; machine: number; machineName: string; seq: number;
   productId: string; name: string; family: string; diameterMm: number;
-  qty: number; runtimeH: number; setupBeforeH: number; setupType: SetupType;
+  qty: number; runKg: number; isSubEconomic: boolean; runtimeH: number; setupBeforeH: number; setupType: SetupType;
   startH: number; endH: number; finishDay: number; dueDay: number; onTime: boolean; lateDays: number;
   onTimeProb?: number;
 }
@@ -136,11 +153,12 @@ export function scheduleOrders(
     let t = 0; const laneItems: OrderItem[] = [];
     seq.forEach((o, idx) => {
       const p = products[o.productId]; const su = setup(idx === 0 ? null : seq[idx - 1], o); const rt = runtime(o);
+      const runKg = o.qty * p.kgPerUnit;
       const endH = t + su.h + rt; const finishDay = endH / hoursPerDay;
       const it: OrderItem = {
         orderId: o.id, machine: mi, machineName: line.machineNames?.[mi] ?? `Machine ${mi + 1}`, seq: idx + 1,
         productId: o.productId, name: p.name, family: p.family, diameterMm: p.diameterMm,
-        qty: o.qty, runtimeH: rt, setupBeforeH: su.h, setupType: su.type,
+        qty: o.qty, runKg, isSubEconomic: runKg < MIN_ECONOMIC_RUN_KG, runtimeH: rt, setupBeforeH: su.h, setupType: su.type,
         startH: t + su.h, endH, finishDay: round(finishDay, 1), dueDay: o.dueDay,
         onTime: finishDay <= o.dueDay + 1e-9, lateDays: round(Math.max(0, finishDay - o.dueDay), 1),
       };
@@ -170,6 +188,45 @@ export function scheduleOrders(
     onTime: items.length - lateOrders.length, total: items.length, lateOrders,
     baseScrapKg: round(baseScrapKg), startupScrapKg: round(startupScrapKg), scrapKg: round(scrapKg), scrapOmr: round(scrapKg * econ.materialOmrPerKg),
   };
+}
+
+export function computeStartupLedger(
+  sched: OrderSchedule,
+  products: Record<string, SkuParam>,
+  materialOmrPerKg: number,
+  minEconomicRunKg = MIN_ECONOMIC_RUN_KG,
+): StartupLedger {
+  const totalRuns = sched.items.length;
+  const startups = totalRuns === 0 ? 0 : sched.items.filter((it) => it.setupType !== 'none').length + 1;
+  const subEconomicRuns = sched.items.filter((it) => {
+    const p = products[it.productId];
+    return p ? it.qty * p.kgPerUnit < minEconomicRunKg : false;
+  }).length;
+  const startupScrapKg = sched.startupScrapKg;
+
+  return {
+    startups,
+    familyChangeStarts: sched.items.filter((it) => it.setupType === 'family').length,
+    subEconomicRuns,
+    totalRuns,
+    subEconomicPct: round(totalRuns ? subEconomicRuns / totalRuns : 0, 3),
+    startupScrapKg,
+    startupScrapOmr: round(startupScrapKg * materialOmrPerKg),
+    scrapPerStartupKg: round(startups ? startupScrapKg / startups : 0),
+  };
+}
+
+export function rootCauseForOrderItem(
+  item: OrderItem,
+  dueSequenceItem?: OrderItem,
+  atRisk = !item.onTime,
+): RootCause {
+  const isStartup = item.seq === 1 || item.setupType !== 'none';
+  if (isStartup && item.setupType === 'family' && atRisk) return 'Cold-start penalty';
+  if (isStartup && atRisk) return 'Startup overload';
+  if (item.isSubEconomic) return 'Sub-economic run';
+  if (dueSequenceItem?.onTime && !item.onTime) return 'Due-date compression';
+  return 'Pure capacity shortfall';
 }
 
 /** Monte-Carlo over the order schedule: per-order on-time PROBABILITY + the

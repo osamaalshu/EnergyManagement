@@ -1,8 +1,8 @@
-import { type FC, useMemo, useState } from 'react';
+import { type FC, type ReactNode, useMemo, useState } from 'react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
 import { productionData } from '@/data/productionData';
 import {
-  scheduleOrders, monteCarloOrders, energyIntensityKwhPerKg, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
+  scheduleOrders, monteCarloOrders, energyIntensityKwhPerKg, computeStartupLedger, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '@/features/production-planning/productionModel';
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '@/features/tariff-engine/tariffEngine';
@@ -20,7 +20,7 @@ const FAMILY_BG: Record<string, string> = {
 const SCENARIO_BANNER_TEXT = 'Scenario — figures use a generated order book, not your live orders. Connect the order book to make this operational.';
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
 type Strategy = 'grouped' | 'balanced' | 'due';
-const STRATEGY_LABEL: Record<Strategy, string> = { grouped: 'Fewest changeovers', balanced: 'Balanced', due: 'Meet due dates' };
+const STRATEGY_LABEL: Record<Strategy, string> = { grouped: 'Save resin (fewest startups)', balanced: 'Protect due dates', due: 'Expedite (EDD)' };
 let _uid = 0;
 const genOrders = (skus: SkuParam[], horizon: number): Order[] =>
   skus.map((s, i) => ({ id: `o${++_uid}`, productId: s.id, qty: Math.round((s.demand * horizon) / 365), dueDay: Math.max(2, Math.round(((i + 1) / skus.length) * horizon)) }));
@@ -35,7 +35,7 @@ const binTwo = (a: number[], b: number[], n = 20) => {
   });
 };
 
-const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
+const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }> = ({ onBack, initialOrders }) => {
   const { model } = productionData;
   const [dataset, setDataset] = useState<'pilot' | 'demo'>('pilot');
   const skus: SkuParam[] = dataset === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
@@ -58,11 +58,11 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [famH, setFamH] = useState(3);
   const [diaH, setDiaH] = useState(0.5);
   const [scrapPerChg, setScrapPerChg] = useState(10);
-  const [strategy, setStrategy] = useState<Strategy>('balanced');
+  const [strategy, setStrategy] = useState<Strategy>('grouped');
   const [showParams, setShowParams] = useState(false);
   const [q, setQ] = useState('');
   const match = (name: string) => !q.trim() || name.toLowerCase().includes(q.toLowerCase());
-  const [orders, setOrders] = useState<Order[]>(() => genOrders(model.skus as SkuParam[], 30));
+  const [orders, setOrders] = useState<Order[]>(() => initialOrders ?? genOrders(model.skus as SkuParam[], 30));
 
   const chooseDataset = (ds: 'pilot' | 'demo') => {
     const list = ds === 'demo' ? DEMO_SKUS : (model.skus as SkuParam[]);
@@ -79,6 +79,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg]);
   const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay, rateCv), [smart, hoursPerDay, rateCv]);
   const mcCur = useMemo(() => monteCarloOrders(current, hoursPerDay, rateCv), [current, hoursPerDay, rateCv]);
+  const ledger = useMemo(() => computeStartupLedger(smart, products, econ.materialOmrPerKg), [smart, products, econ.materialOmrPerKg]);
   const overlay = useMemo(() => (mc.samplesDays.length && mcCur.samplesDays.length ? binTwo(mc.samplesDays, mcCur.samplesDays) : []), [mc, mcCur]);
   const intensityData = useMemo(() => skus
     .map((s) => ({ id: s.id, name: s.name || s.id, kwhPerKg: energyIntensityKwhPerKg(line.machineKw, s.rateEffective, s.kgPerUnit) }))
@@ -165,6 +166,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const field = 'rounded-lg border border-slate-200/70 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-white/10 dark:bg-card-dark dark:text-white';
   const chip = (on: boolean) => `rounded-md px-2.5 py-1 text-xs font-medium transition ${on ? 'bg-accent text-white' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`;
   const probColor = (p: number) => p >= 0.85 ? 'text-emerald-600 dark:text-emerald-400' : p >= 0.5 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400';
+  const estimatedChip = <span className="rounded-full border border-amber-300/60 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">estimated</span>;
 
   return (
     <section className="space-y-6">
@@ -189,14 +191,35 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
 
       {/* VERDICT */}
       <div className={`rounded-2xl border p-5 ${onTimePct >= 85 ? 'border-emerald-300/60 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10' : onTimePct >= 50 ? 'border-amber-300/60 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10' : 'border-rose-300/60 bg-rose-50 dark:border-rose-500/20 dark:bg-rose-500/10'}`}>
-        <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${onTimePct >= 85 ? 'text-emerald-700 dark:text-emerald-300' : onTimePct >= 50 ? 'text-amber-700 dark:text-amber-300' : 'text-rose-700 dark:text-rose-300'}`}>
-            {smart.onTime} of {smart.total} orders on time · {onTimePct}% chance ALL ship on time
+        <div className="flex flex-wrap items-center gap-2">
+          <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${onTimePct >= 85 ? 'text-emerald-700 dark:text-emerald-300' : onTimePct >= 50 ? 'text-amber-700 dark:text-amber-300' : 'text-rose-700 dark:text-rose-300'}`}>Startup verdict</p>
+          {estimatedChip}
+        </div>
+        <h3 className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">
+          This plan creates <span className="font-mono">{ledger.startups}</span> startups (<span className="font-mono">{ledger.familyChangeStarts}</span> family-change / cold-start proxy), <span className="font-mono">{ledger.subEconomicRuns}</span> sub-economic runs, ≈ <span className="font-mono">{num(ledger.startupScrapKg)}</span> kg startup scrap (<span className="font-mono">{num(ledger.startupScrapOmr)}</span> OMR).
+        </h3>
+        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+          OTIF estimate: {smart.onTime} of {smart.total} orders on time · {onTimePct}% chance ALL ship on time · last order day <span className="font-mono">{num(smart.makespanDays, 1)}</span> typical, P90 <span className="font-mono">{num(mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0, 1)}</span>.
         </p>
-        <h3 className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">Last order finishes day <span className="font-mono">{num(smart.makespanDays, 1)}</span> (typical) · <span className="font-mono">{num(mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0, 1)}</span> on a bad run</h3>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           <span className="font-medium">{STRATEGY_LABEL[strategy]}</span> · steady-state run time <span className="font-mono font-semibold">{Math.round(smart.steadyStatePct * 100)}%</span> · saves <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedChg, 1)} h</span> changeover &amp; <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedScrap)} kg</span> scrap vs running ungrouped.
           {smart.lateOrders.length > 0 && <span className="text-rose-600 dark:text-rose-400"> At risk: {smart.lateOrders.map((l) => l.name).slice(0, 3).join(', ')}{smart.lateOrders.length > 3 ? '…' : ''}.</span>}
         </p>
+      </div>
+
+      {/* THIS PLAN KPI STRIP */}
+      <div className="card-surface p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">This plan (estimated)</h3>
+          {estimatedChip}
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <PlanKpi label="Startups" value={num(ledger.startups)} chip={estimatedChip} />
+          <PlanKpi label="Cold-starts (proxy)" value={num(ledger.familyChangeStarts)} chip={estimatedChip} />
+          <PlanKpi label="% sub-economic runs" value={`${num(ledger.subEconomicPct * 100, 1)}%`} chip={estimatedChip} />
+          <PlanKpi label="Scrap per startup" value={`${num(ledger.scrapPerStartupKg)} kg`} sub={`${num(ledger.scrapPerStartupKg * econ.materialOmrPerKg)} OMR`} chip={estimatedChip} />
+        </div>
+        <p className="mt-3 text-[11px] text-slate-400">Plan-level estimates; historical weekly figures arrive with the run-level export.</p>
       </div>
 
       {/* YOUR DECISIONS — only what a manager controls */}
@@ -291,8 +314,28 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           </p>
         </div>
         <div className="card-surface p-5">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Startup Ledger</h3>
+            {estimatedChip}
+          </div>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400" title="A startup is the first run in the plan, or any run that begins after a family or diameter setup.">Startup = first run, or a run after a family/diameter setup.</p>
+          <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+            <LedgerMetric label="Startups" value={num(ledger.startups)} />
+            <LedgerMetric label="Family-change / cold-start proxy" value={num(ledger.familyChangeStarts)} />
+            <LedgerMetric label="Sub-economic runs" value={num(ledger.subEconomicRuns)} />
+            <LedgerMetric label="Total runs" value={num(ledger.totalRuns)} />
+            <LedgerMetric label="% sub-economic" value={`${num(ledger.subEconomicPct * 100, 1)}%`} />
+            <LedgerMetric label="Startup scrap" value={`${num(ledger.startupScrapKg)} kg`} />
+            <LedgerMetric label="Startup scrap OMR" value={num(ledger.startupScrapOmr)} />
+            <LedgerMetric label="Scrap / startup" value={`${num(ledger.scrapPerStartupKg)} kg`} />
+          </div>
+        </div>
+        <div className="card-surface p-5 lg:col-span-2">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy — run off-peak</h3>
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Time-of-use lever</h3>
+              <p className="mt-0.5 text-[11px] text-slate-400">Secondary to startup discipline; keep it for tariff timing.</p>
+            </div>
             <span className="text-[11px] text-slate-400">{num(tou.kwh)} kWh total</span>
           </div>
           <div className="mt-3 inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10">
@@ -397,7 +440,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               <tr>
                 <th className="px-3 py-2">#</th><th className="px-3 py-2">Product</th><th className="px-3 py-2">Machine</th>
                 <th className="px-3 py-2 text-right">Qty</th><th className="px-3 py-2 text-right">Run h</th>
-                <th className="px-3 py-2">Changeover</th><th className="px-3 py-2 text-right">Finish d</th>
+                <th className="px-3 py-2">startup?</th><th className="px-3 py-2">sub-economic?</th><th className="px-3 py-2">Changeover</th><th className="px-3 py-2 text-right">Finish d</th>
                 <th className="px-3 py-2 text-right">Scrap kg</th><th className="px-3 py-2 text-right">Energy kWh</th><th className="px-3 py-2 text-right">kWh/kg</th>
                 <th className="px-3 py-2">When</th><th className="px-3 py-2 text-right">Energy OMR</th>
               </tr>
@@ -405,13 +448,16 @@ const ProductionPlannerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
             <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
               {detail.rows.filter(({ it }) => match(it.name)).map(({ it, scrap, reject, startup, kwh, omr, band }) => {
                 const kg = it.qty * (products[it.productId]?.kgPerUnit ?? 0);
+                const isStartup = it.setupType !== 'none' || it.seq === 1;
                 return (
-                  <tr key={it.machine + '-' + it.orderId}>
+                  <tr key={it.machine + '-' + it.orderId} className={it.isSubEconomic ? 'bg-amber-50/60 dark:bg-amber-500/5' : ''}>
                     <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
                     <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
                     <td className="px-3 py-1.5 text-xs">{it.machineName}</td>
                     <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
                     <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
+                    <td className="px-3 py-1.5 text-xs">{isStartup ? <span className="font-medium text-slate-700 dark:text-slate-200">✓</span> : <span className="text-slate-400">—</span>}</td>
+                    <td className="px-3 py-1.5 text-xs">{it.isSubEconomic ? <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />✓ exception</span> : <span className="text-slate-400">—</span>}</td>
                     <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
                     <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
                     <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
@@ -452,6 +498,24 @@ const Param: FC<{ label: string; value: string; measured?: boolean }> = ({ label
     <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-200">
       <span className={`h-1.5 w-1.5 rounded-full ${measured ? 'bg-emerald-500' : 'bg-amber-500'}`} />{value}
     </p>
+  </div>
+);
+
+const PlanKpi: FC<{ label: string; value: string; sub?: string; chip: ReactNode }> = ({ label, value, sub, chip }) => (
+  <div className="rounded-lg border border-amber-300/50 bg-amber-50/40 px-3 py-2 dark:border-amber-500/20 dark:bg-amber-500/5">
+    <div className="flex items-center justify-between gap-2">
+      <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{label}</p>
+      {chip}
+    </div>
+    <p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{value}</p>
+    {sub && <p className="text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
+  </div>
+);
+
+const LedgerMetric: FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="rounded-lg border border-slate-200/70 px-3 py-2 dark:border-white/10">
+    <p className="text-[11px] text-slate-500 dark:text-slate-400">{label}</p>
+    <p className="mt-0.5 font-mono font-semibold text-slate-900 dark:text-white">{value}</p>
   </div>
 );
 
