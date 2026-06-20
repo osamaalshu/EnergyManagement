@@ -1,0 +1,567 @@
+{
+  "meta": {
+    "generated": "2026-06-21",
+    "window": [
+      "2025-01-01",
+      "2026-05-09"
+    ],
+    "minEconomicRunKg": 3000.0,
+    "coldStartGapDays": 2,
+    "materialOmrPerKg": 0.45,
+    "provenance": "measured (ERP run episodes)",
+    "source": "al-hilal-mc01-analysis/data/processed/production_clean.parquet"
+  },
+  "summary": {
+    "totalRuns": 265,
+    "startups": 265,
+    "coldStarts": 46,
+    "subEconomicRuns": 54,
+    "subEconomicPct": 0.204,
+    "scrapPerStartupKg": 156.0,
+    "totalScrapKg": 60920.0,
+    "totalScrapOmr": 27414.0
+  },
+  "weekly": [
+    {
+      "week": "2025-W01",
+      "startups": 2,
+      "coldStarts": 2,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 170.0,
+      "totalScrapKg": 407.0
+    },
+    {
+      "week": "2025-W02",
+      "startups": 3,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 93.0,
+      "totalScrapKg": 933.0
+    },
+    {
+      "week": "2025-W03",
+      "startups": 7,
+      "coldStarts": 2,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.286,
+      "scrapPerStartupKg": 193.6,
+      "totalScrapKg": 1530.0
+    },
+    {
+      "week": "2025-W04",
+      "startups": 7,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.143,
+      "scrapPerStartupKg": 389.3,
+      "totalScrapKg": 3337.0
+    },
+    {
+      "week": "2025-W05",
+      "startups": 2,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 140.0,
+      "totalScrapKg": 280.0
+    },
+    {
+      "week": "2025-W06",
+      "startups": 8,
+      "coldStarts": 1,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.25,
+      "scrapPerStartupKg": 215.1,
+      "totalScrapKg": 1845.0
+    },
+    {
+      "week": "2025-W07",
+      "startups": 4,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 218.5,
+      "totalScrapKg": 997.0
+    },
+    {
+      "week": "2025-W08",
+      "startups": 5,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 297.4,
+      "totalScrapKg": 2406.0
+    },
+    {
+      "week": "2025-W09",
+      "startups": 1,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 1.0,
+      "scrapPerStartupKg": 85.0,
+      "totalScrapKg": 85.0
+    },
+    {
+      "week": "2025-W19",
+      "startups": 4,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 183.8,
+      "totalScrapKg": 1283.0
+    },
+    {
+      "week": "2025-W20",
+      "startups": 5,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 121.0,
+      "totalScrapKg": 876.0
+    },
+    {
+      "week": "2025-W21",
+      "startups": 5,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.2,
+      "scrapPerStartupKg": 115.0,
+      "totalScrapKg": 660.0
+    },
+    {
+      "week": "2025-W22",
+      "startups": 4,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 87.5,
+      "totalScrapKg": 1689.0
+    },
+    {
+      "week": "2025-W23",
+      "startups": 2,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 280.0,
+      "totalScrapKg": 1220.0
+    },
+    {
+      "week": "2025-W24",
+      "startups": 6,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 21.7,
+      "totalScrapKg": 205.0
+    },
+    {
+      "week": "2025-W25",
+      "startups": 7,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.143,
+      "scrapPerStartupKg": 119.6,
+      "totalScrapKg": 2226.0
+    },
+    {
+      "week": "2025-W26",
+      "startups": 5,
+      "coldStarts": 2,
+      "subEconomicRuns": 3,
+      "subEconomicPct": 0.6,
+      "scrapPerStartupKg": 77.0,
+      "totalScrapKg": 415.0
+    },
+    {
+      "week": "2025-W27",
+      "startups": 6,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 156.5,
+      "totalScrapKg": 1309.0
+    },
+    {
+      "week": "2025-W28",
+      "startups": 3,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 290.0,
+      "totalScrapKg": 1919.0
+    },
+    {
+      "week": "2025-W29",
+      "startups": 2,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 460.0,
+      "totalScrapKg": 1773.0
+    },
+    {
+      "week": "2025-W30",
+      "startups": 2,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 233.0,
+      "totalScrapKg": 588.0
+    },
+    {
+      "week": "2025-W31",
+      "startups": 2,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 206.0,
+      "totalScrapKg": 606.0
+    },
+    {
+      "week": "2025-W32",
+      "startups": 4,
+      "coldStarts": 2,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.25,
+      "scrapPerStartupKg": 265.0,
+      "totalScrapKg": 2160.0
+    },
+    {
+      "week": "2025-W33",
+      "startups": 4,
+      "coldStarts": 0,
+      "subEconomicRuns": 3,
+      "subEconomicPct": 0.75,
+      "scrapPerStartupKg": 140.0,
+      "totalScrapKg": 770.0
+    },
+    {
+      "week": "2025-W34",
+      "startups": 4,
+      "coldStarts": 0,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.5,
+      "scrapPerStartupKg": 107.5,
+      "totalScrapKg": 450.0
+    },
+    {
+      "week": "2025-W35",
+      "startups": 3,
+      "coldStarts": 2,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 67.7,
+      "totalScrapKg": 359.0
+    },
+    {
+      "week": "2025-W36",
+      "startups": 6,
+      "coldStarts": 1,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.167,
+      "scrapPerStartupKg": 128.3,
+      "totalScrapKg": 940.0
+    },
+    {
+      "week": "2025-W37",
+      "startups": 4,
+      "coldStarts": 2,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.25,
+      "scrapPerStartupKg": 146.2,
+      "totalScrapKg": 695.0
+    },
+    {
+      "week": "2025-W38",
+      "startups": 4,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 41.2,
+      "totalScrapKg": 712.0
+    },
+    {
+      "week": "2025-W39",
+      "startups": 4,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 148.5,
+      "totalScrapKg": 971.0
+    },
+    {
+      "week": "2025-W40",
+      "startups": 5,
+      "coldStarts": 0,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.4,
+      "scrapPerStartupKg": 108.4,
+      "totalScrapKg": 542.0
+    },
+    {
+      "week": "2025-W41",
+      "startups": 3,
+      "coldStarts": 3,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.667,
+      "scrapPerStartupKg": 145.0,
+      "totalScrapKg": 460.0
+    },
+    {
+      "week": "2025-W42",
+      "startups": 6,
+      "coldStarts": 1,
+      "subEconomicRuns": 5,
+      "subEconomicPct": 0.833,
+      "scrapPerStartupKg": 303.3,
+      "totalScrapKg": 1840.0
+    },
+    {
+      "week": "2025-W43",
+      "startups": 6,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 111.0,
+      "totalScrapKg": 1082.0
+    },
+    {
+      "week": "2025-W44",
+      "startups": 4,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 213.5,
+      "totalScrapKg": 1074.0
+    },
+    {
+      "week": "2025-W45",
+      "startups": 5,
+      "coldStarts": 1,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.2,
+      "scrapPerStartupKg": 67.6,
+      "totalScrapKg": 680.0
+    },
+    {
+      "week": "2025-W46",
+      "startups": 3,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 104.0,
+      "totalScrapKg": 448.0
+    },
+    {
+      "week": "2025-W47",
+      "startups": 5,
+      "coldStarts": 4,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.2,
+      "scrapPerStartupKg": 57.4,
+      "totalScrapKg": 596.0
+    },
+    {
+      "week": "2025-W48",
+      "startups": 1,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 231.0,
+      "totalScrapKg": 410.0
+    },
+    {
+      "week": "2025-W49",
+      "startups": 4,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.25,
+      "scrapPerStartupKg": 228.2,
+      "totalScrapKg": 913.0
+    },
+    {
+      "week": "2025-W50",
+      "startups": 1,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 90.0,
+      "totalScrapKg": 90.0
+    },
+    {
+      "week": "2026-W05",
+      "startups": 2,
+      "coldStarts": 2,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.5,
+      "scrapPerStartupKg": 88.5,
+      "totalScrapKg": 263.0
+    },
+    {
+      "week": "2026-W06",
+      "startups": 5,
+      "coldStarts": 0,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.4,
+      "scrapPerStartupKg": 92.6,
+      "totalScrapKg": 1965.0
+    },
+    {
+      "week": "2026-W07",
+      "startups": 10,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.1,
+      "scrapPerStartupKg": 78.7,
+      "totalScrapKg": 1397.0
+    },
+    {
+      "week": "2026-W08",
+      "startups": 3,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 407.3,
+      "totalScrapKg": 1222.0
+    },
+    {
+      "week": "2026-W09",
+      "startups": 8,
+      "coldStarts": 0,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.25,
+      "scrapPerStartupKg": 79.6,
+      "totalScrapKg": 747.0
+    },
+    {
+      "week": "2026-W10",
+      "startups": 6,
+      "coldStarts": 2,
+      "subEconomicRuns": 3,
+      "subEconomicPct": 0.5,
+      "scrapPerStartupKg": 76.0,
+      "totalScrapKg": 476.0
+    },
+    {
+      "week": "2026-W11",
+      "startups": 13,
+      "coldStarts": 0,
+      "subEconomicRuns": 4,
+      "subEconomicPct": 0.308,
+      "scrapPerStartupKg": 122.7,
+      "totalScrapKg": 1782.0
+    },
+    {
+      "week": "2026-W12",
+      "startups": 9,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.111,
+      "scrapPerStartupKg": 231.7,
+      "totalScrapKg": 3274.0
+    },
+    {
+      "week": "2026-W13",
+      "startups": 8,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.125,
+      "scrapPerStartupKg": 160.9,
+      "totalScrapKg": 1594.0
+    },
+    {
+      "week": "2026-W14",
+      "startups": 5,
+      "coldStarts": 1,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.2,
+      "scrapPerStartupKg": 111.6,
+      "totalScrapKg": 1176.0
+    },
+    {
+      "week": "2026-W15",
+      "startups": 7,
+      "coldStarts": 1,
+      "subEconomicRuns": 3,
+      "subEconomicPct": 0.429,
+      "scrapPerStartupKg": 54.6,
+      "totalScrapKg": 407.0
+    },
+    {
+      "week": "2026-W16",
+      "startups": 6,
+      "coldStarts": 0,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.167,
+      "scrapPerStartupKg": 276.8,
+      "totalScrapKg": 1853.0
+    },
+    {
+      "week": "2026-W17",
+      "startups": 7,
+      "coldStarts": 1,
+      "subEconomicRuns": 1,
+      "subEconomicPct": 0.143,
+      "scrapPerStartupKg": 133.3,
+      "totalScrapKg": 1421.0
+    },
+    {
+      "week": "2026-W18",
+      "startups": 5,
+      "coldStarts": 1,
+      "subEconomicRuns": 2,
+      "subEconomicPct": 0.4,
+      "scrapPerStartupKg": 154.4,
+      "totalScrapKg": 980.0
+    },
+    {
+      "week": "2026-W19",
+      "startups": 3,
+      "coldStarts": 1,
+      "subEconomicRuns": 0,
+      "subEconomicPct": 0.0,
+      "scrapPerStartupKg": 175.7,
+      "totalScrapKg": 582.0
+    }
+  ],
+  "worstStartupRuns": [
+    {
+      "product": "UPVC Pressure Pipe DIN Class 3 Dark Grey 12\" X 6m",
+      "startDate": "2026-03-17",
+      "runKg": 6806.0,
+      "scrapKg": 1169.0,
+      "coldStart": false
+    },
+    {
+      "product": "UPVC Drainage Pipe BS EN SN 4 Golden Brown 12\" X 6m",
+      "startDate": "2025-02-03",
+      "runKg": 6702.7,
+      "scrapKg": 755.0,
+      "coldStart": false
+    },
+    {
+      "product": "UPVC Duct Pipe BS 3506 Class B Light Grey 8\" X 6m",
+      "startDate": "2025-08-10",
+      "runKg": 910.0,
+      "scrapKg": 735.0,
+      "coldStart": true
+    },
+    {
+      "product": "UPVC Duct Pipe BS 3506 Class O Din 8061/8062 CL2 Light Grey 12\" X 6m",
+      "startDate": "2025-01-15",
+      "runKg": 5474.7,
+      "scrapKg": 700.0,
+      "coldStart": true
+    },
+    {
+      "product": "UPVC Drainage Pipe BS EN SN 4 Brown 12\" X 6m",
+      "startDate": "2025-10-19",
+      "runKg": 1727.5,
+      "scrapKg": 680.0,
+      "coldStart": true
+    }
+  ]
+}
