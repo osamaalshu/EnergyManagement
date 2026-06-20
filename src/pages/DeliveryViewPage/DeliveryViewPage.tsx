@@ -1,8 +1,8 @@
-import { type FC, useCallback, useMemo, useState } from 'react';
+import { type FC, useMemo, useState } from 'react';
 import { productionData } from '@/data/productionData';
 import {
-  scheduleOrders, monteCarloOrders, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
-  type SkuParam, type LineParam, type Econ, type Order, type OrderSchedule, type OrderItem,
+  scheduleOrders, monteCarloOrders, rootCauseForOrderItem, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
+  type SkuParam, type LineParam, type Econ, type Order, type OrderSchedule, type OrderItem, type RootCause,
 } from '@/features/production-planning/productionModel';
 import ScenarioBanner from '@/shared/ScenarioBanner';
 
@@ -33,26 +33,20 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [preview, setPreview] = useState<{ title: string; affected: Set<string>; otif: number } | null>(null);
   const orders = useMemo(() => genOrders(skus, 30), [skus]);
 
-  const sched = useCallback((mode: 'grouped' | 'due', m = machines, h = hoursPerDay) =>
-    scheduleOrders(orders, products, 30, m, line, econ, h, 3, 0.5, 10, mode),
-    [orders, products, line, econ, machines, hoursPerDay]);
-  const smart = useMemo(() => sched('grouped'), [sched]);
-  const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart, hoursPerDay]);
+  const sched = (mode: 'grouped' | 'due', m = machines, h = hoursPerDay) =>
+    scheduleOrders(orders, products, 30, m, line, econ, h, 3, 0.5, 10, mode);
+  const smart = useMemo(() => sched('grouped'), [orders, products, machines]);
+  const dueSchedule = useMemo(() => sched('due'), [orders, products, machines]);
+  const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart]);
   const smartSamples = useMemo(() => [...mc.samplesDays].sort((a, b) => a - b), [mc]);
-  const curSamples = useMemo(() => {
-    const c = sched('due');
-    return [...monteCarloOrders(c, hoursPerDay).samplesDays].sort((a, b) => a - b);
-  }, [sched, hoursPerDay]);
+  const curSamples = useMemo(() => [...monteCarloOrders(dueSchedule, hoursPerDay).samplesDays].sort((a, b) => a - b), [dueSchedule]);
 
-  const bottleneck = smart.lanes.reduce((a, l) => (l.loadH > a.loadH ? l : a), smart.lanes[0]);
-  const medReject = useMemo(() => { const r = skus.map((s) => s.meanRejection).sort((a, b) => a - b); return r[Math.floor(r.length / 2)]; }, [skus]);
-  const rootCause = useCallback((it: OrderItem): string => {
-    const p = products[it.productId];
-    if (it.machineName === bottleneck?.name && (!it.onTime || (mc.onTimeProb[it.orderId] ?? 1) < 0.95)) return `${it.machineName} capacity`;
-    if (p && p.meanRejection >= medReject * 1.25) return `High scrap · ${it.name}`;
-    if (it.setupType === 'family') return 'Changeover cluster';
-    return 'Sequence / due date';
-  }, [products, bottleneck?.name, mc, medReject]);
+  const dueByOrder = useMemo(() => {
+    const map: Record<string, OrderItem> = {};
+    dueSchedule.items.forEach((it) => { map[it.orderId] = it; });
+    return map;
+  }, [dueSchedule]);
+  const rootCause = (it: OrderItem): RootCause => rootCauseForOrderItem(it, dueByOrder[it.orderId], !it.onTime || (mc.onTimeProb[it.orderId] ?? 1) < 0.95);
 
   // rows within the date range, enriched
   const rows = useMemo(() => smart.items
