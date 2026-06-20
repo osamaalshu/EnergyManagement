@@ -1,24 +1,24 @@
 import { useEffect, useState } from 'react';
-import Sidebar, { type ActivePage } from './components/Sidebar';
-import TopBar from './components/TopBar';
-import DashboardPage from './components/DashboardPage';
-import PortfolioPage from './components/PortfolioPage';
-import BuildingPage from './components/BuildingPage';
-import SubsystemPage from './components/SubsystemPage';
-import EquipmentPage from './components/EquipmentPage';
-import TariffPage from './components/TariffPage';
-import CompressorPage from './components/CompressorPage';
-import AnalyseHubPage from './components/AnalyseHubPage';
-import ProductionPlannerPage from './components/ProductionPlannerPage';
-import ScrapAnalyzerPage from './components/ScrapAnalyzerPage';
-import PlantTelemetryPage from './components/PlantTelemetryPage';
-import DeliveryViewPage from './components/DeliveryViewPage';
-import SystemSummaryModal from './components/SystemSummaryModal';
-import { type Crumb } from './components/Breadcrumb';
+import Sidebar, { type ActivePage } from '@/shared/Sidebar';
+import TopBar from '@/shared/TopBar';
+import DashboardPage from '@/pages/DashboardPage/DashboardPage';
+import PortfolioPage from '@/pages/PortfolioPage/PortfolioPage';
+import BuildingPage from '@/pages/BuildingPage/BuildingPage';
+import SubsystemPage from '@/pages/SubsystemPage/SubsystemPage';
+import EquipmentPage from '@/pages/EquipmentPage/EquipmentPage';
+import TariffPage from '@/pages/TariffPage/TariffPage';
+import CompressorPage from '@/pages/CompressorPage/CompressorPage';
+import AnalyseHubPage from '@/pages/AnalyseHubPage/AnalyseHubPage';
+import ProductionPlannerPage from '@/pages/ProductionPlannerPage/ProductionPlannerPage';
+import ScrapAnalyzerPage from '@/pages/ScrapAnalyzerPage/ScrapAnalyzerPage';
+import PlantTelemetryPage from '@/pages/PlantTelemetryPage/PlantTelemetryPage';
+import DeliveryViewPage from '@/pages/DeliveryViewPage/DeliveryViewPage';
+import SystemSummaryModal from '@/shared/SystemSummaryModal';
+import { type Crumb } from '@/shared/Breadcrumb';
 import {
   navSites, getSite, getSubsystem, locateEquip,
   COMPRESSOR_SITE_ID, COMPRESSOR_EQUIP_ID, type LeafRoute,
-} from './lib/portfolioNav';
+} from '@/lib/portfolioNav';
 
 type ThemeMode = 'light' | 'dark';
 

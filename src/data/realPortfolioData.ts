@@ -35,7 +35,7 @@ import type {
   TariffHourlyDataPoint,
   CopDataPoint,
   BaselineDeviationPoint,
-} from '../types/portfolio';
+} from '@/types/portfolio';
 
 import raw from './generated/realData.json';
 import { enrichedMeta } from './enrichedPortfolioData';

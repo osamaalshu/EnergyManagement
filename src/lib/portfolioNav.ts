@@ -6,8 +6,8 @@
 // portfolio as its own site with a single "Compressed gas" subsystem — honest
 // placement, not folded into a cooling building. Compressor leaves route to the
 // dedicated CompressorPage; cooling leaves route to the generic EquipmentPage.
-import { buildings as coolingBuildings, buildingDetails } from '../data/mockPortfolioData';
-import { compressorData } from '../data/compressorData';
+import { buildings as coolingBuildings, buildingDetails } from '@/data/mockPortfolioData';
+import { compressorData } from '@/data/compressorData';
 
 // A site has one or more subsystems; each subsystem has many equipment units.
 // Cooling is a single subsystem (the chiller plant) whose units are the
