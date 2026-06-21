@@ -20,6 +20,21 @@ export interface StartupKpis {
     totalScrapKg: number;
     totalScrapOmr: number;
   };
+  mechanismScrap: {
+    coldStartKg: number;
+    coldStartOmr: number;
+    warmStartupKg: number;
+    warmStartupOmr: number;
+    continuationKg: number;
+    continuationOmr: number;
+  };
+  productStartups: Array<{
+    product: string;
+    startups: number;
+    coldStarts: number;
+    subEconomicRuns: number;
+    startupScrapKg: number;
+  }>;
   weekly: {
     week: string;
     startups: number;

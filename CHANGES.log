@@ -238,3 +238,26 @@ Implemented by Codex; architect-reviewed (engine reuse + honesty contract). Test
 pass (6 files); npm run build clean (provenance gate + tsc + Vite); no new deps;
 scheduleOrders/computeStartupLedger/Scrap/Delivery/tariff untouched. Spec:
 docs/CODEX_BRIEF_BATCHING_ADVISOR.md.
+
+## 2026-06-21 — Analyse v2 P1.b: mechanism-first Pareto on Scrap Focus
+
+Reframes Scrap Focus from "which products are dirty?" to "where does scrap come from?"
+The export (al-hilal-mc01-analysis/scripts/export_startup_kpis.py) now emits mechanismScrap
+{coldStart/warmStartup/continuation kg+OMR} and productStartups[]; startupKpis.json
+regenerated. Real split: 33.1t warm + 8.3t cold = 41.3t (68%) startup-driven vs 19.6t
+(32%) steady continuation.
+
+- StartupKpis interface extended (mechanismScrap + productStartups; pure type, sum-check
+  coldStart+warmStartup+continuation === totalScrapKg is a test).
+- ScrapAnalyzerPage, above the per-product Pareto: a "Where the scrap comes from
+  (mechanism)" section (3-way split, MEASURED) with a data-computed "{X}% of scrap is
+  startup-driven" headline; a "Products that most generate startup-only runs" table
+  (MEASURED); and a "Batching-addressable pool (estimate)" line (startup-driven kg/OMR)
+  with the removability assumption stated. Existing scrapCatalog Pareto / investigator /
+  SNR guard / P1 measured panel / floor-walk unchanged.
+
+Honesty: mechanism split + product table are measured (emerald); batching-addressable pool
+is labelled estimate. Implemented by Codex; architect-reviewed (scope + measured/estimate
+split + sum-check). Tests 57/57 pass (8 files); npm run build clean (provenance gate + tsc
++ Vite); no new deps; only ScrapAnalyzerPage + the loader changed. Spec:
+docs/CODEX_BRIEF_P1B_MECHANISM_PARETO.md.
