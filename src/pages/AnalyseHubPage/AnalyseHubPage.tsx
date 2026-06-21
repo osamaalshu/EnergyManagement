@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { energyKpi } from '@/data/energyKpi';
 import { productionData } from '@/data/productionData';
 import { scrapCatalog } from '@/data/scrapCatalog';
+import { suggestBatches, type BatchSuggestion } from '@/features/production-planning/batchingAdvisor';
 import {
   scheduleOrders,
   monteCarloOrders,
@@ -10,6 +11,7 @@ import {
   type Order,
   type SkuParam,
 } from '@/features/production-planning/productionModel';
+import { startupKpis } from '@/features/production-planning/startupKpis';
 import ScenarioBanner from '@/shared/ScenarioBanner';
 
 const SCENARIO_BANNER_TEXT = 'Scenario — figures use a generated order book, not your live orders. Connect the order book to make this operational.';
@@ -23,18 +25,27 @@ interface AnalyseHubPageProps {
 const HORIZON_DAYS = 30;
 const HOURS_PER_DAY = 16;
 const MATERIAL_OMR_PER_KG = 0.32;
+const MAX_IGNITION_MARKS = 40;
 
-let uid = 0;
 const buildOrders = (skus: SkuParam[]): Order[] =>
   skus.map((sku, index) => ({
-    id: `hub-o${++uid}`,
+    id: `hub-o${index + 1}`,
     productId: sku.id,
     qty: Math.round((sku.demand * HORIZON_DAYS) / 365),
     dueDay: Math.max(2, Math.round(((index + 1) / skus.length) * HORIZON_DAYS)),
   }));
 
 const num = (value: number, digits = 0) => value.toLocaleString(undefined, { maximumFractionDigits: digits });
+const fixed = (value: number, digits = 1) => value.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const pct = (value: number, digits = 0) => `${fixed(value * 100, digits)}%`;
 const energyTrendMax = Math.max(...energyKpi.months.map((month) => month.kwhPerKg));
+
+interface PlanningInputs {
+  orders: Order[];
+  products: Record<string, SkuParam>;
+  line: LineParam;
+  econ: Econ;
+}
 
 const verdictClasses = (pct: number) => {
   if (pct >= 85) return 'border-emerald-300/60 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10';
@@ -48,20 +59,157 @@ const verdictTextClasses = (pct: number) => {
   return 'text-rose-700 dark:text-rose-300';
 };
 
+const buildPlanningInputs = (): PlanningInputs => {
+  const { model } = productionData;
+  const skus = model.skus as SkuParam[];
+  const products = Object.fromEntries(skus.map((sku) => [sku.id, sku])) as Record<string, SkuParam>;
+  const orders = buildOrders(skus);
+  const line: LineParam = {
+    machineKw: model.line.machineKw,
+    changeoverH: model.line.changeoverH,
+    changeoverKw: model.line.changeoverKw,
+    nMachines: 1,
+    machineNames: ['MC01'],
+  };
+  const econ: Econ = model.economics;
+  return { orders, products, line, econ };
+};
+
+const EvidenceChip = ({ tier }: { tier: 'measured' | 'scenario' }) => {
+  const isMeasured = tier === 'measured';
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] ${
+        isMeasured
+          ? 'border-emerald-300/70 bg-emerald-50 text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-300'
+          : 'border-amber-300/70 bg-slate-100 text-slate-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200'
+      }`}
+    >
+      {isMeasured ? 'MEASURED' : 'SCENARIO'}
+    </span>
+  );
+};
+
+const IgnitionTally = ({ startups, coldStarts }: { startups: number; coldStarts: number }) => {
+  const shown = Math.min(startups, MAX_IGNITION_MARKS);
+  const hidden = Math.max(0, startups - shown);
+
+  return (
+    <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div
+        className="flex flex-wrap items-end gap-1.5"
+        aria-label={`${startups} startups, ${coldStarts} cold-starts`}
+      >
+        {Array.from({ length: shown }, (_, index) => {
+          const isCold = index < coldStarts;
+          return (
+            <span key={index} className="relative inline-flex h-9 w-3 items-end justify-center" aria-hidden="true">
+              <span
+                className={`block h-7 w-1.5 rounded-full motion-safe:animate-[fadeIn_220ms_ease-out] ${
+                  isCold ? 'bg-sky-300 shadow-[0_0_0_1px_rgba(14,165,233,0.25)]' : 'bg-accent'
+                }`}
+              />
+              {isCold && <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 text-[0.55rem] leading-none text-sky-500 dark:text-sky-300">❄</span>}
+            </span>
+          );
+        })}
+        {hidden > 0 && (
+          <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500 dark:bg-white/10 dark:text-slate-300" aria-hidden="true">
+            +{hidden} more
+          </span>
+        )}
+      </div>
+      <p className="font-mono text-6xl font-semibold tabular-nums text-primary dark:text-white">{startups}</p>
+    </div>
+  );
+};
+
+const OneMove = ({ suggestion, onPlanner }: { suggestion?: BatchSuggestion; onPlanner: () => void }) => (
+  <section className="border-t border-slate-200/70 pt-5 dark:border-white/10" aria-label="The one move">
+    <div className="flex flex-wrap items-center gap-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">The one move</p>
+      <EvidenceChip tier="scenario" />
+    </div>
+    {suggestion ? (
+      <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <p className="max-w-4xl text-sm leading-6 text-slate-700 dark:text-slate-200">
+          Batch {suggestion.orderIds.length} {suggestion.family} orders → cut {suggestion.startupsSaved} startups · ~{num(suggestion.scrapSavedKg)} kg ({num(suggestion.scrapSavedOmr, 1)} OMR) startup scrap · OTIF {pct(suggestion.otifBefore)}→{pct(suggestion.otifAfter)}
+        </p>
+        <button
+          type="button"
+          onClick={onPlanner}
+          className="w-fit rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-card-dark"
+        >
+          Open in Planner →
+        </button>
+      </div>
+    ) : (
+      <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">No same-product orders small enough to batch this week.</p>
+    )}
+  </section>
+);
+
+const WeeklyBoard = ({ planningInputs, onPlanner }: { planningInputs: PlanningInputs; onPlanner: () => void }) => {
+  const weeklyWindow = startupKpis.weekly.slice(-4);
+  const wStartups = weeklyWindow.reduce((s, w) => s + w.startups, 0);
+  const wColdStarts = weeklyWindow.reduce((s, w) => s + w.coldStarts, 0);
+  const wSubEconomicRuns = weeklyWindow.reduce((s, w) => s + w.subEconomicRuns, 0);
+  const wSubEconomicPct = wStartups > 0 ? wSubEconomicRuns / wStartups : 0;
+  const wTotalScrapMass = weeklyWindow.reduce((s, w) => s + w.scrapPerStartupKg * w.startups, 0);
+  const wScrapPerStartupKg = wStartups > 0 ? wTotalScrapMass / wStartups : 0;
+  const wFirstWeek = weeklyWindow[0]?.week ?? '';
+  const wLastWeek = weeklyWindow[weeklyWindow.length - 1]?.week ?? '';
+  const suggestions = suggestBatches(planningInputs.orders, planningInputs.products, planningInputs.line, planningInputs.econ, HOURS_PER_DAY);
+  const measuredTiles = [
+    { label: 'Startups', value: String(wStartups) },
+    { label: 'Cold-starts', value: String(wColdStarts) },
+    { label: 'Scrap / startup', value: `${fixed(wScrapPerStartupKg)} kg` },
+    { label: 'Sub-economic runs', value: pct(wSubEconomicPct, 1) },
+  ];
+
+  return (
+    <article className="card-surface overflow-hidden border-teal-300/60 shadow-card dark:border-teal-400/20" aria-label="The Week board">
+      <div className="h-1 bg-teal-500" />
+      <div className="space-y-6 p-5 sm:p-6">
+        <section aria-label="Measured startup tally">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-teal-700 dark:text-teal-300">The Week</p>
+              <h3 className="mt-1 text-xl font-semibold text-primary dark:text-white">Last 4 weeks</h3>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                measured · last 4 weeks ({wFirstWeek}–{wLastWeek})
+              </p>
+            </div>
+            <EvidenceChip tier="measured" />
+          </div>
+          <IgnitionTally startups={wStartups} coldStarts={wColdStarts} />
+        </section>
+
+        <section aria-label="Measured weekly KPIs">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {measuredTiles.map((tile) => (
+              <div key={tile.label} className="rounded-lg border border-slate-200/70 bg-white/55 p-4 dark:border-white/10 dark:bg-white/5">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{tile.label}</p>
+                  <EvidenceChip tier="measured" />
+                </div>
+                <p className="mt-3 font-mono text-2xl font-semibold tabular-nums text-slate-900 dark:text-white">{tile.value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <OneMove suggestion={suggestions[0]} onPlanner={onPlanner} />
+      </div>
+    </article>
+  );
+};
+
 const AnalyseHubPage = ({ onPlanner, onDelivery, onScrap }: AnalyseHubPageProps) => {
+  const planningInputs = useMemo(() => buildPlanningInputs(), []);
+
   const deliveryDecision = useMemo(() => {
-    const { model } = productionData;
-    const skus = model.skus as SkuParam[];
-    const products = Object.fromEntries(skus.map((sku) => [sku.id, sku])) as Record<string, SkuParam>;
-    const orders = buildOrders(skus);
-    const line: LineParam = {
-      machineKw: model.line.machineKw,
-      changeoverH: model.line.changeoverH,
-      changeoverKw: model.line.changeoverKw,
-      nMachines: 1,
-      machineNames: ['MC01'],
-    };
-    const econ: Econ = model.economics;
+    const { orders, products, line, econ } = planningInputs;
     const schedule = scheduleOrders(orders, products, HORIZON_DAYS, 1, line, econ, HOURS_PER_DAY, 3, 0.5, 10, 'balanced');
     const mc = monteCarloOrders(schedule, HOURS_PER_DAY);
     return {
@@ -69,7 +217,7 @@ const AnalyseHubPage = ({ onPlanner, onDelivery, onScrap }: AnalyseHubPageProps)
       onTime: schedule.onTime,
       total: schedule.total,
     };
-  }, []);
+  }, [planningInputs]);
 
   const scrapDecision = useMemo(() => {
     const rows = scrapCatalog.products.map((product) => {
@@ -93,6 +241,8 @@ const AnalyseHubPage = ({ onPlanner, onDelivery, onScrap }: AnalyseHubPageProps)
       </div>
 
       <ScenarioBanner text={SCENARIO_BANNER_TEXT} />
+
+      <WeeklyBoard planningInputs={planningInputs} onPlanner={onPlanner} />
 
       <div className="grid gap-5 lg:grid-cols-3">
         <article className={`rounded-2xl border p-5 ${verdictClasses(deliveryDecision.percent)}`}>

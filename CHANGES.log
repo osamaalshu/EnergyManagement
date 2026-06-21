@@ -261,3 +261,22 @@ is labelled estimate. Implemented by Codex; architect-reviewed (scope + measured
 split + sum-check). Tests 57/57 pass (8 files); npm run build clean (provenance gate + tsc
 + Vite); no new deps; only ScrapAnalyzerPage + the loader changed. Spec:
 docs/CODEX_BRIEF_P1B_MECHANISM_PARETO.md.
+
+## 2026-06-21 — "The Week" board on the Analyse Hub (designed entry point)
+
+A ~30-second weekly operating board atop the Analyse Hub, making startup loss the workspace's
+operating language. Three zones: (1) signature **ignition tally** — the period's startups as
+discrete ignition marks (cold-starts frosted ❄), count == KPI, aria-labelled; (2) four measured
+KPI tiles (startups, cold-starts, scrap/startup, % sub-economic); (3) a SCENARIO "one move" =
+the top Batching Advisor suggestion with an Open-in-Planner CTA (or empty state).
+
+Design (frontend-design skill): evidence tiers made literal — measured (emerald) tally+KPIs
+visually distinct from the scenario (amber/slate) one-move; teal-accented board surface; dark
+mode; reduced-motion; keyboard focus on the CTA. Architect retune after review: switched from
+the latest (partial) week to a **trailing 4-week window** (latest week was only 3 startups);
+relabelled "Last 4 weeks (2026-W16–W19)"; startup-weighted scrap/startup. Real board: 21
+startups, 3 cold, 185.4 kg/startup, 19% sub-economic.
+
+Implemented by Codex; architect-designed + reviewed (signature + evidence-tier honesty + the
+window retune). Tests 61/61 pass (9 files); npm run build clean (provenance gate + tsc + Vite);
+no new deps; only AnalyseHubPage + its test changed. Spec: docs/CODEX_BRIEF_WEEKLY_BOARD.md.
