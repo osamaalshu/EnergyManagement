@@ -146,6 +146,21 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     { label: 'sub-economic runs', value: pct(latestStartupWeek.subEconomicPct), detail: `${num(latestStartupWeek.subEconomicRuns)} below ${num(startupKpis.meta.minEconomicRunKg)} kg` },
     { label: 'scrap per startup', value: `${num(latestStartupWeek.scrapPerStartupKg, 1)} kg`, detail: `${num(latestStartupWeek.totalScrapKg)} kg total` },
   ];
+  const startupDrivenKg = startupKpis.mechanismScrap.coldStartKg + startupKpis.mechanismScrap.warmStartupKg;
+  const startupDrivenOmr = startupKpis.mechanismScrap.coldStartOmr + startupKpis.mechanismScrap.warmStartupOmr;
+  const startupDrivenPct = Math.round(100 * startupDrivenKg / startupKpis.summary.totalScrapKg);
+  const mechanismBarData = [{
+    name: 'mechanism',
+    warmStartupKg: startupKpis.mechanismScrap.warmStartupKg,
+    coldStartKg: startupKpis.mechanismScrap.coldStartKg,
+    continuationKg: startupKpis.mechanismScrap.continuationKg,
+  }];
+  const mechanismSegments = [
+    { label: 'warm-startup', kg: startupKpis.mechanismScrap.warmStartupKg, color: '#10b981' },
+    { label: 'cold-start', kg: startupKpis.mechanismScrap.coldStartKg, color: '#0ea5e9' },
+    { label: 'continuation', kg: startupKpis.mechanismScrap.continuationKg, color: '#94a3b8' },
+  ];
+  const productStartupRows = [...startupKpis.productStartups].sort((x, y) => y.startupScrapKg - x.startupScrapKg);
 
   return (
     <section className="space-y-5">
@@ -241,6 +256,74 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Scrap / year</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.totalKg)} kg</p><p className="text-xs text-slate-500 dark:text-slate-400">≈ {num(a.totalOmr)} OMR lost</p></div>
         <div className="rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10"><p className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">Recoverable</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.recoverable)} OMR</p><p className="text-xs text-slate-500 dark:text-slate-400">if {a.focusCount} well-measured products reach their own best-demonstrated reject (their P25)</p></div>
         <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Plant-wide lever</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.perHalfPp)} OMR/yr</p><p className="text-xs text-slate-500 dark:text-slate-400">per 0.5 pp of line reject removed (1 pp ≈ {num(a.per1pp)}). Scrap is diffuse — the biggest win is lowering the whole line's reject, not chasing single products.</p></div>
+      </div>
+
+      <div className="card-surface p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            <span className="font-semibold text-slate-900 dark:text-white">Batching-addressable pool (estimate):</span> {num(startupDrivenKg)} kg / {startupDrivenOmr.toFixed(0)} OMR startup-driven scrap — assumes all startup-driven scrap is removable by batching; actual savings depend on run consolidation feasibility.
+          </p>
+          <span className="rounded-full border border-amber-300/70 bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-200">ESTIMATE</span>
+        </div>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="card-surface p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Where the scrap comes from (mechanism)</h3>
+                <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
+              </div>
+              <p className="mt-3 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{startupDrivenPct}% of scrap is startup-driven</p>
+            </div>
+          </div>
+          <div className="mt-4 h-20">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart layout="vertical" data={mechanismBarData} margin={{ top: 14, right: 0, left: 0, bottom: 14 }}>
+                <XAxis type="number" domain={[0, startupKpis.summary.totalScrapKg]} hide />
+                <YAxis type="category" dataKey="name" hide />
+                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number, n: string) => [`${num(v)} kg`, n === 'warmStartupKg' ? 'warm-startup' : n === 'coldStartKg' ? 'cold-start' : 'continuation']} />
+                <Bar dataKey="warmStartupKg" stackId="mechanism" fill="#10b981" radius={[4, 0, 0, 4]} isAnimationActive={false} />
+                <Bar dataKey="coldStartKg" stackId="mechanism" fill="#0ea5e9" isAnimationActive={false} />
+                <Bar dataKey="continuationKg" stackId="mechanism" fill="#94a3b8" radius={[0, 4, 4, 0]} isAnimationActive={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-3">
+            {mechanismSegments.map((segment) => (
+              <div key={segment.label} className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: segment.color }} />
+                <span>{segment.label}: <span className="font-mono text-slate-700 dark:text-slate-200">{num(segment.kg)} kg</span></span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card-surface overflow-hidden p-0">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Products that most generate startup-only runs</h3>
+            <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
+          </div>
+          <div className="max-h-96 overflow-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
+                <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2 text-right">Total Startups</th><th className="px-4 py-2 text-right">Cold Starts</th><th className="px-4 py-2 text-right">Sub-economic Runs</th><th className="px-4 py-2 text-right">Startup Scrap (kg)</th></tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700 dark:divide-white/5 dark:text-slate-300">
+                {productStartupRows.map((row) => (
+                  <tr key={row.product}>
+                    <td className="px-4 py-2 font-medium text-slate-900 dark:text-white">{row.product}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.startups)}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.coldStarts)}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.subEconomicRuns)}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.startupScrapKg)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">

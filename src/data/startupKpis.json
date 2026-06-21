@@ -21,6 +21,100 @@
     "totalScrapKg": 60920.0,
     "totalScrapOmr": 27414.0
   },
+  "mechanismScrap": {
+    "coldStartKg": 8256.0,
+    "coldStartOmr": 3715,
+    "warmStartupKg": 33071.0,
+    "warmStartupOmr": 14882,
+    "continuationKg": 19593.0,
+    "continuationOmr": 8817
+  },
+  "productStartups": [
+    {
+      "product": "UPVC Drainage Pipe NST Golden Brown 6\" X 6m",
+      "startups": 14,
+      "coldStarts": 2,
+      "subEconomicRuns": 0,
+      "startupScrapKg": 2771.0
+    },
+    {
+      "product": "UPVC Duct Pipe BS 3506 Class O Light Grey 8\" X 6m",
+      "startups": 14,
+      "coldStarts": 2,
+      "subEconomicRuns": 0,
+      "startupScrapKg": 2581.0
+    },
+    {
+      "product": "UPVC Pressure Pipe DIN Class 3 Dark Grey 12\" X 6m",
+      "startups": 3,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "startupScrapKg": 2073.0
+    },
+    {
+      "product": "UPVC Duct Pipe BS 3506 Class 3 DIN 806/8062 Light Grey 12\" X 6m ( 9.20MM )",
+      "startups": 1,
+      "coldStarts": 0,
+      "subEconomicRuns": 0,
+      "startupScrapKg": 1978.0
+    },
+    {
+      "product": "UPVC Drainage Pipe BS EN SN 2 Golden Brown 6\" X 6m",
+      "startups": 13,
+      "coldStarts": 3,
+      "subEconomicRuns": 3,
+      "startupScrapKg": 1431.0
+    },
+    {
+      "product": "UPVC Duct Pipe BS 3506 Class O Light Grey 6\" X 6m",
+      "startups": 7,
+      "coldStarts": 2,
+      "subEconomicRuns": 0,
+      "startupScrapKg": 1260.0
+    },
+    {
+      "product": "UPVC Pressure Pipe DIN Class 3 Dark Grey 110mm X 6m ( 2.9MM )",
+      "startups": 16,
+      "coldStarts": 6,
+      "subEconomicRuns": 3,
+      "startupScrapKg": 1160.0
+    },
+    {
+      "product": "UPVC Pressure Pipe DIN Class 3 Dark Grey 110mm X 6m (3.2MM )",
+      "startups": 10,
+      "coldStarts": 2,
+      "subEconomicRuns": 1,
+      "startupScrapKg": 1085.0
+    },
+    {
+      "product": "UPVC Drainage Pipe BS EN SN 2 Ring Golden Brown 6\" X 6m",
+      "startups": 9,
+      "coldStarts": 2,
+      "subEconomicRuns": 1,
+      "startupScrapKg": 1081.0
+    },
+    {
+      "product": "UPVC Duct Pipe BS 3506 Class O Din 8061/8062 CL2 Light Grey 12\" X 6m",
+      "startups": 2,
+      "coldStarts": 2,
+      "subEconomicRuns": 0,
+      "startupScrapKg": 1080.0
+    },
+    {
+      "product": "UPVC Drainage Pipe BS EN SN 2 Blue 6\" X 6m",
+      "startups": 10,
+      "coldStarts": 1,
+      "subEconomicRuns": 1,
+      "startupScrapKg": 1009.0
+    },
+    {
+      "product": "UPVC Duct Pipe BS 3506 Class B Light Grey 8\" X 6m",
+      "startups": 2,
+      "coldStarts": 1,
+      "subEconomicRuns": 1,
+      "startupScrapKg": 965.0
+    }
+  ],
   "weekly": [
     {
       "week": "2025-W01",
