@@ -9,6 +9,7 @@ describe('ScrapAnalyzerPage mechanism sections', () => {
 
     expect(html).toContain('Where the scrap comes from (mechanism)');
     expect(html).toMatch(/\d+% of scrap is startup-driven/);
+    expect(html).toContain('association (run-episode classification), not proven cause; part of the small-run penalty is product/job mix, not startup alone.');
     expect(html).toContain('Product');
     expect(html).toContain('Total Startups');
     expect(html).toContain('Cold Starts');

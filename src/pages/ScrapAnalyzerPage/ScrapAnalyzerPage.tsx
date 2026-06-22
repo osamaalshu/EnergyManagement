@@ -276,6 +276,7 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
                 <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
               </div>
               <p className="mt-3 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{startupDrivenPct}% of scrap is startup-driven</p>
+              <p className="mt-1 text-[11px] text-slate-400">association (run-episode classification), not proven cause; part of the small-run penalty is product/job mix, not startup alone.</p>
             </div>
           </div>
           <div className="mt-4 h-20">

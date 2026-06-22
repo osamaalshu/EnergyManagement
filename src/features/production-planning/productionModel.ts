@@ -46,6 +46,7 @@ export const DEMO_SKUS: SkuParam[] = [
 //    Assumptions, to be replaced by the measured matrix from the changeover log.
 export const SETUP_FAMILY_H = 3.0;
 export const SETUP_DIAMETER_H = 0.5;
+export const STARTUP_SCRAP_KG_PER_CHANGEOVER = 10;
 export type SetupType = 'none' | 'diameter' | 'family';
 
 // ESTIMATE — adjustable. Runs below this mass are flagged because fixed startup

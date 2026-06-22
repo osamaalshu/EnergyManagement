@@ -5,6 +5,7 @@ import PortfolioPage from '@/pages/PortfolioPage/PortfolioPage';
 import BuildingPage from '@/pages/BuildingPage/BuildingPage';
 import TariffPage from '@/pages/TariffPage/TariffPage';
 import AnalyseHubPage from '@/pages/AnalyseHubPage/AnalyseHubPage';
+import PlantTelemetryPage from '@/pages/PlantTelemetryPage/PlantTelemetryPage';
 import CompressorPage from '@/pages/CompressorPage/CompressorPage';
 import {
   portfolioMeta,
@@ -90,6 +91,12 @@ describe('page smoke tests (real adapter data)', () => {
 
     expect(screen.getByText(`${energyKpi.summary.latestKwhPerKg} kWh/kg`)).toBeInTheDocument();
     expect(screen.getByText('What do I do today?')).toBeInTheDocument();
+  });
+
+  it('PlantTelemetryPage renders the machine-direct energy caption', () => {
+    render(<PlantTelemetryPage onBack={noop} />);
+
+    expect(screen.getByText(/machine-direct power only.*cooling\/chiller not yet included/)).toBeInTheDocument();
   });
 
   it('CompressorPage renders without throwing and shows polytropic efficiency KPI', () => {
