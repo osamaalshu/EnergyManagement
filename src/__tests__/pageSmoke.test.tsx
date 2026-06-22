@@ -93,10 +93,10 @@ describe('page smoke tests (real adapter data)', () => {
     expect(screen.getByText('What do I do today?')).toBeInTheDocument();
   });
 
-  it('PlantTelemetryPage renders the machine-direct energy caption', () => {
+  it('PlantTelemetryPage renders the machine and cooling energy caption', () => {
     render(<PlantTelemetryPage onBack={noop} />);
 
-    expect(screen.getByText(/machine-direct power only.*cooling\/chiller not yet included/)).toBeInTheDocument();
+    expect(screen.getByText(/machine energy is simulated; cooling is an estimated placeholder/)).toBeInTheDocument();
   });
 
   it('CompressorPage renders without throwing and shows polytropic efficiency KPI', () => {

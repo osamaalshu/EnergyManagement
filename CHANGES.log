@@ -294,3 +294,28 @@ From the build-loop manager-gate verdict on the Analyse feature.
 
 CEO+CTO gate: clean pass. Tests 64/64; build+provenance clean; no new deps.
 Spec: docs/CODEX_BRIEF_AUDIT_CONDITIONS.md.
+
+## 2026-06-23 — chiller/cooling energy block (swap-ready placeholder)
+
+Telemetry kWh/kg was machine-direct only; added the attributed cooling term.
+- New pure module coolingEnergy.ts: Q[kW]=flow*cp*dT (thermal) -> /COP (electrical),
+  air-cooled COP default 3.0; placeholder params (flow 1.5 L/s, dT 4C) = the exact
+  quantities the line-side supply/return + flow sensors will measure (swap-ready).
+- Plant Telemetry: a "Cooling - estimated (placeholder)" card (amber ESTIMATED,
+  distinct from the SIMULATED machine) with the formula, assumed params, and a swap
+  note; total "Energy/unit (incl. cooling, est.)" shown beside machine-direct.
+  Defaults render cooling ~8.4 kW -> ~5,150 kWh, kWh/unit 3.121 -> 3.462 (~11
+## 2026-06-23 — chiller/cooling energy block (swap-ready placeholder)
+
+Telemetry kWh/kg was machine-direct only; added the attributed cooling term.
+- New pure module coolingEnergy.ts: Q[kW]=flow*cp*dT (thermal) -> /COP (electrical),
+  air-cooled COP default 3.0; placeholder params (flow 1.5 L/s, dT 4C) = the exact
+  quantities the line-side supply/return + flow sensors will measure (swap-ready).
+- Plant Telemetry: a "Cooling - estimated (placeholder)" card (amber ESTIMATED,
+  distinct from the SIMULATED machine) with the formula, assumed params, and a swap
+  note; total "Energy/unit (incl. cooling, est.)" shown beside machine-direct.
+  Defaults render cooling ~8.4 kW -> ~5,150 kWh, kWh/unit 3.121 -> 3.462 (~11pct).
+
+Three provenance tiers kept distinct (simulated machine / estimated cooling).
+Build-loop: CEO+CTO gate clean pass. Tests 68/68; build+provenance clean; no new deps.
+Spec: docs/CODEX_BRIEF_COOLING_ENERGY.md.
