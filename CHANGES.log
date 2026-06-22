@@ -280,3 +280,17 @@ startups, 3 cold, 185.4 kg/startup, 19% sub-economic.
 Implemented by Codex; architect-designed + reviewed (signature + evidence-tier honesty + the
 window retune). Tests 61/61 pass (9 files); npm run build clean (provenance gate + tsc + Vite);
 no new deps; only AnalyseHubPage + its test changed. Spec: docs/CODEX_BRIEF_WEEKLY_BOARD.md.
+
+## 2026-06-23 — audit-condition fixes (single-source changeover defaults + 2 honesty captions)
+
+From the build-loop manager-gate verdict on the Analyse feature.
+- Engine: added STARTUP_SCRAP_KG_PER_CHANGEOVER=10; Delivery View now uses
+  SETUP_FAMILY_H/SETUP_DIAMETER_H/STARTUP_SCRAP_KG_PER_CHANGEOVER instead of literal
+  3/0.5/10 (was silently inconsistent with the Planner); Planner seeds its editable
+  defaults from the same constants. No number changed (regression-tested).
+- Telemetry: caption "machine-direct power only — cooling/chiller not yet included".
+- Scrap Focus: caption "association (run-episode classification), not proven cause;
+  part of the small-run penalty is product/job mix, not startup alone".
+
+CEO+CTO gate: clean pass. Tests 64/64; build+provenance clean; no new deps.
+Spec: docs/CODEX_BRIEF_AUDIT_CONDITIONS.md.

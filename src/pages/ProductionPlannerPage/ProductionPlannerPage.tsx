@@ -3,6 +3,7 @@ import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tool
 import { productionData } from '@/data/productionData';
 import {
   scheduleOrders, monteCarloOrders, energyIntensityKwhPerKg, computeStartupLedger, RATE_CV, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
+  SETUP_FAMILY_H, SETUP_DIAMETER_H, STARTUP_SCRAP_KG_PER_CHANGEOVER,
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '@/features/production-planning/productionModel';
 import { applyBatchSuggestion, suggestBatches, type BatchSuggestion } from '@/features/production-planning/batchingAdvisor';
@@ -56,9 +57,9 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
   const [shiftStart, setShiftStart] = useState(22); // hour the daily shift begins (TOU lever)
   const [season, setSeason] = useState<'summer' | 'winter'>('summer');
   const [rateCv, setRateCv] = useState(RATE_CV);
-  const [famH, setFamH] = useState(3);
-  const [diaH, setDiaH] = useState(0.5);
-  const [scrapPerChg, setScrapPerChg] = useState(10);
+  const [famH, setFamH] = useState(SETUP_FAMILY_H);
+  const [diaH, setDiaH] = useState(SETUP_DIAMETER_H);
+  const [scrapPerChg, setScrapPerChg] = useState(STARTUP_SCRAP_KG_PER_CHANGEOVER);
   const [strategy, setStrategy] = useState<Strategy>('grouped');
   const [showParams, setShowParams] = useState(false);
   const [q, setQ] = useState('');

@@ -2,6 +2,7 @@ import { type FC, useMemo, useState } from 'react';
 import { productionData } from '@/data/productionData';
 import {
   scheduleOrders, monteCarloOrders, rootCauseForOrderItem, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
+  SETUP_FAMILY_H, SETUP_DIAMETER_H, STARTUP_SCRAP_KG_PER_CHANGEOVER,
   type SkuParam, type LineParam, type Econ, type Order, type OrderSchedule, type OrderItem, type RootCause,
 } from '@/features/production-planning/productionModel';
 import ScenarioBanner from '@/shared/ScenarioBanner';
@@ -34,7 +35,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const orders = useMemo(() => genOrders(skus, 30), [skus]);
 
   const sched = (mode: 'grouped' | 'due', m = machines, h = hoursPerDay) =>
-    scheduleOrders(orders, products, 30, m, line, econ, h, 3, 0.5, 10, mode);
+    scheduleOrders(orders, products, 30, m, line, econ, h, SETUP_FAMILY_H, SETUP_DIAMETER_H, STARTUP_SCRAP_KG_PER_CHANGEOVER, mode);
   const smart = useMemo(() => sched('grouped'), [orders, products, machines]);
   const dueSchedule = useMemo(() => sched('due'), [orders, products, machines]);
   const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart]);

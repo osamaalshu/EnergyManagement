@@ -46,7 +46,11 @@ const PlantTelemetryPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           ['Energy', `${num(r.energy_kwh)} kWh`],
           ['Energy / unit', `${r.kwh_per_unit} kWh`],
         ].map(([label, val]) => (
-          <div key={label} className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">{label}</p><p className="mt-1 font-mono text-lg font-semibold text-slate-900 dark:text-white">{val}</p></div>
+          <div key={label} className="card-surface p-4">
+            <p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">{label}</p>
+            <p className="mt-1 font-mono text-lg font-semibold text-slate-900 dark:text-white">{val}</p>
+            {label === 'Energy / unit' && <p className="mt-1 text-[11px] text-slate-400">machine-direct power only — cooling/chiller not yet included (see energy roadmap).</p>}
+          </div>
         ))}
       </div>
 

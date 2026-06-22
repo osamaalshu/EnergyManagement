@@ -9,6 +9,9 @@ import {
   type Order,
   type SkuParam,
   MIN_ECONOMIC_RUN_KG,
+  SETUP_DIAMETER_H,
+  SETUP_FAMILY_H,
+  STARTUP_SCRAP_KG_PER_CHANGEOVER,
   computeStartupLedger,
   energyIntensityKwhPerKg,
   monteCarloOrders,
@@ -77,6 +80,39 @@ const econ: Econ = {
   materialOmrPerKg: 0.32,
   holdingRateAnnual: 0.2,
 };
+
+describe('changeover defaults', () => {
+  it('exports the planner and delivery defaults from one source of truth', () => {
+    expect(SETUP_FAMILY_H).toBe(3);
+    expect(SETUP_DIAMETER_H).toBe(0.5);
+    expect(STARTUP_SCRAP_KG_PER_CHANGEOVER).toBe(10);
+  });
+
+  it('keeps the Delivery schedule unchanged when replacing old literals with constants', () => {
+    const fixture: Order[] = [
+      { id: 'a1', productId: 'a', qty: 420, dueDay: 2 },
+      { id: 'c1', productId: 'c', qty: 260, dueDay: 4 },
+      { id: 'b1', productId: 'b', qty: 180, dueDay: 6 },
+    ];
+
+    const withOldLiterals = scheduleOrders(fixture, products, 30, 1, line, econ, 16, 3, 0.5, 10, 'grouped');
+    const withConstants = scheduleOrders(
+      fixture,
+      products,
+      30,
+      1,
+      line,
+      econ,
+      16,
+      SETUP_FAMILY_H,
+      SETUP_DIAMETER_H,
+      STARTUP_SCRAP_KG_PER_CHANGEOVER,
+      'grouped',
+    );
+
+    expect(withConstants).toEqual(withOldLiterals);
+  });
+});
 
 describe('scheduleOrders', () => {
   it('keeps one lane, prioritizes urgent orders, and reports bounded steady-state and additive scrap', () => {
@@ -459,6 +495,10 @@ describe('source guards', () => {
 
     expect(delivery).not.toContain('Add a machine');
     expect(delivery).not.toContain('machines + 1');
+    expect(delivery).not.toMatch(/scheduleOrders\([^;]*3,\s*0\.5,\s*10/s);
+    expect(delivery).toContain('SETUP_FAMILY_H');
+    expect(delivery).toContain('SETUP_DIAMETER_H');
+    expect(delivery).toContain('STARTUP_SCRAP_KG_PER_CHANGEOVER');
     expect(scrap).not.toContain('driver(');
   });
 
