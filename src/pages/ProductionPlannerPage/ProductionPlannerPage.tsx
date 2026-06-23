@@ -1,4 +1,4 @@
-import { type FC, type ReactNode, useMemo, useState } from 'react';
+import { Fragment, type FC, type ReactNode, useMemo, useState } from 'react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
 import { productionData } from '@/data/productionData';
 import {
@@ -32,6 +32,13 @@ const fragilityBadgeClass = (band: FragilityBand) =>
       : band === 'moderate'
         ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300'
         : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300';
+const actionPriorityClass = (priority: 'act' | 'review' | 'info') =>
+  priority === 'act'
+    ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300'
+    : priority === 'review'
+      ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300'
+      : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300';
+const RUN_DETAIL_COLUMN_COUNT = 15;
 let _uid = 0;
 const genOrders = (skus: SkuParam[], horizon: number): Order[] =>
   skus.map((s, i) => ({ id: `o${++_uid}`, productId: s.id, qty: Math.round((s.demand * horizon) / 365), dueDay: Math.max(2, Math.round(((i + 1) / skus.length) * horizon)) }));
@@ -71,6 +78,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
   const [scrapPerChg, setScrapPerChg] = useState(STARTUP_SCRAP_KG_PER_CHANGEOVER);
   const [strategy, setStrategy] = useState<Strategy>('grouped');
   const [showParams, setShowParams] = useState(false);
+  const [openRun, setOpenRun] = useState<string | null>(null);
   const [q, setQ] = useState('');
   const match = (name: string) => !q.trim() || name.toLowerCase().includes(q.toLowerCase());
   const [orders, setOrders] = useState<Order[]>(() => initialOrders ?? genOrders(model.skus as SkuParam[], 30));
@@ -578,29 +586,83 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
                 const kg = it.qty * (products[it.productId]?.kgPerUnit ?? 0);
                 const isStartup = it.setupType !== 'none' || it.seq === 1;
                 const fr = runFragility(it);
+                const id = it.machine + '-' + it.orderId;
+                const isOpen = openRun === id;
                 const fragilityTitle = fr.reasons.map((r) => [r.label, r.detail].filter(Boolean).join(' — ')).join(' · ');
+                const runOmr = Math.round(startup * econ.materialOmrPerKg);
+                const scoredReasons = fr.reasons.filter((reason) => reason.impact > 0);
                 return (
-                  <tr key={it.machine + '-' + it.orderId} className={it.isSubEconomic ? 'bg-amber-50/60 dark:bg-amber-500/5' : ''}>
-                    <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
-                    <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
-                    <td className="px-3 py-1.5 text-xs">{it.machineName}</td>
-                    <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
-                    <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
-                    <td className="px-3 py-1.5 text-xs">{isStartup ? <span className="font-medium text-slate-700 dark:text-slate-200">✓</span> : <span className="text-slate-400">—</span>}</td>
-                    <td className="px-3 py-1.5 text-xs">{it.isSubEconomic ? <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />✓ exception</span> : <span className="text-slate-400">—</span>}</td>
-                    <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
-                    <td className="px-3 py-1.5 text-xs">
-                      <span title={fragilityTitle} className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[11px] font-semibold ${fragilityBadgeClass(fr.band)}`}>
-                        {fr.score} {fr.band}
-                      </span>
-                    </td>
-                    <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
-                    <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
-                    <td className="px-3 py-1.5 text-right font-mono tabular-nums">{num(kwh)}</td>
-                    <td className="px-3 py-1.5 text-right font-mono tabular-nums">{kg > 0 ? (kwh / kg).toFixed(2) : '—'}</td>
-                    <td className="px-3 py-1.5 text-xs">{band === 'peak' ? <span className="text-rose-600 dark:text-rose-400">peak</span> : band === 'mixed' ? <span className="text-amber-600 dark:text-amber-400">mixed</span> : <span className="text-emerald-600 dark:text-emerald-400">off-peak</span>}</td>
-                    <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(omr, detail.maxOmr, '245,158,11')}>{num(omr, 1)}</td>
-                  </tr>
+                  <Fragment key={id}>
+                    <tr className={it.isSubEconomic ? 'bg-amber-50/60 dark:bg-amber-500/5' : ''}>
+                      <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
+                      <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
+                      <td className="px-3 py-1.5 text-xs">{it.machineName}</td>
+                      <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
+                      <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
+                      <td className="px-3 py-1.5 text-xs">{isStartup ? <span className="font-medium text-slate-700 dark:text-slate-200">✓</span> : <span className="text-slate-400">—</span>}</td>
+                      <td className="px-3 py-1.5 text-xs">{it.isSubEconomic ? <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />✓ exception</span> : <span className="text-slate-400">—</span>}</td>
+                      <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
+                      <td className="px-3 py-1.5 text-xs">
+                        <button
+                          type="button"
+                          title={fragilityTitle}
+                          aria-expanded={isOpen}
+                          onClick={() => setOpenRun((prev) => (prev === id ? null : id))}
+                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[11px] font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent/40 ${fragilityBadgeClass(fr.band)}`}
+                        >
+                          <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
+                          <span>{fr.score} {fr.band}</span>
+                        </button>
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{num(kwh)}</td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{kg > 0 ? (kwh / kg).toFixed(2) : '—'}</td>
+                      <td className="px-3 py-1.5 text-xs">{band === 'peak' ? <span className="text-rose-600 dark:text-rose-400">peak</span> : band === 'mixed' ? <span className="text-amber-600 dark:text-amber-400">mixed</span> : <span className="text-emerald-600 dark:text-emerald-400">off-peak</span>}</td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(omr, detail.maxOmr, '245,158,11')}>{num(omr, 1)}</td>
+                    </tr>
+                    {isOpen ? (
+                      <tr className="bg-slate-50/70 dark:bg-white/5">
+                        <td colSpan={RUN_DETAIL_COLUMN_COUNT} className="px-5 py-4">
+                          <div className="space-y-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-slate-900 dark:text-white">Why this run scored {fr.score} ({fr.band})</p>
+                              {estimatedChip}
+                            </div>
+                            <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                              {scoredReasons.length > 0 ? scoredReasons.map((reason) => (
+                                <p key={reason.code}>
+                                  <span className="font-mono font-semibold text-slate-900 dark:text-white">+{reason.impact}</span>
+                                  {' · '}{reason.label}{reason.detail ? ` — ${reason.detail}` : ''}
+                                </p>
+                              )) : (
+                                <p>No transition or small-run penalty — steady continuation.</p>
+                              )}
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">What to do</p>
+                              <div className="flex flex-wrap gap-2">
+                                {fr.actions.map((action) => (
+                                  <span key={action.code} className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-200">
+                                    <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${actionPriorityClass(action.priority)}`}>{action.priority}</span>
+                                    {action.label}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="text-xs">
+                              {startup > 0 ? (
+                                <p className="font-semibold text-emerald-700 dark:text-emerald-300">This run's startup scrap ≈ {num(startup)} kg ≈ {num(runOmr)} OMR — avoidable by campaigning / extending the run.</p>
+                              ) : (
+                                <p className="text-slate-500 dark:text-slate-400">No startup scrap attributed to this run.</p>
+                              )}
+                              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Planning-stage estimate — see the Fragility & rules card above for the plan-level action.</p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
                 );
               })}
             </tbody>
