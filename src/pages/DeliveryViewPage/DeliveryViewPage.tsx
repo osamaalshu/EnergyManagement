@@ -5,6 +5,7 @@ import {
   SETUP_FAMILY_H, SETUP_DIAMETER_H, STARTUP_SCRAP_KG_PER_CHANGEOVER,
   type SkuParam, type LineParam, type Econ, type Order, type OrderSchedule, type OrderItem, type RootCause,
 } from '@/features/production-planning/productionModel';
+import DetailsDrawer from '@/shared/DetailsDrawer';
 import ScenarioBanner from '@/shared/ScenarioBanner';
 
 const OTIF_TARGET = 95;
@@ -107,15 +108,28 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
       </div>
 
       {/* Top strip — Delivery at a glance */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className={`rounded-2xl border p-4 ${otif >= OTIF_TARGET ? 'border-emerald-300/60 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10' : 'border-rose-300/60 bg-rose-50 dark:border-rose-500/20 dark:bg-rose-500/10'}`}>
-          <p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">OTIF forecast</p>
-          <p className="mt-1 font-mono text-3xl font-semibold text-slate-900 dark:text-white">{otif}%</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400">target {OTIF_TARGET}%</p>
-        </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Orders at risk</p><p className="mt-1 font-mono text-3xl font-semibold text-slate-900 dark:text-white">{atRisk.length}</p><p className="text-xs text-slate-500 dark:text-slate-400">{num(atRiskKg / 1000, 1)} t · {num(atRiskOmr)} OMR</p></div>
         <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Worst lateness</p><p className="mt-1 font-mono text-3xl font-semibold text-rose-600 dark:text-rose-400">{num(worstLate, 1)} d</p><p className="text-xs text-slate-500 dark:text-slate-400">vs due date</p></div>
         <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Finish window (P80)</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">day {num(pctl(smartSamples, 50), 1)}–{num(pctl(smartSamples, 80), 1)}</p><p className="text-xs text-slate-500 dark:text-slate-400">P50–P80</p></div>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Recommended changes</h3>
+          <p className={`mt-1 text-xs ${otif >= OTIF_TARGET ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>OTIF forecast {otif}% · target {OTIF_TARGET}%</p>
+        </div>
+        {recs.length === 0 && <div className="card-surface p-4 text-sm text-slate-500 dark:text-slate-400">Plan is on track — no changes needed.</div>}
+        <div className="grid gap-3 lg:grid-cols-3">
+          {recs.map((r) => (
+            <button key={r.title} type="button" onClick={() => setPreview({ title: r.title, affected: r.affected, otif: r.otifNew })}
+              className={`card-surface w-full p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl ${preview?.title === r.title ? 'ring-2 ring-accent' : ''}`}>
+              <p className="font-semibold text-slate-900 dark:text-white">{r.title}</p>
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{r.desc}</p>
+              <p className="mt-2 text-sm"><span className="font-semibold text-emerald-600 dark:text-emerald-400">OTIF +{r.dOtif}%</span> · fixes {r.fixed} order{r.fixed === 1 ? '' : 's'} <span className="text-slate-400">· cost: {r.cost}</span></p>
+            </button>
+          ))}
+        </div>
       </div>
 
       {preview && (
@@ -125,9 +139,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-3">
-        {/* Left — orders at risk */}
-        <div className="card-surface overflow-hidden p-0 lg:col-span-2">
+      <div className="card-surface overflow-hidden p-0">
           <div className="flex items-center justify-between border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{q.trim() ? 'Search results' : showAll ? 'All orders' : 'Orders at risk'} <span className="font-normal normal-case text-slate-400">· next {range} days</span></h3>
             <div className="flex items-center gap-3">
@@ -156,43 +168,30 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               </tbody>
             </table>
           </div>
-        </div>
-
-        {/* Right — recommended changes */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Recommended changes</h3>
-          {recs.length === 0 && <div className="card-surface p-4 text-sm text-slate-500 dark:text-slate-400">Plan is on track — no changes needed.</div>}
-          {recs.map((r) => (
-            <button key={r.title} type="button" onClick={() => setPreview({ title: r.title, affected: r.affected, otif: r.otifNew })}
-              className={`card-surface w-full p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl ${preview?.title === r.title ? 'ring-2 ring-accent' : ''}`}>
-              <p className="font-semibold text-slate-900 dark:text-white">{r.title}</p>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{r.desc}</p>
-              <p className="mt-2 text-sm"><span className="font-semibold text-emerald-600 dark:text-emerald-400">OTIF +{r.dOtif}%</span> · fixes {r.fixed} order{r.fixed === 1 ? '' : 's'} <span className="text-slate-400">· cost: {r.cost}</span></p>
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Footer — finish-date band: current vs this plan */}
-      <div className="card-surface p-5">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Finish window — current way vs this plan</h3>
-        <div className="mt-4 space-y-3">
-          {[{ label: 'Current way', s: curSamples, color: 'bg-slate-400' }, { label: 'This plan', s: smartSamples, color: 'bg-accent' }].map(({ label, s, color }) => {
-            const p50 = pctl(s, 50), p80 = pctl(s, 80);
-            return (
-              <div key={label} className="flex items-center gap-3">
-                <span className="w-24 shrink-0 text-xs font-medium text-slate-700 dark:text-slate-300">{label}</span>
-                <div className="relative h-6 flex-1 rounded bg-slate-100 dark:bg-white/5">
-                  <div className={`absolute h-full rounded ${color} opacity-70`} style={{ left: `${(p50 / maxDay) * 100}%`, width: `${((p80 - p50) / maxDay) * 100}%` }} />
-                  <span className="absolute -top-0.5 text-[10px] font-mono text-slate-600 dark:text-slate-300" style={{ left: `calc(${(p50 / maxDay) * 100}% + 2px)` }}>{num(p50, 1)}</span>
+      <DetailsDrawer title="Details & evidence">
+        <div className="card-surface p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Finish window — current way vs this plan</h3>
+          <div className="mt-4 space-y-3">
+            {[{ label: 'Current way', s: curSamples, color: 'bg-slate-400' }, { label: 'This plan', s: smartSamples, color: 'bg-accent' }].map(({ label, s, color }) => {
+              const p50 = pctl(s, 50), p80 = pctl(s, 80);
+              return (
+                <div key={label} className="flex items-center gap-3">
+                  <span className="w-24 shrink-0 text-xs font-medium text-slate-700 dark:text-slate-300">{label}</span>
+                  <div className="relative h-6 flex-1 rounded bg-slate-100 dark:bg-white/5">
+                    <div className={`absolute h-full rounded ${color} opacity-70`} style={{ left: `${(p50 / maxDay) * 100}%`, width: `${((p80 - p50) / maxDay) * 100}%` }} />
+                    <span className="absolute -top-0.5 text-[10px] font-mono text-slate-600 dark:text-slate-300" style={{ left: `calc(${(p50 / maxDay) * 100}% + 2px)` }}>{num(p50, 1)}</span>
+                  </div>
+                  <span className="w-28 shrink-0 text-right font-mono text-xs text-slate-500 dark:text-slate-400">P80 day {num(p80, 1)}</span>
                 </div>
-                <span className="w-28 shrink-0 text-right font-mono text-xs text-slate-500 dark:text-slate-400">P80 day {num(p80, 1)}</span>
-              </div>
-            );
-          })}
-          <p className="text-[11px] text-slate-400">Bands span P50→P80 finish day. This plan finishes <span className="font-semibold text-emerald-600 dark:text-emerald-400">{num(pctl(curSamples, 80) - pctl(smartSamples, 80), 1)} days earlier</span> at P80.</p>
+              );
+            })}
+            <p className="text-[11px] text-slate-400">Bands span P50→P80 finish day. This plan finishes <span className="font-semibold text-emerald-600 dark:text-emerald-400">{num(pctl(curSamples, 80) - pctl(smartSamples, 80), 1)} days earlier</span> at P80.</p>
+          </div>
         </div>
-      </div>
+      </DetailsDrawer>
 
       {/* Drill-down */}
       {drill && (

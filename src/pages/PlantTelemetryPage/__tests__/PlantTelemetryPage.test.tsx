@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { productionData } from '@/data/productionData';
 import { estimateCoolingEnergy } from '@/features/production-planning/coolingEnergy';
@@ -18,8 +18,10 @@ describe('PlantTelemetryPage cooling energy placeholder', () => {
     const inclCooling = round((plant.real.energy_kwh + cooling.coolingKwh) / plant.real.units, 3);
 
     const { container } = render(<PlantTelemetryPage onBack={() => undefined} />);
+    const view = within(container);
 
     expect(screen.getByText('Cooling - estimated (placeholder)')).toBeInTheDocument();
+    expect(screen.getByText('Energy/unit (incl. cooling, est.)')).toBeInTheDocument();
     expect(screen.getByText('ESTIMATED')).toBeInTheDocument();
     expect(screen.getByText('Q=flow*cp*dT -> /COP')).toBeInTheDocument();
     expect(container.textContent).toContain('flow 1.5 L/s');
@@ -34,5 +36,18 @@ describe('PlantTelemetryPage cooling energy placeholder', () => {
     expect(container.textContent).toContain(`machine + cooling = ${num(plant.real.energy_kwh)} + ${num(cooling.coolingKwh)} kWh`);
     expect(container.textContent).toContain('Energy/unit (machine)');
     expect(container.textContent).toContain(`${plant.real.kwh_per_unit} kWh`);
+    expect(view.queryByText('Power draw over the run')).not.toBeInTheDocument();
+    expect(view.queryByText('Energy by machine state')).not.toBeInTheDocument();
+    expect(view.queryByText('Validation — ideal vs realistic')).not.toBeInTheDocument();
+
+    const drawer = view.getByRole('button', { name: /Details & evidence/i });
+    expect(drawer).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(drawer);
+
+    expect(drawer).toHaveAttribute('aria-expanded', 'true');
+    expect(view.getByText('Power draw over the run')).toBeInTheDocument();
+    expect(view.getByText('Energy by machine state')).toBeInTheDocument();
+    expect(view.getByText('Validation — ideal vs realistic')).toBeInTheDocument();
   });
 });

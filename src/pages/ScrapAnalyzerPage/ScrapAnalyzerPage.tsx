@@ -4,6 +4,7 @@ import { DEMO_SKUS, DEMO_ECON, type Econ } from '@/features/production-planning/
 import { scrapCatalog, type ScrapProduct } from '@/data/scrapCatalog';
 import { CHART_TOP_N, placeholderKwhKgSeries, selectChartProducts, type ChartScope, type Granularity } from '@/features/production-planning/energyPlaceholder';
 import { startupKpis } from '@/features/production-planning/startupKpis';
+import DetailsDrawer from '@/shared/DetailsDrawer';
 
 const FAMILY_BG: Record<string, string> = {
   Drainage: 'bg-accent', Pressure: 'bg-amber-500', Conduit: 'bg-emerald-500', Waste: 'bg-violet-500', Duct: 'bg-sky-500', Other: 'bg-slate-400',
@@ -193,39 +194,93 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.95fr)]">
-        <div className="rounded-2xl border border-emerald-300/70 bg-emerald-50/80 p-5 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10" aria-label="This week measured startup KPIs">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">This week (measured)</h3>
-                <span className="rounded-full border border-emerald-400/70 bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-200">MEASURED</span>
-              </div>
-              <p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-200/80">Startup KPIs from real ERP run episodes for {latestStartupWeek.week}.</p>
+      <div className="rounded-2xl border border-emerald-300/70 bg-emerald-50/80 p-5 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10" aria-label="This week measured startup KPIs">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">This week (measured)</h3>
+              <span className="rounded-full border border-emerald-400/70 bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-200">MEASURED</span>
             </div>
-            <div className="min-w-44">
-              <p className="text-right text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70 dark:text-emerald-200/70">weekly startup trend</p>
-              <div className="mt-2 flex h-12 items-end gap-1" aria-label="Weekly startup trend">
-                {startupTrend.map((point) => (
-                  <div key={point.week} className="flex h-full flex-1 items-end" title={`${point.week}: ${num(point.startups)} startups`}>
-                    <div className="w-full rounded-t-sm bg-emerald-500 dark:bg-emerald-300" style={{ height: `${Math.max(8, (point.startups / startupTrendMax) * 100)}%` }} />
-                  </div>
-                ))}
-              </div>
+            <p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-200/80">Startup KPIs from real ERP run episodes for {latestStartupWeek.week}.</p>
+          </div>
+          <div className="min-w-44">
+            <p className="text-right text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70 dark:text-emerald-200/70">weekly startup trend</p>
+            <div className="mt-2 flex h-12 items-end gap-1" aria-label="Weekly startup trend">
+              {startupTrend.map((point) => (
+                <div key={point.week} className="flex h-full flex-1 items-end" title={`${point.week}: ${num(point.startups)} startups`}>
+                  <div className="w-full rounded-t-sm bg-emerald-500 dark:bg-emerald-300" style={{ height: `${Math.max(8, (point.startups / startupTrendMax) * 100)}%` }} />
+                </div>
+              ))}
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {startupKpiCards.map((card) => (
-              <div key={card.label} title={card.title} className="rounded-xl border border-emerald-200/80 bg-white/75 p-3 dark:border-emerald-400/15 dark:bg-slate-950/20">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70 dark:text-emerald-200/70">{card.label}</p>
-                <p className="mt-1 font-mono text-2xl font-semibold text-slate-950 dark:text-white">{card.value}</p>
-                <p className="mt-1 text-xs text-emerald-800/75 dark:text-emerald-200/75">{card.detail}</p>
-              </div>
-            ))}
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {startupKpiCards.map((card) => (
+            <div key={card.label} title={card.title} className="rounded-xl border border-emerald-200/80 bg-white/75 p-3 dark:border-emerald-400/15 dark:bg-slate-950/20">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800/70 dark:text-emerald-200/70">{card.label}</p>
+              <p className="mt-1 font-mono text-2xl font-semibold text-slate-950 dark:text-white">{card.value}</p>
+              <p className="mt-1 text-xs text-emerald-800/75 dark:text-emerald-200/75">{card.detail}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-[11px] text-emerald-900/70 dark:text-emerald-200/75">
+          Provenance: {startupKpis.meta.provenance} · window {startupKpis.meta.window[0]} → {startupKpis.meta.window[1]} · source {startupKpis.meta.source}.
+        </p>
+      </div>
+
+      {/* Top bar — loss summary */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Scrap / year</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.totalKg)} kg</p><p className="text-xs text-slate-500 dark:text-slate-400">≈ {num(a.totalOmr)} OMR lost</p></div>
+        <div className="rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10"><p className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">Recoverable</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.recoverable)} OMR</p><p className="text-xs text-slate-500 dark:text-slate-400">if {a.focusCount} well-measured products reach their own best-demonstrated reject (their P25)</p></div>
+        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Plant-wide lever</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.perHalfPp)} OMR/yr</p><p className="text-xs text-slate-500 dark:text-slate-400">per 0.5 pp of line reject removed (1 pp ≈ {num(a.per1pp)}). Scrap is diffuse — the biggest win is lowering the whole line's reject, not chasing single products.</p></div>
+      </div>
+
+      <div className="card-surface p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Startup-driven scrap</h3>
+              <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
+            </div>
+            <p className="mt-3 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{startupDrivenPct}% of scrap is startup-driven</p>
+            <p className="mt-1 text-[11px] text-slate-400">association (run-episode classification), not proven cause; part of the small-run penalty is product/job mix, not startup alone.</p>
           </div>
-          <p className="mt-4 text-[11px] text-emerald-900/70 dark:text-emerald-200/75">
-            Provenance: {startupKpis.meta.provenance} · window {startupKpis.meta.window[0]} → {startupKpis.meta.window[1]} · source {startupKpis.meta.source}.
-          </p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Focus here first — biggest recoverable savings</h3>
+        {recs.map((r) => (
+          <button key={r.id} type="button" onClick={() => setDrill(r.id)} className="card-surface w-full p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-slate-900 dark:text-white">{r.name}</span>
+              <span className="shrink-0 font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">save {num(r.saving)} OMR</span>
+            </div>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {num(r.scrapOmr)} OMR scrap/yr ({((r.scrapKg / a.totalKg) * 100).toFixed(0)}% of scrap kg). reject {r.reject.toFixed(1)}% → your best {r.bestPct == null ? '—' : `${r.bestPct.toFixed(1)}%`} → save {num(r.saving)} OMR.
+            </p>
+          </button>
+        ))}
+        {recs.length === 0 && <div className="card-surface p-4 text-sm text-slate-500 dark:text-slate-400">No material, well-measured product is above its own best-demonstrated reject.</div>}
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        {/* Pareto */}
+        <div className="card-surface p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Worst offenders</h3>
+          <div className="mt-3 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={top10} margin={{ top: 8, right: 36, left: 0, bottom: 36 }}>
+                <XAxis dataKey="id" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} angle={-45} textAnchor="end" height={46} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+                <YAxis yAxisId="l" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={40} />
+                <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `${v}%`} />
+                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number, n: string) => n === 'cumPct' ? [`${v.toFixed(0)}%`, 'cumulative'] : [`${num(v)} kg`, 'scrap']} />
+                <Bar yAxisId="l" dataKey="scrapKg" radius={[2, 2, 0, 0]}>{top10.map((r, i) => (<Cell key={i} fill={r.lowData ? 'rgba(148,163,184,0.55)' : `rgba(244,63,94,${0.35 + 0.6 * (r.scrapKg / a.maxKg)})`} />))}</Bar>
+                <Line yAxisId="r" type="monotone" dataKey="cumPct" stroke="#1A365D" strokeWidth={2} dot={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-400">Top 10 of {a.wellMeasured.length} well-measured products = {top10Cum.toFixed(0)}% — scrap is diffuse.</p>
         </div>
 
         <div className="card-surface p-5">
@@ -248,197 +303,6 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Top bar — loss summary */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Scrap / year</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.totalKg)} kg</p><p className="text-xs text-slate-500 dark:text-slate-400">≈ {num(a.totalOmr)} OMR lost</p></div>
-        <div className="rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10"><p className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">Recoverable</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.recoverable)} OMR</p><p className="text-xs text-slate-500 dark:text-slate-400">if {a.focusCount} well-measured products reach their own best-demonstrated reject (their P25)</p></div>
-        <div className="card-surface p-4"><p className="text-[11px] uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">Plant-wide lever</p><p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(a.perHalfPp)} OMR/yr</p><p className="text-xs text-slate-500 dark:text-slate-400">per 0.5 pp of line reject removed (1 pp ≈ {num(a.per1pp)}). Scrap is diffuse — the biggest win is lowering the whole line's reject, not chasing single products.</p></div>
-      </div>
-
-      <div className="card-surface p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <p className="text-sm text-slate-600 dark:text-slate-300">
-            <span className="font-semibold text-slate-900 dark:text-white">Batching-addressable pool (estimate):</span> {num(startupDrivenKg)} kg / {startupDrivenOmr.toFixed(0)} OMR startup-driven scrap — assumes all startup-driven scrap is removable by batching; actual savings depend on run consolidation feasibility.
-          </p>
-          <span className="rounded-full border border-amber-300/70 bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-200">ESTIMATE</span>
-        </div>
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="card-surface p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Where the scrap comes from (mechanism)</h3>
-                <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
-              </div>
-              <p className="mt-3 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{startupDrivenPct}% of scrap is startup-driven</p>
-              <p className="mt-1 text-[11px] text-slate-400">association (run-episode classification), not proven cause; part of the small-run penalty is product/job mix, not startup alone.</p>
-            </div>
-          </div>
-          <div className="mt-4 h-20">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart layout="vertical" data={mechanismBarData} margin={{ top: 14, right: 0, left: 0, bottom: 14 }}>
-                <XAxis type="number" domain={[0, startupKpis.summary.totalScrapKg]} hide />
-                <YAxis type="category" dataKey="name" hide />
-                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number, n: string) => [`${num(v)} kg`, n === 'warmStartupKg' ? 'warm-startup' : n === 'coldStartKg' ? 'cold-start' : 'continuation']} />
-                <Bar dataKey="warmStartupKg" stackId="mechanism" fill="#10b981" radius={[4, 0, 0, 4]} isAnimationActive={false} />
-                <Bar dataKey="coldStartKg" stackId="mechanism" fill="#0ea5e9" isAnimationActive={false} />
-                <Bar dataKey="continuationKg" stackId="mechanism" fill="#94a3b8" radius={[0, 4, 4, 0]} isAnimationActive={false} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-2 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-3">
-            {mechanismSegments.map((segment) => (
-              <div key={segment.label} className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: segment.color }} />
-                <span>{segment.label}: <span className="font-mono text-slate-700 dark:text-slate-200">{num(segment.kg)} kg</span></span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="card-surface overflow-hidden p-0">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Products that most generate startup-only runs</h3>
-            <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
-          </div>
-          <div className="max-h-96 overflow-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
-                <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2 text-right">Total Startups</th><th className="px-4 py-2 text-right">Cold Starts</th><th className="px-4 py-2 text-right">Sub-economic Runs</th><th className="px-4 py-2 text-right">Startup Scrap (kg)</th></tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700 dark:divide-white/5 dark:text-slate-300">
-                {productStartupRows.map((row) => (
-                  <tr key={row.product}>
-                    <td className="px-4 py-2 font-medium text-slate-900 dark:text-white">{row.product}</td>
-                    <td className="px-4 py-2 text-right font-mono">{num(row.startups)}</td>
-                    <td className="px-4 py-2 text-right font-mono">{num(row.coldStarts)}</td>
-                    <td className="px-4 py-2 text-right font-mono">{num(row.subEconomicRuns)}</td>
-                    <td className="px-4 py-2 text-right font-mono">{num(row.startupScrapKg)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-2">
-        {/* Pareto */}
-        <div className="card-surface p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Worst offenders</h3>
-          <div className="mt-3 h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={top10} margin={{ top: 8, right: 36, left: 0, bottom: 36 }}>
-                <XAxis dataKey="id" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} angle={-45} textAnchor="end" height={46} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
-                <YAxis yAxisId="l" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={40} />
-                <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `${v}%`} />
-                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number, n: string) => n === 'cumPct' ? [`${v.toFixed(0)}%`, 'cumulative'] : [`${num(v)} kg`, 'scrap']} />
-                <Bar yAxisId="l" dataKey="scrapKg" radius={[2, 2, 0, 0]}>{top10.map((r, i) => (<Cell key={i} fill={r.lowData ? 'rgba(148,163,184,0.55)' : `rgba(244,63,94,${0.35 + 0.6 * (r.scrapKg / a.maxKg)})`} />))}</Bar>
-                <Line yAxisId="r" type="monotone" dataKey="cumPct" stroke="#1A365D" strokeWidth={2} dot={false} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="mt-1 text-[11px] text-slate-400">Top 10 of {a.wellMeasured.length} well-measured products = {top10Cum.toFixed(0)}% — scrap is diffuse.</p>
-        </div>
-
-        {/* Focus recommendations */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Focus here first — biggest recoverable savings</h3>
-          {recs.map((r) => (
-            <button key={r.id} type="button" onClick={() => setDrill(r.id)} className="card-surface w-full p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold text-slate-900 dark:text-white">{r.name}</span>
-                <span className="shrink-0 font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">save {num(r.saving)} OMR</span>
-              </div>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                {num(r.scrapOmr)} OMR scrap/yr ({((r.scrapKg / a.totalKg) * 100).toFixed(0)}% of scrap kg). reject {r.reject.toFixed(1)}% → your best {r.bestPct == null ? '—' : `${r.bestPct.toFixed(1)}%`} → save {num(r.saving)} OMR.
-              </p>
-            </button>
-          ))}
-          {recs.length === 0 && <div className="card-surface p-4 text-sm text-slate-500 dark:text-slate-400">No material, well-measured product is above its own best-demonstrated reject.</div>}
-        </div>
-      </div>
-
-      <div className="card-surface p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity over time — kWh/kg by product</h3>
-            {meta.kwhPerKgProvenance === 'PLACEHOLDER' && (
-              <p title={meta.kwhPerKgNote} className="mt-2 max-w-4xl rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-300">
-                PLACEHOLDER — illustrative per-product energy intensity over time; no real per-product energy-over-time data exists yet (needs machine sub-metering).
-              </p>
-            )}
-            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Showing top {CHART_TOP_N} by energy intensity — switch to All, or search a product to add it.</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity chart scope">
-              {([
-                ['top', `Top ${CHART_TOP_N}`],
-                ['all', 'All'],
-              ] as const).map(([scope, label]) => (
-                <button key={scope} type="button" onClick={() => setChartScope(scope)} className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${chartScope === scope ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
-                  {label}
-                </button>
-              ))}
-            </div>
-            <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity granularity">
-              {GRANULARITY_OPTIONS.map((granularity) => (
-                <button key={granularity} type="button" onClick={() => setEnergyGranularity(granularity)} className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${energyGranularity === granularity ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
-                  {granularity}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="mt-3 h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={energyChartRows} margin={{ top: 8, right: 18, left: 0, bottom: 18 }}>
-              <XAxis dataKey="t" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
-              <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={42} />
-              <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem', maxHeight: 240, overflowY: 'auto' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [`${Number(value).toFixed(2)} kWh/kg`, name]} />
-              {energyChartProducts.map((product) => {
-                const isMatch = energySearch.length > 0 && product.name.toLowerCase().includes(energySearch);
-                return (
-                  <Line
-                    key={product.id}
-                    type="monotone"
-                    dataKey={product.id}
-                    name={product.name}
-                    stroke={isMatch ? '#1A365D' : (FAMILY_STROKE[product.family] ?? FAMILY_STROKE.Other)}
-                    strokeWidth={isMatch ? 2.25 : 1}
-                    strokeOpacity={isMatch ? 1 : 0.25}
-                    dot={false}
-                    activeDot={isMatch ? { r: 3 } : false}
-                    isAnimationActive={false}
-                  />
-                );
-              })}
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Changeover scrap — modeled from real switch frequency */}
-      <div className="card-surface p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Changeover scrap <span className="font-normal normal-case text-amber-600 dark:text-amber-400">· estimate</span></h3>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Of the {num(a.totalKg)} kg above, an estimated <span className="font-mono font-semibold text-slate-900 dark:text-white">{num(a.changeoverKg)} kg</span> (<span className="font-mono font-semibold">{(a.changeoverShare * 100).toFixed(1)}%</span> ≈ {num(a.changeoverOmr)} OMR) is changeover purge — {dataset === 'real' ? <>from a <span className="font-medium">measured</span> {num(a.chgPerYear)} product-switches/yr on the line (MC01+03) ({meta.changeoversObservedFamily} family, {meta.changeoversObservedDiameter} diameter over the period)</> : <>{num(a.chgPerYear)} modeled switches/yr</>}.
-            </p>
-            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              The switch count is real; only the kg-per-switch is assumed. Your records log <em>total</em> scrap and don't tag startup vs in-run, so this is a decomposition estimate — not extra scrap. It's the slice the <span className="font-medium">Order Planner</span>'s family-grouping directly removes. The rest is in-run reject, spread across many products — so scrap here is <span className="font-medium">diffuse and reject-driven, not changeover-driven</span>.
-            </p>
-          </div>
-          <label className="block shrink-0">
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">kg / changeover</span>
-            <input type="number" min={0} step={1} value={scrapPerChg} onChange={(e) => setScrapPerChg(Math.max(0, Number(e.target.value) || 0))} className="mt-1 block w-24 rounded-lg border border-amber-300/50 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-amber-500/20 dark:bg-card-dark dark:text-white" />
-          </label>
         </div>
       </div>
 
@@ -483,6 +347,150 @@ const ScrapAnalyzerPage: FC<{ onBack: () => void }> = ({ onBack }) => {
           </table>
         </div>
       </div>
+
+      <DetailsDrawer title="Details & evidence">
+        <div className="card-surface overflow-hidden p-0">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Products that most generate startup-only runs</h3>
+            <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
+          </div>
+          <div className="max-h-96 overflow-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
+                <tr><th className="px-4 py-2">Product</th><th className="px-4 py-2 text-right">Total Startups</th><th className="px-4 py-2 text-right">Cold Starts</th><th className="px-4 py-2 text-right">Sub-economic Runs</th><th className="px-4 py-2 text-right">Startup Scrap (kg)</th></tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700 dark:divide-white/5 dark:text-slate-300">
+                {productStartupRows.map((row) => (
+                  <tr key={row.product}>
+                    <td className="px-4 py-2 font-medium text-slate-900 dark:text-white">{row.product}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.startups)}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.coldStarts)}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.subEconomicRuns)}</td>
+                    <td className="px-4 py-2 text-right font-mono">{num(row.startupScrapKg)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="card-surface p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Where the scrap comes from (mechanism)</h3>
+                <span className="rounded-full border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-200">MEASURED</span>
+              </div>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Startup-driven split by warm-startup, cold-start, and continuation scrap.</p>
+            </div>
+          </div>
+          <div className="mt-4 h-20">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart layout="vertical" data={mechanismBarData} margin={{ top: 14, right: 0, left: 0, bottom: 14 }}>
+                <XAxis type="number" domain={[0, startupKpis.summary.totalScrapKg]} hide />
+                <YAxis type="category" dataKey="name" hide />
+                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number, n: string) => [`${num(v)} kg`, n === 'warmStartupKg' ? 'warm-startup' : n === 'coldStartKg' ? 'cold-start' : 'continuation']} />
+                <Bar dataKey="warmStartupKg" stackId="mechanism" fill="#10b981" radius={[4, 0, 0, 4]} isAnimationActive={false} />
+                <Bar dataKey="coldStartKg" stackId="mechanism" fill="#0ea5e9" isAnimationActive={false} />
+                <Bar dataKey="continuationKg" stackId="mechanism" fill="#94a3b8" radius={[0, 4, 4, 0]} isAnimationActive={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-3">
+            {mechanismSegments.map((segment) => (
+              <div key={segment.label} className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: segment.color }} />
+                <span>{segment.label}: <span className="font-mono text-slate-700 dark:text-slate-200">{num(segment.kg)} kg</span></span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-xl border border-slate-200/70 p-4 dark:border-white/10">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                <span className="font-semibold text-slate-900 dark:text-white">Batching-addressable pool (estimate):</span> {num(startupDrivenKg)} kg / {startupDrivenOmr.toFixed(0)} OMR startup-driven scrap — assumes all startup-driven scrap is removable by batching; actual savings depend on run consolidation feasibility.
+              </p>
+              <span className="rounded-full border border-amber-300/70 bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-200">ESTIMATE</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="card-surface p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Changeover scrap <span className="font-normal normal-case text-amber-600 dark:text-amber-400">· estimate</span></h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                Of the {num(a.totalKg)} kg above, an estimated <span className="font-mono font-semibold text-slate-900 dark:text-white">{num(a.changeoverKg)} kg</span> (<span className="font-mono font-semibold">{(a.changeoverShare * 100).toFixed(1)}%</span> ≈ {num(a.changeoverOmr)} OMR) is changeover purge — {dataset === 'real' ? <>from a <span className="font-medium">measured</span> {num(a.chgPerYear)} product-switches/yr on the line (MC01+03) ({meta.changeoversObservedFamily} family, {meta.changeoversObservedDiameter} diameter over the period)</> : <>{num(a.chgPerYear)} modeled switches/yr</>}.
+              </p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                The switch count is real; only the kg-per-switch is assumed. Your records log <em>total</em> scrap and don't tag startup vs in-run, so this is a decomposition estimate — not extra scrap. It's the slice the <span className="font-medium">Order Planner</span>'s family-grouping directly removes. The rest is in-run reject, spread across many products — so scrap here is <span className="font-medium">diffuse and reject-driven, not changeover-driven</span>.
+              </p>
+            </div>
+            <label className="block shrink-0">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">kg / changeover</span>
+              <input type="number" min={0} step={1} value={scrapPerChg} onChange={(e) => setScrapPerChg(Math.max(0, Number(e.target.value) || 0))} className="mt-1 block w-24 rounded-lg border border-amber-300/50 bg-white px-2 py-1 text-sm tabular-nums text-slate-900 focus:border-accent focus:outline-none dark:border-amber-500/20 dark:bg-card-dark dark:text-white" />
+            </label>
+          </div>
+        </div>
+
+        <div className="card-surface p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity over time — kWh/kg by product</h3>
+              {meta.kwhPerKgProvenance === 'PLACEHOLDER' && (
+                <p title={meta.kwhPerKgNote} className="mt-2 max-w-4xl rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-300">
+                  PLACEHOLDER — illustrative per-product energy intensity over time; no real per-product energy-over-time data exists yet (needs machine sub-metering).
+                </p>
+              )}
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Showing top {CHART_TOP_N} by energy intensity — switch to All, or search a product to add it.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity chart scope">
+                {([
+                  ['top', `Top ${CHART_TOP_N}`],
+                  ['all', 'All'],
+                ] as const).map(([scope, label]) => (
+                  <button key={scope} type="button" onClick={() => setChartScope(scope)} className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${chartScope === scope ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="inline-flex rounded-lg border border-slate-200/70 p-0.5 dark:border-white/10" aria-label="Energy intensity granularity">
+                {GRANULARITY_OPTIONS.map((granularity) => (
+                  <button key={granularity} type="button" onClick={() => setEnergyGranularity(granularity)} className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition ${energyGranularity === granularity ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}>
+                    {granularity}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={energyChartRows} margin={{ top: 8, right: 18, left: 0, bottom: 18 }}>
+                <XAxis dataKey="t" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+                <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={42} />
+                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem', maxHeight: 240, overflowY: 'auto' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(value: number, name: string) => [`${Number(value).toFixed(2)} kWh/kg`, name]} />
+                {energyChartProducts.map((product) => {
+                  const isMatch = energySearch.length > 0 && product.name.toLowerCase().includes(energySearch);
+                  return (
+                    <Line
+                      key={product.id}
+                      type="monotone"
+                      dataKey={product.id}
+                      name={product.name}
+                      stroke={isMatch ? '#1A365D' : (FAMILY_STROKE[product.family] ?? FAMILY_STROKE.Other)}
+                      strokeWidth={isMatch ? 2.25 : 1}
+                      strokeOpacity={isMatch ? 1 : 0.25}
+                      dot={false}
+                      activeDot={isMatch ? { r: 3 } : false}
+                      isAnimationActive={false}
+                    />
+                  );
+                })}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </DetailsDrawer>
 
       <p className="text-xs text-slate-400">Scrap = demand × kg/unit × each product's own measured reject rate (mass-basis). Recoverable compares material, well-measured products against their own best-demonstrated reject (P25). Plant = Extrusion Line 1 (Machines 01 &amp; 03). Changeover scrap is modeled from the real switch count; per-shift / per-batch / per-cause attribution unlocks once the MES is connected.</p>
 
