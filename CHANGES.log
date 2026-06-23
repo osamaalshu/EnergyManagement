@@ -319,3 +319,10 @@ Telemetry kWh/kg was machine-direct only; added the attributed cooling term.
 Three provenance tiers kept distinct (simulated machine / estimated cooling).
 Build-loop: CEO+CTO gate clean pass. Tests 68/68; build+provenance clean; no new deps.
 Spec: docs/CODEX_BRIEF_COOLING_ENERGY.md.
+
+[feat/fragility-rules] Run Fragility score + plan Rules layer (Order Planner) — PARKED, not merged.
+- New pure module fragility.ts: runFragility(item)->{score 0-100, band low/moderate/high/critical, confidence:'planning-only', reasons[], actions[]}; planRules(schedule)->{bandCounts, violations[]}.
+- Weights (ERP-derivable slice): family 45, cold-start 25, diameter 20, sub-economic 20. Calibration labeled internal (not product-claimed). Colour/material-lot/soak deferred to sensor layer (UI DEFERRED note).
+- Wired into Planner: per-run Fragility badge (score+band, reasons tooltip) + 'Fragility & rules' card (band counts, violations w/ actions, DEFERRED + ESTIMATE/confidence notes).
+- 5-axis review PASS; manager sign-off PASS. 76 tests green, build clean.
+- STATUS: held on branch only. Approach being verified on al-hilal-mc01-analysis (April) before it earns a place in the Enerlytics product.

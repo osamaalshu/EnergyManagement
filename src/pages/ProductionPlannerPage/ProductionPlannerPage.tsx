@@ -7,6 +7,7 @@ import {
   type SkuParam, type LineParam, type Econ, type Order, type OrderItem,
 } from '@/features/production-planning/productionModel';
 import { applyBatchSuggestion, suggestBatches, type BatchSuggestion } from '@/features/production-planning/batchingAdvisor';
+import { planRules, runFragility, type FragilityBand } from '@/features/production-planning/fragility';
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '@/features/tariff-engine/tariffEngine';
 import ScenarioBanner from '@/shared/ScenarioBanner';
 
@@ -23,6 +24,14 @@ const SCENARIO_BANNER_TEXT = 'Scenario — figures use a generated order book, n
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
 type Strategy = 'grouped' | 'balanced' | 'due';
 const STRATEGY_LABEL: Record<Strategy, string> = { grouped: 'Save resin (fewest startups)', balanced: 'Protect due dates', due: 'Expedite (EDD)' };
+const fragilityBadgeClass = (band: FragilityBand) =>
+  band === 'critical'
+    ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300'
+    : band === 'high'
+      ? 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300'
+      : band === 'moderate'
+        ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300'
+        : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300';
 let _uid = 0;
 const genOrders = (skus: SkuParam[], horizon: number): Order[] =>
   skus.map((s, i) => ({ id: `o${++_uid}`, productId: s.id, qty: Math.round((s.demand * horizon) / 365), dueDay: Math.max(2, Math.round(((i + 1) / skus.length) * horizon)) }));
@@ -101,6 +110,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, strategy]);
   const current = useMemo(() => scheduleOrders(orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, 'due'),
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg]);
+  const fragility = useMemo(() => planRules(smart), [smart]);
+  const fragilityBandSummary = `${fragility.bandCounts.critical} critical · ${fragility.bandCounts.high} high · ${fragility.bandCounts.moderate} moderate`;
   const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay, rateCv), [smart, hoursPerDay, rateCv]);
   const mcCur = useMemo(() => monteCarloOrders(current, hoursPerDay, rateCv), [current, hoursPerDay, rateCv]);
   const ledger = useMemo(() => computeStartupLedger(smart, products, econ.materialOmrPerKg), [smart, products, econ.materialOmrPerKg]);
@@ -493,6 +504,38 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
         </div>
       </div>
 
+      <div className="card-surface p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Fragility &amp; rules</h3>
+              {estimatedChip}
+            </div>
+            <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
+              {fragilityBandSummary}
+            </p>
+          </div>
+        </div>
+        {fragility.violations.length > 0 ? (
+          <div className="mt-4 space-y-2">
+            {fragility.violations.map((violation) => (
+              <div key={violation.kind} className="rounded-lg border border-slate-200/70 px-3 py-2 dark:border-white/10">
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{violation.message}</p>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{violation.action}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 rounded-lg border border-dashed border-slate-200/70 px-3 py-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">No fragility rule violations on this plan.</p>
+        )}
+        <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+          DEFERRED — Score uses planning data only (transition type, cold start, run size). Colour-change severity, material-lot change and machine soak state aren't in the schedule yet — they sharpen this once line sensors / the changeover log land.
+        </p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          ESTIMATE · confidence: planning-stage risk estimate based on schedule and run-pattern factors, not live process data.
+        </p>
+      </div>
+
       {/* PER-RUN DETAIL — every run: scrap (this product's benchmark) + energy by time-of-use */}
       <div className="card-surface overflow-hidden p-0">
         <div className="flex items-center justify-between border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
@@ -505,7 +548,7 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
               <tr>
                 <th className="px-3 py-2">#</th><th className="px-3 py-2">Product</th><th className="px-3 py-2">Machine</th>
                 <th className="px-3 py-2 text-right">Qty</th><th className="px-3 py-2 text-right">Run h</th>
-                <th className="px-3 py-2">startup?</th><th className="px-3 py-2">sub-economic?</th><th className="px-3 py-2">Changeover</th><th className="px-3 py-2 text-right">Finish d</th>
+                <th className="px-3 py-2">startup?</th><th className="px-3 py-2">sub-economic?</th><th className="px-3 py-2">Changeover</th><th className="px-3 py-2">Fragility</th><th className="px-3 py-2 text-right">Finish d</th>
                 <th className="px-3 py-2 text-right">Scrap kg</th><th className="px-3 py-2 text-right">Energy kWh</th><th className="px-3 py-2 text-right">kWh/kg</th>
                 <th className="px-3 py-2">When</th><th className="px-3 py-2 text-right">Energy OMR</th>
               </tr>
@@ -514,6 +557,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
               {detail.rows.filter(({ it }) => match(it.name)).map(({ it, scrap, reject, startup, kwh, omr, band }) => {
                 const kg = it.qty * (products[it.productId]?.kgPerUnit ?? 0);
                 const isStartup = it.setupType !== 'none' || it.seq === 1;
+                const fr = runFragility(it);
+                const fragilityTitle = fr.reasons.map((r) => [r.label, r.detail].filter(Boolean).join(' — ')).join(' · ');
                 return (
                   <tr key={it.machine + '-' + it.orderId} className={it.isSubEconomic ? 'bg-amber-50/60 dark:bg-amber-500/5' : ''}>
                     <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
@@ -524,6 +569,11 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
                     <td className="px-3 py-1.5 text-xs">{isStartup ? <span className="font-medium text-slate-700 dark:text-slate-200">✓</span> : <span className="text-slate-400">—</span>}</td>
                     <td className="px-3 py-1.5 text-xs">{it.isSubEconomic ? <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />✓ exception</span> : <span className="text-slate-400">—</span>}</td>
                     <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
+                    <td className="px-3 py-1.5 text-xs">
+                      <span title={fragilityTitle} className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[11px] font-semibold ${fragilityBadgeClass(fr.band)}`}>
+                        {fr.score} {fr.band}
+                      </span>
+                    </td>
                     <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
                     <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
                     <td className="px-3 py-1.5 text-right font-mono tabular-nums">{num(kwh)}</td>

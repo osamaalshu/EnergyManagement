@@ -47,4 +47,28 @@ describe('ProductionPlannerPage', () => {
     expect(container.textContent).toMatch(/This plan creates\s*2\s*startups/);
     expect(screen.getByRole('button', { name: /Revert batch preview/i })).toBeInTheDocument();
   });
+
+  it('renders the Fragility column, badges, rules card, and estimate framing', () => {
+    const drainage = productionData.model.skus.find((sku) => sku.family === 'Drainage')!;
+    const pressure = productionData.model.skus.find((sku) => sku.family === 'Pressure')!;
+    const { container } = render(
+      <ProductionPlannerPage
+        onBack={() => undefined}
+        initialOrders={[
+          { id: 'drainage-first', productId: drainage.id, qty: 1, dueDay: 30 },
+          { id: 'pressure-family-change', productId: pressure.id, qty: 1, dueDay: 30 },
+        ]}
+      />,
+    );
+
+    expect(container.textContent).toContain('Fragility');
+    expect(container.textContent).toContain('Fragility & rules');
+    expect(container.textContent).toContain('critical');
+    expect(container.textContent).toContain('high');
+    expect(container.textContent).toContain('moderate');
+    expect(container.textContent).toContain('DEFERRED');
+    expect(container.textContent).toContain('Score uses planning data only');
+    expect(container.textContent).toContain('ESTIMATE · confidence');
+    expect(container.textContent).toContain('planning-stage risk estimate based on schedule and run-pattern factors, not live process data');
+  });
 });
