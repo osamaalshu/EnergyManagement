@@ -111,7 +111,6 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
   const current = useMemo(() => scheduleOrders(orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg, 'due'),
     [orders, products, horizon, machines, line, econ, hoursPerDay, famH, diaH, scrapPerChg]);
   const fragility = useMemo(() => planRules(smart), [smart]);
-  const fragilityBandSummary = `${fragility.bandCounts.critical} critical · ${fragility.bandCounts.high} high · ${fragility.bandCounts.moderate} moderate`;
   const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay, rateCv), [smart, hoursPerDay, rateCv]);
   const mcCur = useMemo(() => monteCarloOrders(current, hoursPerDay, rateCv), [current, hoursPerDay, rateCv]);
   const ledger = useMemo(() => computeStartupLedger(smart, products, econ.materialOmrPerKg), [smart, products, econ.materialOmrPerKg]);
@@ -120,6 +119,14 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
     maxAddedLateDays: 1,
     topN: 3,
   }), [orders, products, line, econ, hoursPerDay]);
+  const highRiskRuns = fragility.bandCounts.critical + fragility.bandCounts.high;
+  const resetHeavyViolation = fragility.violations.some((violation) => violation.kind === 'reset-heavy');
+  const familyChanges = fragility.violations.find((violation) => violation.kind === 'family-change')?.count ?? 0;
+  const subEconomic = fragility.violations.find((violation) => violation.kind === 'sub-economic')?.count ?? 0;
+  const nCampaigns = batchSuggestions.length;
+  const runsToGroup = batchSuggestions.reduce((total, suggestion) => total + suggestion.orderIds.length, 0);
+  const startupsSaved = batchSuggestions.reduce((total, suggestion) => total + suggestion.startupsSaved, 0);
+  const omrSaved = Math.round(batchSuggestions.reduce((total, suggestion) => total + suggestion.scrapSavedOmr, 0));
   const overlay = useMemo(() => (mc.samplesDays.length && mcCur.samplesDays.length ? binTwo(mc.samplesDays, mcCur.samplesDays) : []), [mc, mcCur]);
   const intensityData = useMemo(() => skus
     .map((s) => ({ id: s.id, name: s.name || s.id, kwhPerKg: energyIntensityKwhPerKg(line.machineKw, s.rateEffective, s.kgPerUnit) }))
@@ -508,19 +515,32 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Fragility &amp; rules</h3>
+              <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{highRiskRuns > 0 || resetHeavyViolation ? 'This plan is reset-heavy.' : 'This plan looks steady.'}</h3>
               {estimatedChip}
             </div>
-            <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
-              {fragilityBandSummary}
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {highRiskRuns} high-risk runs · {familyChanges} family resets · {subEconomic} sub-economic runs
             </p>
           </div>
+        </div>
+        <div className="mt-4 rounded-lg border border-emerald-200/70 bg-emerald-50/70 px-4 py-3 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+          {nCampaigns > 0 ? (
+            <>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Group {runsToGroup} runs into {nCampaigns} campaign(s)</p>
+              <p className="mt-1 text-xl font-semibold text-emerald-700 dark:text-emerald-300">
+                Estimated avoidable scrap: ~{num(omrSaved)} OMR this month
+              </p>
+              <p className="mt-0.5 text-xs text-emerald-700/80 dark:text-emerald-300/80">({num(startupsSaved)} fewer startups)</p>
+            </>
+          ) : (
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Plan already grouped — no campaigns to merge.</p>
+          )}
         </div>
         {fragility.violations.length > 0 ? (
           <div className="mt-4 space-y-2">
             {fragility.violations.map((violation) => (
               <div key={violation.kind} className="rounded-lg border border-slate-200/70 px-3 py-2 dark:border-white/10">
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{violation.message}</p>
+                <p className="text-xs font-medium text-slate-600 dark:text-slate-300">{violation.message}</p>
                 <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{violation.action}</p>
               </div>
             ))}
@@ -528,11 +548,11 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
         ) : (
           <p className="mt-4 rounded-lg border border-dashed border-slate-200/70 px-3 py-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">No fragility rule violations on this plan.</p>
         )}
-        <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-          DEFERRED — Score uses planning data only (transition type, cold start, run size). Colour-change severity, material-lot change and machine soak state aren't in the schedule yet — they sharpen this once line sensors / the changeover log land.
+        <p className="mt-4 text-[11px] text-slate-500 dark:text-slate-400">
+          DEFERRED — Score uses planning data only; colour-change severity, material-lot change and machine soak state wait for sensors / the changeover log.
         </p>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-          ESTIMATE · confidence: planning-stage risk estimate based on schedule and run-pattern factors, not live process data.
+        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+          ESTIMATE · confidence: planning-stage risk estimate based on schedule and run-pattern factors, not live process data. Best used structurally — cut the number of startups, not tiny differences between neighbouring runs.
         </p>
       </div>
 

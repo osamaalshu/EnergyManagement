@@ -55,20 +55,21 @@ describe('ProductionPlannerPage', () => {
       <ProductionPlannerPage
         onBack={() => undefined}
         initialOrders={[
-          { id: 'drainage-first', productId: drainage.id, qty: 1, dueDay: 30 },
-          { id: 'pressure-family-change', productId: pressure.id, qty: 1, dueDay: 30 },
+          { id: 'drain-urgent', productId: drainage.id, qty: 200, dueDay: 0.5, priority: true },
+          { id: 'pressure-middle', productId: pressure.id, qty: 1000, dueDay: 30 },
+          { id: 'drain-later', productId: drainage.id, qty: 200, dueDay: 7 },
         ]}
       />,
     );
 
-    expect(container.textContent).toContain('Fragility');
-    expect(container.textContent).toContain('Fragility & rules');
-    expect(container.textContent).toContain('critical');
-    expect(container.textContent).toContain('high');
-    expect(container.textContent).toContain('moderate');
+    expect(screen.getAllByRole('columnheader', { name: 'Fragility' }).length).toBeGreaterThan(0);
+    expect(container.textContent).toMatch(/\d+ (critical|high|moderate|low)/);
+    expect(container.textContent).toContain('This plan is reset-heavy.');
+    expect(container.textContent).toMatch(/Estimated avoidable scrap:\s*~\d+ OMR this month/);
     expect(container.textContent).toContain('DEFERRED');
     expect(container.textContent).toContain('Score uses planning data only');
     expect(container.textContent).toContain('ESTIMATE · confidence');
     expect(container.textContent).toContain('planning-stage risk estimate based on schedule and run-pattern factors, not live process data');
+    expect(container.textContent).toContain('Best used structurally');
   });
 });
