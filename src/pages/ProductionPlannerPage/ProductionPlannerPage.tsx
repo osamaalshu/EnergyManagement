@@ -1,4 +1,4 @@
-import { Fragment, type FC, type ReactNode, useMemo, useState } from 'react';
+import { Fragment, type FC, useMemo, useState } from 'react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
 import { productionData } from '@/data/productionData';
 import {
@@ -9,6 +9,7 @@ import {
 import { applyBatchSuggestion, suggestBatches, type BatchSuggestion } from '@/features/production-planning/batchingAdvisor';
 import { planRules, runFragility, type FragilityBand } from '@/features/production-planning/fragility';
 import { effectiveRateOmrPerKwh, TARIFF_SCHEDULE_VERSION } from '@/features/tariff-engine/tariffEngine';
+import DetailsDrawer from '@/shared/DetailsDrawer';
 import ScenarioBanner from '@/shared/ScenarioBanner';
 
 // Representative days for Time-of-Use pricing — Oman summer/winter, factory LV.
@@ -38,7 +39,7 @@ const actionPriorityClass = (priority: 'act' | 'review' | 'info') =>
     : priority === 'review'
       ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300'
       : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300';
-const RUN_DETAIL_COLUMN_COUNT = 15;
+const RUN_DETAIL_COLUMN_COUNT = 8;
 let _uid = 0;
 const genOrders = (skus: SkuParam[], horizon: number): Order[] =>
   skus.map((s, i) => ({ id: `o${++_uid}`, productId: s.id, qty: Math.round((s.demand * horizon) / 365), dueDay: Math.max(2, Math.round(((i + 1) / skus.length) * horizon)) }));
@@ -141,10 +142,8 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
     .sort((a, b) => b.kwhPerKg - a.kwhPerKg), [skus, line]);
 
   const itemByOrder = useMemo(() => { const map: Record<string, OrderItem> = {}; smart.items.forEach((it) => { map[it.orderId] = it; }); return map; }, [smart]);
-  const savedChg = Math.round((current.changeoverH - smart.changeoverH) * 10) / 10;
   const savedScrap = Math.round(current.scrapKg - smart.scrapKg);
   const savedScrapOmr = Math.round(savedScrap * econ.materialOmrPerKg);
-  const onTimePct = Math.round(mc.pAllOnTime * 100);
 
   // Energy & Time-of-Use: total machine-on energy, priced peak vs off-peak (the timing lever)
   // real CRT rate for each hour of the representative day
@@ -244,73 +243,49 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
         </div>
       </div>
 
-      {/* VERDICT */}
-      <div className={`rounded-2xl border p-5 ${onTimePct >= 85 ? 'border-emerald-300/60 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10' : onTimePct >= 50 ? 'border-amber-300/60 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10' : 'border-rose-300/60 bg-rose-50 dark:border-rose-500/20 dark:bg-rose-500/10'}`}>
-        <div className="flex flex-wrap items-center gap-2">
-          <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${onTimePct >= 85 ? 'text-emerald-700 dark:text-emerald-300' : onTimePct >= 50 ? 'text-amber-700 dark:text-amber-300' : 'text-rose-700 dark:text-rose-300'}`}>Startup verdict</p>
-          {estimatedChip}
-        </div>
-        <h3 className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">
-          This plan creates <span className="font-mono">{ledger.startups}</span> startups (<span className="font-mono">{ledger.familyChangeStarts}</span> family-change / cold-start proxy), <span className="font-mono">{ledger.subEconomicRuns}</span> sub-economic runs, ≈ <span className="font-mono">{num(ledger.startupScrapKg)}</span> kg startup scrap (<span className="font-mono">{num(ledger.startupScrapOmr)}</span> OMR).
-        </h3>
-        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-          OTIF estimate: {smart.onTime} of {smart.total} orders on time · {onTimePct}% chance ALL ship on time · last order day <span className="font-mono">{num(smart.makespanDays, 1)}</span> typical, P90 <span className="font-mono">{num(mc.samplesDays[Math.floor(0.9 * (mc.samplesDays.length - 1))] || 0, 1)}</span>.
-        </p>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          <span className="font-medium">{STRATEGY_LABEL[strategy]}</span> · steady-state run time <span className="font-mono font-semibold">{Math.round(smart.steadyStatePct * 100)}%</span> · saves <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedChg, 1)} h</span> changeover &amp; <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{num(savedScrap)} kg</span> scrap vs running ungrouped.
-          {smart.lateOrders.length > 0 && <span className="text-rose-600 dark:text-rose-400"> At risk: {smart.lateOrders.map((l) => l.name).slice(0, 3).join(', ')}{smart.lateOrders.length > 3 ? '…' : ''}.</span>}
-        </p>
-      </div>
-
-      {/* THIS PLAN KPI STRIP */}
       <div className="card-surface p-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">This plan (estimated)</h3>
-          {estimatedChip}
-        </div>
-        <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <PlanKpi label="Startups" value={num(ledger.startups)} chip={estimatedChip} />
-          <PlanKpi label="Cold-starts (proxy)" value={num(ledger.familyChangeStarts)} chip={estimatedChip} />
-          <PlanKpi label="% sub-economic runs" value={`${num(ledger.subEconomicPct * 100, 1)}%`} chip={estimatedChip} />
-          <PlanKpi label="Scrap per startup" value={`${num(ledger.scrapPerStartupKg)} kg`} sub={`${num(ledger.scrapPerStartupKg * econ.materialOmrPerKg)} OMR`} chip={estimatedChip} />
-        </div>
-        <p className="mt-3 text-[11px] text-slate-400">Plan-level estimates; historical weekly figures arrive with the run-level export.</p>
-      </div>
-
-      {/* BATCHING ADVISOR — save-vs-risk action preview */}
-      <div className="card-surface p-5" aria-label="Batching Advisor">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Batching Advisor</h3>
+              <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{highRiskRuns > 0 || resetHeavyViolation ? 'This plan is reset-heavy.' : 'This plan looks steady.'}</h3>
               {estimatedChip}
             </div>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Startup scrap savings are estimated from the Startup Ledger basis. Energy saving appears when metered; no kWh claimed here.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {highRiskRuns} high-risk runs · {familyChanges} family resets · {subEconomic} sub-economic runs
+            </p>
           </div>
-          {batchPreviewBase && (
-            <button type="button" onClick={revertBatchPreview} aria-label="Revert batch preview" className="rounded-lg border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5">Revert</button>
+        </div>
+        <div className="mt-4 rounded-lg border border-emerald-200/70 bg-emerald-50/70 px-4 py-3 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+          {nCampaigns > 0 ? (
+            <>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Group {runsToGroup} runs into {nCampaigns} campaign(s)</p>
+              <p className="mt-1 text-xl font-semibold text-emerald-700 dark:text-emerald-300">
+                Estimated avoidable scrap: ~{num(omrSaved)} OMR this month
+              </p>
+              <p className="mt-0.5 text-xs text-emerald-700/80 dark:text-emerald-300/80">({num(startupsSaved)} fewer startups)</p>
+            </>
+          ) : (
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Plan already grouped — no campaigns to merge.</p>
           )}
         </div>
-        {batchSuggestions.length > 0 ? (
+        {fragility.violations.length > 0 ? (
           <div className="mt-4 space-y-2">
-            {batchSuggestions.map((suggestion, index) => {
-              const product = products[suggestion.productId];
-              return (
-                <div key={suggestion.id} className={`rounded-lg border px-3 py-2 ${suggestion.feasible ? 'border-slate-200/70 dark:border-white/10' : 'border-slate-200/50 bg-slate-50/70 opacity-70 dark:border-white/10 dark:bg-white/5'}`}>
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="min-w-0 flex-1 text-sm text-slate-700 dark:text-slate-300">
-                      <span className="font-mono text-xs text-slate-400">#{index + 1}</span> Batch {suggestion.orderIds.length} {suggestion.family} orders of <span className="font-medium text-slate-900 dark:text-white">{product?.name ?? suggestion.productId}</span> → save <span className="font-mono font-semibold">{num(suggestion.startupsSaved)}</span> startups, ≈<span className="font-mono font-semibold">{num(suggestion.scrapSavedKg)}</span> kg (<span className="font-mono font-semibold">{num(suggestion.scrapSavedOmr, 1)}</span> OMR) startup scrap · +<span className="font-mono font-semibold">{num(suggestion.addedLateDays, 1)}</span>d max lateness · OTIF <span className="font-mono">{num(suggestion.otifBefore * 100)}%→{num(suggestion.otifAfter * 100)}%</span>.
-                      {!suggestion.feasible && <span className="ml-2 text-amber-700 dark:text-amber-300">override — costs {num(suggestion.addedLateDays, 1)}d lateness</span>}
-                    </p>
-                    <button type="button" onClick={() => applyBatchPreview(suggestion)} aria-label={`Apply batch preview ${suggestion.productId}`} className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-accent/90">Apply (preview)</button>
-                  </div>
-                </div>
-              );
-            })}
+            {fragility.violations.map((violation) => (
+              <div key={violation.kind} className="rounded-lg border border-slate-200/70 px-3 py-2 dark:border-white/10">
+                <p className="text-xs font-medium text-slate-600 dark:text-slate-300">{violation.message}</p>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{violation.action}</p>
+              </div>
+            ))}
           </div>
         ) : (
-          <p className="mt-4 rounded-lg border border-dashed border-slate-200/70 px-3 py-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">No sub-economic same-product orders due within {batchDueWindowDays} days to batch.</p>
+          <p className="mt-4 rounded-lg border border-dashed border-slate-200/70 px-3 py-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">No fragility rule violations on this plan.</p>
         )}
+        <p className="mt-4 text-[11px] text-slate-500 dark:text-slate-400">
+          DEFERRED — Score uses planning data only; colour-change severity, material-lot change and machine soak state wait for sensors / the changeover log.
+        </p>
+        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+          ESTIMATE · confidence: planning-stage risk estimate based on schedule and run-pattern factors, not live process data. Best used structurally — cut the number of startups, not tiny differences between neighbouring runs.
+        </p>
       </div>
 
       {/* YOUR DECISIONS — only what a manager controls */}
@@ -348,6 +323,133 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
             <p className="mt-3 text-[11px] text-slate-400">Run rates and reject rates come straight from your records. Rate variability (CV), changeover times and startup scrap are <span className="text-amber-600 dark:text-amber-400">estimates today</span> — when the line's changeover log and sensors are connected, these calibrate automatically and turn measured. You never type these as a manager; they're shown here for transparency.</p>
           </div>
         )}
+      </div>
+
+      {/* SCHEDULE (evidence) */}
+      <div className="card-surface p-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Schedule — grouped by family</h3>
+          <div className="flex flex-wrap gap-3 text-[11px] text-slate-500 dark:text-slate-400">
+            {Object.keys(FAMILY_BG).filter((f) => skus.some((s) => s.family === f)).map((f) => (<span key={f} className="inline-flex items-center gap-1"><span className={`h-2.5 w-2.5 rounded-sm ${FAMILY_BG[f]}`} />{f}</span>))}
+          </div>
+        </div>
+        <div className="space-y-2">
+          {smart.lanes.map((lane) => (
+            <div key={lane.machine} className="flex items-center gap-3">
+              <span className="w-24 shrink-0 truncate text-xs font-medium text-slate-700 dark:text-slate-300">{lane.name}</span>
+              <div className="relative h-8 flex-1 overflow-hidden rounded-md bg-slate-100 dark:bg-white/5">
+                <div className="flex h-full">
+                  {lane.items.map((it) => (
+                    <div key={it.orderId} className="flex h-full" title={`${it.name} · ${num(it.qty)} · finishes day ${num(it.finishDay, 1)} (due ${it.dueDay})`}>
+                      {it.setupBeforeH > 0 && <div className={`h-full ${it.setupType === 'family' ? 'bg-slate-400/70' : 'bg-slate-300/70 dark:bg-white/20'}`} style={{ width: `${(it.setupBeforeH / smart.capacityPerMachineH) * 100}%` }} />}
+                      <div className={`h-full ${it.onTime ? FAMILY_BG[it.family] ?? 'bg-slate-400' : 'bg-rose-500'}`} style={{ width: `${Math.min((it.runtimeH / smart.capacityPerMachineH) * 100, 100)}%` }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <span className={`w-16 shrink-0 text-right font-mono text-xs ${lane.loadH > smart.capacityPerMachineH ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400'}`}>{num(lane.loadH)} h</span>
+            </div>
+          ))}
+          <div className="flex items-center gap-3 text-[10px] text-slate-400"><span className="w-24 shrink-0" /><span className="flex-1 text-right">▲ window {num(smart.capacityPerMachineH)} h ({num(horizon)} d × {hoursPerDay} h) · red = late order</span><span className="w-16 shrink-0" /></div>
+        </div>
+      </div>
+
+      {/* PER-RUN DETAIL — every run: scrap (this product's benchmark) + energy by time-of-use */}
+      <div className="card-surface overflow-hidden p-0">
+        <div className="flex items-center justify-between border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Run-by-run detail</h3>
+          <span className="text-[11px] text-slate-400">scrap = each product's own benchmark · energy priced by when it runs · shaded = bigger</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
+              <tr>
+                <th className="px-3 py-2">#</th><th className="px-3 py-2">Product</th>
+                <th className="px-3 py-2 text-right">Qty</th><th className="px-3 py-2 text-right">Run h</th>
+                <th className="px-3 py-2">Fragility</th><th className="px-3 py-2 text-right">Scrap kg</th><th className="px-3 py-2 text-right">Finish d</th>
+                <th className="px-3 py-2">When</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
+              {detail.rows.filter(({ it }) => match(it.name)).map(({ it, scrap, reject, startup, kwh, omr, band }) => {
+                const kg = it.qty * (products[it.productId]?.kgPerUnit ?? 0);
+                const fr = runFragility(it);
+                const id = it.machine + '-' + it.orderId;
+                const isOpen = openRun === id;
+                const fragilityTitle = fr.reasons.map((r) => [r.label, r.detail].filter(Boolean).join(' — ')).join(' · ');
+                const runOmr = Math.round(startup * econ.materialOmrPerKg);
+                const scoredReasons = fr.reasons.filter((reason) => reason.impact > 0);
+                return (
+                  <Fragment key={id}>
+                    <tr className={it.isSubEconomic ? 'bg-amber-50/60 dark:bg-amber-500/5' : ''}>
+                      <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
+                      <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
+                      <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
+                      <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
+                      <td className="px-3 py-1.5 text-xs">
+                        <button
+                          type="button"
+                          title={fragilityTitle}
+                          aria-expanded={isOpen}
+                          onClick={() => setOpenRun((prev) => (prev === id ? null : id))}
+                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[11px] font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent/40 ${fragilityBadgeClass(fr.band)}`}
+                        >
+                          <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
+                          <span>{fr.score} {fr.band}</span>
+                        </button>
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
+                      <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
+                      <td className="px-3 py-1.5 text-xs">{band === 'peak' ? <span className="text-rose-600 dark:text-rose-400">peak</span> : band === 'mixed' ? <span className="text-amber-600 dark:text-amber-400">mixed</span> : <span className="text-emerald-600 dark:text-emerald-400">off-peak</span>}</td>
+                    </tr>
+                    {isOpen ? (
+                      <tr className="bg-slate-50/70 dark:bg-white/5">
+                        <td colSpan={RUN_DETAIL_COLUMN_COUNT} className="px-5 py-4">
+                          <div className="space-y-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-slate-900 dark:text-white">Why this run scored {fr.score} ({fr.band})</p>
+                              {estimatedChip}
+                            </div>
+                            <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                              {scoredReasons.length > 0 ? scoredReasons.map((reason) => (
+                                <p key={reason.code}>
+                                  <span className="font-mono font-semibold text-slate-900 dark:text-white">+{reason.impact}</span>
+                                  {' · '}{reason.label}{reason.detail ? ` — ${reason.detail}` : ''}
+                                </p>
+                              )) : (
+                                <p>No transition or small-run penalty — steady continuation.</p>
+                              )}
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">What to do</p>
+                              <div className="flex flex-wrap gap-2">
+                                {fr.actions.map((action) => (
+                                  <span key={action.code} className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-200">
+                                    <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${actionPriorityClass(action.priority)}`}>{action.priority}</span>
+                                    {action.label}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="text-xs">
+                              {startup > 0 ? (
+                                <p className="font-semibold text-emerald-700 dark:text-emerald-300">This run's startup scrap ≈ {num(startup)} kg ≈ {num(runOmr)} OMR — avoidable by campaigning / extending the run.</p>
+                              ) : (
+                                <p className="text-slate-500 dark:text-slate-400">No startup scrap attributed to this run.</p>
+                              )}
+                              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Energy: {num(kwh)} kWh · {kg > 0 ? (kwh / kg).toFixed(2) : '—'} kWh/kg · {num(omr, 1)} OMR ({band}).</p>
+                              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Planning-stage estimate — see the Fragility & rules card above for the plan-level action.</p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* ORDER BOOK — input + outcome per order */}
@@ -394,16 +496,45 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
         </div>
       </div>
 
+      {/* BATCHING ADVISOR — save-vs-risk action preview */}
+      <div className="card-surface p-5" aria-label="Batching Advisor">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Batching Advisor</h3>
+              {estimatedChip}
+            </div>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Startup scrap savings are estimated from the Startup Ledger basis. Energy saving appears when metered; no kWh claimed here.</p>
+          </div>
+          {batchPreviewBase && (
+            <button type="button" onClick={revertBatchPreview} aria-label="Revert batch preview" className="rounded-lg border border-slate-200/70 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5">Revert</button>
+          )}
+        </div>
+        {batchSuggestions.length > 0 ? (
+          <div className="mt-4 space-y-2">
+            {batchSuggestions.map((suggestion, index) => {
+              const product = products[suggestion.productId];
+              return (
+                <div key={suggestion.id} className={`rounded-lg border px-3 py-2 ${suggestion.feasible ? 'border-slate-200/70 dark:border-white/10' : 'border-slate-200/50 bg-slate-50/70 opacity-70 dark:border-white/10 dark:bg-white/5'}`}>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="min-w-0 flex-1 text-sm text-slate-700 dark:text-slate-300">
+                      <span className="font-mono text-xs text-slate-400">#{index + 1}</span> Batch {suggestion.orderIds.length} {suggestion.family} orders of <span className="font-medium text-slate-900 dark:text-white">{product?.name ?? suggestion.productId}</span> → save <span className="font-mono font-semibold">{num(suggestion.startupsSaved)}</span> startups, ≈<span className="font-mono font-semibold">{num(suggestion.scrapSavedKg)}</span> kg (<span className="font-mono font-semibold">{num(suggestion.scrapSavedOmr, 1)}</span> OMR) startup scrap · +<span className="font-mono font-semibold">{num(suggestion.addedLateDays, 1)}</span>d max lateness · OTIF <span className="font-mono">{num(suggestion.otifBefore * 100)}%→{num(suggestion.otifAfter * 100)}%</span>.
+                      {!suggestion.feasible && <span className="ml-2 text-amber-700 dark:text-amber-300">override — costs {num(suggestion.addedLateDays, 1)}d lateness</span>}
+                    </p>
+                    <button type="button" onClick={() => applyBatchPreview(suggestion)} aria-label={`Apply batch preview ${suggestion.productId}`} className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-accent/90">Apply (preview)</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-4 rounded-lg border border-dashed border-slate-200/70 px-3 py-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">No sub-economic same-product orders due within {batchDueWindowDays} days to batch.</p>
+        )}
+      </div>
+
+      <DetailsDrawer title="Details & evidence">
       {/* ENERGY & SCRAP — schedule linked to the two cost drivers (Track B v1) */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="card-surface p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Expected scrap — from this plan's run-time &amp; changeovers</h3>
-          <p className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(smart.scrapKg)} kg <span className="text-base font-normal text-slate-500">≈ {num(smart.scrapOmr)} OMR</span></p>
-          <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">−{num(savedScrap)} kg (≈ {num(savedScrapOmr)} OMR) vs your current way</p>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            <span className="font-mono">{num(smart.baseScrapKg)} kg</span> in-run reject + <span className="font-mono">{num(smart.startupScrapKg)} kg</span> startup scrap from <span className="font-mono">{smart.familyChanges + smart.diameterChanges}</span> changeovers. Fewer/cleaner changeovers → less scrap.
-          </p>
-        </div>
         <div className="card-surface p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Startup Ledger</h3>
@@ -420,6 +551,14 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
             <LedgerMetric label="Startup scrap OMR" value={num(ledger.startupScrapOmr)} />
             <LedgerMetric label="Scrap / startup" value={`${num(ledger.scrapPerStartupKg)} kg`} />
           </div>
+        </div>
+        <div className="card-surface p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Expected scrap — from this plan's run-time &amp; changeovers</h3>
+          <p className="mt-2 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{num(smart.scrapKg)} kg <span className="text-base font-normal text-slate-500">≈ {num(smart.scrapOmr)} OMR</span></p>
+          <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">−{num(savedScrap)} kg (≈ {num(savedScrapOmr)} OMR) vs your current way</p>
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-mono">{num(smart.baseScrapKg)} kg</span> in-run reject + <span className="font-mono">{num(smart.startupScrapKg)} kg</span> startup scrap from <span className="font-mono">{smart.familyChanges + smart.diameterChanges}</span> changeovers. Fewer/cleaner changeovers → less scrap.
+          </p>
         </div>
         <div className="card-surface p-5 lg:col-span-2">
           <div className="flex items-start justify-between gap-2">
@@ -490,199 +629,21 @@ const ProductionPlannerPage: FC<{ onBack: () => void; initialOrders?: Order[] }>
         <p className="mt-1 text-[11px] text-slate-400">The smart schedule's curve sits <em>earlier and tighter</em> — finishing sooner with less uncertainty. Both account for run-to-run rate variability.</p>
       </div>
 
-      {/* SCHEDULE (evidence) */}
       <div className="card-surface p-5">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Schedule — grouped by family</h3>
-          <div className="flex flex-wrap gap-3 text-[11px] text-slate-500 dark:text-slate-400">
-            {Object.keys(FAMILY_BG).filter((f) => skus.some((s) => s.family === f)).map((f) => (<span key={f} className="inline-flex items-center gap-1"><span className={`h-2.5 w-2.5 rounded-sm ${FAMILY_BG[f]}`} />{f}</span>))}
-          </div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity — kWh per kg by product</h3>
+        <div className="mt-3 h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={intensityData} margin={{ top: 8, right: 16, left: 0, bottom: 50 }}>
+              <XAxis dataKey="name" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} angle={-35} textAnchor="end" height={56} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
+              <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={34} />
+              <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number) => [v.toFixed(2), 'kWh/kg']} />
+              <Bar dataKey="kwhPerKg" fill="#1A365D" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-        <div className="space-y-2">
-          {smart.lanes.map((lane) => (
-            <div key={lane.machine} className="flex items-center gap-3">
-              <span className="w-24 shrink-0 truncate text-xs font-medium text-slate-700 dark:text-slate-300">{lane.name}</span>
-              <div className="relative h-8 flex-1 overflow-hidden rounded-md bg-slate-100 dark:bg-white/5">
-                <div className="flex h-full">
-                  {lane.items.map((it) => (
-                    <div key={it.orderId} className="flex h-full" title={`${it.name} · ${num(it.qty)} · finishes day ${num(it.finishDay, 1)} (due ${it.dueDay})`}>
-                      {it.setupBeforeH > 0 && <div className={`h-full ${it.setupType === 'family' ? 'bg-slate-400/70' : 'bg-slate-300/70 dark:bg-white/20'}`} style={{ width: `${(it.setupBeforeH / smart.capacityPerMachineH) * 100}%` }} />}
-                      <div className={`h-full ${it.onTime ? FAMILY_BG[it.family] ?? 'bg-slate-400' : 'bg-rose-500'}`} style={{ width: `${Math.min((it.runtimeH / smart.capacityPerMachineH) * 100, 100)}%` }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <span className={`w-16 shrink-0 text-right font-mono text-xs ${lane.loadH > smart.capacityPerMachineH ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400'}`}>{num(lane.loadH)} h</span>
-            </div>
-          ))}
-          <div className="flex items-center gap-3 text-[10px] text-slate-400"><span className="w-24 shrink-0" /><span className="flex-1 text-right">▲ window {num(smart.capacityPerMachineH)} h ({num(horizon)} d × {hoursPerDay} h) · red = late order</span><span className="w-16 shrink-0" /></div>
-        </div>
+        <p className="mt-1 text-[11px] text-slate-400">Run energy only — excludes changeover and time-of-use pricing. Higher = more energy per kg produced.</p>
       </div>
-
-      <div className="card-surface p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{highRiskRuns > 0 || resetHeavyViolation ? 'This plan is reset-heavy.' : 'This plan looks steady.'}</h3>
-              {estimatedChip}
-            </div>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {highRiskRuns} high-risk runs · {familyChanges} family resets · {subEconomic} sub-economic runs
-            </p>
-          </div>
-        </div>
-        <div className="mt-4 rounded-lg border border-emerald-200/70 bg-emerald-50/70 px-4 py-3 dark:border-emerald-500/20 dark:bg-emerald-500/10">
-          {nCampaigns > 0 ? (
-            <>
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Group {runsToGroup} runs into {nCampaigns} campaign(s)</p>
-              <p className="mt-1 text-xl font-semibold text-emerald-700 dark:text-emerald-300">
-                Estimated avoidable scrap: ~{num(omrSaved)} OMR this month
-              </p>
-              <p className="mt-0.5 text-xs text-emerald-700/80 dark:text-emerald-300/80">({num(startupsSaved)} fewer startups)</p>
-            </>
-          ) : (
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Plan already grouped — no campaigns to merge.</p>
-          )}
-        </div>
-        {fragility.violations.length > 0 ? (
-          <div className="mt-4 space-y-2">
-            {fragility.violations.map((violation) => (
-              <div key={violation.kind} className="rounded-lg border border-slate-200/70 px-3 py-2 dark:border-white/10">
-                <p className="text-xs font-medium text-slate-600 dark:text-slate-300">{violation.message}</p>
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{violation.action}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-4 rounded-lg border border-dashed border-slate-200/70 px-3 py-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">No fragility rule violations on this plan.</p>
-        )}
-        <p className="mt-4 text-[11px] text-slate-500 dark:text-slate-400">
-          DEFERRED — Score uses planning data only; colour-change severity, material-lot change and machine soak state wait for sensors / the changeover log.
-        </p>
-        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-          ESTIMATE · confidence: planning-stage risk estimate based on schedule and run-pattern factors, not live process data. Best used structurally — cut the number of startups, not tiny differences between neighbouring runs.
-        </p>
-      </div>
-
-      {/* PER-RUN DETAIL — every run: scrap (this product's benchmark) + energy by time-of-use */}
-      <div className="card-surface overflow-hidden p-0">
-        <div className="flex items-center justify-between border-b border-slate-200/60 px-5 py-3 dark:border-white/10">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Run-by-run detail</h3>
-          <span className="text-[11px] text-slate-400">scrap = each product's own benchmark · energy priced by when it runs · shaded = bigger</span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400 dark:bg-white/5">
-              <tr>
-                <th className="px-3 py-2">#</th><th className="px-3 py-2">Product</th><th className="px-3 py-2">Machine</th>
-                <th className="px-3 py-2 text-right">Qty</th><th className="px-3 py-2 text-right">Run h</th>
-                <th className="px-3 py-2">startup?</th><th className="px-3 py-2">sub-economic?</th><th className="px-3 py-2">Changeover</th><th className="px-3 py-2">Fragility</th><th className="px-3 py-2 text-right">Finish d</th>
-                <th className="px-3 py-2 text-right">Scrap kg</th><th className="px-3 py-2 text-right">Energy kWh</th><th className="px-3 py-2 text-right">kWh/kg</th>
-                <th className="px-3 py-2">When</th><th className="px-3 py-2 text-right">Energy OMR</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-300">
-              {detail.rows.filter(({ it }) => match(it.name)).map(({ it, scrap, reject, startup, kwh, omr, band }) => {
-                const kg = it.qty * (products[it.productId]?.kgPerUnit ?? 0);
-                const isStartup = it.setupType !== 'none' || it.seq === 1;
-                const fr = runFragility(it);
-                const id = it.machine + '-' + it.orderId;
-                const isOpen = openRun === id;
-                const fragilityTitle = fr.reasons.map((r) => [r.label, r.detail].filter(Boolean).join(' — ')).join(' · ');
-                const runOmr = Math.round(startup * econ.materialOmrPerKg);
-                const scoredReasons = fr.reasons.filter((reason) => reason.impact > 0);
-                return (
-                  <Fragment key={id}>
-                    <tr className={it.isSubEconomic ? 'bg-amber-50/60 dark:bg-amber-500/5' : ''}>
-                      <td className="px-3 py-1.5 font-mono text-xs text-slate-400">{it.seq}</td>
-                      <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1.5"><span className={`h-2 w-2 rounded-sm ${FAMILY_BG[it.family] ?? 'bg-slate-400'}`} /><span className="font-medium text-slate-900 dark:text-white">{it.name}</span></span></td>
-                      <td className="px-3 py-1.5 text-xs">{it.machineName}</td>
-                      <td className="px-3 py-1.5 text-right font-mono">{num(it.qty)}</td>
-                      <td className="px-3 py-1.5 text-right font-mono">{num(it.runtimeH, 1)}</td>
-                      <td className="px-3 py-1.5 text-xs">{isStartup ? <span className="font-medium text-slate-700 dark:text-slate-200">✓</span> : <span className="text-slate-400">—</span>}</td>
-                      <td className="px-3 py-1.5 text-xs">{it.isSubEconomic ? <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />✓ exception</span> : <span className="text-slate-400">—</span>}</td>
-                      <td className="px-3 py-1.5 text-xs">{it.setupType === 'family' ? <span className="text-rose-600 dark:text-rose-400">family +{it.setupBeforeH}h</span> : it.setupType === 'diameter' ? <span className="text-amber-600 dark:text-amber-400">Ø +{it.setupBeforeH}h</span> : <span className="text-slate-400">—</span>}</td>
-                      <td className="px-3 py-1.5 text-xs">
-                        <button
-                          type="button"
-                          title={fragilityTitle}
-                          aria-expanded={isOpen}
-                          onClick={() => setOpenRun((prev) => (prev === id ? null : id))}
-                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[11px] font-semibold transition focus:outline-none focus:ring-2 focus:ring-accent/40 ${fragilityBadgeClass(fr.band)}`}
-                        >
-                          <span aria-hidden="true">{isOpen ? '▾' : '▸'}</span>
-                          <span>{fr.score} {fr.band}</span>
-                        </button>
-                      </td>
-                      <td className="px-3 py-1.5 text-right font-mono">{num(it.finishDay, 1)}</td>
-                      <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(scrap, detail.maxScrap, '244,63,94')} title={`reject ${num(reject)} + startup ${num(startup)} kg`}>{num(scrap)}</td>
-                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{num(kwh)}</td>
-                      <td className="px-3 py-1.5 text-right font-mono tabular-nums">{kg > 0 ? (kwh / kg).toFixed(2) : '—'}</td>
-                      <td className="px-3 py-1.5 text-xs">{band === 'peak' ? <span className="text-rose-600 dark:text-rose-400">peak</span> : band === 'mixed' ? <span className="text-amber-600 dark:text-amber-400">mixed</span> : <span className="text-emerald-600 dark:text-emerald-400">off-peak</span>}</td>
-                      <td className="px-3 py-1.5 text-right font-mono tabular-nums" style={heat(omr, detail.maxOmr, '245,158,11')}>{num(omr, 1)}</td>
-                    </tr>
-                    {isOpen ? (
-                      <tr className="bg-slate-50/70 dark:bg-white/5">
-                        <td colSpan={RUN_DETAIL_COLUMN_COUNT} className="px-5 py-4">
-                          <div className="space-y-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-slate-900 dark:text-white">Why this run scored {fr.score} ({fr.band})</p>
-                              {estimatedChip}
-                            </div>
-                            <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
-                              {scoredReasons.length > 0 ? scoredReasons.map((reason) => (
-                                <p key={reason.code}>
-                                  <span className="font-mono font-semibold text-slate-900 dark:text-white">+{reason.impact}</span>
-                                  {' · '}{reason.label}{reason.detail ? ` — ${reason.detail}` : ''}
-                                </p>
-                              )) : (
-                                <p>No transition or small-run penalty — steady continuation.</p>
-                              )}
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">What to do</p>
-                              <div className="flex flex-wrap gap-2">
-                                {fr.actions.map((action) => (
-                                  <span key={action.code} className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-200">
-                                    <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${actionPriorityClass(action.priority)}`}>{action.priority}</span>
-                                    {action.label}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                            <div className="text-xs">
-                              {startup > 0 ? (
-                                <p className="font-semibold text-emerald-700 dark:text-emerald-300">This run's startup scrap ≈ {num(startup)} kg ≈ {num(runOmr)} OMR — avoidable by campaigning / extending the run.</p>
-                              ) : (
-                                <p className="text-slate-500 dark:text-slate-400">No startup scrap attributed to this run.</p>
-                              )}
-                              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Planning-stage estimate — see the Fragility & rules card above for the plan-level action.</p>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : null}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="border-t border-slate-200/60 px-5 py-4 dark:border-white/10">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Energy intensity — kWh per kg by product</h3>
-          <div className="mt-3 h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={intensityData} margin={{ top: 8, right: 16, left: 0, bottom: 50 }}>
-                <XAxis dataKey="name" tick={{ fill: 'var(--muted-text)', fontSize: 10 }} angle={-35} textAnchor="end" height={56} tickLine={false} axisLine={{ stroke: 'var(--grid-stroke)' }} />
-                <YAxis tick={{ fill: 'var(--muted-text)', fontSize: 10 }} tickLine={false} axisLine={false} width={34} />
-                <Tooltip contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem' }} labelStyle={{ color: 'var(--muted-text)' }} formatter={(v: number) => [v.toFixed(2), 'kWh/kg']} />
-                <Bar dataKey="kwhPerKg" fill="#1A365D" radius={[3, 3, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="mt-1 text-[11px] text-slate-400">Run energy only — excludes changeover and time-of-use pricing. Higher = more energy per kg produced.</p>
-        </div>
-      </div>
+      </DetailsDrawer>
 
       <p className="text-xs text-slate-400">Each product uses its own measured reject rate; startup scrap ≈ {scrapPerChg} kg/changeover and changeover times are estimates (see Model parameters). Energy priced on the CRT tariff by the clock-hours each run occupies (shift starts {hhmm(shiftStart)}). Plans Machine 01 only — other extruders aren't calibrated yet. Computed live; exact optimiser runs server-side.</p>
     </section>
@@ -695,17 +656,6 @@ const Param: FC<{ label: string; value: string; measured?: boolean }> = ({ label
     <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-200">
       <span className={`h-1.5 w-1.5 rounded-full ${measured ? 'bg-emerald-500' : 'bg-amber-500'}`} />{value}
     </p>
-  </div>
-);
-
-const PlanKpi: FC<{ label: string; value: string; sub?: string; chip: ReactNode }> = ({ label, value, sub, chip }) => (
-  <div className="rounded-lg border border-amber-300/50 bg-amber-50/40 px-3 py-2 dark:border-amber-500/20 dark:bg-amber-500/5">
-    <div className="flex items-center justify-between gap-2">
-      <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{label}</p>
-      {chip}
-    </div>
-    <p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-white">{value}</p>
-    {sub && <p className="text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
   </div>
 );
 
