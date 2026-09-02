@@ -30,10 +30,10 @@ export const PROVENANCE_ORDER: Provenance[] = ['MEASURED', 'DERIVED', 'ESTIMATED
 
 /** Plain words a facility owner reads. Keys match Provenance exactly. */
 export const PROVENANCE_LABEL: Record<Provenance, string> = {
-  MEASURED: 'Measured here',
-  DERIVED: 'Worked out, not measured here',
-  ESTIMATED: 'Estimated from a reference',
-  SIMULATED: 'Simulated for the demo',
+  MEASURED: 'Measured',
+  DERIVED: 'Worked out',
+  ESTIMATED: 'Estimated',
+  SIMULATED: 'Simulated',
   UNAVAILABLE: 'No data',
 };
 
@@ -189,7 +189,7 @@ export const LEVEL_LABEL: Record<Level, string> = {
   plant: 'Solar plant',
   array: 'Array',
   inverter: 'Inverter',
-  mppt: 'MPPT input',
+  mppt: 'Inverter input',
   string: 'String',
   bess: 'Battery system',
   container: 'Container',

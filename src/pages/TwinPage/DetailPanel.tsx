@@ -41,7 +41,7 @@ const DetailPanel: FC<Props> = ({ graph, snapshot, selectedId, onSelect, onScena
     return (
       <div className="card-surface p-5 text-sm text-slate-500 dark:text-slate-400">
         <p className="font-medium text-slate-900 dark:text-white">Nothing selected</p>
-        <p className="mt-2">Click an array, an inverter or a container on the plan, or a box in the connections view.</p>
+        <p className="mt-2">Click an array, an inverter or the battery container on the plan, or a box in the wiring view.</p>
       </div>
     );
   }
@@ -120,7 +120,7 @@ const DetailPanel: FC<Props> = ({ graph, snapshot, selectedId, onSelect, onScena
           )
         ))}
         <button type="button" onClick={() => onOpenAnalytics(analyticsFocus)} className="w-full rounded-lg bg-primary px-3 py-2 text-left text-xs font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 dark:bg-slate-100 dark:text-slate-900">
-          Open the {node.domain === 'bess' ? 'battery' : node.level === 'inverter' ? 'inverter' : 'production'} analytics →
+          See the {node.domain === 'bess' ? 'battery' : node.level === 'inverter' ? 'inverter' : 'yearly'} numbers →
         </button>
       </div>
     </div>

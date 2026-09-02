@@ -34,10 +34,10 @@ function nameplateMetrics(graph: AssetGraph, id: string): Metric[] {
   const parts = n.domain === 'pv'
     ? `${n.standsFor.modules?.toLocaleString()} modules × ${pv.moduleWp} W from the configuration`
     : `${rackCount} ${rackCount === 1 ? 'rack' : 'racks'} × ${b?.rackKwh} kWh from the configuration`;
-  if (n.nameplate.dcKw !== undefined) out.push({ key: 'dcKw', label: 'Nameplate DC', value: n.nameplate.dcKw, unit: 'kW', provenance: 'DERIVED', basis: parts });
-  if (n.nameplate.acKw !== undefined) out.push({ key: 'acKw', label: 'Inverter AC', value: n.nameplate.acKw, unit: 'kW', provenance: 'DERIVED', basis: `${n.level === 'inverter' ? 'Rated' : 'Sum of rated'} inverter output from the configuration` });
-  if (n.nameplate.energyKwh !== undefined) out.push({ key: 'energyKwh', label: 'Energy capacity', value: n.nameplate.energyKwh, unit: 'kWh', provenance: 'DERIVED', basis: parts });
-  if (n.nameplate.powerKw !== undefined) out.push({ key: 'powerKw', label: 'Power', value: n.nameplate.powerKw, unit: 'kW', provenance: 'DERIVED', basis: `Sum of rack power from the configuration` });
+  if (n.nameplate.dcKw !== undefined) out.push({ key: 'dcKw', label: 'Solar capacity', value: n.nameplate.dcKw, unit: 'kW', provenance: 'DERIVED', basis: parts });
+  if (n.nameplate.acKw !== undefined) out.push({ key: 'acKw', label: 'Inverter rating', value: n.nameplate.acKw, unit: 'kW', provenance: 'DERIVED', basis: `${n.level === 'inverter' ? 'Rated' : 'Sum of rated'} inverter output from the configuration` });
+  if (n.nameplate.energyKwh !== undefined) out.push({ key: 'energyKwh', label: 'Battery capacity', value: n.nameplate.energyKwh, unit: 'kWh', provenance: 'DERIVED', basis: parts });
+  if (n.nameplate.powerKw !== undefined) out.push({ key: 'powerKw', label: 'Battery power', value: n.nameplate.powerKw, unit: 'kW', provenance: 'DERIVED', basis: `Sum of rack power from the configuration` });
   return out;
 }
 
@@ -47,7 +47,7 @@ function expectedYieldMetric(graph: AssetGraph, data: PvBessData): Metric {
   const site = data.pv.site;
   return {
     key: 'expectedKwhYear',
-    label: 'Yearly energy, if it performed like the reference plant',
+    label: 'Energy in a year, if it did as well as the reference plant',
     value: Math.round(dcKw * y),
     unit: 'kWh',
     provenance: 'ESTIMATED',

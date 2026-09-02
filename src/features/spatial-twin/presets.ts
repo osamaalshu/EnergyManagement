@@ -14,11 +14,11 @@ export const PRESETS: Preset[] = [
   {
     id: 'reference',
     label: 'Reference plant',
-    hint: 'Seven inverters, so the recorded inverter data fits one to one.',
+    hint: 'The plant the records describe: seven inverters, about 250 kW of solar, a 300 kWh battery.',
     config: {
       name: 'Reference plant',
-      pv: { arrays: 1, invertersPerArray: 7, mpptPerInverter: 2, stringsPerMppt: 3, modulesPerString: 18, moduleWp: 400, inverterAcKw: 36, tracking: 'fixed', tiltDeg: 20, azimuthDeg: 180, gcr: 0.45 },
-      bess: null,
+      pv: { arrays: 1, invertersPerArray: 7, mpptPerInverter: 2, stringsPerMppt: 3, modulesPerString: 17, moduleWp: 350, inverterAcKw: 36, tracking: 'fixed', tiltDeg: 20, azimuthDeg: 180, gcr: 0.45 },
+      bess: { containers: 1, racksPerContainer: 2, modulesPerRack: 8, cellsPerModule: 16, rackKwh: 150, rackKw: 75, cellTelemetry: false },
     },
   },
   {
@@ -43,4 +43,5 @@ export const PRESETS: Preset[] = [
   },
 ];
 
-export const DEFAULT_PRESET = PRESETS[1];
+/** The plant the monitor shows: the one our records actually describe. */
+export const DEFAULT_PRESET = PRESETS[0];

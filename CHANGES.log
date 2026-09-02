@@ -1,3 +1,22 @@
+## 2026-09-03 — Solar + storage monitor: the twin becomes a monitoring section (founder feedback)
+
+Founder: monitoring, not "design your own layout"; reflect the records we hold; interactive;
+less jargon. Founder also confirmed: keep it on the Overview page.
+- Configurator removed. The page shows the plant the records describe (7 inverters, ~250 kW,
+  300 kWh / 150 kW battery = the dispatch scenario) and replays one recorded day hour by hour
+  (`features/spatial-twin/replay.ts`, `HourScrubber` with play). Four hour stats — solar,
+  site load, from the grid, battery — each with its provenance word. Rows dim with the hour's
+  solar output; racks fill with charge (cross-hatched: a scenario). Whole-battery hour facts
+  are shown on every container and rack, labelled as whole-battery.
+- Same card on the Overview (`TwinOverviewCard`), with the scrubber. Any click opens the page.
+- Jargon pass: Measured / Worked out / Estimated / Simulated / No data; "Inverter input" for
+  MPPT; "Wiring"; "How sure"; "Solar capacity" / "Inverter rating" / "Battery capacity".
+- Unchanged: graph, provenance rules, propagation, renderers, detail panel, scenarios, tests.
+  Smoke test rewritten for the new page (renders, replays noon → midnight, opens A1);
+  121/121, build + provenance gate green, tsc + eslint clean.
+- ADR §14 records the change. "Live" stays out of the UI: the day is recorded, the battery is
+  a schedule; the footer and every stat say so.
+
 ## 2026-09-03 — Spatial digital twin (PV + BESS), a horizontal layer, not "Block 8"
 
 Founder ask: a demo where a visitor describes a plant (arrays, inverters, strings,

@@ -17,12 +17,18 @@ interface Props {
   focusId: string | null;
   onSelect: (id: string) => void;
   onFocus: (id: string | null) => void;
+  /** 0..1: the hour's solar output as a share of capacity; dims the solar rows. Plant-level, carried down. */
+  brightness?: number;
+  /** Cap on the drawing's height in CSS px (default 560). */
+  maxHeight?: number;
+  /** 0..1: battery charge level; fills the racks. A scenario, drawn cross-hatched. */
+  charge?: number;
 }
 
 const PREFIX = 'map';
 const NICE = [2, 5, 10, 20, 50, 100, 200, 500];
 
-const PhysicalMap: FC<Props> = ({ graph, snapshot, overlay, selectedId, focusId, onSelect, onFocus }) => {
+const PhysicalMap: FC<Props> = ({ graph, snapshot, overlay, selectedId, focusId, onSelect, onFocus, brightness, charge, maxHeight = 560 }) => {
   const focus = focusId ? graph.nodes[focusId] : null;
   const vb = useMemo(() => {
     const fp = focus?.footprint ?? { x: 0, y: 0, w: graph.extent.w, h: graph.extent.h };
@@ -56,13 +62,14 @@ const PhysicalMap: FC<Props> = ({ graph, snapshot, overlay, selectedId, focusId,
     const s = snapshot.nodes[n.id];
     return paintFor(PREFIX, s.status, overlay === 'certainty' ? nodeCertainty(s) : s.statusProvenance, overlay);
   };
+  const stringOpacity = brightness === undefined ? 1 : 0.18 + 0.82 * brightness;
 
   return (
     <div className="relative">
       <svg
         viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
         preserveAspectRatio="xMidYMid meet"
-        style={{ aspectRatio: `${vb.w} / ${vb.h}`, minHeight: 240, maxHeight: 560 }}
+        style={{ aspectRatio: `${vb.w} / ${vb.h}`, minHeight: 240, maxHeight }}
         className="w-full select-none"
         role="img"
         aria-label={focus ? `Plan of ${focus.label}` : `Plan of ${graph.config.name}`}
@@ -80,7 +87,7 @@ const PhysicalMap: FC<Props> = ({ graph, snapshot, overlay, selectedId, focusId,
           const p = paint(n);
           const selected = n.id === selectedId;
           const clickable = isClickable(n);
-          const isBlock = n.level === 'array' || n.level === 'container' || n.level === 'plant' || n.level === 'bess';
+          const isBlock = n.level === 'array' || n.level === 'container';
           if (n.level === 'plant' || n.level === 'bess') return null;
           return (
             <g
@@ -99,7 +106,11 @@ const PhysicalMap: FC<Props> = ({ graph, snapshot, overlay, selectedId, focusId,
                 <rect x={fp.x} y={fp.y} width={fp.w} height={fp.h} fill={focus ? 'none' : 'var(--twin-block)'} stroke={selected ? 'var(--series-navy)' : 'var(--twin-outline)'} strokeWidth={selected ? 2 : 1} vectorEffect="non-scaling-stroke" rx={unit * 0.4} />
               ) : (
                 <>
-                  <rect x={fp.x} y={fp.y} width={fp.w} height={fp.h} fill={p.fill} stroke={selected ? 'var(--series-navy)' : p.stroke} strokeWidth={selected ? 2.5 : 0.8} strokeDasharray={p.strokeDasharray} vectorEffect="non-scaling-stroke" />
+                  <rect x={fp.x} y={fp.y} width={fp.w} height={fp.h} fill={p.fill} fillOpacity={n.level === 'string' ? stringOpacity : 1} stroke={selected ? 'var(--series-navy)' : p.stroke} strokeWidth={selected ? 2.5 : 0.8} strokeDasharray={p.strokeDasharray} vectorEffect="non-scaling-stroke" />
+                  {n.level === 'rack' && charge !== undefined && (
+                    // Charge level fills the rack from the bottom; cross-hatched because the schedule is a scenario.
+                    <rect x={fp.x} y={fp.y + fp.h * (1 - charge)} width={fp.w} height={fp.h * charge} fill={`url(#${PREFIX}-simulated-ok)`} style={{ pointerEvents: 'none' }} />
+                  )}
                   {focus && n.level === 'string' && (
                     <rect x={fp.x} y={fp.y} width={fp.w} height={fp.h} fill="url(#map-modules)" style={{ pointerEvents: 'none' }} />
                   )}

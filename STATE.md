@@ -3,7 +3,19 @@
 Where we are. The standing spec is `docs/ADR_SPATIAL_TWIN.md` (this feature) and
 `docs/ANALYSE_PRD.md` (Analyse). Read both at the start of a session.
 
-## Last run — 2026-09-03 · Spatial twin built, awaiting tests + founder review
+## Last run — 2026-09-03 (later) · The twin became a monitor (founder feedback)
+
+Founder: "more of a monitoring section, not design-your-own-layout; reflect the data we have;
+more interactive; less jargon" + "promote it to the overview page, keep that". Done on
+`feat/spatial-twin` (PR #30): configurator removed, one plant (the records' plant), one recorded
+day replayed hour by hour with a scrubber, four hour stats with provenance words, rows dim with
+output, racks fill with charge, same card on the Overview, plain labels. ADR §14, CHANGES.log.
+**Gate said:** tsc clean · eslint clean · build + provenance gate green · vitest 121/121 (smoke
+test rewritten for the new page). Screenshots reviewed (Overview, monitor at noon, battery at 18:00).
+**Unverified:** nothing new; the ~5k-string rendering caveat stands but no longer matters for the
+shipped plant (42 strings).
+
+## Earlier — 2026-09-03 · Spatial twin built, awaiting tests + founder review
 
 Founder asked for "a digital twin for investors and clients: they give the number of arrays and
 how they are configured, we give them the twin", with a PM brief (Block 8) and a mandate to
@@ -57,5 +69,6 @@ not yet wired (ADR §8).
 - Recharts "width(-1)" console warnings on the Solar + storage page are pre-existing, not the twin.
 
 ## Next immediate step
-Muath reviews and merges PR #30 (Netlify deploys from main). Then the escalated questions above
-(placement on Overview; hierarchy depth; scenario-under-measurement mode).
+Muath reviews the monitor on PR #30 (Overview → "Open the monitor →") and merges. Then: hierarchy
+depth; scenario-under-measurement mode; and the real one — connect a site's own inverter and meter
+so `hourFacts` reads a feed instead of a recorded day.

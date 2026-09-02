@@ -183,7 +183,7 @@ function App() {
           />
         );
       case 'twin':
-        return <TwinPage crumbs={[...makeCrumbs(PVBESS_SITE_ID, null, null), { key: 'twin', label: 'Digital twin' }]} onOpenAnalytics={goPvBessFocus} />;
+        return <TwinPage crumbs={[...makeCrumbs(PVBESS_SITE_ID, null, null), { key: 'twin', label: 'Monitor' }]} onOpenAnalytics={goPvBessFocus} />;
       case 'analyse':
         return <AnalyseHubPage onPlanner={goProduction} onDelivery={goDelivery} onScrap={goScrap} />;
       case 'production':

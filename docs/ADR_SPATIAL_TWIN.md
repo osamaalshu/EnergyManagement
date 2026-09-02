@@ -138,3 +138,13 @@ Version 1 is the form: counts, module watts, inverter kW, mounting, tilt, facing
 4. Founder decision on hierarchy depth → `platformRef` gets UUID5s; block 0 registration exports a `TwinConfig`.
 5. Per-node history export from the replay tool → historical replay with a time cursor.
 6. Only then, and only for a site that needs it: a 3-D renderer over the same graph.
+
+## 14. Amendment 2026-09-03 — from "describe your plant" to a monitor (founder feedback)
+
+Founder: *"it should be more of a monitoring section, not one that makes someone put in and design their own layout; it should reflect the live data we already have; more interactive; less jargon."*
+
+**What changed.** The configurator is gone. The page shows one plant — the one our records actually describe (7 PVDAQ inverters, ~250 kW, a 300 kWh / 150 kW battery, matching the dispatch scenario) — and replays one recorded day hour by hour (`features/spatial-twin/replay.ts`, an hour scrubber with play). Four stats per hour (solar, site load, from the grid, battery), each carrying its provenance word. The plan dims its rows with the hour's solar output and fills the battery racks with charge. The same card sits on the Overview page. Labels were cut to one or two words (Measured / Worked out / Estimated / Simulated / No data; "Inverter input" for MPPT; "Wiring" for the electrical view; "How sure" for the certainty overlay).
+
+**What did not change.** The graph, the provenance rules, the propagation, both renderers, the detail panel, the scenarios, the tests. The generator and presets remain as the way a plant is described in code and in tests; a future site is onboarded by a config, not by a visitor.
+
+**The honesty line on "live".** There is no feed. The day is a recorded solar shape (Alice Springs, scaled), a recorded site load (a chiller plant, another year) and a battery schedule that is a scenario. The page says so in the footer and on every stat, and the build gate still forbids the words live / today / real-time in the UI. When a site's own inverter and meter are connected, `hourFacts` is the one function that changes.
