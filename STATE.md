@@ -33,8 +33,7 @@ mutation kill (2 tests) with a hash-identical restore.
 not yet wired (ADR §8).
 
 ## In progress
-- `feat/spatial-twin` → committed locally (review findings applied), NOT pushed. PR to
-  `osamaalshu/EnergyManagement` main on founder's word.
+- `feat/spatial-twin` → pushed; **PR #30** on `osamaalshu/EnergyManagement`, awaiting founder merge.
 
 ## Done
 - (this session) everything under "Last run", committed locally on `feat/spatial-twin`.
@@ -58,5 +57,5 @@ not yet wired (ADR §8).
 - Recharts "width(-1)" console warnings on the Solar + storage page are pre-existing, not the twin.
 
 ## Next immediate step
-Muath reviews `feat/spatial-twin` (run `npm run dev`, Portfolio → Solar + storage → "Open the
-digital twin →"). On his word: push + PR. Then the three escalated questions above.
+Muath reviews and merges PR #30 (Netlify deploys from main). Then the escalated questions above
+(placement on Overview; hierarchy depth; scenario-under-measurement mode).
