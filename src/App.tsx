@@ -166,6 +166,7 @@ function App() {
             onNavigateToBuilding={goSite}
             onNavigateToEquipment={(_buildingId: string, equipmentId: string) => goEquip(equipmentId, 'equipment')}
             onNavigateToTariff={goTariff}
+            onNavigateToTwin={goTwin}
           />
         );
       case 'tariff':

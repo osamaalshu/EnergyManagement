@@ -33,15 +33,15 @@ mutation kill (2 tests) with a hash-identical restore.
 not yet wired (ADR §8).
 
 ## In progress
-- `feat/spatial-twin` → pushed; **PR #30** on `osamaalshu/EnergyManagement`, awaiting founder merge.
+- `feat/spatial-twin` → **PR #30** on `osamaalshu/EnergyManagement`, still OPEN on GitHub as of
+  2026-09-03 00:50 (founder said "merged"; the API disagreed — check before branching off main).
+  Now also carries the Overview card (founder decision).
 
 ## Done
 - (this session) everything under "Last run", committed locally on `feat/spatial-twin`.
 
 ## Escalated — founder decisions
-1. **Ship the twin as a page on the Solar + storage site (current) or promote it to the
-   Overview page?** The ask said "main page demo"; it is reachable in two clicks from the
-   sidebar today. One number: it adds 0 KB of dependencies, so placement is a product call only.
+1. ~~Overview placement~~ — decided 2026-09-03: on the Overview as a card + the full page.
 2. **Hierarchy depth** (still open from pv_bess_domain_spec): string/MPPT nodes have no platform
    UUID until this is decided. `platformRef` is the seam.
 3. A simulated fault under a measured inverter stops at that inverter (ADR §7, amended after

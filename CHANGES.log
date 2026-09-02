@@ -20,6 +20,8 @@ Face reference; the mandate said challenge it. Decision record: docs/ADR_SPATIAL
 - Tests (Codex, docs/CODEX_BRIEF_SPATIAL_TWIN_TESTS.md): 53 new, 121/121. Mutation checks:
   carrying MEASURED downward fails 2 tests; shrinking rows fails 3. Build + provenance gate
   green. Verifier (separate model): PASS. Unverified: browser rendering above ~5k strings.
+- Founder decision: the twin also sits on the Overview page — `TwinOverviewCard` draws the
+  default preset with the reference records attached; any click opens the full page.
 - 5-axis review, 5 findings, all applied: (1) a simulated fault now shows on every
   un-measured ancestor up to the first measured node (was hidden at the MPPT by the status
   carried down from the inverter) — ADR §7 amended, one test assertion updated to match;
