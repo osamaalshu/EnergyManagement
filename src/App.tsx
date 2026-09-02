@@ -9,6 +9,7 @@ import EquipmentPage from '@/pages/EquipmentPage/EquipmentPage';
 import TariffPage from '@/pages/TariffPage/TariffPage';
 import CompressorPage from '@/pages/CompressorPage/CompressorPage';
 import PvBessPage from '@/pages/PvBessPage/PvBessPage';
+import TwinPage from '@/pages/TwinPage/TwinPage';
 import AnalyseHubPage from '@/pages/AnalyseHubPage/AnalyseHubPage';
 import ProductionPlannerPage from '@/pages/ProductionPlannerPage/ProductionPlannerPage';
 import ScrapAnalyzerPage from '@/pages/ScrapAnalyzerPage/ScrapAnalyzerPage';
@@ -67,6 +68,14 @@ function App() {
   const goScrap = () => { setActivePage('scrap'); closeMobileSidebar(); };
   const goPlant = () => { setActivePage('plant'); closeMobileSidebar(); };
   const goDelivery = () => { setActivePage('delivery'); closeMobileSidebar(); };
+  const goTwin = () => { setSelectedSiteId(PVBESS_SITE_ID); setSelectedSubsystemId(null); setSelectedEquipmentId(null); setActivePage('twin'); closeMobileSidebar(); };
+  const goPvBessFocus = (focus: 'pv' | 'inverters' | 'bess' | null) => {
+    setSelectedSiteId(PVBESS_SITE_ID);
+    setSelectedSubsystemId(focus === 'bess' ? 'bess' : focus ? 'pv' : null);
+    setSelectedEquipmentId(focus === 'inverters' ? PVBESS_EQUIP.inverters : null);
+    setActivePage('pvbess');
+    closeMobileSidebar();
+  };
 
   const goSite = (siteId: string) => {
     const site = getSite(siteId);
@@ -157,6 +166,7 @@ function App() {
             onNavigateToBuilding={goSite}
             onNavigateToEquipment={(_buildingId: string, equipmentId: string) => goEquip(equipmentId, 'equipment')}
             onNavigateToTariff={goTariff}
+            onNavigateToTwin={goTwin}
           />
         );
       case 'tariff':
@@ -169,8 +179,11 @@ function App() {
             crumbs={makeCrumbs(PVBESS_SITE_ID, selectedSubsystemId, selectedEquipmentId)}
             focus={selectedSubsystemId === 'bess' ? 'bess' : selectedEquipmentId === PVBESS_EQUIP.inverters ? 'inverters' : selectedSubsystemId === 'pv' ? 'pv' : null}
             onBack={goPortfolio}
+            onOpenTwin={goTwin}
           />
         );
+      case 'twin':
+        return <TwinPage crumbs={[...makeCrumbs(PVBESS_SITE_ID, null, null), { key: 'twin', label: 'Monitor' }]} onOpenAnalytics={goPvBessFocus} />;
       case 'analyse':
         return <AnalyseHubPage onPlanner={goProduction} onDelivery={goDelivery} onScrap={goScrap} />;
       case 'production':

@@ -22,6 +22,7 @@ import { DataFreshness, TariffBasis } from '@/shared/Provenance';
 import { tariffBasis } from '@/data/enrichedPortfolioData';
 import { effectiveRateOmrPerKwh, calculateMonthlyDetailedBills } from '@/features/tariff-engine/tariffEngine';
 import ExportExcelButton from '@/shared/ExportExcelButton';
+import TwinOverviewCard from '@/pages/TwinPage/TwinOverviewCard';
 
 const tooltipStyles = {
   background: 'var(--card-bg)',
@@ -64,6 +65,7 @@ interface DashboardPageProps {
   onNavigateToBuilding: (buildingId: string) => void;
   onNavigateToEquipment: (buildingId: string, equipmentId: string) => void;
   onNavigateToTariff: () => void;
+  onNavigateToTwin: () => void;
 }
 
 const DashboardPage: FC<DashboardPageProps> = ({
@@ -71,6 +73,7 @@ const DashboardPage: FC<DashboardPageProps> = ({
   onNavigateToBuilding,
   onNavigateToEquipment,
   onNavigateToTariff,
+  onNavigateToTwin,
 }) => {
   // Local read state for notifications (survives within session)
   const [readIds, setReadIds] = useState<Set<string>>(() => {
@@ -277,6 +280,9 @@ const DashboardPage: FC<DashboardPageProps> = ({
           )}
         </button>
       </div>
+
+      {/* ── Digital twin (solar + storage) ───────────────────────── */}
+      <TwinOverviewCard onOpen={onNavigateToTwin} />
 
       {/* ── Daily kWh and OMR profile (line chart, dual axis) ───── */}
       <div className="group card-surface p-6">

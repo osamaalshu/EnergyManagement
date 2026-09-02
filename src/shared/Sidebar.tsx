@@ -1,7 +1,7 @@
 import { type FC, useMemo, useState } from 'react';
 import { navSites, type LeafRoute } from '@/lib/portfolioNav';
 
-export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'pvbess' | 'analyse' | 'production' | 'scrap' | 'plant' | 'delivery';
+export type ActivePage = 'dashboard' | 'portfolio' | 'building' | 'subsystem' | 'equipment' | 'tariff' | 'compressor' | 'pvbess' | 'analyse' | 'production' | 'scrap' | 'plant' | 'delivery' | 'twin';
 
 interface SidebarProps {
   open: boolean;

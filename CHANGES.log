@@ -1,3 +1,55 @@
+## 2026-09-03 — Solar + storage monitor: the twin becomes a monitoring section (founder feedback)
+
+Founder: monitoring, not "design your own layout"; reflect the records we hold; interactive;
+less jargon. Founder also confirmed: keep it on the Overview page.
+- Configurator removed. The page shows the plant the records describe (7 inverters, ~250 kW,
+  300 kWh / 150 kW battery = the dispatch scenario) and replays one recorded day hour by hour
+  (`features/spatial-twin/replay.ts`, `HourScrubber` with play). Four hour stats — solar,
+  site load, from the grid, battery — each with its provenance word. Rows dim with the hour's
+  solar output; racks fill with charge (cross-hatched: a scenario). Whole-battery hour facts
+  are shown on every container and rack, labelled as whole-battery.
+- Same card on the Overview (`TwinOverviewCard`), with the scrubber. Any click opens the page.
+- Jargon pass: Measured / Worked out / Estimated / Simulated / No data; "Inverter input" for
+  MPPT; "Wiring"; "How sure"; "Solar capacity" / "Inverter rating" / "Battery capacity".
+- Unchanged: graph, provenance rules, propagation, renderers, detail panel, scenarios, tests.
+  Smoke test rewritten for the new page (renders, replays noon → midnight, opens A1);
+  121/121, build + provenance gate green, tsc + eslint clean.
+- ADR §14 records the change. "Live" stays out of the UI: the day is recorded, the battery is
+  a schedule; the footer and every stat say so.
+
+## 2026-09-03 — Spatial digital twin (PV + BESS), a horizontal layer, not "Block 8"
+
+Founder ask: a demo where a visitor describes a plant (arrays, inverters, strings,
+containers) and gets a digital twin. A PM brief proposed Block 8 + Three.js + a Hugging
+Face reference; the mandate said challenge it. Decision record: docs/ADR_SPATIAL_TWIN.md.
+- Not Block 8 (produces no claims; arranges blocks 6/7 claims in space). Not 3-D (every
+  question in the brief is answered top-down; footprint is the seam if 3-D is ever needed).
+  Not from Hugging Face (Starlink Viz is an R3F/Zustand/WS stack; PV Sim GE duplicates
+  block 6). Zero new dependencies.
+- src/features/spatial-twin/: model (asset graph + state + provenance), generate (config →
+  deterministic graph in metres), bind (records → own states; carry down weakened, sum up
+  worst/weakest; scenarios SIMULATED and never merged), layout (electrical tree), paint
+  (colour = status, pattern = provenance), presets.
+- src/pages/TwinPage/: configurator, plan (SVG, scale bar, north, two zoom levels),
+  connections tree, detail panel with the basis of every number. Route 'twin'; entry
+  button on the Solar + storage page.
+- Rules that matter: MEASURED only where the record sits (7 PVDAQ inverters); modules and
+  cells are counts, never nodes; ESTIMATED yearly energy names the reference site and year;
+  a simulated fault under a measured inverter does not change the inverter.
+- Tests (Codex, docs/CODEX_BRIEF_SPATIAL_TWIN_TESTS.md): 53 new, 121/121. Mutation checks:
+  carrying MEASURED downward fails 2 tests; shrinking rows fails 3. Build + provenance gate
+  green. Verifier (separate model): PASS. Unverified: browser rendering above ~5k strings.
+- Founder decision: the twin also sits on the Overview page — `TwinOverviewCard` draws the
+  default preset with the reference records attached; any click opens the full page.
+- 5-axis review, 5 findings, all applied: (1) a simulated fault now shows on every
+  un-measured ancestor up to the first measured node (was hidden at the MPPT by the status
+  carried down from the inverter) — ADR §7 amended, one test assertion updated to match;
+  (2) attach label derives its counts from the dataset and the plant instead of "seven";
+  (3) one `descendants` walk instead of three; (4) TwinPage keeps a validConfig and derives
+  the graph and ids from it (no setState inside useMemo); (5) a record with zero readings
+  leaves its inverter UNAVAILABLE instead of NaN. Also: BESS-root basis said "4 racks" for
+  4 containers; mobile sidebar now closes when jumping from the twin to the analytics.
+
 # CHANGES.log
 
 ## 2026-06-18 — Analyse workspace critical audit + reconciliation

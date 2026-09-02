@@ -11,6 +11,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     environmentMatchGlobs: [
       ['src/features/production-planning/**', 'node'], // pure-logic productionModel test
+      ['src/features/spatial-twin/**', 'node'], // pure-logic spatial twin tests
       ['src/{__tests__,pages,shared,features}/**', 'jsdom'],
     ],
   },
