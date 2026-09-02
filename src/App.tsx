@@ -8,6 +8,7 @@ import SubsystemPage from '@/pages/SubsystemPage/SubsystemPage';
 import EquipmentPage from '@/pages/EquipmentPage/EquipmentPage';
 import TariffPage from '@/pages/TariffPage/TariffPage';
 import CompressorPage from '@/pages/CompressorPage/CompressorPage';
+import PvBessPage from '@/pages/PvBessPage/PvBessPage';
 import AnalyseHubPage from '@/pages/AnalyseHubPage/AnalyseHubPage';
 import ProductionPlannerPage from '@/pages/ProductionPlannerPage/ProductionPlannerPage';
 import ScrapAnalyzerPage from '@/pages/ScrapAnalyzerPage/ScrapAnalyzerPage';
@@ -17,7 +18,7 @@ import SystemSummaryModal from '@/shared/SystemSummaryModal';
 import { type Crumb } from '@/shared/Breadcrumb';
 import {
   navSites, getSite, getSubsystem, locateEquip,
-  COMPRESSOR_SITE_ID, COMPRESSOR_EQUIP_ID, type LeafRoute,
+  COMPRESSOR_SITE_ID, COMPRESSOR_EQUIP_ID, PVBESS_SITE_ID, PVBESS_EQUIP, type LeafRoute,
 } from '@/lib/portfolioNav';
 
 type ThemeMode = 'light' | 'dark';
@@ -77,6 +78,8 @@ function App() {
       setSelectedSubsystemId('gas');
       setSelectedEquipmentId(COMPRESSOR_EQUIP_ID);
       setActivePage('compressor');
+    } else if (site.kind === 'renewables') {
+      setActivePage('pvbess');
     } else {
       setActivePage('building');
     }
@@ -92,6 +95,8 @@ function App() {
     if (site.kind === 'compressor') {
       setSelectedEquipmentId(COMPRESSOR_EQUIP_ID);
       setActivePage('compressor');
+    } else if (site.kind === 'renewables') {
+      setActivePage('pvbess');
     } else {
       setActivePage('subsystem');
     }
@@ -105,7 +110,7 @@ function App() {
       setSelectedSubsystemId(loc.subsystem.id);
     }
     setSelectedEquipmentId(equipId);
-    setActivePage(route === 'compressor' ? 'compressor' : 'equipment');
+    setActivePage(route === 'compressor' ? 'compressor' : route === 'pvbess' ? 'pvbess' : 'equipment');
     closeMobileSidebar();
   };
 
@@ -158,6 +163,14 @@ function App() {
         return <TariffPage onBack={goOverview} />;
       case 'compressor':
         return <CompressorPage crumbs={makeCrumbs(COMPRESSOR_SITE_ID, 'gas', COMPRESSOR_EQUIP_ID)} onBack={goPortfolio} />;
+      case 'pvbess':
+        return (
+          <PvBessPage
+            crumbs={makeCrumbs(PVBESS_SITE_ID, selectedSubsystemId, selectedEquipmentId)}
+            focus={selectedSubsystemId === 'bess' ? 'bess' : selectedEquipmentId === PVBESS_EQUIP.inverters ? 'inverters' : selectedSubsystemId === 'pv' ? 'pv' : null}
+            onBack={goPortfolio}
+          />
+        );
       case 'analyse':
         return <AnalyseHubPage onPlanner={goProduction} onDelivery={goDelivery} onScrap={goScrap} />;
       case 'production':

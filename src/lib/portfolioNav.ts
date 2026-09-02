@@ -8,21 +8,30 @@
 // dedicated CompressorPage; cooling leaves route to the generic EquipmentPage.
 import { buildings as coolingBuildings, buildingDetails } from '@/data/mockPortfolioData';
 import { compressorData } from '@/data/compressorData';
+import { pvBessData } from '@/data/pvBessData';
 
 // A site has one or more subsystems; each subsystem has many equipment units.
 // Cooling is a single subsystem (the chiller plant) whose units are the
 // chillers, cooling towers, and pumps — not three separate subsystems.
-export type SubsystemId = 'cooling' | 'gas';
-export type SiteKind = 'cooling' | 'compressor';
-export type LeafRoute = 'equipment' | 'compressor';
+export type SubsystemId = 'cooling' | 'gas' | 'pv' | 'bess';
+export type SiteKind = 'cooling' | 'compressor' | 'renewables';
+export type LeafRoute = 'equipment' | 'compressor' | 'pvbess';
 
 export const SUBSYSTEM_META: Record<SubsystemId, { label: string }> = {
   cooling: { label: 'Cooling' },
   gas: { label: 'Compressed gas' },
+  pv: { label: 'Solar PV' },
+  bess: { label: 'Battery storage' },
 };
 
 export const COMPRESSOR_SITE_ID = 'oq-gn-nizwa';
 export const COMPRESSOR_EQUIP_ID = 'cmp-cs-01';
+
+// PV + BESS is a third kind of site: recorded public datasets replayed through
+// the physics (historical), plus a battery dispatch that is a stated scenario.
+// Every leaf routes to the one PvBessPage, which scrolls to the chosen unit.
+export const PVBESS_SITE_ID = 'pv-bess-reference';
+export const PVBESS_EQUIP = { array: 'pv-array-1b', inverters: 'pv-inverter-fleet', battery: 'bess-reference' } as const;
 
 export interface NavEquip {
   id: string;
@@ -70,8 +79,34 @@ const compressorSite: NavSite = {
   ],
 };
 
-/** All sites, cooling first then the compressor pilot. */
-export const navSites: NavSite[] = [...coolingBuildings.map(coolingSite), compressorSite];
+const pvBessSite: NavSite = {
+  id: PVBESS_SITE_ID,
+  name: 'Solar + storage reference plant',
+  sector: 'PV + BESS · reference data',
+  kind: 'renewables',
+  subsystems: [
+    {
+      id: 'pv',
+      label: SUBSYSTEM_META.pv.label,
+      equipment: [
+        { id: PVBESS_EQUIP.array, name: `PV array · ${pvBessData.pv.site.dcNameplateKw} kWp`, status: 'running', route: 'pvbess' },
+        { id: PVBESS_EQUIP.inverters, name: `Inverter fleet · ${pvBessData.inverterFleet.inverters.length} units`, status: 'running', route: 'pvbess' },
+      ],
+      warnings: 0,
+    },
+    {
+      id: 'bess',
+      label: SUBSYSTEM_META.bess.label,
+      equipment: [
+        { id: PVBESS_EQUIP.battery, name: `Battery · ${pvBessData.dispatch.assumptions.batteryKwh} kWh`, status: 'running', route: 'pvbess' },
+      ],
+      warnings: 0,
+    },
+  ],
+};
+
+/** All sites: cooling first, then the compressor pilot, then the PV + BESS reference plant. */
+export const navSites: NavSite[] = [...coolingBuildings.map(coolingSite), compressorSite, pvBessSite];
 
 export const getSite = (id: string | null): NavSite | undefined => navSites.find((s) => s.id === id);
 export const getSubsystem = (siteId: string | null, subId: string | null): NavSubsystem | undefined =>
