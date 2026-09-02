@@ -35,6 +35,7 @@ const pageLabel: Record<ActivePage, string> = {
   tariff: 'Tariff Structure',
   compressor: 'Compressor',
   pvbess: 'Solar + storage',
+  twin: 'Digital twin',
   analyse: 'Analyse',
   production: 'Production Planner',
   scrap: 'Scrap Focus',

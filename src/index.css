@@ -23,6 +23,13 @@
   --sch-text-secondary: #64748b;
   --sch-icon: #64748b;
   --sch-legend-bg: #f1f5f9;
+  --twin-ok: #4D8B12;
+  --twin-attention: #DC2626;
+  --twin-empty: transparent;
+  --twin-outline: #94a3b8;
+  --twin-ground: #EEF2F7;
+  --twin-block: #ffffff;
+  --twin-label: #1e293b;
 }
 
 .dark {
@@ -46,6 +53,13 @@
   --sch-text-secondary: #94a3b8;
   --sch-icon: #64748b;
   --sch-legend-bg: #0f172a;
+  --twin-ok: #5FA51C;
+  --twin-attention: #F87171;
+  --twin-empty: transparent;
+  --twin-outline: #475569;
+  --twin-ground: #0b1428;
+  --twin-block: #15223c;
+  --twin-label: #e2e8f0;
 }
 
 @layer base {

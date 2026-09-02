@@ -158,7 +158,7 @@ const DispatchStrip: FC<{ hours: DispatchHour[] }> = ({ hours }) => {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-const PvBessPage: FC<{ crumbs: Crumb[]; focus: PvBessFocus; onBack: () => void }> = ({ crumbs, focus }) => {
+const PvBessPage: FC<{ crumbs: Crumb[]; focus: PvBessFocus; onBack: () => void; onOpenTwin?: () => void }> = ({ crumbs, focus, onOpenTwin }) => {
   const { meta, pv, pvFaults, inverterFleet, bess, dispatch } = pvBessData;
   const { annual, monthly, forecast, site } = pv;
   const { day, month, assumptions } = dispatch;
@@ -202,7 +202,14 @@ const PvBessPage: FC<{ crumbs: Crumb[]; focus: PvBessFocus; onBack: () => void }
             {site.dcNameplateKw} kWp tracking array, {site.location}, {site.year}. Public data, not a customer site.
           </p>
         </div>
-        <DataFreshness meta={meta} />
+        <div className="flex flex-wrap items-center gap-3">
+          {onOpenTwin && (
+            <button type="button" onClick={onOpenTwin} className="rounded-full border border-slate-200/80 px-3 py-1 text-xs font-medium text-slate-700 hover:border-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-white/10 dark:text-slate-200">
+              Open the digital twin →
+            </button>
+          )}
+          <DataFreshness meta={meta} />
+        </div>
       </div>
 
       {/* ── Production ───────────────────────────────────────────── */}
