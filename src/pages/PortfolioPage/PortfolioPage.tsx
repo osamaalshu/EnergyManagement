@@ -166,7 +166,7 @@ const PortfolioPage: FC<PortfolioPageProps> = ({ onNavigateToBuilding }) => {
           {navSites.map((site) => {
             const units = site.subsystems.reduce((n, s) => n + s.equipment.length, 0);
             const warnings = site.subsystems.reduce((n, s) => n + s.warnings, 0);
-            const isPilot = site.kind === 'compressor';
+            const isPilot = site.kind !== 'cooling';
             return (
               <button
                 key={site.id}

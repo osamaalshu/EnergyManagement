@@ -7,6 +7,15 @@
   --tooltip-border: rgba(15, 23, 42, 0.12);
   --muted-text: #475569;
   --grid-stroke: rgba(148, 163, 184, 0.35);
+  /* PV + BESS chart series — validated categorical palette (dataviz checker, light surface) */
+  --series-pv: #4D8B12;
+  --series-load: #1D4ED8;
+  --series-battery: #BE185D;
+  --series-navy: #1A365D;
+  --series-cell-1: #1A365D;
+  --series-cell-2: #2F5A8F;
+  --series-cell-3: #5B84BD;
+  --series-cell-4: #93B4DE;
   /* Schematic node theming */
   --sch-node-bg: #ffffff;
   --sch-node-border: #cbd5e1;
@@ -21,6 +30,15 @@
   --tooltip-border: rgba(255, 255, 255, 0.08);
   --muted-text: #94a3b8;
   --grid-stroke: #334155;
+  /* PV + BESS chart series — re-stepped for the dark surface, validated separately */
+  --series-pv: #5FA51C;
+  --series-load: #3B6FE8;
+  --series-battery: #D63A78;
+  --series-navy: #93B4DE;
+  --series-cell-1: #C7DAF2;
+  --series-cell-2: #93B4DE;
+  --series-cell-3: #6F9AD0;
+  --series-cell-4: #4C7DBE;
   /* Schematic node theming */
   --sch-node-bg: #1e293b;
   --sch-node-border: #334155;
