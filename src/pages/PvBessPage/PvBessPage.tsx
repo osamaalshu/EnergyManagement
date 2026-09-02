@@ -72,8 +72,8 @@ const Frame: FC<{ title: string; caption?: string; height?: string; children: Re
 const Th: FC<{ children: React.ReactNode; right?: boolean }> = ({ children, right }) => (
   <th className={`px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400 ${right ? 'text-right' : 'text-left'}`}>{children}</th>
 );
-const Td: FC<{ children: React.ReactNode; right?: boolean; strong?: boolean }> = ({ children, right, strong }) => (
-  <td className={`px-3 py-2 text-sm tabular-nums ${right ? 'text-right' : 'text-left'} ${strong ? 'font-medium text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{children}</td>
+const Td: FC<{ children: React.ReactNode; right?: boolean; strong?: boolean; nowrap?: boolean }> = ({ children, right, strong, nowrap }) => (
+  <td className={`px-3 py-2 text-sm tabular-nums ${right ? 'text-right' : 'text-left'} ${nowrap ? 'whitespace-nowrap' : ''} ${strong ? 'font-medium text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{children}</td>
 );
 
 // ── The signature: one day of dispatch with the tariff painted behind it ─────
@@ -183,6 +183,7 @@ const PvBessPage: FC<{ crumbs: Crumb[]; focus: PvBessFocus; onBack: () => void }
   // One navy ramp for the four cells, re-stepped per theme in index.css so a theme toggle repaints without a re-render.
   const ramp = ['var(--series-cell-1)', 'var(--series-cell-2)', 'var(--series-cell-3)', 'var(--series-cell-4)'];
 
+  const calibrated = pvFaults.calibration?.status === 'fitted' ? pvFaults.calibration.classes : undefined;
   const faultRows = useMemo(() => pvFaults.classes.map((c) => ({ ...c, range: [c.p10, c.p90] as [number, number] })), [pvFaults.classes]);
   const peakShavedKw = day.peakImportWithoutKw - day.peakImportWithKw;
   const daysWithin10 = Math.round(forecast.skill.share_within_10pct * 100);
@@ -296,19 +297,51 @@ const PvBessPage: FC<{ crumbs: Crumb[]; focus: PvBessFocus; onBack: () => void }
           </div>
           <div className="card-surface overflow-x-auto p-5 lg:col-span-2">
             <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Detection rate</h4>
-            <p className="mb-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">Share of minutes flagged. The Normal row is the false-alarm rate.</p>
-            <table className="w-full">
-              <thead><tr><Th>Condition</Th><Th right>Minutes</Th><Th right>Flagged</Th></tr></thead>
-              <tbody>
-                {pvFaults.classes.map((c) => (
-                  <tr key={c.label} className="border-t border-slate-200/60 dark:border-white/5">
-                    <Td strong>{c.label}</Td>
-                    <Td right>{fmtInt(c.minutes)}</Td>
-                    <Td right>{fmt(c.flaggedMediumOrHighPct, 1, ' %')}</Td>
+            <p className="mb-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              Share of minutes flagged. The Normal row is the false-alarm rate — the one an operator lives with.
+            </p>
+            {calibrated ? (
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <Th>Condition</Th>
+                    <Th right>Minutes</Th>
+                    <Th right>Off the shelf</Th>
+                    <Th right>Tuned to the plant</Th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {calibrated.map((c) => (
+                    <tr key={c.label} className="border-t border-slate-200/60 dark:border-white/5">
+                      <Td strong nowrap>{c.label}</Td>
+                      <Td right>{fmtInt(c.minutes)}</Td>
+                      <Td right>{fmt(c.againstDatasheetPct, 1, ' %')}</Td>
+                      <Td right strong>{fmt(c.againstHealthyBaselinePct, 1, ' %')}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <table className="w-full">
+                <thead><tr><Th>Condition</Th><Th right>Minutes</Th><Th right>Flagged</Th></tr></thead>
+                <tbody>
+                  {pvFaults.classes.map((c) => (
+                    <tr key={c.label} className="border-t border-slate-200/60 dark:border-white/5">
+                      <Td strong>{c.label}</Td>
+                      <Td right>{fmtInt(c.minutes)}</Td>
+                      <Td right>{fmt(c.flaggedMediumOrHighPct, 1, ' %')}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {pvFaults.calibration?.note && (
+              <p className="mt-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                Tuning learns what this plant does when it is healthy, so its normal shortfall stops
+                reading as a fault. Slow decline is tracked separately, as movement in that learned
+                baseline.
+              </p>
+            )}
           </div>
         </div>
         <div className="card-surface overflow-x-auto p-5">

@@ -81,6 +81,23 @@ export interface FaultClass {
   flaggedHighPct: number;
 }
 
+export interface CalibrationClass {
+  label: string;
+  minutes: number;
+  againstDatasheetPct: number;
+  againstHealthyBaselinePct: number;
+}
+
+export interface FaultCalibration {
+  status: string;
+  fitRows?: number;
+  heldOutRows?: number;
+  cvRmsePct?: number;
+  note?: string;
+  reason?: string;
+  classes?: CalibrationClass[];
+}
+
 export interface InverterRow {
   id: string;
   rows: number;
@@ -151,7 +168,7 @@ export interface DispatchMonth {
 export interface PvBessData {
   meta: PvBessMeta;
   pv: { site: PvSite; annual: PvAnnual; monthly: PvMonth[]; forecast: PvForecast };
-  pvFaults: { mode: string; source: string; path: string; classes: FaultClass[] };
+  pvFaults: { mode: string; source: string; path: string; classes: FaultClass[]; calibration: FaultCalibration };
   inverterFleet: { mode: string; source: string; path: string; inverters: InverterRow[] };
   bess: {
     mode: string;

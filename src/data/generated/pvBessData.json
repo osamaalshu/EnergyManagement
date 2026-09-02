@@ -506,7 +506,46 @@
     "flaggedMediumOrHighPct": 64.6,
     "flaggedHighPct": 44.8
    }
-  ]
+  ],
+  "calibration": {
+   "status": "fitted",
+   "fitRows": 3282,
+   "heldOutRows": 3409,
+   "cvRmsePct": 7.25,
+   "note": "The baseline is fitted once on a declared healthy period and then frozen. Degradation detection falls with it \u2014 a slow decline is a shift in the healthy relationship, so a baseline refitted on recent data would absorb it. Degradation is read as baseline drift over time instead.",
+   "classes": [
+    {
+     "label": "Normal",
+     "minutes": 2187,
+     "againstDatasheetPct": 16.5,
+     "againstHealthyBaselinePct": 11.2
+    },
+    {
+     "label": "Short-circuit",
+     "minutes": 102,
+     "againstDatasheetPct": 98.0,
+     "againstHealthyBaselinePct": 96.1
+    },
+    {
+     "label": "Degradation",
+     "minutes": 97,
+     "againstDatasheetPct": 15.5,
+     "againstHealthyBaselinePct": 5.2
+    },
+    {
+     "label": "Open circuit",
+     "minutes": 100,
+     "againstDatasheetPct": 100.0,
+     "againstHealthyBaselinePct": 100.0
+    },
+    {
+     "label": "Shadowing",
+     "minutes": 923,
+     "againstDatasheetPct": 55.3,
+     "againstHealthyBaselinePct": 43.8
+    }
+   ]
+  }
  },
  "inverterFleet": {
   "mode": "historical",
