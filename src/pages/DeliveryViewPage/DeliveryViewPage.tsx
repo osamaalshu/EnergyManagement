@@ -1,4 +1,4 @@
-import { type FC, useMemo, useState } from 'react';
+import { type FC, useCallback, useMemo, useState } from 'react';
 import { productionData } from '@/data/productionData';
 import {
   scheduleOrders, monteCarloOrders, rootCauseForOrderItem, DEMO_SKUS, DEMO_LINE, DEMO_ECON,
@@ -8,6 +8,11 @@ import {
 import ScenarioBanner from '@/shared/ScenarioBanner';
 
 const OTIF_TARGET = 95;
+// The Delivery View models one machine on a 16 h shift. Both are fixed assumptions of this
+// view, not controls, so they live at module scope: a value that never changes has no
+// business in a dependency array.
+const MACHINES = 1;
+const HOURS_PER_DAY = 16;
 const SCENARIO_BANNER_TEXT = 'Scenario — figures use a generated order book, not your live orders. Connect the order book to make this operational.';
 const num = (v: number, d = 0) => v.toLocaleString(undefined, { maximumFractionDigits: d });
 let _uid = 0;
@@ -25,7 +30,6 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     nMachines: model.line.nMachines, machineNames: model.line.machineNames,
   }), [dataset, model.line]);
   const econ: Econ = dataset === 'demo' ? DEMO_ECON : model.economics;
-  const machines = 1, hoursPerDay = 16;
 
   const [range, setRange] = useState(30);
   const [showAll, setShowAll] = useState(false);
@@ -34,20 +38,27 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
   const [preview, setPreview] = useState<{ title: string; affected: Set<string>; otif: number } | null>(null);
   const orders = useMemo(() => genOrders(skus, 30), [skus]);
 
-  const sched = (mode: 'grouped' | 'due', m = machines, h = hoursPerDay) =>
-    scheduleOrders(orders, products, 30, m, line, econ, h, SETUP_FAMILY_H, SETUP_DIAMETER_H, STARTUP_SCRAP_KG_PER_CHANGEOVER, mode);
-  const smart = useMemo(() => sched('grouped'), [orders, products, machines]);
-  const dueSchedule = useMemo(() => sched('due'), [orders, products, machines]);
-  const mc = useMemo(() => monteCarloOrders(smart, hoursPerDay), [smart]);
+  const sched = useCallback(
+    (mode: 'grouped' | 'due', m = MACHINES, h = HOURS_PER_DAY) =>
+      scheduleOrders(orders, products, 30, m, line, econ, h, SETUP_FAMILY_H, SETUP_DIAMETER_H, STARTUP_SCRAP_KG_PER_CHANGEOVER, mode),
+    [orders, products, line, econ],
+  );
+  const smart = useMemo(() => sched('grouped'), [sched]);
+  const dueSchedule = useMemo(() => sched('due'), [sched]);
+  const mc = useMemo(() => monteCarloOrders(smart, HOURS_PER_DAY), [smart]);
   const smartSamples = useMemo(() => [...mc.samplesDays].sort((a, b) => a - b), [mc]);
-  const curSamples = useMemo(() => [...monteCarloOrders(dueSchedule, hoursPerDay).samplesDays].sort((a, b) => a - b), [dueSchedule]);
+  const curSamples = useMemo(() => [...monteCarloOrders(dueSchedule, HOURS_PER_DAY).samplesDays].sort((a, b) => a - b), [dueSchedule]);
 
   const dueByOrder = useMemo(() => {
     const map: Record<string, OrderItem> = {};
     dueSchedule.items.forEach((it) => { map[it.orderId] = it; });
     return map;
   }, [dueSchedule]);
-  const rootCause = (it: OrderItem): RootCause => rootCauseForOrderItem(it, dueByOrder[it.orderId], !it.onTime || (mc.onTimeProb[it.orderId] ?? 1) < 0.95);
+  const rootCause = useCallback(
+    (it: OrderItem): RootCause =>
+      rootCauseForOrderItem(it, dueByOrder[it.orderId], !it.onTime || (mc.onTimeProb[it.orderId] ?? 1) < 0.95),
+    [dueByOrder, mc],
+  );
 
   // rows within the date range, enriched
   const rows = useMemo(() => smart.items
@@ -69,7 +80,7 @@ const DeliveryViewPage: FC<{ onBack: () => void }> = ({ onBack }) => {
     const baseSet = onSet(smart);
     const cand = [
       { title: 'Run earliest-due-date first', desc: 'Prioritise urgent orders over family grouping on the line.', s: sched('due'), cost: 'more changeovers' },
-      { title: 'Add 2 h/day overtime', desc: 'Extend the shift across the horizon.', s: sched('grouped', machines, Math.min(24, hoursPerDay + 2)), cost: 'overtime + energy' },
+      { title: 'Add 2 h/day overtime', desc: 'Extend the shift across the horizon.', s: sched('grouped', MACHINES, Math.min(24, HOURS_PER_DAY + 2)), cost: 'overtime + energy' },
     ].map((c) => {
       const fixed = [...onSet(c.s)].filter((id) => !baseSet.has(id));
       const otifNew = Math.round((c.s.onTime / tot) * 100);
